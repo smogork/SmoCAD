@@ -25,7 +25,7 @@ set(PROJECT_SOURCES
         glwidget.cpp
         glwidget.h
         ${TS_FILES}
-)
+        Objects/TransformableObject.cpp Objects/TransformableObject.h Renderer/SceneRenderer.cpp Renderer/SceneRenderer.h Renderer/Camera/OrbitalCamera.cpp Renderer/Camera/OrbitalCamera.h Objects/TorusObject.cpp Objects/TorusObject.h Objects/IRenderableObject.cpp Objects/IRenderableObject.h)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(SmoCAD
