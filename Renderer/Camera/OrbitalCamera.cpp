@@ -3,7 +3,7 @@
 //
 
 #include "OrbitalCamera.h"
-#include "Renderer/SceneRenderer.h"
+#include "Objects/TransformableObject.h"
 
 OrbitalCamera::OrbitalCamera(QVector3D centerPoint, float pivotLength)
 {
@@ -16,7 +16,7 @@ OrbitalCamera::OrbitalCamera(QVector3D centerPoint, float pivotLength)
 QMatrix4x4 OrbitalCamera::GetViewMatrix()
 {
     QMatrix4x4 res;
-    res.lookAt(GetPosition(), CenterPoint, SceneRenderer::GetYAxis());
+    res.lookAt(GetPosition(), CenterPoint, TransformableObject::GetYAxis());
     return res;
 }
 

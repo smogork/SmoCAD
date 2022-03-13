@@ -3,7 +3,6 @@
 //
 
 #include "TransformableObject.h"
-#include "Renderer/SceneRenderer.h"
 
 TransformableObject::TransformableObject(QVector3D position): TransformableObject(position, QVector3D(), QVector3D(1, 1, 1)) {}
 
@@ -18,9 +17,9 @@ TransformableObject::TransformableObject(QVector3D position, QVector3D rotation,
 QMatrix4x4 TransformableObject::GetModelMatrix()
 {
     QMatrix4x4 result;
-    result.rotate(Rotation.x(), SceneRenderer::GetXAxis());
-    result.rotate(Rotation.y(), SceneRenderer::GetYAxis());
-    result.rotate(Rotation.z(), SceneRenderer::GetZAxis());
+    result.rotate(Rotation.x(), GetXAxis());
+    result.rotate(Rotation.y(), GetYAxis());
+    result.rotate(Rotation.z(), GetZAxis());
     result.scale(Scale);
     result.translate(Position);
     return result;

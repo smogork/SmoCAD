@@ -25,7 +25,7 @@ set(PROJECT_SOURCES
         glwidget.cpp
         glwidget.h
         ${TS_FILES}
-        Objects/TransformableObject.cpp Objects/TransformableObject.h Renderer/SceneRenderer.cpp Renderer/SceneRenderer.h Renderer/Camera/OrbitalCamera.cpp Renderer/Camera/OrbitalCamera.h Objects/TorusObject.cpp Objects/TorusObject.h Objects/IRenderableObject.cpp Objects/IRenderableObject.h)
+        Objects/TransformableObject.cpp Objects/TransformableObject.h Renderer/Camera/OrbitalCamera.cpp Renderer/Camera/OrbitalCamera.h Objects/TorusObject.cpp Objects/TorusObject.h Objects/IRenderableObject.cpp Objects/IRenderableObject.h)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(SmoCAD
@@ -64,6 +64,17 @@ set_target_properties(SmoCAD PROPERTIES
     MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
 )
+
+add_custom_command(
+        TARGET SmoCAD POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_SOURCE_DIR}/Shaders/test.vert
+        ${CMAKE_CURRENT_BINARY_DIR}/test.vert)
+add_custom_command(
+        TARGET SmoCAD POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_SOURCE_DIR}/Shaders/test.frag
+        ${CMAKE_CURRENT_BINARY_DIR}/test.frag)
 
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(SmoCAD)

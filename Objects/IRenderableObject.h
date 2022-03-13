@@ -11,8 +11,8 @@
 class IRenderableObject
 {
 public:
-    virtual void GenerateGeometryVertices() = 0;
-    virtual void GenerateTopologyEdges() = 0;
+    virtual void GenerateGeometryVertices();
+    virtual void GenerateTopologyEdges();
 };
 
 
