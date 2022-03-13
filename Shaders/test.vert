@@ -1,7 +1,16 @@
 #version 330 core
-layout (location = 0) in vec3 aPos;
+layout (location = 0) in vec4 aPos;
+
+struct MVP
+{
+    mat4 Model;
+    mat4 View;
+    mat4 Projection;
+};
+
+uniform MVP u_MVP;
 
 void main()
 {
-    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    gl_Position = u_MVP.Projection * u_MVP.View * u_MVP.Model * aPos;
 }

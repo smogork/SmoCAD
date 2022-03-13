@@ -5,14 +5,17 @@
 #ifndef SMOCAD_IRENDERABLEOBJECT_H
 #define SMOCAD_IRENDERABLEOBJECT_H
 
+#include <vector>
+
 /*
  * Interfejs definiujacy metody obliczające wierzcholki geometrii oraz krawedzie topologii obiektu.
  */
 class IRenderableObject
 {
 public:
-    virtual void GenerateGeometryVertices();
-    virtual void GenerateTopologyEdges();
+    virtual std::vector<float> GenerateGeometryVertices() = 0;
+    virtual std::vector<int> GenerateTopologyEdges() = 0;
+    virtual unsigned int GetIndexCount() = 0;
 };
 
 
