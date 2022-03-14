@@ -13,9 +13,11 @@
 class IRenderableObject
 {
 public:
+
+    //[TODO] przerobic aby obiekty zwracaly jakies ludzkie typu na punkty i krawedzie
     virtual std::vector<float> GenerateGeometryVertices() = 0;
     virtual std::vector<int> GenerateTopologyEdges() = 0;
-    virtual unsigned int GetIndexCount() = 0;
+    virtual int GetIndexCount() = 0;
 };
 
 

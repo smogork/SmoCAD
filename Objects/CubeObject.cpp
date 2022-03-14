@@ -43,7 +43,7 @@ std::vector<int> CubeObject::GenerateTopologyEdges()
     return indices;
 }
 
-unsigned int CubeObject::GetIndexCount()
+int CubeObject::GetIndexCount()
 {
-    return indices.size();
+    return (int)indices.size();
 }

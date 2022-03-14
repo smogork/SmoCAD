@@ -9,14 +9,26 @@
 #include "TransformableObject.h"
 #include "IRenderableObject.h"
 
-class TorusObject: TransformableObject, IRenderableObject
+class TorusObject: public TransformableObject, public IRenderableObject
 {
 private:
     float biggerR;
     float smallerR;
     int biggerRDensity;
     int smallerRDensity;
+
 public:
+
+    TorusObject(QVector3D pos, float R, float r, int RDensity, int rDensity);
+
+    void SetBiggerRadius(float value);
+    void SetSmallerRadius(float value);
+    void SetBiggerRadiusDensity(int value);
+    void SetSmallerRadiusDensity(int value);
+
+    std::vector<float> GenerateGeometryVertices() override;
+    std::vector<int> GenerateTopologyEdges() override;
+    int GetIndexCount() override;
 
 };
 

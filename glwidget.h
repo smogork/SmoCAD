@@ -13,6 +13,7 @@
 
 #include "Renderer/Camera/OrbitalCamera.h"
 #include "Objects/CubeObject.h"
+#include "Objects/TorusObject.h"
 
 #define UNDEFINED_ID -1
 #define LMOUSE_ID 0
@@ -41,7 +42,8 @@ protected:
     std::unique_ptr<QOpenGLVertexArrayObject> va = nullptr;
 
     std::unique_ptr<OrbitalCamera> camera;
-    std::unique_ptr<CubeObject> cube;
+    //std::unique_ptr<CubeObject> cube;
+    std::unique_ptr<TorusObject> torus;
     QMatrix4x4 projectionMatrix;
 
     void paintGL() Q_DECL_OVERRIDE;

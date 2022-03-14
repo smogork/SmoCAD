@@ -22,13 +22,14 @@ void GLWidget::initializeGL()
     if (!shader->addShaderFromSourceFile(QOpenGLShader::Fragment, "test.frag")) qDebug() << shader->log();
     if (!shader->link()) qDebug() << shader->log();
 
-    cube = std::make_unique<CubeObject>(QVector3D());
+    //cube = std::make_unique<CubeObject>(QVector3D());
+    torus = std::make_unique<TorusObject>(QVector3D(), 5, 2, 128, 48);
 
     vb = std::make_unique<QOpenGLBuffer>(QOpenGLBuffer::VertexBuffer);
     vb->create();
     vb->setUsagePattern(QOpenGLBuffer::StaticDraw);
     vb->bind();
-    auto vertices = cube->GenerateGeometryVertices();
+    auto vertices = torus->GenerateGeometryVertices();
     vb->allocate(vertices.data(), sizeof(float) * vertices.size());
 
     va = std::make_unique<QOpenGLVertexArrayObject>();
@@ -39,7 +40,7 @@ void GLWidget::initializeGL()
     ib->create();
     ib->setUsagePattern(QOpenGLBuffer::StaticDraw);
     ib->bind();
-    auto edges = cube->GenerateTopologyEdges();
+    auto edges = torus->GenerateTopologyEdges();
     ib->allocate(edges.data(), sizeof(float) * edges.size());
 
     int stride = 3 * sizeof(float); //only position on 3 floats
@@ -47,7 +48,7 @@ void GLWidget::initializeGL()
     shader->enableAttributeArray(0);
     shader->setAttributeBuffer(0, GL_FLOAT, 0, 3, stride);
 
-    camera = std::make_unique<OrbitalCamera>(cube->Position, 5.0f);
+    camera = std::make_unique<OrbitalCamera>(torus->Position, 5.0f);
 
     //[TODO] dodac wrapper na shadery aby nie trzeba bylo pamietac specjalnie numerkow uniformow
     int u_viewMatrixLoc = shader->uniformLocation("u_MVP.View");
@@ -56,7 +57,7 @@ void GLWidget::initializeGL()
     shader->bind();
     shader->setUniformValue(u_viewMatrixLoc, camera->GetViewMatrix());
     shader->setUniformValue(u_projMatrixLoc, projectionMatrix);
-    shader->setUniformValue(u_modelMatrixLoc, cube->GetModelMatrix());
+    shader->setUniformValue(u_modelMatrixLoc, torus->GetModelMatrix());
     shader->release();
 }
 
@@ -87,7 +88,7 @@ void GLWidget::paintGL()
 
     // now draw the two triangles via index drawing
     // - GL_TRIANGLES - draw individual triangles via elements
-    glDrawElements(GL_LINES, cube->GetIndexCount(), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_LINES, torus->GetIndexCount(), GL_UNSIGNED_INT, 0);
 
 
     // finally release VAO again (not really necessary, just for completeness)

@@ -20,7 +20,7 @@ public:
 
     std::vector<float> GenerateGeometryVertices() override;
     std::vector<int> GenerateTopologyEdges() override;
-    unsigned int GetIndexCount() override;
+    int GetIndexCount() override;
 };
 
 
