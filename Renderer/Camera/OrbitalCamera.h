@@ -15,6 +15,10 @@ private:
     float r;
     float fiAngle;
     float thetaAngle;
+    QVector3D rightVec;
+    QVector3D topVec;
+
+    void UpdateFrontAndRight();
 
 public:
     QVector3D CenterPoint;
@@ -30,8 +34,13 @@ public:
     void SetFi(float fi);
 
     void SetPivotLength(float pivotLength);
+    void ChangePivotLength(float dPivotLength);
 
     QVector3D GetPosition();
+
+    void MoveUp(float moveValue);
+    void MoveRight(float moveValue);
+
 };
 
 

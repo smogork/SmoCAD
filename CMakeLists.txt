@@ -25,7 +25,14 @@ set(PROJECT_SOURCES
         glwidget.cpp
         glwidget.h
         ${TS_FILES}
-        Objects/TransformableObject.cpp Objects/TransformableObject.h Renderer/Camera/OrbitalCamera.cpp Renderer/Camera/OrbitalCamera.h Objects/TorusObject.cpp Objects/TorusObject.h Objects/IRenderableObject.cpp Objects/IRenderableObject.h Objects/CubeObject.cpp Objects/CubeObject.h Renderer/ShaderWrapper.cpp Renderer/ShaderWrapper.h)
+        Objects/TransformableObject.cpp Objects/TransformableObject.h
+        Renderer/Camera/OrbitalCamera.cpp Renderer/Camera/OrbitalCamera.h
+        Objects/TorusObject.cpp Objects/TorusObject.h
+        Objects/IRenderableObject.cpp Objects/IRenderableObject.h
+        Objects/CubeObject.cpp Objects/CubeObject.h
+        Renderer/ShaderWrapper.cpp Renderer/ShaderWrapper.h
+        KeyboardMouseHandler.cpp KeyboardMouseHandler.h
+        )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(SmoCAD

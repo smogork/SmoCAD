@@ -28,8 +28,6 @@ public:
     template <typename T>
     void SetUniform(const std::string& uniformName, const T& value)
     {
-        Bind();
-
         int id = -1;
         auto id_it = uniformLocations.find(uniformName);
         if (id_it == uniformLocations.end())
@@ -43,10 +41,10 @@ public:
             uniformLocations.insert(std::make_pair(uniformName, id));
         }
 
+        Bind();
         shader->setUniformValue(id, value);
         Release();
     }
-
 };
 
 
