@@ -23,7 +23,8 @@ void GLWidget::initializeGL()
     if (!shader->link()) qDebug() << shader->log();
 
     //cube = std::make_unique<CubeObject>(QVector3D());
-    torus = std::make_unique<TorusObject>(QVector3D(), 5, 2, 128, 48);
+    //[TODO] wydzielic jakos ten rysowany poza glWidget - tonie ma sensu aktualizaowanie tego wszytskiego wewnatrz tego widgetu
+    torus = std::make_unique<TorusObject>(QVector3D(), 5, 1, 36, 18);
 
     vb = std::make_unique<QOpenGLBuffer>(QOpenGLBuffer::VertexBuffer);
     vb->create();
