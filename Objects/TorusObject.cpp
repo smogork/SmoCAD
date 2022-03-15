@@ -95,3 +95,23 @@ int TorusObject::GetIndexCount()
 {
     return smallerRDensity * biggerRDensity * 4;
 }
+
+int TorusObject::GetBiggerRDensity()
+{
+    return biggerRDensity;
+}
+
+int TorusObject::GetSmallerRDensity()
+{
+    return smallerRDensity;
+}
+
+float TorusObject::GetSmallerR()
+{
+    return smallerR;
+}
+
+float TorusObject::GetBiggerR()
+{
+    return biggerR;
+}

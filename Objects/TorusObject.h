@@ -26,6 +26,11 @@ public:
     void SetBiggerRadiusDensity(int value);
     void SetSmallerRadiusDensity(int value);
 
+    float GetBiggerR();
+    float GetSmallerR();
+    int GetBiggerRDensity();
+    int GetSmallerRDensity();
+
     std::vector<float> GenerateGeometryVertices() override;
     std::vector<int> GenerateTopologyEdges() override;
     int GetIndexCount() override;

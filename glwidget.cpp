@@ -41,14 +41,14 @@ void GLWidget::initializeGL()
     ib->setUsagePattern(QOpenGLBuffer::StaticDraw);
     ib->bind();
     auto edges = torus->GenerateTopologyEdges();
-    ib->allocate(edges.data(), sizeof(float) * edges.size());
+    ib->allocate(edges.data(), sizeof(int) * edges.size());
 
     int stride = 3 * sizeof(float); //only position on 3 floats
 
     shader->enableAttributeArray(0);
     shader->setAttributeBuffer(0, GL_FLOAT, 0, 3, stride);
 
-    camera = std::make_unique<OrbitalCamera>(torus->Position, 5.0f);
+    camera = std::make_unique<OrbitalCamera>(torus->Position, 10.0f);
 
     //[TODO] dodac wrapper na shadery aby nie trzeba bylo pamietac specjalnie numerkow uniformow
     int u_viewMatrixLoc = shader->uniformLocation("u_MVP.View");
@@ -77,23 +77,23 @@ void GLWidget::paintGL()
     glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // use our shader program
     shader->bind();
-    // bind the vertex array object, which in turn binds the vertex buffer object and
-    // sets the attribute buffer in the OpenGL context
     va->bind();
-    // For old Intel drivers you may need to explicitely re-bind the index buffer, because
-    // these drivers do not remember the binding-state of the index/element-buffer in the VAO
-    //	m_indexBufferObject.bind();
-
-    // now draw the two triangles via index drawing
-    // - GL_TRIANGLES - draw individual triangles via elements
     glDrawElements(GL_LINES, torus->GetIndexCount(), GL_UNSIGNED_INT, 0);
-
-
-    // finally release VAO again (not really necessary, just for completeness)
     va->release();
 
+}
+
+void GLWidget::UpdateTorusObjectTransform(QVector3D pos, QVector3D rot, QVector3D scale)
+{
+    torus->Position = pos;
+    torus->Rotation = rot;
+    torus->Scale = scale;
+
+    int u_modelMatrixLoc = shader->uniformLocation("u_MVP.Model");
+    shader->bind();
+    shader->setUniformValue(u_modelMatrixLoc, torus->GetModelMatrix());
+    update();
 }
 
 GLWidget::~GLWidget()
@@ -193,4 +193,24 @@ int GLWidget::translateMouseButton(Qt::MouseButton button)
         default:
             return UNDEFINED_ID;
     }
+}
+
+void GLWidget::UpdateTorusObjectParameters(float R, float r, int Rdensity, int rdensity)
+{
+    torus->SetBiggerRadius(R);
+    torus->SetSmallerRadius(r);
+    torus->SetBiggerRadiusDensity(Rdensity);
+    torus->SetSmallerRadiusDensity(rdensity);
+
+    auto edges = torus->GenerateTopologyEdges();
+    auto vertices = torus->GenerateGeometryVertices();
+
+    vb->bind();
+    vb->allocate(vertices.data(), sizeof(float) * vertices.size());
+    vb->release();
+    va->bind();
+    ib->bind();
+    ib->allocate(edges.data(), sizeof(int) * edges.size());
+    va->release();
+    update();
 }

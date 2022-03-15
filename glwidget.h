@@ -31,6 +31,10 @@ public:
     GLWidget(QWidget *pWidget);
     virtual ~GLWidget() Q_DECL_OVERRIDE;
 
+    std::unique_ptr<TorusObject> torus;
+    void UpdateTorusObjectTransform(QVector3D pos, QVector3D rot, QVector3D scale);
+    void UpdateTorusObjectParameters(float R, float r, int Rdensity, int rdensity);
+
 protected:
     const float fov = 60.0f;
     QPoint lastMousePos;
@@ -43,7 +47,7 @@ protected:
 
     std::unique_ptr<OrbitalCamera> camera;
     //std::unique_ptr<CubeObject> cube;
-    std::unique_ptr<TorusObject> torus;
+
     QMatrix4x4 projectionMatrix;
 
     void paintGL() Q_DECL_OVERRIDE;
