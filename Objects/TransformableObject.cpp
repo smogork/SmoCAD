@@ -18,10 +18,10 @@ QMatrix4x4 TransformableObject::GetModelMatrix()
 {
     QMatrix4x4 result;
     result.setToIdentity();
+    result.translate(Position);
     result.rotate(Rotation.x(), GetXAxis());
     result.rotate(Rotation.y(), GetYAxis());
     result.rotate(Rotation.z(), GetZAxis());
-    result.translate(Position);
     result.scale(Scale);
     return result;
 }
