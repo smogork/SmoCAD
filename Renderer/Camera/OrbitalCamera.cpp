@@ -4,6 +4,7 @@
 
 #include "OrbitalCamera.h"
 #include "Objects/TransformableObject.h"
+#include <cfloat>
 
 OrbitalCamera::OrbitalCamera(QVector3D centerPoint, float pivotLength)
 {
@@ -43,7 +44,7 @@ void OrbitalCamera::SetFi(float fi)
 
 void OrbitalCamera::SetPivotLength(float pivotLength)
 {
-    r = std::clamp(pivotLength, 1.0f, MAXFLOAT);
+    r = std::clamp(pivotLength, 1.0f, FLT_MAX);
 }
 
 QVector3D OrbitalCamera::GetPosition()

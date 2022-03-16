@@ -42,12 +42,12 @@ std::vector<float> TorusObject::GenerateGeometryVertices()
     int vIndex = 0;
     for (int u = 0; u < biggerRDensity; ++u)
     {
-        float uDegree = u * 2.0f * M_PIf / biggerRDensity;
+        float uDegree = u * 2.0f * M_PI / biggerRDensity;
         QMatrix4x4 rotY;
-        rotY.rotate(uDegree * 180 / M_PIf, GetYAxis());
+        rotY.rotate(uDegree * 180 / M_PI, GetYAxis());
         for (int v = 0; v < smallerRDensity; ++v)
         {
-            float vDegree = v * 2.0f * M_PIf / smallerRDensity;
+            float vDegree = v * 2.0f * M_PI / smallerRDensity;
             QVector4D p = rotY * QVector4D(
                     smallerR * cosf(vDegree) + biggerR,
                     smallerR * sinf(vDegree),

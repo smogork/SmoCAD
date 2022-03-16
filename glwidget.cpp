@@ -91,8 +91,9 @@ void GLWidget::UpdateTorusObjectTransform(QVector3D pos, QVector3D rot, QVector3
     torus->Rotation = rot;
     torus->Scale = scale;
 
-    int u_modelMatrixLoc = shader->uniformLocation("u_MVP.Model");
+    makeCurrent();
     shader->bind();
+    int u_modelMatrixLoc = shader->uniformLocation("u_MVP.Model");
     shader->setUniformValue(u_modelMatrixLoc, torus->GetModelMatrix());
     update();
 }
@@ -154,8 +155,9 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
             camera->MoveUp(dMove.y() * MOVE_SENSITIVITY);
         }
 
-        int u_viewMatrixLoc = shader->uniformLocation("u_MVP.View");
+        makeCurrent ();
         shader->bind();
+        int u_viewMatrixLoc = shader->uniformLocation("u_MVP.View");
         shader->setUniformValue(u_viewMatrixLoc, camera->GetViewMatrix());
         update();
     }
@@ -165,8 +167,9 @@ void GLWidget::wheelEvent(QWheelEvent *event)
 {
     camera->ChangePivotLength(-event->angleDelta().y() * ZOOM_SENSITIVITY);
 
-    int u_viewMatrixLoc = shader->uniformLocation("u_MVP.View");
+    makeCurrent();
     shader->bind();
+    int u_viewMatrixLoc = shader->uniformLocation("u_MVP.View");
     shader->setUniformValue(u_viewMatrixLoc, camera->GetViewMatrix());
     update();
 }
