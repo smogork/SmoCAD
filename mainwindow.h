@@ -2,9 +2,9 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QObject>
 
-
-#include "KeyboardMouseHandler.h"
+#include <Renderer/InputController/InputController.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }

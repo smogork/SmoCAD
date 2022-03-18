@@ -11,18 +11,14 @@
 #include <QWheelEvent>
 #include <QKeyEvent>
 
+#include <Renderer/InputController/InputController.h>
+#include <Renderer/InputController/cameramovementevent.h>
+
 #include "Renderer/Camera/OrbitalCamera.h"
 #include "Objects/CubeObject.h"
 #include "Objects/TorusObject.h"
 
-#define UNDEFINED_ID -1
-#define LMOUSE_ID 0
-#define MMOUSE_ID 1
-#define RMOUSE_ID 2
 
-#define MOVE_SENSITIVITY 0.005f
-#define ROTATE_SENSITIVITY 0.005f
-#define ZOOM_SENSITIVITY 0.001f
 
 class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
@@ -35,7 +31,12 @@ public:
     void UpdateTorusObjectTransform(QVector3D pos, QVector3D rot, QVector3D scale);
     void UpdateTorusObjectParameters(float R, float r, int Rdensity, int rdensity);
 
+public slots:
+    void UpdateCameraSlot(std::shared_ptr<CameraMovementEvent> event);
+
 protected:
+    std::unique_ptr<InputController> controls = nullptr;
+
     const float fov = 60.0f;
     QPoint lastMousePos;
     bool mousePresses[3];
@@ -44,8 +45,6 @@ protected:
     std::unique_ptr<QOpenGLBuffer> vb = nullptr;
     std::unique_ptr<QOpenGLBuffer> ib = nullptr;
     std::unique_ptr<QOpenGLVertexArrayObject> va = nullptr;
-
-    std::unique_ptr<OrbitalCamera> camera;
     //std::unique_ptr<CubeObject> cube;
 
     QMatrix4x4 projectionMatrix;
@@ -54,14 +53,13 @@ protected:
     void initializeGL() Q_DECL_OVERRIDE;
     void resizeGL(int w, int h) Q_DECL_OVERRIDE;
 
-    //[TODO] dodać jakąś oddzielną klase do przechwytywanie IO i zronbienie bardziej wyspecjalizowanych sygnalow
-    void mousePressEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
-    void mouseReleaseEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
-    void mouseMoveEvent(QMouseEvent* event) Q_DECL_OVERRIDE;
-    void wheelEvent(QWheelEvent* event) Q_DECL_OVERRIDE;
-    void keyPressEvent(QKeyEvent* event) Q_DECL_OVERRIDE;
-    void keyReleaseEvent(QKeyEvent* event) Q_DECL_OVERRIDE;
-    int translateMouseButton(Qt::MouseButton button);
+    void mousePressEvent(QMouseEvent* event) Q_DECL_OVERRIDE {this->controls->mousePressSlot(event);}
+    void mouseReleaseEvent(QMouseEvent* event) Q_DECL_OVERRIDE {this->controls->mouseReleaseSlot(event);}
+    void mouseMoveEvent(QMouseEvent* event) Q_DECL_OVERRIDE {this->controls->mouseMoveSlot(event);}
+    void wheelEvent(QWheelEvent* event) Q_DECL_OVERRIDE {this->controls->wheelSlot(event);}
+    void keyPressEvent(QKeyEvent* event) Q_DECL_OVERRIDE {this->controls->keyPressSlot(event);}
+    void keyReleaseEvent(QKeyEvent* event) Q_DECL_OVERRIDE {this->controls->keyReleaseSlot(event);}
+
 
     void UpdateProjectionMatrix(float aspectRatio);
 };

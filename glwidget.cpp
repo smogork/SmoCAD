@@ -9,6 +9,11 @@ GLWidget::GLWidget(QWidget *pWidget)
     format.setProfile(QSurfaceFormat::CoreProfile);
     format.setVersion(3,3);
     setFormat(format);
+
+    this->controls = std::make_unique<InputController>(this);
+
+    QObject::connect(this->controls.get(), &InputController::CameraUpdated,
+                     this, &GLWidget::UpdateCameraSlot);
 }
 
 void GLWidget::initializeGL()
@@ -49,14 +54,14 @@ void GLWidget::initializeGL()
     shader->enableAttributeArray(0);
     shader->setAttributeBuffer(0, GL_FLOAT, 0, 3, stride);
 
-    camera = std::make_unique<OrbitalCamera>(torus->Position, 10.0f);
+    //camera = std::make_unique<OrbitalCamera>(torus->Position, 10.0f);
 
     //[TODO] dodac wrapper na shadery aby nie trzeba bylo pamietac specjalnie numerkow uniformow
     int u_viewMatrixLoc = shader->uniformLocation("u_MVP.View");
     int u_projMatrixLoc = shader->uniformLocation("u_MVP.Projection");
     int u_modelMatrixLoc = shader->uniformLocation("u_MVP.Model");
     shader->bind();
-    shader->setUniformValue(u_viewMatrixLoc, camera->GetViewMatrix());
+    shader->setUniformValue(u_viewMatrixLoc, controls->Camera->GetViewMatrix());
     shader->setUniformValue(u_projMatrixLoc, projectionMatrix);
     shader->setUniformValue(u_modelMatrixLoc, torus->GetModelMatrix());
     shader->release();
@@ -113,92 +118,6 @@ void GLWidget::UpdateProjectionMatrix(float aspectRatio)
     projectionMatrix.perspective(fov, aspectRatio, 1.0f, 100.0f);
 }
 
-void GLWidget::mouseReleaseEvent(QMouseEvent *event)
-{
-    int id = translateMouseButton(event->button());
-    if (id != UNDEFINED_ID)
-        mousePresses[id] = false;
-
-    if (!(mousePresses[LMOUSE_ID] or mousePresses[MMOUSE_ID] or mousePresses[RMOUSE_ID]))
-    {
-        lastMousePos.setX(0);
-        lastMousePos.setY(0);
-    }
-}
-
-void GLWidget::mousePressEvent(QMouseEvent *event)
-{
-    int id = translateMouseButton(event->button());
-    if (id != UNDEFINED_ID)
-        mousePresses[id] = true;
-}
-
-void GLWidget::mouseMoveEvent(QMouseEvent *event)
-{
-    if (lastMousePos.isNull())
-    {
-        lastMousePos = event->pos();
-        return;
-    }
-    QVector2D dMove = QVector2D(event->pos() - lastMousePos);
-    lastMousePos = event->pos();
-
-    if (mousePresses[MMOUSE_ID])
-    {
-        if (mousePresses[RMOUSE_ID])
-        {
-            camera->RotateAroundCenter(dMove.x() * ROTATE_SENSITIVITY, dMove.y() * ROTATE_SENSITIVITY);
-        }
-        else
-        {
-            camera->MoveRight(-dMove.x() * MOVE_SENSITIVITY);
-            camera->MoveUp(dMove.y() * MOVE_SENSITIVITY);
-        }
-
-        makeCurrent ();
-        shader->bind();
-        int u_viewMatrixLoc = shader->uniformLocation("u_MVP.View");
-        shader->setUniformValue(u_viewMatrixLoc, camera->GetViewMatrix());
-        update();
-    }
-}
-
-void GLWidget::wheelEvent(QWheelEvent *event)
-{
-    camera->ChangePivotLength(-event->angleDelta().y() * ZOOM_SENSITIVITY);
-
-    makeCurrent();
-    shader->bind();
-    int u_viewMatrixLoc = shader->uniformLocation("u_MVP.View");
-    shader->setUniformValue(u_viewMatrixLoc, camera->GetViewMatrix());
-    update();
-}
-
-void GLWidget::keyPressEvent(QKeyEvent *event)
-{
-    QWidget::keyPressEvent(event);
-}
-
-void GLWidget::keyReleaseEvent(QKeyEvent *event)
-{
-    QWidget::keyReleaseEvent(event);
-}
-
-int GLWidget::translateMouseButton(Qt::MouseButton button)
-{
-    switch(button)
-    {
-        case Qt::MouseButton::LeftButton:
-            return LMOUSE_ID;
-        case Qt::MouseButton::MiddleButton:
-            return MMOUSE_ID;
-        case Qt::MouseButton::RightButton:
-            return RMOUSE_ID;
-        default:
-            return UNDEFINED_ID;
-    }
-}
-
 void GLWidget::UpdateTorusObjectParameters(float R, float r, int Rdensity, int rdensity)
 {
     torus->SetBiggerRadius(R);
@@ -216,5 +135,14 @@ void GLWidget::UpdateTorusObjectParameters(float R, float r, int Rdensity, int r
     ib->bind();
     ib->allocate(edges.data(), sizeof(int) * edges.size());
     va->release();
+    update();
+}
+
+void GLWidget::UpdateCameraSlot(std::shared_ptr<CameraMovementEvent> event)
+{
+    makeCurrent();
+    shader->bind();
+    int u_viewMatrixLoc = shader->uniformLocation("u_MVP.View");
+    shader->setUniformValue(u_viewMatrixLoc, event->NewViewMatrix);
     update();
 }

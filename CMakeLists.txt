@@ -31,7 +31,8 @@ set(PROJECT_SOURCES
         Objects/IRenderableObject.cpp Objects/IRenderableObject.h
         Objects/CubeObject.cpp Objects/CubeObject.h
         Renderer/ShaderWrapper.cpp Renderer/ShaderWrapper.h
-        KeyboardMouseHandler.cpp KeyboardMouseHandler.h
+        Renderer/InputController/InputController.cpp Renderer/InputController/InputController.h
+        Renderer/InputController/cameramovementevent.cpp Renderer/InputController/cameramovementevent.h
         )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
