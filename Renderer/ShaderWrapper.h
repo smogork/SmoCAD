@@ -25,10 +25,15 @@ public:
     void Create();
     void Destroy();
 
+    QOpenGLShaderProgram* GetRawProgram() { return shader.get(); }
+
     template <typename T>
     void SetUniform(const std::string& uniformName, const T& value)
     {
         int id = -1;
+
+        Bind();
+
         auto id_it = uniformLocations.find(uniformName);
         if (id_it == uniformLocations.end())
         {
@@ -36,12 +41,14 @@ public:
             if (id < 0)
             {
                 qDebug() << "Error on searching for uniform " << QString(uniformName.c_str()) << ". " << shader->log();
+                Release();
                 return;
             }
             uniformLocations.insert(std::make_pair(uniformName, id));
         }
+        else
+            id = id_it->second;
 
-        Bind();
         shader->setUniformValue(id, value);
         Release();
     }

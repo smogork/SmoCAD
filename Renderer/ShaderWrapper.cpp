@@ -6,8 +6,7 @@
 
 ShaderWrapper::ShaderWrapper(const QString& vsFilepath, const QString& fsFilepath):
     fsFilepath(fsFilepath), vsFilepath(vsFilepath), shader(nullptr)
-{
-}
+{ }
 
 ShaderWrapper::~ShaderWrapper()
 {
@@ -42,4 +41,5 @@ void ShaderWrapper::Create()
 
 void ShaderWrapper::Destroy()
 {
+
 }

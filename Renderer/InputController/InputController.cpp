@@ -66,7 +66,7 @@ void InputController::mouseMoveSlot(QMouseEvent *event)
     {
         if (keyStates[Qt::Key_Control] == KeyState::Pressed)// touchpad - zoom
         {
-            Camera->ChangePivotLength(-dMove.y() * ZOOM_SENSITIVITY);
+            Camera->ChangePivotLength(dMove.y() * ZOOM_SENSITIVITY);
         }
         else //touchpad - pan
         {
@@ -107,7 +107,7 @@ void InputController::mouseMoveSlot(QMouseEvent *event)
 
 void InputController::wheelSlot(QWheelEvent *event)
 {
-    Camera->ChangePivotLength(event->angleDelta().y() * ZOOM_SENSITIVITY);
+    Camera->ChangePivotLength(event->angleDelta().y() * ZOOM_SENSITIVITY);//tylko na touchpadzie, na myszce na odwrot
 
     EmitCameraUpdateEvent();
 }

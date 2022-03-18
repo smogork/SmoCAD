@@ -22,10 +22,8 @@ void GLWidget::initializeGL()
 
     UpdateProjectionMatrix((float)(size().width()) / (float)(size().height()));
 
-    shader = std::make_unique<QOpenGLShaderProgram>();
-    if (!shader->addShaderFromSourceFile(QOpenGLShader::Vertex, "test.vert")) qDebug() << shader->log();
-    if (!shader->addShaderFromSourceFile(QOpenGLShader::Fragment, "test.frag")) qDebug() << shader->log();
-    if (!shader->link()) qDebug() << shader->log();
+    shader = std::make_unique<ShaderWrapper>("test.vert", "test.frag");
+    shader->Create();
 
     //cube = std::make_unique<CubeObject>(QVector3D());
     //[TODO] wydzielic jakos ten rysowany poza glWidget - tonie ma sensu aktualizaowanie tego wszytskiego wewnatrz tego widgetu
@@ -51,20 +49,25 @@ void GLWidget::initializeGL()
 
     int stride = 3 * sizeof(float); //only position on 3 floats
 
-    shader->enableAttributeArray(0);
-    shader->setAttributeBuffer(0, GL_FLOAT, 0, 3, stride);
+    //[TODO] Dodac klase opisujaca uklad buforow
+    shader->GetRawProgram()->enableAttributeArray(0);
+    shader->GetRawProgram()->setAttributeBuffer(0, GL_FLOAT, 0, 3, stride);
 
     //camera = std::make_unique<OrbitalCamera>(torus->Position, 10.0f);
 
     //[TODO] dodac wrapper na shadery aby nie trzeba bylo pamietac specjalnie numerkow uniformow
-    int u_viewMatrixLoc = shader->uniformLocation("u_MVP.View");
+    /*int u_viewMatrixLoc = shader->uniformLocation("u_MVP.View");
     int u_projMatrixLoc = shader->uniformLocation("u_MVP.Projection");
     int u_modelMatrixLoc = shader->uniformLocation("u_MVP.Model");
     shader->bind();
     shader->setUniformValue(u_viewMatrixLoc, controls->Camera->GetViewMatrix());
     shader->setUniformValue(u_projMatrixLoc, projectionMatrix);
     shader->setUniformValue(u_modelMatrixLoc, torus->GetModelMatrix());
-    shader->release();
+    shader->release();*/
+
+    shader->SetUniform("u_MVP.Model", torus->GetModelMatrix());
+    shader->SetUniform("u_MVP.View", controls->Camera->GetViewMatrix());
+    shader->SetUniform("u_MVP.Projection", projectionMatrix);
 }
 
 void GLWidget::resizeGL(int w, int h)
@@ -72,9 +75,9 @@ void GLWidget::resizeGL(int w, int h)
     QOpenGLWidget::resizeGL(w,h);
 
     UpdateProjectionMatrix((float)w / (float)h);
-    int u_projMatrixLoc = shader->uniformLocation("u_MVP.Projection");
-    shader->bind();
-    shader->setUniformValue(u_projMatrixLoc, projectionMatrix);
+    //int u_projMatrixLoc = shader->uniformLocation("u_MVP.Projection");
+    //shader->bind();
+    shader->SetUniform("u_MVP.Projection", projectionMatrix);
 }
 
 void GLWidget::paintGL()
@@ -83,7 +86,7 @@ void GLWidget::paintGL()
     glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    shader->bind();
+    shader->Bind();
     va->bind();
     glDrawElements(GL_LINES, torus->GetIndexCount(), GL_UNSIGNED_INT, 0);
     va->release();
@@ -97,9 +100,9 @@ void GLWidget::UpdateTorusObjectTransform(QVector3D pos, QVector3D rot, QVector3
     torus->Scale = scale;
 
     makeCurrent();
-    shader->bind();
-    int u_modelMatrixLoc = shader->uniformLocation("u_MVP.Model");
-    shader->setUniformValue(u_modelMatrixLoc, torus->GetModelMatrix());
+    //shader->ind();
+    //int u_modelMatrixLoc = shader->uniformLocation("u_MVP.Model");
+    shader->SetUniform("u_MVP.Model", torus->GetModelMatrix());
     update();
 }
 
@@ -141,8 +144,8 @@ void GLWidget::UpdateTorusObjectParameters(float R, float r, int Rdensity, int r
 void GLWidget::UpdateCameraSlot(std::shared_ptr<CameraMovementEvent> event)
 {
     makeCurrent();
-    shader->bind();
-    int u_viewMatrixLoc = shader->uniformLocation("u_MVP.View");
-    shader->setUniformValue(u_viewMatrixLoc, event->NewViewMatrix);
+    //shader->bind();
+    //int u_viewMatrixLoc = shader->uniformLocation("u_MVP.View");
+    shader->SetUniform("u_MVP.View", event->NewViewMatrix);
     update();
 }

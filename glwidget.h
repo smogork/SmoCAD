@@ -14,6 +14,8 @@
 #include <Renderer/InputController/InputController.h>
 #include <Renderer/InputController/cameramovementevent.h>
 
+#include <Renderer/ShaderWrapper.h>
+
 #include "Renderer/Camera/OrbitalCamera.h"
 #include "Objects/CubeObject.h"
 #include "Objects/TorusObject.h"
@@ -38,16 +40,15 @@ protected:
     std::unique_ptr<InputController> controls = nullptr;
 
     const float fov = 60.0f;
-    QPoint lastMousePos;
-    bool mousePresses[3];
+    QMatrix4x4 projectionMatrix;
 
-    std::unique_ptr<QOpenGLShaderProgram> shader = nullptr;
+    std::unique_ptr<ShaderWrapper> shader = nullptr;
+    //std::unique_ptr<QOpenGLShaderProgram> shader = nullptr;
     std::unique_ptr<QOpenGLBuffer> vb = nullptr;
     std::unique_ptr<QOpenGLBuffer> ib = nullptr;
     std::unique_ptr<QOpenGLVertexArrayObject> va = nullptr;
     //std::unique_ptr<CubeObject> cube;
 
-    QMatrix4x4 projectionMatrix;
 
     void paintGL() Q_DECL_OVERRIDE;
     void initializeGL() Q_DECL_OVERRIDE;
