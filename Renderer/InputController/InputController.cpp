@@ -93,12 +93,6 @@ void InputController::mouseMoveSlot(QMouseEvent *event)
             camera->MoveRight(-dMove.x() * MOVE_SENSITIVITY);
             camera->MoveUp(dMove.y() * MOVE_SENSITIVITY);
         }
-
-        makeCurrent ();
-        shader->bind();
-        int u_viewMatrixLoc = shader->uniformLocation("u_MVP.View");
-        shader->setUniformValue(u_viewMatrixLoc, camera->GetViewMatrix());
-        update();
     }*/
 
     if (cameraChanged)

@@ -31,7 +31,7 @@ void GLWidget::initializeGL()
 
     vb = std::make_unique<QOpenGLBuffer>(QOpenGLBuffer::VertexBuffer);
     vb->create();
-    vb->setUsagePattern(QOpenGLBuffer::StaticDraw);
+    vb->setUsagePattern(QOpenGLBuffer::DynamicDraw);
     vb->bind();
     auto vertices = torus->GenerateGeometryVertices();
     vb->allocate(vertices.data(), sizeof(float) * vertices.size());
@@ -42,7 +42,7 @@ void GLWidget::initializeGL()
 
     ib = std::make_unique<QOpenGLBuffer>(QOpenGLBuffer::IndexBuffer);
     ib->create();
-    ib->setUsagePattern(QOpenGLBuffer::StaticDraw);
+    ib->setUsagePattern(QOpenGLBuffer::DynamicDraw);
     ib->bind();
     auto edges = torus->GenerateTopologyEdges();
     ib->allocate(edges.data(), sizeof(int) * edges.size());
@@ -52,18 +52,6 @@ void GLWidget::initializeGL()
     //[TODO] Dodac klase opisujaca uklad buforow
     shader->GetRawProgram()->enableAttributeArray(0);
     shader->GetRawProgram()->setAttributeBuffer(0, GL_FLOAT, 0, 3, stride);
-
-    //camera = std::make_unique<OrbitalCamera>(torus->Position, 10.0f);
-
-    //[TODO] dodac wrapper na shadery aby nie trzeba bylo pamietac specjalnie numerkow uniformow
-    /*int u_viewMatrixLoc = shader->uniformLocation("u_MVP.View");
-    int u_projMatrixLoc = shader->uniformLocation("u_MVP.Projection");
-    int u_modelMatrixLoc = shader->uniformLocation("u_MVP.Model");
-    shader->bind();
-    shader->setUniformValue(u_viewMatrixLoc, controls->Camera->GetViewMatrix());
-    shader->setUniformValue(u_projMatrixLoc, projectionMatrix);
-    shader->setUniformValue(u_modelMatrixLoc, torus->GetModelMatrix());
-    shader->release();*/
 
     shader->SetUniform("u_MVP.Model", torus->GetModelMatrix());
     shader->SetUniform("u_MVP.View", controls->Camera->GetViewMatrix());
@@ -75,8 +63,6 @@ void GLWidget::resizeGL(int w, int h)
     QOpenGLWidget::resizeGL(w,h);
 
     UpdateProjectionMatrix((float)w / (float)h);
-    //int u_projMatrixLoc = shader->uniformLocation("u_MVP.Projection");
-    //shader->bind();
     shader->SetUniform("u_MVP.Projection", projectionMatrix);
 }
 
@@ -100,8 +86,6 @@ void GLWidget::UpdateTorusObjectTransform(QVector3D pos, QVector3D rot, QVector3
     torus->Scale = scale;
 
     makeCurrent();
-    //shader->ind();
-    //int u_modelMatrixLoc = shader->uniformLocation("u_MVP.Model");
     shader->SetUniform("u_MVP.Model", torus->GetModelMatrix());
     update();
 }
@@ -131,6 +115,7 @@ void GLWidget::UpdateTorusObjectParameters(float R, float r, int Rdensity, int r
     auto edges = torus->GenerateTopologyEdges();
     auto vertices = torus->GenerateGeometryVertices();
 
+    makeCurrent();
     vb->bind();
     vb->allocate(vertices.data(), sizeof(float) * vertices.size());
     vb->release();
@@ -144,8 +129,6 @@ void GLWidget::UpdateTorusObjectParameters(float R, float r, int Rdensity, int r
 void GLWidget::UpdateCameraSlot(std::shared_ptr<CameraMovementEvent> event)
 {
     makeCurrent();
-    //shader->bind();
-    //int u_viewMatrixLoc = shader->uniformLocation("u_MVP.View");
     shader->SetUniform("u_MVP.View", event->NewViewMatrix);
     update();
 }
