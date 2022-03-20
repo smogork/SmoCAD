@@ -20,7 +20,7 @@ MainWindow::~MainWindow()
 }
 
 
-void MainWindow::on_spinTorusR_valueChanged(double arg1)
+/*void MainWindow::on_spinTorusR_valueChanged(double arg1)
 {
     ui->sceneWidget->UpdateTorusObjectParameters(
             arg1,
@@ -205,5 +205,5 @@ void MainWindow::on_spinScaleZ_valueChanged(double arg1)
             ui->sceneWidget->torus->Rotation,
             change
     );
-}
+}*/
 

@@ -19,7 +19,7 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_spinTorusR_valueChanged(double arg1);
+    /*void on_spinTorusR_valueChanged(double arg1);
 
     void on_spinTorusr_valueChanged(double arg1);
 
@@ -43,7 +43,7 @@ private slots:
 
     void on_spinScaleY_valueChanged(double arg1);
 
-    void on_spinScaleZ_valueChanged(double arg1);
+    void on_spinScaleZ_valueChanged(double arg1);*/
 
 private:
     Ui::MainWindow *ui;

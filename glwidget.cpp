@@ -25,15 +25,15 @@ void GLWidget::initializeGL()
     shader = std::make_unique<ShaderWrapper>("test.vert", "test.frag");
     shader->Create();
 
-    //cube = std::make_unique<CubeObject>(QVector3D());
+    cube = std::make_unique<CubeObject>(QVector3D());
     //[TODO] wydzielic jakos ten rysowany poza glWidget - tonie ma sensu aktualizaowanie tego wszytskiego wewnatrz tego widgetu
-    torus = std::make_unique<TorusObject>(QVector3D(), 5, 1, 36, 18);
+    //torus = std::make_unique<TorusObject>(QVector3D(), 5, 1, 36, 18);
 
     vb = std::make_unique<QOpenGLBuffer>(QOpenGLBuffer::VertexBuffer);
     vb->create();
-    vb->setUsagePattern(QOpenGLBuffer::DynamicDraw);
+    vb->setUsagePattern(QOpenGLBuffer::StaticDraw);
     vb->bind();
-    auto vertices = torus->GenerateGeometryVertices();
+    auto vertices = cube->GenerateGeometryVertices();
     vb->allocate(vertices.data(), sizeof(float) * vertices.size());
 
     va = std::make_unique<QOpenGLVertexArrayObject>();
@@ -44,7 +44,7 @@ void GLWidget::initializeGL()
     ib->create();
     ib->setUsagePattern(QOpenGLBuffer::DynamicDraw);
     ib->bind();
-    auto edges = torus->GenerateTopologyEdges();
+    auto edges = cube->GenerateTopologyEdges();
     ib->allocate(edges.data(), sizeof(int) * edges.size());
 
     int stride = 3 * sizeof(float); //only position on 3 floats
@@ -53,7 +53,7 @@ void GLWidget::initializeGL()
     shader->GetRawProgram()->enableAttributeArray(0);
     shader->GetRawProgram()->setAttributeBuffer(0, GL_FLOAT, 0, 3, stride);
 
-    shader->SetUniform("u_MVP.Model", torus->GetModelMatrix());
+    shader->SetUniform("u_MVP.Model", cube->GetModelMatrix());
     shader->SetUniform("u_MVP.View", controls->Camera->GetViewMatrix());
     shader->SetUniform("u_MVP.Projection", projectionMatrix);
 }
@@ -74,20 +74,20 @@ void GLWidget::paintGL()
 
     shader->Bind();
     va->bind();
-    glDrawElements(GL_LINES, torus->GetIndexCount(), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_LINES, cube->GetIndexCount(), GL_UNSIGNED_INT, 0);
     va->release();
 
 }
 
 void GLWidget::UpdateTorusObjectTransform(QVector3D pos, QVector3D rot, QVector3D scale)
 {
-    torus->Position = pos;
+    /*torus->Position = pos;
     torus->Rotation = rot;
     torus->Scale = scale;
 
     makeCurrent();
     shader->SetUniform("u_MVP.Model", torus->GetModelMatrix());
-    update();
+    update();*/
 }
 
 GLWidget::~GLWidget()
@@ -107,7 +107,7 @@ void GLWidget::UpdateProjectionMatrix(float aspectRatio)
 
 void GLWidget::UpdateTorusObjectParameters(float R, float r, int Rdensity, int rdensity)
 {
-    torus->SetBiggerRadius(R);
+    /*torus->SetBiggerRadius(R);
     torus->SetSmallerRadius(r);
     torus->SetBiggerRadiusDensity(Rdensity);
     torus->SetSmallerRadiusDensity(rdensity);
@@ -123,7 +123,7 @@ void GLWidget::UpdateTorusObjectParameters(float R, float r, int Rdensity, int r
     ib->bind();
     ib->allocate(edges.data(), sizeof(int) * edges.size());
     va->release();
-    update();
+    update();*/
 }
 
 void GLWidget::UpdateCameraSlot(std::shared_ptr<CameraMovementEvent> event)

@@ -29,7 +29,7 @@ public:
     GLWidget(QWidget *pWidget);
     virtual ~GLWidget() Q_DECL_OVERRIDE;
 
-    std::unique_ptr<TorusObject> torus;
+    //std::unique_ptr<TorusObject> torus;
     void UpdateTorusObjectTransform(QVector3D pos, QVector3D rot, QVector3D scale);
     void UpdateTorusObjectParameters(float R, float r, int Rdensity, int rdensity);
 
@@ -43,11 +43,10 @@ protected:
     QMatrix4x4 projectionMatrix;
 
     std::unique_ptr<ShaderWrapper> shader = nullptr;
-    //std::unique_ptr<QOpenGLShaderProgram> shader = nullptr;
     std::unique_ptr<QOpenGLBuffer> vb = nullptr;
     std::unique_ptr<QOpenGLBuffer> ib = nullptr;
     std::unique_ptr<QOpenGLVertexArrayObject> va = nullptr;
-    //std::unique_ptr<CubeObject> cube;
+    std::unique_ptr<CubeObject> cube;
 
 
     void paintGL() Q_DECL_OVERRIDE;
