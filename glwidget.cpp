@@ -26,14 +26,11 @@ void GLWidget::initializeGL()
     shader->Create();
 
     cube = std::make_unique<CubeObject>(QVector3D());
+    cube->CreateBuffers(shader.get());
     //[TODO] wydzielic jakos ten rysowany poza glWidget - tonie ma sensu aktualizaowanie tego wszytskiego wewnatrz tego widgetu
     //torus = std::make_unique<TorusObject>(QVector3D(), 5, 1, 36, 18);
 
-    int stride = 3 * sizeof(float); //only position on 3 floats
 
-    //[TODO] Dodac klase opisujaca uklad buforow
-    shader->GetRawProgram()->enableAttributeArray(0);
-    shader->GetRawProgram()->setAttributeBuffer(0, GL_FLOAT, 0, 3, stride);
 
     shader->SetUniform("u_MVP.Model", cube->GetModelMatrix());
     shader->SetUniform("u_MVP.View", controls->Camera->GetViewMatrix());

@@ -8,7 +8,7 @@ CubeObject::CubeObject(QVector3D pos): TransformableObject(pos)
 {
     vb = std::make_unique<QOpenGLBuffer>(QOpenGLBuffer::VertexBuffer);
     ib = std::make_unique<QOpenGLBuffer>(QOpenGLBuffer::IndexBuffer);
-    CreateBuffers();
+    //CreateBuffers();
 }
 
 CubeObject::~CubeObject()
@@ -51,29 +51,57 @@ std::vector<int> CubeObject::GenerateTopologyEdges()
 };
 }
 
-void CubeObject::CreateBuffers()
+void CubeObject::CreateBuffers(ShaderWrapper* shader)
 {
-
-    va->create();
-    va->bind();
-
-    vb->create();
+    bool test = vb->create();
+    test = vb->bind();
     vb->setUsagePattern(QOpenGLBuffer::StaticDraw);
-    vb->bind();
     auto vertices = GenerateGeometryVertices();
     vb->allocate(vertices.data(), sizeof(float) * vertices.size());
+    vb->release();
 
-    ib->create();
-    ib->setUsagePattern(QOpenGLBuffer::DynamicDraw);
-    ib->bind();
+    test = ib->create();
+    test = ib->bind();
+    ib->setUsagePattern(QOpenGLBuffer::StaticDraw);
     auto edges = GenerateTopologyEdges();
     ib->allocate(edges.data(), sizeof(int) * edges.size());
+    ib->release();
 
-    //va->release();
-    //vb->release();
+    test = va->create();
+    shader->Bind();
+    va->bind();
+    test = vb->bind();
+
+    //atrybuty shadera!!!
+    int stride = 3 * sizeof(float); //only position on 3 floats
+    //[TODO] Dodac klase opisujaca uklad buforow
+    shader->GetRawProgram()->enableAttributeArray(0);
+    shader->GetRawProgram()->setAttributeBuffer(0, GL_FLOAT, 0, 3, stride);
+
+    test = ib->bind();
+    va->release();
+
+
+    vb->release();
+    ib->release();
+    shader->Release();
 }
 
 int CubeObject::GetIndexCount()
 {
     return 24;
+}
+
+void CubeObject::BindVertexArray()
+{
+    va->bind();
+    //vb->bind();
+    //ib->bind();
+}
+
+void CubeObject::ReleaseVertexArray()
+{
+    va->release();
+    //vb->release();
+    //ib->release();
 }

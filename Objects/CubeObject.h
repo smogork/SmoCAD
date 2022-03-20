@@ -11,6 +11,8 @@
 
 #include <QOpenGLBuffer>
 
+#include <Renderer/ShaderWrapper.h>
+
 class CubeObject: public TransformableObject, public IRenderableObject
 {
 private:
@@ -21,14 +23,17 @@ private:
     std::vector<float> GenerateGeometryVertices();
     std::vector<int> GenerateTopologyEdges();
 
-    void CreateBuffers();
+
 
 public:
     CubeObject(QVector3D pos);
     ~CubeObject() override;
 
+    void CreateBuffers(ShaderWrapper* shader);
 
     int GetIndexCount() override;
+    void BindVertexArray() override;
+    void ReleaseVertexArray() override;
 };
 
 
