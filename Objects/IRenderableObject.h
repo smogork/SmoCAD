@@ -5,6 +5,7 @@
 #ifndef SMOCAD_IRENDERABLEOBJECT_H
 #define SMOCAD_IRENDERABLEOBJECT_H
 
+#include <QOpenGLVertexArrayObject>
 #include <vector>
 
 /*
@@ -12,12 +13,27 @@
  */
 class IRenderableObject
 {
+protected:
+    std::unique_ptr<QOpenGLVertexArrayObject> va = nullptr;
+
 public:
+    IRenderableObject()
+    {
+        va = std::make_unique<QOpenGLVertexArrayObject>();
+    }
+    virtual ~IRenderableObject()
+    {
+        if (va->isCreated())
+            va->destroy();
+    }
 
     //[TODO] przerobic aby obiekty zwracaly jakies ludzkie typu na punkty i krawedzie
-    virtual std::vector<float> GenerateGeometryVertices() = 0;
-    virtual std::vector<int> GenerateTopologyEdges() = 0;
+    //virtual std::vector<float> GenerateGeometryVertices() = 0;
+    //virtual std::vector<int> GenerateTopologyEdges() = 0;
+
     virtual int GetIndexCount() = 0;
+    virtual void BindVertexArray() { va->bind(); }
+    virtual void ReleaseVertexArray() { va->release(); }
 };
 
 

@@ -6,9 +6,11 @@
 
 /*
  * Cele na najblizszy czas:
+ * 0. Narysować kostkę z własnym buforami
  * 1. Narysowac 2 kostki
- * 2. Dodac obiekt kursor i narysowac obok kostek
- * 3. ?
+ * 2. Stworzyć strukture ukłądu atrybótów do shadera
+ * 3. Dodac obiekt kursor i narysowac obok kostek
+ * 4. ?
  */
 
 int main(int argc, char *argv[])

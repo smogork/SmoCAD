@@ -9,17 +9,25 @@
 #include "TransformableObject.h"
 #include "IRenderableObject.h"
 
+#include <QOpenGLBuffer>
+
 class CubeObject: public TransformableObject, public IRenderableObject
 {
 private:
-    std::vector<float> vertices;
-    std::vector<int> indices;
+    std::unique_ptr<QOpenGLBuffer> vb = nullptr;
+    std::unique_ptr<QOpenGLBuffer> ib = nullptr;
+
+
+    std::vector<float> GenerateGeometryVertices();
+    std::vector<int> GenerateTopologyEdges();
+
+    void CreateBuffers();
 
 public:
     CubeObject(QVector3D pos);
+    ~CubeObject() override;
 
-    std::vector<float> GenerateGeometryVertices() override;
-    std::vector<int> GenerateTopologyEdges() override;
+
     int GetIndexCount() override;
 };
 

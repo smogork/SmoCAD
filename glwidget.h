@@ -43,9 +43,7 @@ protected:
     QMatrix4x4 projectionMatrix;
 
     std::unique_ptr<ShaderWrapper> shader = nullptr;
-    std::unique_ptr<QOpenGLBuffer> vb = nullptr;
-    std::unique_ptr<QOpenGLBuffer> ib = nullptr;
-    std::unique_ptr<QOpenGLVertexArrayObject> va = nullptr;
+
     std::unique_ptr<CubeObject> cube;
 
 

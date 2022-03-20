@@ -31,8 +31,8 @@ public:
     int GetBiggerRDensity();
     int GetSmallerRDensity();
 
-    std::vector<float> GenerateGeometryVertices() override;
-    std::vector<int> GenerateTopologyEdges() override;
+    std::vector<float> GenerateGeometryVertices();
+    std::vector<int> GenerateTopologyEdges() ;
     int GetIndexCount() override;
 
 };

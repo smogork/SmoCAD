@@ -29,24 +29,6 @@ void GLWidget::initializeGL()
     //[TODO] wydzielic jakos ten rysowany poza glWidget - tonie ma sensu aktualizaowanie tego wszytskiego wewnatrz tego widgetu
     //torus = std::make_unique<TorusObject>(QVector3D(), 5, 1, 36, 18);
 
-    vb = std::make_unique<QOpenGLBuffer>(QOpenGLBuffer::VertexBuffer);
-    vb->create();
-    vb->setUsagePattern(QOpenGLBuffer::StaticDraw);
-    vb->bind();
-    auto vertices = cube->GenerateGeometryVertices();
-    vb->allocate(vertices.data(), sizeof(float) * vertices.size());
-
-    va = std::make_unique<QOpenGLVertexArrayObject>();
-    bool test = va->create();
-    va->bind();
-
-    ib = std::make_unique<QOpenGLBuffer>(QOpenGLBuffer::IndexBuffer);
-    ib->create();
-    ib->setUsagePattern(QOpenGLBuffer::DynamicDraw);
-    ib->bind();
-    auto edges = cube->GenerateTopologyEdges();
-    ib->allocate(edges.data(), sizeof(int) * edges.size());
-
     int stride = 3 * sizeof(float); //only position on 3 floats
 
     //[TODO] Dodac klase opisujaca uklad buforow
@@ -73,10 +55,10 @@ void GLWidget::paintGL()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     shader->Bind();
-    va->bind();
+    cube->BindVertexArray();
     glDrawElements(GL_LINES, cube->GetIndexCount(), GL_UNSIGNED_INT, 0);
-    va->release();
-
+    cube->ReleaseVertexArray();
+    //cube->Render(shader.get());
 }
 
 void GLWidget::UpdateTorusObjectTransform(QVector3D pos, QVector3D rot, QVector3D scale)
@@ -94,9 +76,8 @@ GLWidget::~GLWidget()
 {
     makeCurrent();
 
-    va->destroy();
-    vb->destroy();
-    ib->destroy();
+    delete cube.get();
+    cube.release();
 }
 
 void GLWidget::UpdateProjectionMatrix(float aspectRatio)
