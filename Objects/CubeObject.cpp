@@ -73,6 +73,8 @@ void CubeObject::CreateBuffers(ShaderWrapper* shader)
     test = vb->bind();
 
     //atrybuty shadera!!!
+    //https://stackoverflow.com/questions/37999609/combining-vertex-array-object-with-vertex-buffer-index-buffer
+    //ale to jest rozjebane
     int stride = 3 * sizeof(float); //only position on 3 floats
     //[TODO] Dodac klase opisujaca uklad buforow
     shader->GetRawProgram()->enableAttributeArray(0);
