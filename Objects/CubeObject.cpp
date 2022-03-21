@@ -16,7 +16,6 @@ CubeObject::~CubeObject()
 {
     vb->destroy();
     ib->destroy();
-    IRenderableObject::~IRenderableObject();
 }
 
 std::vector<float> CubeObject::GenerateGeometryVertices()

@@ -6,6 +6,7 @@
 #define SMOCAD_TORUSOBJECT_H
 
 
+#include <QOpenGLBuffer>
 #include "TransformableObject.h"
 #include "IRenderableObject.h"
 
@@ -17,9 +18,18 @@ private:
     int biggerRDensity;
     int smallerRDensity;
 
+    std::unique_ptr<QOpenGLBuffer> vb = nullptr;
+    std::unique_ptr<QOpenGLBuffer> ib = nullptr;
+
+    std::vector<float> GenerateGeometryVertices();
+    std::vector<int> GenerateTopologyEdges();
+    void CreateBuffers();
+    void UpdateBuffers();
+    bool buffersCreated = false;
 public:
 
-    TorusObject(QVector3D pos, float R, float r, int RDensity, int rDensity);
+    TorusObject(QVector3D pos, std::shared_ptr<ShaderWrapper> shader, float R, float r, int RDensity, int rDensity);
+    ~TorusObject() override;
 
     void SetBiggerRadius(float value);
     void SetSmallerRadius(float value);
@@ -31,10 +41,8 @@ public:
     int GetBiggerRDensity();
     int GetSmallerRDensity();
 
-    std::vector<float> GenerateGeometryVertices();
-    std::vector<int> GenerateTopologyEdges() ;
     int GetIndexCount() override;
-
+    void Bind() override;
 };
 
 

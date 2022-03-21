@@ -19,7 +19,6 @@ private:
     std::unique_ptr<QOpenGLBuffer> vb = nullptr;
     std::unique_ptr<QOpenGLBuffer> ib = nullptr;
 
-
     std::vector<float> GenerateGeometryVertices();
     std::vector<int> GenerateTopologyEdges();
     void CreateBuffers();
@@ -27,8 +26,6 @@ private:
 public:
     CubeObject(QVector3D pos, std::shared_ptr<ShaderWrapper> shader);
     ~CubeObject() override;
-
-
 
     int GetIndexCount() override;
     void Bind() override;

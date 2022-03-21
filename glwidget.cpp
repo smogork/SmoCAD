@@ -27,8 +27,7 @@ void GLWidget::initializeGL()
 
     renderableObjects.push_back(new CubeObject(QVector3D(0.0f, 0.0f, 0.0f), shader));
     renderableObjects.push_back(new CubeObject(QVector3D(0.0f, 0.0f, 5.0f), shader));
-    //[TODO] wydzielic jakos ten rysowany poza glWidget - tonie ma sensu aktualizaowanie tego wszytskiego wewnatrz tego widgetu
-    //torus = std::make_unique<TorusObject>(QVector3D(), 5, 1, 36, 18);
+    renderableObjects.push_back(new TorusObject(QVector3D(5.0f, 0.0f, 10.0f), shader, 5, 1, 36, 18));
 
     shader->SetUniform("u_MVP.View", controls->Camera->GetViewMatrix());
     shader->SetUniform("u_MVP.Projection", projectionMatrix);
