@@ -1,5 +1,6 @@
 #include <QOpenGLFunctions>
 #include "glwidget.h"
+#include "Objects/CursorObject.h"
 
 GLWidget::GLWidget(QWidget *pWidget)
     : QOpenGLWidget(pWidget)
@@ -25,9 +26,10 @@ void GLWidget::initializeGL()
     shader = std::make_shared<ShaderWrapper>("test.vert", "test.frag");
     shader->Create();
 
-    renderableObjects.push_back(new CubeObject(QVector3D(0.0f, 0.0f, 0.0f), shader));
+    renderableObjects.push_back(new CubeObject(QVector3D(0.0f, 5.0f, 5.0f), shader));
     renderableObjects.push_back(new CubeObject(QVector3D(0.0f, 0.0f, 5.0f), shader));
     renderableObjects.push_back(new TorusObject(QVector3D(5.0f, 0.0f, 10.0f), shader, 5, 1, 36, 18));
+    renderableObjects.push_back(new CursorObject(QVector3D(5.0f, 0.0f, 0.0f), shader));
 
     shader->SetUniform("u_MVP.View", controls->Camera->GetViewMatrix());
     shader->SetUniform("u_MVP.Projection", projectionMatrix);

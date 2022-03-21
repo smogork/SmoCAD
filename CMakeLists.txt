@@ -34,7 +34,7 @@ set(PROJECT_SOURCES
         Renderer/ShaderWrapper.cpp Renderer/ShaderWrapper.h
         Renderer/InputController/InputController.cpp Renderer/InputController/InputController.h
         Renderer/InputController/cameramovementevent.cpp Renderer/InputController/cameramovementevent.h
-        )
+        Objects/CursorObject.cpp Objects/CursorObject.h)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(SmoCAD

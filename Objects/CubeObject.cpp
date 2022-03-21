@@ -52,36 +52,32 @@ std::vector<int> CubeObject::GenerateTopologyEdges()
 
 void CubeObject::CreateBuffers()
 {
-    bool test = vb->create();
-    test = vb->bind();
+    vb->create();
+    vb->bind();
     vb->setUsagePattern(QOpenGLBuffer::StaticDraw);
     auto vertices = GenerateGeometryVertices();
     vb->allocate(vertices.data(), sizeof(float) * vertices.size());
     vb->release();
 
-    test = ib->create();
-    test = ib->bind();
+    ib->create();
+    ib->bind();
     ib->setUsagePattern(QOpenGLBuffer::StaticDraw);
     auto edges = GenerateTopologyEdges();
     ib->allocate(edges.data(), sizeof(int) * edges.size());
     ib->release();
 
-    test = va->create();
+    va->create();
     Shader->Bind();
     va->bind();
-    test = vb->bind();
+    vb->bind();
 
-    //atrybuty shadera!!!
-    //https://stackoverflow.com/questions/37999609/combining-vertex-array-object-with-vertex-buffer-index-buffer
-    //ale to jest rozjebane
     int stride = 3 * sizeof(float); //only position on 3 floats
     //[TODO] Dodac klase opisujaca uklad buforow
     Shader->GetRawProgram()->enableAttributeArray(0);
     Shader->GetRawProgram()->setAttributeBuffer(0, GL_FLOAT, 0, 3, stride);
 
-    test = ib->bind();
+    ib->bind();
     va->release();
-
 
     vb->release();
     ib->release();
