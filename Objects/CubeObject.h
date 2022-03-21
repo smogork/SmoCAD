@@ -22,18 +22,16 @@ private:
 
     std::vector<float> GenerateGeometryVertices();
     std::vector<int> GenerateTopologyEdges();
-
-
+    void CreateBuffers();
 
 public:
-    CubeObject(QVector3D pos);
+    CubeObject(QVector3D pos, std::shared_ptr<ShaderWrapper> shader);
     ~CubeObject() override;
 
-    void CreateBuffers(ShaderWrapper* shader);
+
 
     int GetIndexCount() override;
-    void BindVertexArray() override;
-    void ReleaseVertexArray() override;
+    void Bind() override;
 };
 
 

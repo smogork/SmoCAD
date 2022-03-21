@@ -42,7 +42,7 @@ protected:
     const float fov = 60.0f;
     QMatrix4x4 projectionMatrix;
 
-    std::unique_ptr<ShaderWrapper> shader = nullptr;
+    std::shared_ptr<ShaderWrapper> shader = nullptr;
 
     std::unique_ptr<CubeObject> cube;
 

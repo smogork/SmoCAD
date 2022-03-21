@@ -8,6 +8,8 @@
 #include <QOpenGLVertexArrayObject>
 #include <vector>
 
+#include <Renderer/ShaderWrapper.h>
+
 /*
  * Interfejs definiujacy metody obliczające wierzcholki geometrii oraz krawedzie topologii obiektu.
  */
@@ -17,7 +19,10 @@ protected:
     std::unique_ptr<QOpenGLVertexArrayObject> va = nullptr;
 
 public:
-    IRenderableObject()
+    std::shared_ptr<ShaderWrapper> Shader = nullptr;
+
+    IRenderableObject(std::shared_ptr<ShaderWrapper> shader):
+        Shader(shader)
     {
         va = std::make_unique<QOpenGLVertexArrayObject>();
     }
@@ -27,13 +32,9 @@ public:
             va->destroy();
     }
 
-    //[TODO] przerobic aby obiekty zwracaly jakies ludzkie typu na punkty i krawedzie
-    //virtual std::vector<float> GenerateGeometryVertices() = 0;
-    //virtual std::vector<int> GenerateTopologyEdges() = 0;
-
     virtual int GetIndexCount() = 0;
-    virtual void BindVertexArray() { va->bind(); }
-    virtual void ReleaseVertexArray() { va->release(); }
+    virtual void Bind() { Shader->Bind(); va->bind(); }
+    virtual void Release() { va->release(); Shader->Release(); }
 };
 
 

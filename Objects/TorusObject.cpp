@@ -17,7 +17,7 @@ void TorusObject::SetSmallerRadius(float value)
 }
 
 TorusObject::TorusObject(QVector3D pos, float R, float r, int RDensity, int rDensity)
-        : TransformableObject(pos)
+        : TransformableObject(pos), IRenderableObject(nullptr)
 {
     SetBiggerRadius(R);
     SetSmallerRadius(r);

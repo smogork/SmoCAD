@@ -4,19 +4,19 @@
 
 #include "CubeObject.h"
 
-CubeObject::CubeObject(QVector3D pos): TransformableObject(pos)
+CubeObject::CubeObject(QVector3D pos, std::shared_ptr<ShaderWrapper> shader)
+    : TransformableObject(pos), IRenderableObject(shader)
 {
     vb = std::make_unique<QOpenGLBuffer>(QOpenGLBuffer::VertexBuffer);
     ib = std::make_unique<QOpenGLBuffer>(QOpenGLBuffer::IndexBuffer);
-    //CreateBuffers();
+    CreateBuffers();
 }
 
 CubeObject::~CubeObject()
 {
     vb->destroy();
     ib->destroy();
-    if (va->isCreated())
-        va->destroy();
+    IRenderableObject::~IRenderableObject();
 }
 
 std::vector<float> CubeObject::GenerateGeometryVertices()
@@ -51,7 +51,7 @@ std::vector<int> CubeObject::GenerateTopologyEdges()
 };
 }
 
-void CubeObject::CreateBuffers(ShaderWrapper* shader)
+void CubeObject::CreateBuffers()
 {
     bool test = vb->create();
     test = vb->bind();
@@ -68,7 +68,7 @@ void CubeObject::CreateBuffers(ShaderWrapper* shader)
     ib->release();
 
     test = va->create();
-    shader->Bind();
+    Shader->Bind();
     va->bind();
     test = vb->bind();
 
@@ -77,8 +77,8 @@ void CubeObject::CreateBuffers(ShaderWrapper* shader)
     //ale to jest rozjebane
     int stride = 3 * sizeof(float); //only position on 3 floats
     //[TODO] Dodac klase opisujaca uklad buforow
-    shader->GetRawProgram()->enableAttributeArray(0);
-    shader->GetRawProgram()->setAttributeBuffer(0, GL_FLOAT, 0, 3, stride);
+    Shader->GetRawProgram()->enableAttributeArray(0);
+    Shader->GetRawProgram()->setAttributeBuffer(0, GL_FLOAT, 0, 3, stride);
 
     test = ib->bind();
     va->release();
@@ -86,7 +86,7 @@ void CubeObject::CreateBuffers(ShaderWrapper* shader)
 
     vb->release();
     ib->release();
-    shader->Release();
+    Shader->Release();
 }
 
 int CubeObject::GetIndexCount()
@@ -94,16 +94,10 @@ int CubeObject::GetIndexCount()
     return 24;
 }
 
-void CubeObject::BindVertexArray()
+void CubeObject::Bind()
 {
-    va->bind();
-    //vb->bind();
-    //ib->bind();
+    Shader->SetUniform("u_MVP.Model", GetModelMatrix());
+
+    IRenderableObject::Bind();
 }
 
-void CubeObject::ReleaseVertexArray()
-{
-    va->release();
-    //vb->release();
-    //ib->release();
-}
