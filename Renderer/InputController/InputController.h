@@ -1,7 +1,9 @@
 #ifndef KeyboardMouseHandlerH
 #define KeyboardMouseHandlerH
 
-#include "cameramovementevent.h"
+#include "Renderer/InputController/InputEvents/CameraUpdateEvent.h"
+#include "Renderer/InputController/InputEvents/SceneMouseClickEvent.h"
+#include "Renderer/Camera/Viewport.h"
 
 #include <QKeyEvent>
 #include <QObject>
@@ -31,7 +33,7 @@ public:
         Touchpad
     };
 
-    InputController(QObject *parent = nullptr);
+    InputController(std::shared_ptr<Viewport> viewport, QObject *parent = nullptr);
     virtual ~InputController();
 
     std::unique_ptr<OrbitalCamera> Camera;
@@ -45,7 +47,8 @@ public:
     virtual void wheelSlot(QWheelEvent *event);
 
 signals:
-    void CameraUpdated(std::shared_ptr<CameraMovementEvent> event);
+    void CameraUpdated(std::shared_ptr<CameraUpdateEvent> event);
+    void SceneMouseClicked(std::shared_ptr<SceneMouseClickEvent> event);
 
 private:
     enum KeyState {
@@ -58,6 +61,8 @@ private:
     QPoint lastCursorPos;
     KeyState mouseButtonStates[3];
 
+    std::shared_ptr<Viewport> viewport = nullptr;
+
 protected:
 
     virtual void InitlizeKeyStates();
@@ -65,6 +70,7 @@ protected:
     int translateMouseButton(Qt::MouseButton button);
 
     void EmitCameraUpdateEvent();
+    void EmitSceneMouseClickedEvent(QPoint screenPoint);
 };
 
 #endif // KeyboardMouseHandlerH

@@ -38,8 +38,8 @@ set(PROJECT_SOURCES
         Objects/CubeObject.cpp Objects/CubeObject.h
         Renderer/ShaderWrapper.cpp Renderer/ShaderWrapper.h
         Renderer/InputController/InputController.cpp Renderer/InputController/InputController.h
-        Renderer/InputController/cameramovementevent.cpp Renderer/InputController/cameramovementevent.h
-        Objects/CursorObject.cpp Objects/CursorObject.h)
+        Renderer/InputController/InputEvents/CameraUpdateEvent.cpp Renderer/InputController/InputEvents/CameraUpdateEvent.h
+        Objects/CursorObject.cpp Objects/CursorObject.h Renderer/InputController/InputEvents/SceneMouseClickEvent.cpp Renderer/InputController/InputEvents/SceneMouseClickEvent.h Renderer/Camera/Viewport.cpp Renderer/Camera/Viewport.h)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(SmoCAD
@@ -80,7 +80,7 @@ set_target_properties(SmoCAD PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
-#Copy shaders
+# Copy shaders
 foreach( shader_file ${SHADER_FILES})
     add_custom_command(
             TARGET SmoCAD POST_BUILD

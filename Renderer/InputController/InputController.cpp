@@ -1,8 +1,9 @@
 #include "InputController.h"
 
 
-InputController::InputController(QObject *parent)
+InputController::InputController(std::shared_ptr<Viewport> viewport, QObject *parent)
 {
+    this->viewport = viewport;
     //[TODO] poprawic tworzenie kamery aby patrzyla na jakis sensowny obiekt
     Camera = std::make_unique<OrbitalCamera>(QVector3D(), 5);
 
@@ -17,13 +18,14 @@ InputController::~InputController()
 
 void InputController::keyPressSlot(QKeyEvent *event)
 {
-    Qt::Key key = (Qt::Key)event->key();
+    Qt::Key key = (Qt::Key) event->key();
     if (knownButtons.find(key) != knownButtons.end())
         keyStates[key] = KeyState::Pressed;
 }
+
 void InputController::keyReleaseSlot(QKeyEvent *event)
 {
-    Qt::Key key = (Qt::Key)event->key();
+    Qt::Key key = (Qt::Key) event->key();
     if (knownButtons.find(key) != knownButtons.end())
         keyStates[key] = KeyState::Released;
 }
@@ -40,6 +42,12 @@ void InputController::mouseReleaseSlot(QMouseEvent *event)
     int id = translateMouseButton(event->button());
     if (id != UNDEFINED_ID)
         mouseButtonStates[id] = KeyState::Released;
+
+    switch (event->button())
+    {
+        case Qt::LeftButton:
+            EmitSceneMouseClickedEvent(event->pos());
+    }
 
     if (!(mouseButtonStates[LMOUSE_ID] == KeyState::Released or
           mouseButtonStates[MMOUSE_ID] == KeyState::Released or
@@ -67,8 +75,7 @@ void InputController::mouseMoveSlot(QMouseEvent *event)
         if (keyStates[Qt::Key_Control] == KeyState::Pressed)// touchpad - zoom
         {
             Camera->ChangePivotLength(dMove.y() * ZOOM_SENSITIVITY);
-        }
-        else //touchpad - pan
+        } else //touchpad - pan
         {
             Camera->MoveRight(-dMove.x() * MOVE_SENSITIVITY);
             Camera->MoveUp(dMove.y() * MOVE_SENSITIVITY);
@@ -116,7 +123,7 @@ void InputController::InitlizeKeyStates()
     knownButtons.insert(Qt::Key_A);
     knownButtons.insert(Qt::Key_D);
 
-    for (Qt::Key k : knownButtons)
+    for (Qt::Key k: knownButtons)
     {
         keyStates[k] = KeyState::Released;
     }
@@ -129,7 +136,7 @@ void InputController::InitlizeMouseStates()
 
 int InputController::translateMouseButton(Qt::MouseButton button)
 {
-    switch(button)
+    switch (button)
     {
         case Qt::MouseButton::LeftButton:
             return LMOUSE_ID;
@@ -142,8 +149,31 @@ int InputController::translateMouseButton(Qt::MouseButton button)
     }
 }
 
+#pragma region Emmiters
 void InputController::EmitCameraUpdateEvent()
 {
-    std::shared_ptr<CameraMovementEvent> event = std::make_shared<CameraMovementEvent>(Camera->GetViewMatrix());
+    std::shared_ptr<CameraUpdateEvent> event = std::make_shared<CameraUpdateEvent>(Camera->GetViewMatrix());
     emit CameraUpdated(event);
 }
+
+void InputController::EmitSceneMouseClickedEvent(QPoint screenPoint)
+{
+    QVector3D viewNear(screenPoint.x(), viewport->GetViewportSize().height() - screenPoint.y(), 0.0f);
+    QVector3D viewFar(screenPoint.x(), viewport->GetViewportSize().height() - screenPoint.y(), 1.0f);
+    QVector3D resultNear = viewNear.unproject(Camera->GetViewMatrix(), viewport->GetProjectionMatrix(), QRect(QPoint(0.0f, 0.0f), viewport->GetViewportSize()));
+    QVector3D resultFar = viewFar.unproject(Camera->GetViewMatrix(), viewport->GetProjectionMatrix(), QRect(QPoint(0.0f, 0.0f), viewport->GetViewportSize()));
+
+    /*qDebug() << "Camera position:" << Camera->GetPosition();
+    qDebug() << "Camera center position:" << Camera->CenterPoint;
+    qDebug() << "UnprojectNear:" << resultNear;
+    qDebug() << "ViewNear:" << viewNear;
+    qDebug() << "UnprojectFar:" << resultFar;
+    qDebug() << "ViewFar:" << viewFar;*/
+
+    std::shared_ptr<SceneMouseClickEvent> event = std::make_shared<SceneMouseClickEvent>(resultNear, resultFar);
+    emit SceneMouseClicked(event);
+}
+
+
+
+#pragma endregion

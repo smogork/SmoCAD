@@ -4,10 +4,10 @@
 #include <QEvent>
 #include <QMatrix4x4>
 
-class CameraMovementEvent: public QEvent
+class CameraUpdateEvent: public QEvent
 {
 public:
-    CameraMovementEvent(QMatrix4x4 viewMatrix);
+    CameraUpdateEvent(QMatrix4x4 viewMatrix);
 
     QMatrix4x4 NewViewMatrix;
 };

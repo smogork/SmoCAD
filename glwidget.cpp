@@ -11,7 +11,9 @@ GLWidget::GLWidget(QWidget *pWidget)
     format.setVersion(3,3);
     setFormat(format);
 
-    this->controls = std::make_unique<InputController>(this);
+    viewport = std::make_shared<Viewport>(size(), 60.0f);
+    controls = std::make_unique<InputController>(viewport, this);
+
 
     QObject::connect(this->controls.get(), &InputController::CameraUpdated,
                      this, &GLWidget::UpdateCameraSlot);
@@ -20,8 +22,6 @@ GLWidget::GLWidget(QWidget *pWidget)
 void GLWidget::initializeGL()
 {
     initializeOpenGLFunctions();
-
-    UpdateProjectionMatrix((float)(size().width()) / (float)(size().height()));
 
     shader = std::make_shared<ShaderWrapper>("Shaders/uniform_color.vert", "Shaders/simple_color.frag");
     shader2 = std::make_shared<ShaderWrapper>("Shaders/buffer_color.vert", "Shaders/simple_color.frag");
@@ -32,20 +32,20 @@ void GLWidget::initializeGL()
     renderableObjects.push_back(new CursorObject(QVector3D(0.0f, 0.0f, 0.0f), shader2));
 
     shader->SetUniform("u_MVP.View", controls->Camera->GetViewMatrix());
-    shader->SetUniform("u_MVP.Projection", projectionMatrix);
+    shader->SetUniform("u_MVP.Projection", viewport->GetProjectionMatrix());
     shader->SetUniform("u_ObjectColor", QVector4D(1.0f, 0.5f, 0.2f, 1.0f));
 
     shader2->SetUniform("u_MVP.View", controls->Camera->GetViewMatrix());
-    shader2->SetUniform("u_MVP.Projection", projectionMatrix);
+    shader2->SetUniform("u_MVP.Projection", viewport->GetProjectionMatrix());
 }
 
 void GLWidget::resizeGL(int w, int h)
 {
     QOpenGLWidget::resizeGL(w,h);
 
-    UpdateProjectionMatrix((float)w / (float)h);
-    shader->SetUniform("u_MVP.Projection", projectionMatrix);
-    shader2->SetUniform("u_MVP.Projection", projectionMatrix);
+    viewport->UpdatePerspectiveMatrix(QSize(w, h));
+    shader->SetUniform("u_MVP.Projection", viewport->GetProjectionMatrix());
+    shader2->SetUniform("u_MVP.Projection", viewport->GetProjectionMatrix());
 }
 
 void GLWidget::paintGL()
@@ -85,12 +85,6 @@ GLWidget::~GLWidget()
     }
 }
 
-void GLWidget::UpdateProjectionMatrix(float aspectRatio)
-{
-    projectionMatrix.setToIdentity();
-    projectionMatrix.perspective(fov, aspectRatio, 1.0f, 100.0f);
-}
-
 void GLWidget::UpdateTorusObjectParameters(float R, float r, int Rdensity, int rdensity)
 {
     /*torus->SetBiggerRadius(R);
@@ -112,7 +106,7 @@ void GLWidget::UpdateTorusObjectParameters(float R, float r, int Rdensity, int r
     update();*/
 }
 
-void GLWidget::UpdateCameraSlot(std::shared_ptr<CameraMovementEvent> event)
+void GLWidget::UpdateCameraSlot(std::shared_ptr<CameraUpdateEvent> event)
 {
     makeCurrent();
     shader->SetUniform("u_MVP.View", event->NewViewMatrix);
