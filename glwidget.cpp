@@ -25,7 +25,8 @@ void GLWidget::initializeGL()
     shader = std::make_shared<ShaderWrapper>("test.vert", "test.frag");
     shader->Create();
 
-    cube = std::make_unique<CubeObject>(QVector3D(), shader);
+    renderableObjects.push_back(new CubeObject(QVector3D(0.0f, 0.0f, 0.0f), shader));
+    renderableObjects.push_back(new CubeObject(QVector3D(0.0f, 0.0f, 5.0f), shader));
     //[TODO] wydzielic jakos ten rysowany poza glWidget - tonie ma sensu aktualizaowanie tego wszytskiego wewnatrz tego widgetu
     //torus = std::make_unique<TorusObject>(QVector3D(), 5, 1, 36, 18);
 
@@ -47,10 +48,15 @@ void GLWidget::paintGL()
     glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    cube->Bind();
-    glDrawElements(GL_LINES, cube->GetIndexCount(), GL_UNSIGNED_INT, 0);
-    cube->Release();
+    for (IRenderableObject* ro : renderableObjects)
+    {
+        ro->Bind();
+        glDrawElements(GL_LINES, ro->GetIndexCount(), GL_UNSIGNED_INT, 0);
+        ro->Release();
+    }
 }
+
+
 
 void GLWidget::UpdateTorusObjectTransform(QVector3D pos, QVector3D rot, QVector3D scale)
 {
@@ -67,8 +73,10 @@ GLWidget::~GLWidget()
 {
     makeCurrent();
 
-    delete cube.get();
-    cube.release();
+    for (IRenderableObject* ro : renderableObjects)
+    {
+        delete ro;
+    }
 }
 
 void GLWidget::UpdateProjectionMatrix(float aspectRatio)
