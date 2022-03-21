@@ -42,6 +42,7 @@ protected:
     QMatrix4x4 projectionMatrix;
 
     std::shared_ptr<ShaderWrapper> shader = nullptr;
+    std::shared_ptr<ShaderWrapper> shader2 = nullptr;
 
     //std::unique_ptr<CubeObject> cube;
     std::list<IRenderableObject*> renderableObjects;

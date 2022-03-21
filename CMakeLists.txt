@@ -17,6 +17,11 @@ find_package(Qt6 COMPONENTS Gui REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools REQUIRED)
 
 set(TS_FILES SmoCAD_en_GB.ts)
+set(SHADER_FILES
+        Shaders/buffer_color.vert
+        Shaders/uniform_color.vert
+        Shaders/simple_color.frag
+        )
 
 set(PROJECT_SOURCES
         main.cpp
@@ -75,16 +80,14 @@ set_target_properties(SmoCAD PROPERTIES
     WIN32_EXECUTABLE TRUE
 )
 
-add_custom_command(
-        TARGET SmoCAD POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_SOURCE_DIR}/Shaders/test.vert
-        ${CMAKE_CURRENT_BINARY_DIR}/test.vert)
-add_custom_command(
-        TARGET SmoCAD POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_SOURCE_DIR}/Shaders/test.frag
-        ${CMAKE_CURRENT_BINARY_DIR}/test.frag)
+#Copy shaders
+foreach( shader_file ${SHADER_FILES})
+    add_custom_command(
+            TARGET SmoCAD POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_SOURCE_DIR}/${shader_file}
+            ${CMAKE_CURRENT_BINARY_DIR}/${shader_file})
+endforeach( shader_file )
 
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(SmoCAD)

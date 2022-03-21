@@ -7,10 +7,10 @@
 std::vector<float> CursorObject::GenerateGeometryVertices()
 {
     return {
-        0.0f, 0.0f, 0.0f,
-        1.0f, 0.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,
-        0.0f, 0.0f, 1.0f,
+        0.0f, 0.0f, 0.0f, 1.0f, 0.5f, 0.2f,
+        1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
         };
 }
 
@@ -47,7 +47,9 @@ void CursorObject::CreateBuffers()
     int stride = 3 * sizeof(float); //only position on 3 floats
     //[TODO] Dodac klase opisujaca uklad buforow
     Shader->GetRawProgram()->enableAttributeArray(0);
-    Shader->GetRawProgram()->setAttributeBuffer(0, GL_FLOAT, 0, 3, stride);
+    Shader->GetRawProgram()->setAttributeBuffer(0, GL_FLOAT, 0, 3, 2*stride);
+    Shader->GetRawProgram()->enableAttributeArray(1);
+    Shader->GetRawProgram()->setAttributeBuffer(1, GL_FLOAT, 3 * sizeof(float), 3, 2*stride);
 
     ib->bind();
     va->release();

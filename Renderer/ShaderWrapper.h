@@ -16,14 +16,14 @@ private:
     QString vsFilepath;
     QString fsFilepath;
 
+    void Create();
+
 public:
     ShaderWrapper(const QString& vsFilepath, const QString& fsFilename);
     ~ShaderWrapper();
 
     void Bind();
     void Release();
-    void Create();
-    void Destroy();
 
     QOpenGLShaderProgram* GetRawProgram() { return shader.get(); }
 

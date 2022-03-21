@@ -23,16 +23,20 @@ void GLWidget::initializeGL()
 
     UpdateProjectionMatrix((float)(size().width()) / (float)(size().height()));
 
-    shader = std::make_shared<ShaderWrapper>("test.vert", "test.frag");
-    shader->Create();
+    shader = std::make_shared<ShaderWrapper>("Shaders/uniform_color.vert", "Shaders/simple_color.frag");
+    shader2 = std::make_shared<ShaderWrapper>("Shaders/buffer_color.vert", "Shaders/simple_color.frag");
 
     renderableObjects.push_back(new CubeObject(QVector3D(0.0f, 5.0f, 5.0f), shader));
     renderableObjects.push_back(new CubeObject(QVector3D(0.0f, 0.0f, 5.0f), shader));
     renderableObjects.push_back(new TorusObject(QVector3D(5.0f, 0.0f, 10.0f), shader, 5, 1, 36, 18));
-    renderableObjects.push_back(new CursorObject(QVector3D(5.0f, 0.0f, 0.0f), shader));
+    renderableObjects.push_back(new CursorObject(QVector3D(0.0f, 0.0f, 0.0f), shader2));
 
     shader->SetUniform("u_MVP.View", controls->Camera->GetViewMatrix());
     shader->SetUniform("u_MVP.Projection", projectionMatrix);
+    shader->SetUniform("u_ObjectColor", QVector4D(1.0f, 0.5f, 0.2f, 1.0f));
+
+    shader2->SetUniform("u_MVP.View", controls->Camera->GetViewMatrix());
+    shader2->SetUniform("u_MVP.Projection", projectionMatrix);
 }
 
 void GLWidget::resizeGL(int w, int h)
@@ -41,6 +45,7 @@ void GLWidget::resizeGL(int w, int h)
 
     UpdateProjectionMatrix((float)w / (float)h);
     shader->SetUniform("u_MVP.Projection", projectionMatrix);
+    shader2->SetUniform("u_MVP.Projection", projectionMatrix);
 }
 
 void GLWidget::paintGL()
@@ -111,5 +116,6 @@ void GLWidget::UpdateCameraSlot(std::shared_ptr<CameraMovementEvent> event)
 {
     makeCurrent();
     shader->SetUniform("u_MVP.View", event->NewViewMatrix);
+    shader2->SetUniform("u_MVP.View", event->NewViewMatrix);
     update();
 }

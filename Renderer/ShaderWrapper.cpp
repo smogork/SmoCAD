@@ -4,14 +4,13 @@
 
 #include "ShaderWrapper.h"
 
-ShaderWrapper::ShaderWrapper(const QString& vsFilepath, const QString& fsFilepath):
-    fsFilepath(fsFilepath), vsFilepath(vsFilepath), shader(nullptr)
-{ }
-
-ShaderWrapper::~ShaderWrapper()
+ShaderWrapper::ShaderWrapper(const QString &vsFilepath, const QString &fsFilepath) :
+        fsFilepath(fsFilepath), vsFilepath(vsFilepath), shader(nullptr)
 {
-
+    Create();
 }
+
+ShaderWrapper::~ShaderWrapper() {}
 
 void ShaderWrapper::Bind()
 {
@@ -37,9 +36,4 @@ void ShaderWrapper::Create()
 
     if (!shader->link())
         qDebug() << "Shader linker errors:\n" << shader->log();
-}
-
-void ShaderWrapper::Destroy()
-{
-
 }
