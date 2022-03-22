@@ -43,11 +43,6 @@ public:
     virtual int GetDrawType() = 0;
     virtual void Bind(ShaderWrapper* shader)
     {
-        if (Selected)
-            shader->SetUniform("u_ObjectColor", QVector4D(0.8f, 0.8f, 0.8f, 1.0f));
-        else
-            shader->SetUniform("u_ObjectColor", QVector4D(1.0f, 0.5f, 0.2f, 1.0f));
-
         shader->Bind();
         va->bind();
     }

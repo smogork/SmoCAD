@@ -96,6 +96,10 @@ int CubeObject::GetIndexCount()
 void CubeObject::Bind(ShaderWrapper* shader)
 {
     shader->SetUniform("u_MVP.Model", GetModelMatrix());
+    if (Selected)
+        shader->SetUniform("u_ObjectColor", QVector4D(0.8f, 0.8f, 0.8f, 1.0f));
+    else
+        shader->SetUniform("u_ObjectColor", QVector4D(1.0f, 0.5f, 0.2f, 1.0f));
 
     IRenderableObject::Bind(shader);
 }
