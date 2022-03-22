@@ -31,7 +31,7 @@ void MainWindow::on_actionTorus_triggered()
 {
     auto ro = new TorusObject(QVector3D(), 5, 1, 36, 18);
     model->AddObject(ro);
-    listObjects.push_back(std::make_unique<QListWidgetRenderableItem>(ui->listWidgetObjects, "dupa", ro));
+    listObjects.push_back(std::make_unique<QListWidgetRenderableItem>(ui->listWidgetObjects, "torus_dupa", ro));
     ui->sceneWidget->update();
 }
 
@@ -39,7 +39,7 @@ void MainWindow::on_actionPoint_triggered()
 {
     auto ro = new PointObject(QVector3D());
     model->AddObject(ro);
-    listObjects.push_back(std::make_unique<QListWidgetRenderableItem>(ui->listWidgetObjects, "dupa", ro));
+    listObjects.push_back(std::make_unique<QListWidgetRenderableItem>(ui->listWidgetObjects, "punkt_dupa", ro));
     ui->sceneWidget->update();
 }
 
