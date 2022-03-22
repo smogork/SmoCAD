@@ -1,7 +1,9 @@
+#include <QListWidget>
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include "Objects/PointObject.h"
 #include "Objects/TorusObject.h"
+#include "Controls/QListWidgetRenderableItem.h"
 
 MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -15,6 +17,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     QObject::connect(this->controls.get(), &InputController::SceneMouseClicked,
                      this, &MainWindow::MouseRaycastSlot);
+
+    for (auto ro : model->GetRenderableObjects())
+        listObjects.push_back(std::make_unique<QListWidgetRenderableItem>(ui->listWidgetObjects, "dupa_start", ro));
 }
 
 MainWindow::~MainWindow()
@@ -24,12 +29,18 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionTorus_triggered()
 {
-    model->AddObject(new TorusObject(QVector3D(), 5, 1, 36, 18));
+    auto ro = new TorusObject(QVector3D(), 5, 1, 36, 18);
+    model->AddObject(ro);
+    listObjects.push_back(std::make_unique<QListWidgetRenderableItem>(ui->listWidgetObjects, "dupa", ro));
+    ui->sceneWidget->update();
 }
 
 void MainWindow::on_actionPoint_triggered()
 {
-    model->AddObject(new PointObject(QVector3D()));
+    auto ro = new PointObject(QVector3D());
+    model->AddObject(ro);
+    listObjects.push_back(std::make_unique<QListWidgetRenderableItem>(ui->listWidgetObjects, "dupa", ro));
+    ui->sceneWidget->update();
 }
 
 void MainWindow::on_actionDelete_triggered()

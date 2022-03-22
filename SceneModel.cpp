@@ -32,7 +32,7 @@ const std::list<IRenderableObject *> &SceneModel::GetRenderableObjects()
 
 void SceneModel::AddObject(IRenderableObject *ro)
 {
-    if (!ro && cursor)
+    if (ro && cursor)
     {
         ro->Position = cursor->Position;
         renderableObjects.push_back(ro);

@@ -495,7 +495,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QTreeView" name="treeViewObjects">
+       <widget class="QListWidget" name="listWidgetObjects">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
           <horstretch>0</horstretch>

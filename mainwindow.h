@@ -8,6 +8,7 @@
 #include "Objects/IRenderableObject.h"
 #include "Objects/CursorObject.h"
 #include "SceneModel.h"
+#include "Controls/QListWidgetRenderableItem.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -17,12 +18,13 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 private:
+    Ui::MainWindow *ui;
     std::shared_ptr<InputController> controls = nullptr;
     std::shared_ptr<Viewport> viewport = nullptr;
     std::shared_ptr<SceneModel> model = nullptr;
+    std::list<std::unique_ptr<QListWidgetRenderableItem>> listObjects;
 
 protected slots:
-
     void MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event);
 
 public:
@@ -62,7 +64,5 @@ private slots:
 
     void on_actionDelete_triggered();
 
-private:
-    Ui::MainWindow *ui;
 };
 #endif // MAINWINDOW_H
