@@ -20,30 +20,31 @@ void PointObject::CreateBuffers()
     ib->allocate(edges.data(), sizeof(int) * edges.size());
     ib->release();
 
+    QOpenGLShaderProgram prog;
+    prog.create();
     va->create();
-    Shader->Bind();
+    prog.bind();
     va->bind();
     vb->bind();
     ib->bind();
 
     int stride = 3 * sizeof(float); //only position on 3 floats
     //[TODO] Dodac klase opisujaca uklad buforow
-    Shader->GetRawProgram()->enableAttributeArray(0);
-    Shader->GetRawProgram()->setAttributeBuffer(0, GL_FLOAT, 0, 3, stride);
+    prog.enableAttributeArray(0);
+    prog.setAttributeBuffer(0, GL_FLOAT, 0, 3, stride);
 
     va->release();
 
     vb->release();
     ib->release();
-    Shader->Release();
+    prog.release();
 }
 
-PointObject::PointObject(QVector3D pos, std::shared_ptr<ShaderWrapper> shader)
-    : IRenderableObject(pos, shader)
+PointObject::PointObject(QVector3D pos)
+    : IRenderableObject(pos)
 {
     vb = std::make_unique<QOpenGLBuffer>(QOpenGLBuffer::VertexBuffer);
     ib = std::make_unique<QOpenGLBuffer>(QOpenGLBuffer::IndexBuffer);
-    CreateBuffers();
 }
 
 PointObject::~PointObject()
@@ -57,11 +58,11 @@ int PointObject::GetIndexCount()
     return 1;
 }
 
-void PointObject::Bind()
+void PointObject::Bind(ShaderWrapper* shader)
 {
-    Shader->SetUniform("u_MVP.Model", GetModelMatrix());
+    shader->SetUniform("u_MVP.Model", GetModelMatrix());
 
-    IRenderableObject::Bind();
+    IRenderableObject::Bind(shader);
 }
 
 std::vector<float> PointObject::GenerateGeometryVertices()
@@ -72,4 +73,10 @@ std::vector<float> PointObject::GenerateGeometryVertices()
 std::vector<int> PointObject::GenerateTopologyEdges()
 {
     return { 0 };
+}
+
+void PointObject::DefineBuffers()
+{
+    CreateBuffers();
+    IRenderableObject::DefineBuffers();
 }

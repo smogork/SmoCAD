@@ -21,12 +21,13 @@ private:
     void CreateBuffers();
 
 public:
-    CursorObject(QVector3D pos, std::shared_ptr<ShaderWrapper> shader);
+    CursorObject(QVector3D pos);
     ~CursorObject() override;
 
+    void DefineBuffers() override;
     int GetIndexCount() override;
     int GetDrawType() override { return GL_LINES; }
-    void Bind() override;
+    void Bind(ShaderWrapper* shader) override;
 };
 
 

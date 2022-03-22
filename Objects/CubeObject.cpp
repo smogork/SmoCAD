@@ -4,12 +4,11 @@
 
 #include "CubeObject.h"
 
-CubeObject::CubeObject(QVector3D pos, std::shared_ptr<ShaderWrapper> shader)
-    : IRenderableObject(pos, shader)
+CubeObject::CubeObject(QVector3D pos)
+    : IRenderableObject(pos)
 {
     vb = std::make_unique<QOpenGLBuffer>(QOpenGLBuffer::VertexBuffer);
     ib = std::make_unique<QOpenGLBuffer>(QOpenGLBuffer::IndexBuffer);
-    CreateBuffers();
 }
 
 CubeObject::~CubeObject()
@@ -66,22 +65,27 @@ void CubeObject::CreateBuffers()
     ib->allocate(edges.data(), sizeof(int) * edges.size());
     ib->release();
 
+    //To jest fake shader, który oszukuje qt wrapper na opengl
+    //atrybuty nie są zwaizane ze stane shadera, tylko vertex array.
+    //Wiec tworzymy sztuczny obiekt shadera aby zadeklarowac w VA uklad atrybutow.
+    QOpenGLShaderProgram prog;
+    prog.create();
     va->create();
-    Shader->Bind();
+    prog.bind();
     va->bind();
     vb->bind();
 
     int stride = 3 * sizeof(float); //only position on 3 floats
     //[TODO] Dodac klase opisujaca uklad buforow
-    Shader->GetRawProgram()->enableAttributeArray(0);
-    Shader->GetRawProgram()->setAttributeBuffer(0, GL_FLOAT, 0, 3, stride);
+    prog.enableAttributeArray(0);
+    prog.setAttributeBuffer(0, GL_FLOAT, 0, 3, stride);
 
     ib->bind();
     va->release();
 
     vb->release();
     ib->release();
-    Shader->Release();
+    prog.release();
 }
 
 int CubeObject::GetIndexCount()
@@ -89,10 +93,16 @@ int CubeObject::GetIndexCount()
     return 24;
 }
 
-void CubeObject::Bind()
+void CubeObject::Bind(ShaderWrapper* shader)
 {
-    Shader->SetUniform("u_MVP.Model", GetModelMatrix());
+    shader->SetUniform("u_MVP.Model", GetModelMatrix());
 
-    IRenderableObject::Bind();
+    IRenderableObject::Bind(shader);
+}
+
+void CubeObject::DefineBuffers()
+{
+    CreateBuffers();
+    IRenderableObject::DefineBuffers();
 }
 

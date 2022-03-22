@@ -19,12 +19,13 @@ private:
     void CreateBuffers();
 
 public:
-    PointObject(QVector3D pos, std::shared_ptr<ShaderWrapper> shader);
+    explicit PointObject(QVector3D pos);
     ~PointObject() override;
 
+    void DefineBuffers() override;
     int GetIndexCount() override;
     int GetDrawType() override { return GL_POINTS; }
-    void Bind() override;
+    void Bind(ShaderWrapper* shader) override;
 };
 
 #endif //SMOCAD_POINTOBJECT_H

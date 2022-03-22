@@ -211,13 +211,13 @@ void MainWindow::on_spinScaleZ_valueChanged(double arg1)
 
 void MainWindow::on_actionTorus_triggered()
 {
-    ui->sceneWidget->AddSelectableObject(new TorusObject(QVector3D(), ui->sceneWidget->shader, 5, 1, 36, 18));
+    ui->sceneWidget->AddSelectableObject(new TorusObject(QVector3D(), 5, 1, 36, 18));
 }
 
 
 void MainWindow::on_actionPoint_triggered()
 {
-    ui->sceneWidget->AddSelectableObject(new PointObject(QVector3D(), ui->sceneWidget->shader));
+    ui->sceneWidget->AddSelectableObject(new PointObject(QVector3D()));
 }
 
 

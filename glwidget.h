@@ -55,7 +55,7 @@ protected:
     void initializeGL() Q_DECL_OVERRIDE;
     void resizeGL(int w, int h) Q_DECL_OVERRIDE;
 
-    void DrawRenderableObject(IRenderableObject *ro);
+    void DrawRenderableObject(IRenderableObject *ro, std::shared_ptr<ShaderWrapper> shader);
 
     void mousePressEvent(QMouseEvent* event) Q_DECL_OVERRIDE {this->controls->mousePressSlot(event);}
     void mouseReleaseEvent(QMouseEvent* event) Q_DECL_OVERRIDE {this->controls->mouseReleaseSlot(event);}

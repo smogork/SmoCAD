@@ -6,8 +6,8 @@
 
 #include <QMatrix3x3>
 
-TorusObject::TorusObject(QVector3D pos, std::shared_ptr<ShaderWrapper> shader, float R, float r, int RDensity, int rDensity)
-        : IRenderableObject(pos, shader)
+TorusObject::TorusObject(QVector3D pos, float R, float r, int RDensity, int rDensity)
+        : IRenderableObject(pos)
 {
     SetBiggerRadius(R);
     SetSmallerRadius(r);
@@ -16,7 +16,6 @@ TorusObject::TorusObject(QVector3D pos, std::shared_ptr<ShaderWrapper> shader, f
 
     vb = std::make_unique<QOpenGLBuffer>(QOpenGLBuffer::VertexBuffer);
     ib = std::make_unique<QOpenGLBuffer>(QOpenGLBuffer::IndexBuffer);
-    CreateBuffers();
 }
 
 TorusObject::~TorusObject()
@@ -142,8 +141,10 @@ void TorusObject::CreateBuffers()
     ib->allocate(edges.data(), sizeof(int) * edges.size());
     ib->release();
 
+    QOpenGLShaderProgram prog;
+    prog.create();
     test = va->create();
-    Shader->Bind();
+    prog.bind();
     va->bind();
     test = vb->bind();
 
@@ -152,29 +153,27 @@ void TorusObject::CreateBuffers()
     //ale to jest rozjebane
     int stride = 3 * sizeof(float); //only position on 3 floats
     //[TODO] Dodac klase opisujaca uklad buforow
-    Shader->GetRawProgram()->enableAttributeArray(0);
-    Shader->GetRawProgram()->setAttributeBuffer(0, GL_FLOAT, 0, 3, stride);
+    prog.enableAttributeArray(0);
+    prog.setAttributeBuffer(0, GL_FLOAT, 0, 3, stride);
 
     test = ib->bind();
     va->release();
 
     vb->release();
     ib->release();
-    Shader->Release();
-
-    buffersCreated = true;
+    prog.release();
 }
 
 
-void TorusObject::Bind()
+void TorusObject::Bind(ShaderWrapper* shader)
 {
-    Shader->SetUniform("u_MVP.Model", GetModelMatrix());
-    IRenderableObject::Bind();
+    shader->SetUniform("u_MVP.Model", GetModelMatrix());
+    IRenderableObject::Bind(shader);
 }
 
 void TorusObject::UpdateBuffers()
 {
-    if (!buffersCreated)
+    if (!AreBuffersCreated())
         return;
 
     auto edges = GenerateTopologyEdges();
@@ -187,4 +186,10 @@ void TorusObject::UpdateBuffers()
     ib->bind();
     ib->allocate(edges.data(), sizeof(int) * edges.size());
     va->release();
+}
+
+void TorusObject::DefineBuffers()
+{
+    CreateBuffers();
+    IRenderableObject::DefineBuffers();
 }

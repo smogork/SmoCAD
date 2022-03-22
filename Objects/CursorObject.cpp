@@ -39,32 +39,33 @@ void CursorObject::CreateBuffers()
     ib->allocate(edges.data(), sizeof(int) * edges.size());
     ib->release();
 
+    QOpenGLShaderProgram prog;
+    prog.create();
     va->create();
-    Shader->Bind();
+    prog.bind();
     va->bind();
     vb->bind();
 
     int stride = 3 * sizeof(float); //only position on 3 floats
     //[TODO] Dodac klase opisujaca uklad buforow
-    Shader->GetRawProgram()->enableAttributeArray(0);
-    Shader->GetRawProgram()->setAttributeBuffer(0, GL_FLOAT, 0, 3, 2*stride);
-    Shader->GetRawProgram()->enableAttributeArray(1);
-    Shader->GetRawProgram()->setAttributeBuffer(1, GL_FLOAT, 3 * sizeof(float), 3, 2*stride);
+    prog.enableAttributeArray(0);
+    prog.setAttributeBuffer(0, GL_FLOAT, 0, 3, 2*stride);
+    prog.enableAttributeArray(1);
+    prog.setAttributeBuffer(1, GL_FLOAT, 3 * sizeof(float), 3, 2*stride);
 
     ib->bind();
     va->release();
 
     vb->release();
     ib->release();
-    Shader->Release();
+    prog.release();
 }
 
-CursorObject::CursorObject(QVector3D pos, std::shared_ptr<ShaderWrapper> shader)
-: IRenderableObject(pos, shader)
+CursorObject::CursorObject(QVector3D pos)
+: IRenderableObject(pos)
 {
     vb = std::make_unique<QOpenGLBuffer>(QOpenGLBuffer::VertexBuffer);
     ib = std::make_unique<QOpenGLBuffer>(QOpenGLBuffer::IndexBuffer);
-    CreateBuffers();
 }
 
 CursorObject::~CursorObject()
@@ -78,9 +79,15 @@ int CursorObject::GetIndexCount()
     return 6;
 }
 
-void CursorObject::Bind()
+void CursorObject::Bind(ShaderWrapper* shader)
 {
-    Shader->SetUniform("u_MVP.Model", GetModelMatrix());
+    shader->SetUniform("u_MVP.Model", GetModelMatrix());
 
-    IRenderableObject::Bind();
+    IRenderableObject::Bind(shader);
+}
+
+void CursorObject::DefineBuffers()
+{
+    CreateBuffers();
+    IRenderableObject::DefineBuffers();
 }

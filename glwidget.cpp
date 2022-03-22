@@ -32,12 +32,12 @@ void GLWidget::initializeGL()
     shader = std::make_shared<ShaderWrapper>("Shaders/uniform_color.vert", "Shaders/simple_color.frag");
     shader2 = std::make_shared<ShaderWrapper>("Shaders/buffer_color.vert", "Shaders/simple_color.frag");
 
-    renderableObjects.push_back(new CubeObject(QVector3D(0.0f, 5.0f, 5.0f), shader));
-    renderableObjects.push_back(new CubeObject(QVector3D(0.0f, 0.0f, 5.0f), shader));
-    renderableObjects.push_back(new PointObject(QVector3D(0.0f, 0.0f, 0.0f), shader));
-    renderableObjects.push_back(new PointObject(QVector3D(1.0f, 0.0f, 0.0f), shader));
-    renderableObjects.push_back(new PointObject(QVector3D(2.0f, 0.0f, 1.0f), shader));
-    renderableObjects.push_back(new TorusObject(QVector3D(5.0f, 0.0f, 10.0f), shader, 5, 1, 36, 18));
+    renderableObjects.push_back(new CubeObject(QVector3D(0.0f, 5.0f, 5.0f)));
+    renderableObjects.push_back(new CubeObject(QVector3D(0.0f, 0.0f, 5.0f)));
+    renderableObjects.push_back(new PointObject(QVector3D(0.0f, 0.0f, 0.0f)));
+    renderableObjects.push_back(new PointObject(QVector3D(1.0f, 0.0f, 0.0f)));
+    renderableObjects.push_back(new PointObject(QVector3D(2.0f, 0.0f, 1.0f)));
+    renderableObjects.push_back(new TorusObject(QVector3D(5.0f, 0.0f, 10.0f), 5, 1, 36, 18));
 
     shader->SetUniform("u_MVP.View", controls->Camera->GetViewMatrix());
     shader->SetUniform("u_MVP.Projection", viewport->GetProjectionMatrix());
@@ -63,20 +63,9 @@ void GLWidget::paintGL()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     for (IRenderableObject* ro : renderableObjects)
-    {
+        DrawRenderableObject(ro, shader);
 
-
-        ro->Bind();
-        glDrawElements(ro->GetDrawType(), ro->GetIndexCount(), GL_UNSIGNED_INT, 0);
-        ro->Release();
-    }
-
-    if (cursor)
-    {
-        cursor->Bind();
-        glDrawElements(cursor->GetDrawType(), cursor->GetIndexCount(), GL_UNSIGNED_INT, 0);
-        cursor->Release();
-    }
+    DrawRenderableObject(cursor.get(), shader2);
 }
 
 
@@ -148,7 +137,7 @@ void GLWidget::MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event)
     else
     {
         makeCurrent();
-        cursor = std::make_unique<CursorObject>(clickPoint, shader2);
+        cursor = std::make_unique<CursorObject>(clickPoint);
     }
 
     update();
@@ -172,5 +161,18 @@ void GLWidget::DeleteSelectableObject(IRenderableObject *ro)
 
         makeCurrent();
         delete ro;
+    }
+}
+
+void GLWidget::DrawRenderableObject(IRenderableObject *ro, std::shared_ptr<ShaderWrapper> shader)
+{
+    if (ro)
+    {
+        if (!ro->AreBuffersCreated())
+            ro->DefineBuffers();
+
+        ro->Bind(shader.get());
+        glDrawElements(ro->GetDrawType(), ro->GetIndexCount(), GL_UNSIGNED_INT, 0);
+        ro->Release(shader.get());
     }
 }

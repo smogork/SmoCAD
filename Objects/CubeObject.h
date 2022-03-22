@@ -24,12 +24,13 @@ private:
     void CreateBuffers();
 
 public:
-    CubeObject(QVector3D pos, std::shared_ptr<ShaderWrapper> shader);
+    explicit CubeObject(QVector3D pos);
     ~CubeObject() override;
 
+    void DefineBuffers() override;
     int GetIndexCount() override;
     int GetDrawType() override { return GL_LINES; }
-    void Bind() override;
+    void Bind(ShaderWrapper* shader) override;
 };
 
 

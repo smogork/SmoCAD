@@ -16,14 +16,15 @@
  */
 class IRenderableObject: public TransformableObject
 {
+private:
+    bool buffersCreated;
+
 protected:
     std::unique_ptr<QOpenGLVertexArrayObject> va = nullptr;
 
 public:
-    std::shared_ptr<ShaderWrapper> Shader = nullptr;
-
-    IRenderableObject(QVector3D pos, std::shared_ptr<ShaderWrapper> shader):
-            TransformableObject(pos), Shader(shader)
+    IRenderableObject(QVector3D pos):
+            TransformableObject(pos)
     {
         va = std::make_unique<QOpenGLVertexArrayObject>();
     }
@@ -33,10 +34,12 @@ public:
             va->destroy();
     }
 
+    bool AreBuffersCreated() { return buffersCreated; }
+    virtual void DefineBuffers() { buffersCreated = true; }
     virtual int GetIndexCount() = 0;
     virtual int GetDrawType() = 0;
-    virtual void Bind() { Shader->Bind(); va->bind(); }
-    virtual void Release() { va->release(); Shader->Release(); }
+    virtual void Bind(ShaderWrapper* shader) { shader->Bind(); va->bind(); }
+    virtual void Release(ShaderWrapper* shader) { va->release(); shader->Release(); }
 };
 
 
