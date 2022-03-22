@@ -24,14 +24,12 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionTorus_triggered()
 {
-    if (model->Cursor)
-        model->AddObject(new TorusObject(model->Cursor->Position, 5, 1, 36, 18));
+    model->AddObject(new TorusObject(QVector3D(), 5, 1, 36, 18));
 }
 
 void MainWindow::on_actionPoint_triggered()
 {
-    if (model->Cursor)
-        model->AddObject(new PointObject(model->Cursor->Position));
+    model->AddObject(new PointObject(QVector3D()));
 }
 
 void MainWindow::on_actionDelete_triggered()
@@ -51,13 +49,7 @@ void MainWindow::MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event)
     /*qDebug() << "CenterViewPlain:" << plain;
     qDebug() << "ClickPoint:" << clickPoint;*/
 
-    if (model->Cursor)
-        model->Cursor->Position = clickPoint;
-    else
-    {
-        model->Cursor = std::make_shared<CursorObject>(clickPoint);
-    }
-
+    model->UpdateCursor(clickPoint);
     ui->sceneWidget->update();
 }
 

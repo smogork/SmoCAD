@@ -44,7 +44,7 @@ void GLWidget::paintGL()
     for (IRenderableObject* ro : scene->GetRenderableObjects())
         DrawRenderableObject(ro, shader);
 
-    DrawRenderableObject(scene->Cursor.get(), shader2);
+    DrawRenderableObject(scene->GetCursorObject().get(), shader2);
 }
 
 GLWidget::~GLWidget()

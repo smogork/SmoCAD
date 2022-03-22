@@ -32,8 +32,11 @@ const std::list<IRenderableObject *> &SceneModel::GetRenderableObjects()
 
 void SceneModel::AddObject(IRenderableObject *ro)
 {
-    if (!ro)
+    if (!ro && cursor)
+    {
+        ro->Position = cursor->Position;
         renderableObjects.push_back(ro);
+    }
 }
 
 void SceneModel::ReleaseObjectsOnScene()
@@ -41,4 +44,23 @@ void SceneModel::ReleaseObjectsOnScene()
     for (IRenderableObject* ro : renderableObjects)
         delete ro;
     renderableObjects.clear();
+}
+
+void SceneModel::UpdateCursor(QVector3D position)
+{
+    if (cursor)
+        cursor->Position = position;
+    else
+        cursor = std::make_unique<CursorObject>(position);
+}
+
+void SceneModel::DeleteCursor()
+{
+    cursor.release();
+    cursor = nullptr;
+}
+
+const std::unique_ptr<CursorObject> &SceneModel::GetCursorObject()
+{
+    return cursor;
 }

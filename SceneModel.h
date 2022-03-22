@@ -12,6 +12,7 @@ class SceneModel
 {
 private:
     std::list<IRenderableObject*> renderableObjects;
+    std::unique_ptr<CursorObject> cursor = nullptr;
 
     void InitializeScene();
 
@@ -19,9 +20,11 @@ public:
     SceneModel();
     ~SceneModel();
 
-    std::shared_ptr<CursorObject> Cursor = nullptr;
-
     const std::list<IRenderableObject*>& GetRenderableObjects();
+    const std::unique_ptr<CursorObject>& GetCursorObject();
+
+    void UpdateCursor(QVector3D position);
+    void DeleteCursor();
 
     void AddObject(IRenderableObject* ro);
     void ReleaseObjectsOnScene();
