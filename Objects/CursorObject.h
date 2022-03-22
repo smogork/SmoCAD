@@ -10,7 +10,7 @@
 #include "IRenderableObject.h"
 #include "TransformableObject.h"
 
-class CursorObject: public TransformableObject, public IRenderableObject
+class CursorObject: public IRenderableObject
 {
 private:
     std::unique_ptr<QOpenGLBuffer> vb = nullptr;

@@ -60,7 +60,7 @@ void CursorObject::CreateBuffers()
 }
 
 CursorObject::CursorObject(QVector3D pos, std::shared_ptr<ShaderWrapper> shader)
-: TransformableObject(pos), IRenderableObject(shader)
+: IRenderableObject(pos, shader)
 {
     vb = std::make_unique<QOpenGLBuffer>(QOpenGLBuffer::VertexBuffer);
     ib = std::make_unique<QOpenGLBuffer>(QOpenGLBuffer::IndexBuffer);

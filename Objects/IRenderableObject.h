@@ -9,11 +9,12 @@
 #include <vector>
 
 #include <Renderer/ShaderWrapper.h>
+#include "TransformableObject.h"
 
 /*
  * Interfejs definiujacy metody obliczające wierzcholki geometrii oraz krawedzie topologii obiektu.
  */
-class IRenderableObject
+class IRenderableObject: public TransformableObject
 {
 protected:
     std::unique_ptr<QOpenGLVertexArrayObject> va = nullptr;
@@ -21,8 +22,8 @@ protected:
 public:
     std::shared_ptr<ShaderWrapper> Shader = nullptr;
 
-    IRenderableObject(std::shared_ptr<ShaderWrapper> shader):
-        Shader(shader)
+    IRenderableObject(QVector3D pos, std::shared_ptr<ShaderWrapper> shader):
+            TransformableObject(pos), Shader(shader)
     {
         va = std::make_unique<QOpenGLVertexArrayObject>();
     }

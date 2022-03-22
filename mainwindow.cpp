@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
+#include "Objects/PointObject.h"
 
 /*Trzeba zrobić:
  * 2. Zastapic szescian torusem.
@@ -206,4 +207,22 @@ void MainWindow::on_spinScaleZ_valueChanged(double arg1)
             change
     );
 }*/
+
+
+void MainWindow::on_actionTorus_triggered()
+{
+    ui->sceneWidget->AddSelectableObject(new TorusObject(QVector3D(), ui->sceneWidget->shader, 5, 1, 36, 18));
+}
+
+
+void MainWindow::on_actionPoint_triggered()
+{
+    ui->sceneWidget->AddSelectableObject(new PointObject(QVector3D(), ui->sceneWidget->shader));
+}
+
+
+void MainWindow::on_actionDelete_triggered()
+{
+
+}
 

@@ -64,6 +64,8 @@ void GLWidget::paintGL()
 
     for (IRenderableObject* ro : renderableObjects)
     {
+
+
         ro->Bind();
         glDrawElements(ro->GetDrawType(), ro->GetIndexCount(), GL_UNSIGNED_INT, 0);
         ro->Release();
@@ -150,4 +152,25 @@ void GLWidget::MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event)
     }
 
     update();
+}
+
+void GLWidget::AddSelectableObject(IRenderableObject *ro)
+{
+    if (cursor)
+    {
+        ro->Position = cursor->Position;
+        this->renderableObjects.push_back(ro);
+        update();
+    }
+}
+
+void GLWidget::DeleteSelectableObject(IRenderableObject *ro)
+{
+    if (ro != nullptr)
+    {
+        this->renderableObjects.remove(ro);
+
+        makeCurrent();
+        delete ro;
+    }
 }

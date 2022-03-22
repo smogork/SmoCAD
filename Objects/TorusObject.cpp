@@ -7,7 +7,7 @@
 #include <QMatrix3x3>
 
 TorusObject::TorusObject(QVector3D pos, std::shared_ptr<ShaderWrapper> shader, float R, float r, int RDensity, int rDensity)
-        : TransformableObject(pos), IRenderableObject(shader)
+        : IRenderableObject(pos, shader)
 {
     SetBiggerRadius(R);
     SetSmallerRadius(r);

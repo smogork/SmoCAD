@@ -32,6 +32,10 @@ public:
 
     void UpdateTorusObjectTransform(QVector3D pos, QVector3D rot, QVector3D scale);
     void UpdateTorusObjectParameters(float R, float r, int Rdensity, int rdensity);
+    void AddSelectableObject(IRenderableObject* ro);
+    void DeleteSelectableObject(IRenderableObject* ro);
+
+    std::shared_ptr<ShaderWrapper> shader = nullptr;
 
 public slots:
     void UpdateCameraSlot(std::shared_ptr<CameraUpdateEvent> event);
@@ -41,7 +45,7 @@ protected:
     std::unique_ptr<InputController> controls = nullptr;
     std::shared_ptr<Viewport> viewport = nullptr;
 
-    std::shared_ptr<ShaderWrapper> shader = nullptr;
+
     std::shared_ptr<ShaderWrapper> shader2 = nullptr;
 
     std::list<IRenderableObject*> renderableObjects;
@@ -50,6 +54,8 @@ protected:
     void paintGL() Q_DECL_OVERRIDE;
     void initializeGL() Q_DECL_OVERRIDE;
     void resizeGL(int w, int h) Q_DECL_OVERRIDE;
+
+    void DrawRenderableObject(IRenderableObject *ro);
 
     void mousePressEvent(QMouseEvent* event) Q_DECL_OVERRIDE {this->controls->mousePressSlot(event);}
     void mouseReleaseEvent(QMouseEvent* event) Q_DECL_OVERRIDE {this->controls->mouseReleaseSlot(event);}

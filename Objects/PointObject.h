@@ -8,7 +8,7 @@
 
 #include "CubeObject.h"
 
-class PointObject: public TransformableObject, public IRenderableObject
+class PointObject: public IRenderableObject
 {
 private:
     std::unique_ptr<QOpenGLBuffer> vb = nullptr;

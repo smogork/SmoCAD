@@ -13,7 +13,7 @@
 
 #include <Renderer/ShaderWrapper.h>
 
-class CubeObject: public TransformableObject, public IRenderableObject
+class CubeObject: public IRenderableObject
 {
 private:
     std::unique_ptr<QOpenGLBuffer> vb = nullptr;

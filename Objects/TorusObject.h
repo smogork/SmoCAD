@@ -10,7 +10,7 @@
 #include "TransformableObject.h"
 #include "IRenderableObject.h"
 
-class TorusObject: public TransformableObject, public IRenderableObject
+class TorusObject: public IRenderableObject
 {
 private:
     float biggerR;

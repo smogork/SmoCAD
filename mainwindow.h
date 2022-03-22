@@ -45,6 +45,12 @@ private slots:
 
     void on_spinScaleZ_valueChanged(double arg1);*/
 
+    void on_actionTorus_triggered();
+
+    void on_actionPoint_triggered();
+
+    void on_actionDelete_triggered();
+
 private:
     Ui::MainWindow *ui;
 };
