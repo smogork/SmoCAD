@@ -5,11 +5,14 @@
 #ifndef SMOCAD_SCENEMODEL_H
 #define SMOCAD_SCENEMODEL_H
 
-
+#include <QObject>
 #include "Objects/CursorObject.h"
+#include "Scene/Events/SelectedObjectChangedEvent.h"
 
-class SceneModel
+class SceneModel: public QObject
 {
+    Q_OBJECT
+
 private:
     std::list<IRenderableObject*> renderableObjects;
     std::unique_ptr<CursorObject> cursor = nullptr;
@@ -35,6 +38,10 @@ public:
     void SelectObject(IRenderableObject* ro);
     void AppendToSelectedObjects(IRenderableObject* ro);
     void UnselectObjects();
+
+signals:
+    void SelectedObjectChanged(std::shared_ptr<SelectedObjectChangedEvent> event);
+
 };
 
 

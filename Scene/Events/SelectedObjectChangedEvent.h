@@ -1,0 +1,15 @@
+//
+// Created by ksm on 3/22/22.
+//
+
+#ifndef SMOCAD_SELECTEDOBJECTCHANGEDEVENT_H
+#define SMOCAD_SELECTEDOBJECTCHANGEDEVENT_H
+
+
+class SelectedObjectChangedEvent
+{
+
+};
+
+
+#endif //SMOCAD_SELECTEDOBJECTCHANGEDEVENT_H

@@ -19,6 +19,8 @@ MainWindow::MainWindow(QWidget *parent)
                      this, &MainWindow::MouseRaycastSlot);
     QObject::connect(this->controls.get(), &InputController::CameraUpdated,
                      this, &MainWindow::CameraUpdated);
+    QObject::connect(this->model.get(), &SceneModel::SelectedObjectChanged,
+                     this, &MainWindow::SelectObjectChanged);
 
     for (auto ro : model->GetRenderableObjects())
         listObjects.push_back(std::make_unique<QListWidgetRenderableItem>(ui->listWidgetObjects, "dupa_start", ro, model));
@@ -172,6 +174,102 @@ void MainWindow::CameraUpdated(std::shared_ptr<CameraUpdateEvent> event)
 }
 #pragma endregion
 
+#pragma region TransformUIEvents
+void MainWindow::on_spinPosX_valueChanged(double arg1)
+{
+    UpdateSelectedObject();
+}
+
+void MainWindow::on_spinPosY_valueChanged(double arg1)
+{
+    UpdateSelectedObject();
+}
+
+void MainWindow::on_spinPosZ_valueChanged(double arg1)
+{
+    UpdateSelectedObject();
+}
+
+void MainWindow::on_spinRotX_valueChanged(double arg1)
+{
+    UpdateSelectedObject();
+}
+
+void MainWindow::on_spinRotY_valueChanged(double arg1)
+{
+    UpdateSelectedObject();
+}
+
+void MainWindow::on_spinRotZ_valueChanged(double arg1)
+{
+    UpdateSelectedObject();
+}
+
+void MainWindow::on_spinScaleX_valueChanged(double arg1)
+{
+    UpdateSelectedObject();
+}
+
+void MainWindow::on_spinScaleY_valueChanged(double arg1)
+{
+    UpdateSelectedObject();
+}
+
+void MainWindow::on_spinScaleZ_valueChanged(double arg1)
+{
+    UpdateSelectedObject();
+}
+
+void MainWindow::UpdateSelectedObject()
+{
+    auto selectedObjects = model->GetSelectedObjects();
+    if (selectedObjects.size() == 1)
+    {
+        IRenderableObject* item = selectedObjects.front();
+        item->Position = QVector3D(ui->spinPosX->value(), ui->spinPosY->value(), ui->spinPosZ->value());
+        item->Rotation = QVector3D(ui->spinRotX->value(), ui->spinRotY->value(), ui->spinRotZ->value());
+        item->Scale = QVector3D(ui->spinScaleX->value(), ui->spinScaleY->value(), ui->spinScaleZ->value());
+    }
+
+    ui->sceneWidget->update();
+}
+
+void MainWindow::SelectObjectChanged(std::shared_ptr<SelectedObjectChangedEvent> event)
+{
+    auto selectedObjects = model->GetSelectedObjects();
+    if (selectedObjects.size() == 1)
+    {
+        IRenderableObject* item = selectedObjects.front();
+        BlockTransformUISignals(true);
+        ui->spinPosX->setValue(item->Position.x());
+        ui->spinPosY->setValue(item->Position.y());
+        ui->spinPosZ->setValue(item->Position.z());
+        ui->spinRotX->setValue(item->Rotation.x());
+        ui->spinRotY->setValue(item->Rotation.y());
+        ui->spinRotZ->setValue(item->Rotation.z());
+        ui->spinScaleX->setValue(item->Scale.x());
+        ui->spinScaleY->setValue(item->Scale.y());
+        ui->spinScaleZ->setValue(item->Scale.z());
+        BlockTransformUISignals(false);
+    }
+
+    ui->sceneWidget->update();
+}
+
+void MainWindow::BlockTransformUISignals(bool b)
+{
+    ui->spinPosX->blockSignals(b);
+    ui->spinPosY->blockSignals(b);
+    ui->spinPosZ->blockSignals(b);
+    ui->spinRotX->blockSignals(b);
+    ui->spinRotY->blockSignals(b);
+    ui->spinRotZ->blockSignals(b);
+    ui->spinScaleX->blockSignals(b);
+    ui->spinScaleY->blockSignals(b);
+    ui->spinScaleZ->blockSignals(b);
+}
+#pragma endregion
+
 void MainWindow::on_spinParamU_valueChanged(double arg1)
 {
 
@@ -195,10 +293,12 @@ void MainWindow::on_spinParamVDens_valueChanged(int arg1)
 
 }
 
-void MainWindow::on_spinPosX_valueChanged(double arg1)
-{
 
-}
+
+
+
+
+
 
 
 

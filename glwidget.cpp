@@ -28,6 +28,7 @@ void GLWidget::initializeGL()
 
 void GLWidget::resizeGL(int w, int h)
 {
+    //[TODO] zglosic informacje o zmianie rozmiaru ekranu do spinów z pozycji kursora na ekranie
     QOpenGLWidget::resizeGL(w,h);
 
     auto proj = controls->viewport->UpdatePerspectiveMatrix(QSize(w, h));

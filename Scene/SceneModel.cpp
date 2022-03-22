@@ -95,6 +95,9 @@ void SceneModel::AppendToSelectedObjects(IRenderableObject *ro)
 
     ro->Selected = true;
     selectedObjects.push_back(ro);
+
+    auto event =std::make_shared<SelectedObjectChangedEvent>();
+    emit SelectedObjectChanged(event);
 }
 
 void SceneModel::UnselectObjects()

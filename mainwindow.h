@@ -30,9 +30,13 @@ private:
     void BlockCursorUISignals(bool b);
     QPoint GetCursorViewPosition();
 
+    void UpdateSelectedObject();
+    void BlockTransformUISignals(bool b);
+
 protected slots:
     void MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event);
     void CameraUpdated(std::shared_ptr<CameraUpdateEvent> event);
+    void SelectObjectChanged(std::shared_ptr<SelectedObjectChangedEvent> event);
 
 public:
     MainWindow(QWidget *parent = nullptr);
@@ -40,14 +44,14 @@ public:
 
 private slots:
     void on_spinPosX_valueChanged(double arg1);
-    /*void on_spinPosY_valueChanged(double arg1);
+    void on_spinPosY_valueChanged(double arg1);
     void on_spinPosZ_valueChanged(double arg1);
     void on_spinRotX_valueChanged(double arg1);
     void on_spinRotY_valueChanged(double arg1);
     void on_spinRotZ_valueChanged(double arg1);
     void on_spinScaleX_valueChanged(double arg1);
     void on_spinScaleY_valueChanged(double arg1);
-    void on_spinScaleZ_valueChanged(double arg1);*/
+    void on_spinScaleZ_valueChanged(double arg1);
 
     void on_spinCurPosX_valueChanged(double arg1);
     void on_spinCurPosY_valueChanged(double arg1);
