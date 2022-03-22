@@ -127,16 +127,14 @@ void GLWidget::UpdateCameraSlot(std::shared_ptr<CameraUpdateEvent> event)
 void GLWidget::MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event)
 {
     QVector4D plain = controls->Camera->GetCenterViewPlain();
-    QVector4D raycastDirection = (event->ClickViewPointFar - event->ClickViewPointNear).toVector4D();
-    QVector4D raycastStart = controls->Camera->GetPosition().toVector4D();
-    raycastStart.setW(1.0f);
 
-    float t = -QVector4D::dotProduct(plain, raycastStart) / QVector4D::dotProduct(plain, raycastDirection);
+    float t = -QVector4D::dotProduct(plain, event->RaycastStart) /
+            QVector4D::dotProduct(plain, event->RaycastDirection);
 
-    QVector3D clickPoint = (raycastDirection * t + raycastStart).toVector3D();
+    QVector3D clickPoint = (event->RaycastDirection * t + event->RaycastStart).toVector3D();
 
-    qDebug() << "CenterViewPlain:" << plain;
-    qDebug() << "ClickPoint:" << clickPoint;
+    /*qDebug() << "CenterViewPlain:" << plain;
+    qDebug() << "ClickPoint:" << clickPoint;*/
 
     if (cursor)
         cursor->Position = clickPoint;
