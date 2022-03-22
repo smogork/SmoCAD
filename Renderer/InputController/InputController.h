@@ -37,6 +37,7 @@ public:
     virtual ~InputController();
 
     std::unique_ptr<OrbitalCamera> Camera;
+    std::shared_ptr<Viewport> viewport = nullptr;
 
 public:
     virtual void keyPressSlot(QKeyEvent *event);
@@ -61,7 +62,7 @@ private:
     QPoint lastCursorPos;
     KeyState mouseButtonStates[3];
 
-    std::shared_ptr<Viewport> viewport = nullptr;
+
 
 protected:
 

@@ -2,6 +2,7 @@
 
 
 InputController::InputController(std::shared_ptr<Viewport> viewport, QObject *parent)
+: QObject(parent)
 {
     this->viewport = viewport;
     //[TODO] poprawic tworzenie kamery aby patrzyla na jakis sensowny obiekt

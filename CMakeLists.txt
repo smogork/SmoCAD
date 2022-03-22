@@ -39,7 +39,12 @@ set(PROJECT_SOURCES
         Renderer/ShaderWrapper.cpp Renderer/ShaderWrapper.h
         Renderer/InputController/InputController.cpp Renderer/InputController/InputController.h
         Renderer/InputController/InputEvents/CameraUpdateEvent.cpp Renderer/InputController/InputEvents/CameraUpdateEvent.h
-        Objects/CursorObject.cpp Objects/CursorObject.h Renderer/InputController/InputEvents/SceneMouseClickEvent.cpp Renderer/InputController/InputEvents/SceneMouseClickEvent.h Renderer/Camera/Viewport.cpp Renderer/Camera/Viewport.h Objects/PointObject.cpp Objects/PointObject.h)
+        Objects/CursorObject.cpp Objects/CursorObject.h
+        Renderer/InputController/InputEvents/SceneMouseClickEvent.cpp Renderer/InputController/InputEvents/SceneMouseClickEvent.h
+        Renderer/Camera/Viewport.cpp Renderer/Camera/Viewport.h
+        Objects/PointObject.cpp Objects/PointObject.h
+        Controls/controls.cpp Controls/controls.h Controls/controls.ui
+        SceneModel.cpp SceneModel.h)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(SmoCAD
