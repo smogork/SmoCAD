@@ -44,7 +44,7 @@ set(PROJECT_SOURCES
         Renderer/Camera/Viewport.cpp Renderer/Camera/Viewport.h
         Objects/PointObject.cpp Objects/PointObject.h
         Controls/controls.cpp Controls/controls.h Controls/controls.ui
-        SceneModel.cpp SceneModel.h Controls/QListWidgetRenderableItem.cpp Controls/QListWidgetRenderableItem.h)
+        Scene/SceneModel.cpp Scene/SceneModel.h Controls/QListWidgetRenderableItem.cpp Controls/QListWidgetRenderableItem.h Scene/Events/CursorChangedEvent.cpp Scene/Events/CursorChangedEvent.h)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(SmoCAD

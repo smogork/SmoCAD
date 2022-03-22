@@ -171,7 +171,7 @@ void InputController::EmitSceneMouseClickedEvent(QPoint screenPoint)
     qDebug() << "UnprojectFar:" << resultFar;
     qDebug() << "ViewFar:" << viewFar;*/
 
-    std::shared_ptr<SceneMouseClickEvent> event = std::make_shared<SceneMouseClickEvent>(resultNear, resultFar);
+    std::shared_ptr<SceneMouseClickEvent> event = std::make_shared<SceneMouseClickEvent>(screenPoint, resultNear, resultFar);
     emit SceneMouseClicked(event);
 }
 

@@ -15,7 +15,7 @@
 #include "Renderer/InputController/InputEvents/CameraUpdateEvent.h"
 
 #include <Renderer/ShaderWrapper.h>
-#include "SceneModel.h"
+#include "Scene/SceneModel.h"
 
 
 class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions

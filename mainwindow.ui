@@ -44,7 +44,7 @@
     <item>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
-       <widget class="QGroupBox" name="groupBoxTransform_2">
+       <widget class="QGroupBox" name="groupBoxCursor">
         <property name="title">
          <string>Cursor</string>
         </property>
@@ -52,7 +52,7 @@
          <item>
           <layout class="QGridLayout" name="gridLayout_4">
            <item row="3" column="3">
-            <widget class="QSpinBox" name="spinBox_2">
+            <widget class="QSpinBox" name="spinCurViewPosY">
              <property name="prefix">
               <string>Y </string>
              </property>
@@ -62,7 +62,7 @@
             </widget>
            </item>
            <item row="3" column="2">
-            <widget class="QSpinBox" name="spinBox">
+            <widget class="QSpinBox" name="spinCurViewPosX">
              <property name="suffix">
               <string/>
              </property>
@@ -75,7 +75,7 @@
             </widget>
            </item>
            <item row="1" column="3">
-            <widget class="QDoubleSpinBox" name="spinPosZ_2">
+            <widget class="QDoubleSpinBox" name="spinCurPosZ">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -97,7 +97,7 @@
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QDoubleSpinBox" name="spinPosX_2">
+            <widget class="QDoubleSpinBox" name="spinCurPosX">
              <property name="prefix">
               <string>X </string>
              </property>
@@ -113,7 +113,7 @@
             </widget>
            </item>
            <item row="1" column="2">
-            <widget class="QDoubleSpinBox" name="spinPosY_2">
+            <widget class="QDoubleSpinBox" name="spinCurPosY">
              <property name="prefix">
               <string>Y </string>
              </property>
@@ -385,7 +385,7 @@
          <item>
           <layout class="QGridLayout" name="gridLayout_3">
            <item row="1" column="1">
-            <widget class="QDoubleSpinBox" name="spinTorusr">
+            <widget class="QDoubleSpinBox" name="spinParamV">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -411,7 +411,7 @@
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QDoubleSpinBox" name="spinTorusR">
+            <widget class="QDoubleSpinBox" name="spinParamU">
              <property name="minimum">
               <double>0.100000000000000</double>
              </property>
@@ -421,7 +421,7 @@
             </widget>
            </item>
            <item row="1" column="3">
-            <widget class="QSpinBox" name="spinTorusrDensity">
+            <widget class="QSpinBox" name="spinParamVDens">
              <property name="minimum">
               <number>4</number>
              </property>
@@ -444,7 +444,7 @@
             </widget>
            </item>
            <item row="0" column="3">
-            <widget class="QSpinBox" name="spinTorusRDensity">
+            <widget class="QSpinBox" name="spinParamUDens">
              <property name="minimum">
               <number>4</number>
              </property>

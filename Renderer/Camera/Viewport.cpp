@@ -27,3 +27,11 @@ QSize Viewport::GetViewportSize()
 {
     return viewportSize;
 }
+
+QPoint Viewport::ComputeViewPoint(QVector3D NDCPoint)
+{
+    return QPoint(
+            2.0f * ((NDCPoint.x() - 1.0f) / viewportSize.width()) - 1.0f,
+            2.0f * ((viewportSize.height() - NDCPoint.y() + 1.0f) / viewportSize.height()) - 1.0f
+            );
+}

@@ -8,7 +8,7 @@
 
 #include <QListWidgetItem>
 #include "Objects/IRenderableObject.h"
-#include "SceneModel.h"
+#include "Scene/SceneModel.h"
 
 class QListWidgetRenderableItem: public QListWidgetItem
 {

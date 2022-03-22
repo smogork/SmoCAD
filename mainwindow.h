@@ -7,7 +7,7 @@
 #include <Renderer/InputController/InputController.h>
 #include "Objects/IRenderableObject.h"
 #include "Objects/CursorObject.h"
-#include "SceneModel.h"
+#include "Scene/SceneModel.h"
 #include "Controls/QListWidgetRenderableItem.h"
 
 QT_BEGIN_NAMESPACE
@@ -24,46 +24,45 @@ private:
     std::shared_ptr<SceneModel> model = nullptr;
     std::list<std::unique_ptr<QListWidgetRenderableItem>> listObjects;
 
+    void UpdateCursorUI(QVector3D wPos, QPoint vPos);
+    void UpdateCursorWorldPosition();
+    void UpdateCursorViewPosition();
+    void BlockCursorUISignals(bool b);
+    QPoint GetCursorViewPosition();
+
 protected slots:
     void MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event);
+    void CameraUpdated(std::shared_ptr<CameraUpdateEvent> event);
 
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
 private slots:
-    /*void on_spinTorusR_valueChanged(double arg1);
-
-    void on_spinTorusr_valueChanged(double arg1);
-
-    void on_spinTorusRDensity_valueChanged(int arg1);
-
-    void on_spinTorusrDensity_valueChanged(int arg1);
-
     void on_spinPosX_valueChanged(double arg1);
-
-    void on_spinPosY_valueChanged(double arg1);
-
+    /*void on_spinPosY_valueChanged(double arg1);
     void on_spinPosZ_valueChanged(double arg1);
-
     void on_spinRotX_valueChanged(double arg1);
-
     void on_spinRotY_valueChanged(double arg1);
-
     void on_spinRotZ_valueChanged(double arg1);
-
     void on_spinScaleX_valueChanged(double arg1);
-
     void on_spinScaleY_valueChanged(double arg1);
-
     void on_spinScaleZ_valueChanged(double arg1);*/
 
-    void on_actionTorus_triggered();
+    void on_spinCurPosX_valueChanged(double arg1);
+    void on_spinCurPosY_valueChanged(double arg1);
+    void on_spinCurPosZ_valueChanged(double arg1);
+    void on_spinCurViewPosX_valueChanged(int arg1);
+    void on_spinCurViewPosY_valueChanged(int arg1);
 
-    void on_actionPoint_triggered();
-
-    void on_actionDelete_triggered();
+    void on_spinParamU_valueChanged(double arg1);
+    void on_spinParamUDens_valueChanged(int arg1);
+    void on_spinParamV_valueChanged(double arg1);
+    void on_spinParamVDens_valueChanged(int arg1);
 
     void on_listWidgetObjects_itemClicked(QListWidgetItem *item);
+    void on_actionTorus_triggered();
+    void on_actionPoint_triggered();
+    void on_actionDelete_triggered();
 };
 #endif // MAINWINDOW_H

@@ -22,6 +22,7 @@ public:
 
     QMatrix4x4 GetProjectionMatrix();
     QSize GetViewportSize();
+    QPoint ComputeViewPoint(QVector3D NDCPoint);
 };
 
 
