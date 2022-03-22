@@ -20,6 +20,7 @@
 #include "Objects/CubeObject.h"
 #include "Objects/TorusObject.h"
 #include "Renderer/Camera/Viewport.h"
+#include "Objects/CursorObject.h"
 
 
 class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions
@@ -34,6 +35,7 @@ public:
 
 public slots:
     void UpdateCameraSlot(std::shared_ptr<CameraUpdateEvent> event);
+    void MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event);
 
 protected:
     std::unique_ptr<InputController> controls = nullptr;
@@ -42,8 +44,8 @@ protected:
     std::shared_ptr<ShaderWrapper> shader = nullptr;
     std::shared_ptr<ShaderWrapper> shader2 = nullptr;
 
-    //std::unique_ptr<CubeObject> cube;
     std::list<IRenderableObject*> renderableObjects;
+    std::unique_ptr<CursorObject> cursor = nullptr;
 
     void paintGL() Q_DECL_OVERRIDE;
     void initializeGL() Q_DECL_OVERRIDE;

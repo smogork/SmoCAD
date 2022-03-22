@@ -17,6 +17,8 @@ GLWidget::GLWidget(QWidget *pWidget)
 
     QObject::connect(this->controls.get(), &InputController::CameraUpdated,
                      this, &GLWidget::UpdateCameraSlot);
+    QObject::connect(this->controls.get(), &InputController::SceneMouseClicked,
+                     this, &GLWidget::MouseRaycastSlot);
 }
 
 void GLWidget::initializeGL()
@@ -28,8 +30,9 @@ void GLWidget::initializeGL()
 
     renderableObjects.push_back(new CubeObject(QVector3D(0.0f, 5.0f, 5.0f), shader));
     renderableObjects.push_back(new CubeObject(QVector3D(0.0f, 0.0f, 5.0f), shader));
-    renderableObjects.push_back(new TorusObject(QVector3D(5.0f, 0.0f, 10.0f), shader, 5, 1, 36, 18));
     renderableObjects.push_back(new CursorObject(QVector3D(0.0f, 0.0f, 0.0f), shader2));
+    renderableObjects.push_back(new TorusObject(QVector3D(5.0f, 0.0f, 10.0f), shader, 5, 1, 36, 18));
+    renderableObjects.push_back(new CursorObject(QVector3D(0.0f, -5.0f, 0.0f), shader2));
 
     shader->SetUniform("u_MVP.View", controls->Camera->GetViewMatrix());
     shader->SetUniform("u_MVP.Projection", viewport->GetProjectionMatrix());
@@ -59,6 +62,13 @@ void GLWidget::paintGL()
         ro->Bind();
         glDrawElements(GL_LINES, ro->GetIndexCount(), GL_UNSIGNED_INT, 0);
         ro->Release();
+    }
+
+    if (cursor)
+    {
+        cursor->Bind();
+        glDrawElements(GL_LINES, cursor->GetIndexCount(), GL_UNSIGNED_INT, 0);
+        cursor->Release();
     }
 }
 
@@ -111,5 +121,30 @@ void GLWidget::UpdateCameraSlot(std::shared_ptr<CameraUpdateEvent> event)
     makeCurrent();
     shader->SetUniform("u_MVP.View", event->NewViewMatrix);
     shader2->SetUniform("u_MVP.View", event->NewViewMatrix);
+    update();
+}
+
+void GLWidget::MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event)
+{
+    QVector4D plain = controls->Camera->GetCenterViewPlain();
+    QVector4D raycastDirection = (event->ClickViewPointFar - event->ClickViewPointNear).toVector4D();
+    QVector4D raycastStart = controls->Camera->GetPosition().toVector4D();
+    raycastStart.setW(1.0f);
+
+    float t = -QVector4D::dotProduct(plain, raycastStart) / QVector4D::dotProduct(plain, raycastDirection);
+
+    QVector3D clickPoint = (raycastDirection * t + raycastStart).toVector3D();
+
+    qDebug() << "CenterViewPlain:" << plain;
+    qDebug() << "ClickPoint:" << clickPoint;
+
+    if (cursor)
+        cursor->Position = clickPoint;
+    else
+    {
+        makeCurrent();
+        cursor = std::make_unique<CursorObject>(clickPoint, shader2);
+    }
+
     update();
 }
