@@ -64,3 +64,28 @@ const std::unique_ptr<CursorObject> &SceneModel::GetCursorObject()
 {
     return cursor;
 }
+
+void SceneModel::SelectObject(IRenderableObject *ro)
+{
+    if (!ro)
+        return;
+
+    if (selectedObject)
+        selectedObject->Selected = false;
+    selectedObject = ro;
+    selectedObject->Selected = true;
+}
+
+IRenderableObject* SceneModel::GetSelectedObject()
+{
+    return selectedObject;
+}
+
+void SceneModel::RemoveObject(IRenderableObject *ro)
+{
+    if (ro)
+    {
+        renderableObjects.remove(ro);
+        delete ro;
+    }
+}

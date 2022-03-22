@@ -64,5 +64,6 @@ private slots:
 
     void on_actionDelete_triggered();
 
+    void on_listWidgetObjects_itemClicked(QListWidgetItem *item);
 };
 #endif // MAINWINDOW_H

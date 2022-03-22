@@ -4,8 +4,19 @@
 
 #include "QListWidgetRenderableItem.h"
 
-QListWidgetRenderableItem::QListWidgetRenderableItem(QListWidget *parent, const QString& name, IRenderableObject *obj)
+QListWidgetRenderableItem::QListWidgetRenderableItem(QListWidget *parent, const QString& name, IRenderableObject *obj, std::shared_ptr<SceneModel> scene)
 : QListWidgetItem(name, parent)
 {
     this->obj = obj;
+    this->scene = scene;
+}
+
+void QListWidgetRenderableItem::SelectOnScene()
+{
+    scene->SelectObject(obj);
+}
+
+bool QListWidgetRenderableItem::CompareInsideObject(const IRenderableObject* other)
+{
+    return obj == other;
 }

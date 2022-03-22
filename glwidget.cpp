@@ -88,7 +88,6 @@ void GLWidget::InitializeUniforms()
 {
     shader->SetUniform("u_MVP.View", controls->Camera->GetViewMatrix());
     shader->SetUniform("u_MVP.Projection", controls->viewport->GetProjectionMatrix());
-    shader->SetUniform("u_ObjectColor", QVector4D(1.0f, 0.5f, 0.2f, 1.0f));
 
     shader2->SetUniform("u_MVP.View", controls->Camera->GetViewMatrix());
     shader2->SetUniform("u_MVP.Projection", controls->viewport->GetProjectionMatrix());

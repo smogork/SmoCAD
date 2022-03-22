@@ -23,6 +23,8 @@ protected:
     std::unique_ptr<QOpenGLVertexArrayObject> va = nullptr;
 
 public:
+    bool Selected = false;
+
     IRenderableObject(QVector3D pos):
             TransformableObject(pos)
     {
@@ -35,11 +37,23 @@ public:
     }
 
     bool AreBuffersCreated() { return buffersCreated; }
+
     virtual void DefineBuffers() { buffersCreated = true; }
     virtual int GetIndexCount() = 0;
     virtual int GetDrawType() = 0;
-    virtual void Bind(ShaderWrapper* shader) { shader->Bind(); va->bind(); }
+    virtual void Bind(ShaderWrapper* shader)
+    {
+        if (Selected)
+            shader->SetUniform("u_ObjectColor", QVector4D(0.8f, 0.8f, 0.8f, 1.0f));
+        else
+            shader->SetUniform("u_ObjectColor", QVector4D(1.0f, 0.5f, 0.2f, 1.0f));
+
+        shader->Bind();
+        va->bind();
+    }
+
     virtual void Release(ShaderWrapper* shader) { va->release(); shader->Release(); }
+
 };
 
 

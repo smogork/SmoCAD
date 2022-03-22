@@ -19,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent)
                      this, &MainWindow::MouseRaycastSlot);
 
     for (auto ro : model->GetRenderableObjects())
-        listObjects.push_back(std::make_unique<QListWidgetRenderableItem>(ui->listWidgetObjects, "dupa_start", ro));
+        listObjects.push_back(std::make_unique<QListWidgetRenderableItem>(ui->listWidgetObjects, "dupa_start", ro, model));
 }
 
 MainWindow::~MainWindow()
@@ -31,7 +31,7 @@ void MainWindow::on_actionTorus_triggered()
 {
     auto ro = new TorusObject(QVector3D(), 5, 1, 36, 18);
     model->AddObject(ro);
-    listObjects.push_back(std::make_unique<QListWidgetRenderableItem>(ui->listWidgetObjects, "torus_dupa", ro));
+    listObjects.push_back(std::make_unique<QListWidgetRenderableItem>(ui->listWidgetObjects, "Torus", ro, model));
     ui->sceneWidget->update();
 }
 
@@ -39,13 +39,18 @@ void MainWindow::on_actionPoint_triggered()
 {
     auto ro = new PointObject(QVector3D());
     model->AddObject(ro);
-    listObjects.push_back(std::make_unique<QListWidgetRenderableItem>(ui->listWidgetObjects, "punkt_dupa", ro));
+    listObjects.push_back(std::make_unique<QListWidgetRenderableItem>(ui->listWidgetObjects, "Point", ro, model));
     ui->sceneWidget->update();
 }
 
 void MainWindow::on_actionDelete_triggered()
 {
-
+    auto selectedObject = model->GetSelectedObject();
+    listObjects.remove_if(
+            [&](std::unique_ptr<QListWidgetRenderableItem> &item){ return item->CompareInsideObject(selectedObject);}
+            );
+    model->RemoveObject(selectedObject);
+    ui->sceneWidget->update();
 }
 
 void MainWindow::MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event)
@@ -61,6 +66,14 @@ void MainWindow::MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event)
     qDebug() << "ClickPoint:" << clickPoint;*/
 
     model->UpdateCursor(clickPoint);
+    ui->sceneWidget->update();
+}
+
+
+void MainWindow::on_listWidgetObjects_itemClicked(QListWidgetItem *item)
+{
+    auto rItem = (QListWidgetRenderableItem*)item;
+    rItem->SelectOnScene();
     ui->sceneWidget->update();
 }
 
