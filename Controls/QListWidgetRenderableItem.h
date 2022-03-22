@@ -19,7 +19,7 @@ private:
 public:
     QListWidgetRenderableItem(QListWidget* parent, const QString& name, IRenderableObject* obj, std::shared_ptr<SceneModel> scene);
 
-    void SelectOnScene();
+    void SelectOnScene(bool append = false);
     bool CompareInsideObject(const IRenderableObject* other);
     //friend operator==(QListWidgetRenderableItem one, QListWidgetRenderableItem two)
 

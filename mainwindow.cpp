@@ -45,11 +45,17 @@ void MainWindow::on_actionPoint_triggered()
 
 void MainWindow::on_actionDelete_triggered()
 {
-    auto selectedObject = model->GetSelectedObject();
-    listObjects.remove_if(
-            [&](std::unique_ptr<QListWidgetRenderableItem> &item){ return item->CompareInsideObject(selectedObject);}
-            );
-    model->RemoveObject(selectedObject);
+    auto selectedObjects = model->GetSelectedObjects();
+    for (auto o : selectedObjects)
+    {
+        listObjects.remove_if(
+                [&](std::unique_ptr<QListWidgetRenderableItem> &item)
+                {
+                    return item->CompareInsideObject(o);
+                }
+        );
+        model->RemoveObject(o);
+    }
     ui->sceneWidget->update();
 }
 
@@ -73,7 +79,7 @@ void MainWindow::MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event)
 void MainWindow::on_listWidgetObjects_itemClicked(QListWidgetItem *item)
 {
     auto rItem = (QListWidgetRenderableItem*)item;
-    rItem->SelectOnScene();
+    rItem->SelectOnScene(ui->listWidgetObjects->selectedItems().size() > 1);
     ui->sceneWidget->update();
 }
 

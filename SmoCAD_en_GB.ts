@@ -26,13 +26,13 @@
     <name>MainWindow</name>
     <message>
         <location filename="mainwindow.ui" line="23"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="413"/>
+        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="416"/>
         <source>MainWindow</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="49"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="417"/>
+        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="420"/>
         <source>Cursor</source>
         <translation type="unfinished"></translation>
     </message>
@@ -42,11 +42,11 @@
         <location filename="mainwindow.ui" line="233"/>
         <location filename="mainwindow.ui" line="290"/>
         <location filename="mainwindow.ui" line="306"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="418"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="423"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="430"/>
+        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="421"/>
+        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="426"/>
         <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="433"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="434"/>
+        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="436"/>
+        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="437"/>
         <source>Y </source>
         <translation type="unfinished"></translation>
     </message>
@@ -55,18 +55,18 @@
         <location filename="mainwindow.ui" line="195"/>
         <location filename="mainwindow.ui" line="211"/>
         <location filename="mainwindow.ui" line="328"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="421"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="428"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="429"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="436"/>
+        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="424"/>
+        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="431"/>
+        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="432"/>
+        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="439"/>
         <source>Z </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="134"/>
         <location filename="mainwindow.ui" line="347"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="424"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="437"/>
+        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="427"/>
+        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="440"/>
         <source>Position</source>
         <translation type="unfinished"></translation>
     </message>
@@ -76,91 +76,91 @@
         <location filename="mainwindow.ui" line="167"/>
         <location filename="mainwindow.ui" line="255"/>
         <location filename="mainwindow.ui" line="271"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="420"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="422"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="427"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="431"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="432"/>
+        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="423"/>
+        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="425"/>
+        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="430"/>
+        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="434"/>
+        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="435"/>
         <source>X </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="382"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="440"/>
+        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="443"/>
         <source>UV Parameters</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="406"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="441"/>
+        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="444"/>
         <source>V</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="439"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="442"/>
+        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="445"/>
         <source>U</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="462"/>
         <location filename="mainwindow.ui" line="472"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="443"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="444"/>
+        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="446"/>
+        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="447"/>
         <source>Density</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="144"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="425"/>
+        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="428"/>
         <source>Screen</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="159"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="426"/>
+        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="429"/>
         <source>Transform</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="357"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="438"/>
+        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="441"/>
         <source>Rotation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="mainwindow.ui" line="367"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="439"/>
+        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="442"/>
         <source>Scale</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="528"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="445"/>
+        <location filename="mainwindow.ui" line="537"/>
+        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="448"/>
         <source>Objects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="532"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="446"/>
+        <location filename="mainwindow.ui" line="541"/>
+        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="449"/>
         <source>Add</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="545"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="414"/>
+        <location filename="mainwindow.ui" line="554"/>
+        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="417"/>
         <source>Torus</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="550"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="415"/>
+        <location filename="mainwindow.ui" line="559"/>
+        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="418"/>
         <source>Point</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="555"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="416"/>
+        <location filename="mainwindow.ui" line="564"/>
+        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="419"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>

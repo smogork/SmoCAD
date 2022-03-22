@@ -39,6 +39,8 @@ public:
     std::unique_ptr<OrbitalCamera> Camera;
     std::shared_ptr<Viewport> viewport = nullptr;
 
+    bool IsKeyPressed(Qt::Key key);
+
 public:
     virtual void keyPressSlot(QKeyEvent *event);
     virtual void keyReleaseSlot(QKeyEvent *event);
@@ -53,8 +55,8 @@ signals:
 
 private:
     enum KeyState {
-        Pressed,
-        Released
+        Released,
+        Pressed
     };
     std::set<Qt::Key> knownButtons;
     std::map<Qt::Key, KeyState> keyStates;

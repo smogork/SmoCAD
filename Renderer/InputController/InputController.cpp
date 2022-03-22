@@ -71,12 +71,11 @@ void InputController::mouseMoveSlot(QMouseEvent *event)
 
     bool cameraChanged = false;
 
-    if (keyStates[Qt::Key_Shift] == KeyState::Pressed)
+    if (IsKeyPressed(Qt::Key_Shift))
     {
-        if (keyStates[Qt::Key_Control] == KeyState::Pressed)// touchpad - zoom
-        {
+        if (IsKeyPressed(Qt::Key_Control))// touchpad - zoom
             Camera->ChangePivotLength(dMove.y() * ZOOM_SENSITIVITY);
-        } else //touchpad - pan
+        else //touchpad - pan
         {
             Camera->MoveRight(-dMove.x() * MOVE_SENSITIVITY);
             Camera->MoveUp(dMove.y() * MOVE_SENSITIVITY);
@@ -84,7 +83,7 @@ void InputController::mouseMoveSlot(QMouseEvent *event)
         cameraChanged = true;
     }
 
-    if (keyStates[Qt::Key_Alt] == KeyState::Pressed) //touchpad - rotate
+    if (IsKeyPressed(Qt::Key_Alt)) //touchpad - rotate
     {
         Camera->RotateAroundCenter(dMove.x() * ROTATE_SENSITIVITY, dMove.y() * ROTATE_SENSITIVITY);
         cameraChanged = true;
@@ -123,6 +122,7 @@ void InputController::InitlizeKeyStates()
     knownButtons.insert(Qt::Key_S);
     knownButtons.insert(Qt::Key_A);
     knownButtons.insert(Qt::Key_D);
+    knownButtons.insert(Qt::Key_Escape);
 
     for (Qt::Key k: knownButtons)
     {
@@ -175,6 +175,10 @@ void InputController::EmitSceneMouseClickedEvent(QPoint screenPoint)
     emit SceneMouseClicked(event);
 }
 
+bool InputController::IsKeyPressed(Qt::Key key)
+{
+    return keyStates[key] == KeyState::Pressed;
+}
 
 
 #pragma endregion

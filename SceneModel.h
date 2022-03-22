@@ -13,7 +13,7 @@ class SceneModel
 private:
     std::list<IRenderableObject*> renderableObjects;
     std::unique_ptr<CursorObject> cursor = nullptr;
-    IRenderableObject* selectedObject = nullptr;
+    std::list<IRenderableObject*> selectedObjects;
 
     void InitializeScene();
 
@@ -23,7 +23,7 @@ public:
 
     const std::list<IRenderableObject*>& GetRenderableObjects();
     const std::unique_ptr<CursorObject>& GetCursorObject();
-    IRenderableObject* GetSelectedObject();
+    const std::list<IRenderableObject*>& GetSelectedObjects();
 
     void UpdateCursor(QVector3D position);
     void DeleteCursor();
@@ -33,6 +33,8 @@ public:
     void ReleaseObjectsOnScene();
 
     void SelectObject(IRenderableObject* ro);
+    void AppendToSelectedObjects(IRenderableObject* ro);
+    void UnselectObjects();
 };
 
 

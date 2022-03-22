@@ -56,7 +56,7 @@ void SceneModel::UpdateCursor(QVector3D position)
 
 void SceneModel::DeleteCursor()
 {
-    cursor.release();
+    delete cursor.release();
     cursor = nullptr;
 }
 
@@ -70,15 +70,13 @@ void SceneModel::SelectObject(IRenderableObject *ro)
     if (!ro)
         return;
 
-    if (selectedObject)
-        selectedObject->Selected = false;
-    selectedObject = ro;
-    selectedObject->Selected = true;
+    UnselectObjects();
+    AppendToSelectedObjects(ro);
 }
 
-IRenderableObject* SceneModel::GetSelectedObject()
+const std::list<IRenderableObject*>& SceneModel::GetSelectedObjects()
 {
-    return selectedObject;
+    return selectedObjects;
 }
 
 void SceneModel::RemoveObject(IRenderableObject *ro)
@@ -88,4 +86,20 @@ void SceneModel::RemoveObject(IRenderableObject *ro)
         renderableObjects.remove(ro);
         delete ro;
     }
+}
+
+void SceneModel::AppendToSelectedObjects(IRenderableObject *ro)
+{
+    if (!ro && std::find(selectedObjects.begin(), selectedObjects.end(), ro) != selectedObjects.end())
+        return;
+
+    ro->Selected = true;
+    selectedObjects.push_back(ro);
+}
+
+void SceneModel::UnselectObjects()
+{
+    for (auto ro : selectedObjects)
+        ro->Selected = false;
+    selectedObjects.clear();
 }
