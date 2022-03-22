@@ -33,6 +33,7 @@ public:
     }
 
     virtual int GetIndexCount() = 0;
+    virtual int GetDrawType() = 0;
     virtual void Bind() { Shader->Bind(); va->bind(); }
     virtual void Release() { va->release(); Shader->Release(); }
 };

@@ -28,6 +28,7 @@ public:
     ~CubeObject() override;
 
     int GetIndexCount() override;
+    int GetDrawType() override { return GL_LINES; }
     void Bind() override;
 };
 

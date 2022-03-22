@@ -1,6 +1,7 @@
 #include <QOpenGLFunctions>
 #include "glwidget.h"
 #include "Objects/CursorObject.h"
+#include "Objects/PointObject.h"
 
 GLWidget::GLWidget(QWidget *pWidget)
     : QOpenGLWidget(pWidget)
@@ -25,14 +26,18 @@ void GLWidget::initializeGL()
 {
     initializeOpenGLFunctions();
 
+    glEnable(GL_PROGRAM_POINT_SIZE);
+    //glEnable(GL_POINT_SMOOTH);
+
     shader = std::make_shared<ShaderWrapper>("Shaders/uniform_color.vert", "Shaders/simple_color.frag");
     shader2 = std::make_shared<ShaderWrapper>("Shaders/buffer_color.vert", "Shaders/simple_color.frag");
 
     renderableObjects.push_back(new CubeObject(QVector3D(0.0f, 5.0f, 5.0f), shader));
     renderableObjects.push_back(new CubeObject(QVector3D(0.0f, 0.0f, 5.0f), shader));
-    renderableObjects.push_back(new CursorObject(QVector3D(0.0f, 0.0f, 0.0f), shader2));
+    renderableObjects.push_back(new PointObject(QVector3D(0.0f, 0.0f, 0.0f), shader));
+    renderableObjects.push_back(new PointObject(QVector3D(1.0f, 0.0f, 0.0f), shader));
+    renderableObjects.push_back(new PointObject(QVector3D(2.0f, 0.0f, 1.0f), shader));
     renderableObjects.push_back(new TorusObject(QVector3D(5.0f, 0.0f, 10.0f), shader, 5, 1, 36, 18));
-    renderableObjects.push_back(new CursorObject(QVector3D(0.0f, -5.0f, 0.0f), shader2));
 
     shader->SetUniform("u_MVP.View", controls->Camera->GetViewMatrix());
     shader->SetUniform("u_MVP.Projection", viewport->GetProjectionMatrix());
@@ -60,14 +65,14 @@ void GLWidget::paintGL()
     for (IRenderableObject* ro : renderableObjects)
     {
         ro->Bind();
-        glDrawElements(GL_LINES, ro->GetIndexCount(), GL_UNSIGNED_INT, 0);
+        glDrawElements(ro->GetDrawType(), ro->GetIndexCount(), GL_UNSIGNED_INT, 0);
         ro->Release();
     }
 
     if (cursor)
     {
         cursor->Bind();
-        glDrawElements(GL_LINES, cursor->GetIndexCount(), GL_UNSIGNED_INT, 0);
+        glDrawElements(cursor->GetDrawType(), cursor->GetIndexCount(), GL_UNSIGNED_INT, 0);
         cursor->Release();
     }
 }

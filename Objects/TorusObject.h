@@ -42,6 +42,7 @@ public:
     int GetSmallerRDensity();
 
     int GetIndexCount() override;
+    int GetDrawType() override { return GL_LINES; }
     void Bind() override;
 };
 

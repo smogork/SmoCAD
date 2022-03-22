@@ -163,12 +163,12 @@ void InputController::EmitSceneMouseClickedEvent(QPoint screenPoint)
     QVector3D resultNear = viewNear.unproject(Camera->GetViewMatrix(), viewport->GetProjectionMatrix(), QRect(QPoint(0.0f, 0.0f), viewport->GetViewportSize()));
     QVector3D resultFar = viewFar.unproject(Camera->GetViewMatrix(), viewport->GetProjectionMatrix(), QRect(QPoint(0.0f, 0.0f), viewport->GetViewportSize()));
 
-    qDebug() << "Camera position:" << Camera->GetPosition();
+    /*qDebug() << "Camera position:" << Camera->GetPosition();
     qDebug() << "Camera center position:" << Camera->CenterPoint;
     qDebug() << "UnprojectNear:" << resultNear;
     qDebug() << "ViewNear:" << viewNear;
     qDebug() << "UnprojectFar:" << resultFar;
-    qDebug() << "ViewFar:" << viewFar;
+    qDebug() << "ViewFar:" << viewFar;*/
 
     std::shared_ptr<SceneMouseClickEvent> event = std::make_shared<SceneMouseClickEvent>(resultNear, resultFar);
     emit SceneMouseClicked(event);
