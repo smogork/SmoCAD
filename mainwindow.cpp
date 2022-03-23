@@ -2,8 +2,6 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include "Objects/PointObject.h"
-#include "Objects/TorusObject.h"
-#include "Controls/QListWidgetRenderableItem.h"
 
 MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -45,7 +43,7 @@ void MainWindow::AddNewObject(IRenderableObject* ro, const QString& name)
 
 void MainWindow::on_actionTorus_triggered()
 {
-    AddNewObject(new TorusObject(QVector3D(), 5, 1, 36, 18), "Cube");
+    AddNewObject(new TorusObject(QVector3D(), 5, 1, 36, 18), "Torus");
 }
 
 void MainWindow::on_actionPoint_triggered()
@@ -93,6 +91,7 @@ void MainWindow::MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event)
     if (model->SelectObjectByMouse(event->RaycastStart, event->RaycastDirection))
     {
         ui->groupBoxTransform->setEnabled(true);
+        ui->groupBoxUVParams->setEnabled(dynamic_cast<TorusObject*>(selectedTransform) != nullptr);
         ui->groupBoxCursor->setEnabled(false);
 
         model->DeleteCursor();
@@ -100,6 +99,7 @@ void MainWindow::MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event)
     else
     {
         ui->groupBoxTransform->setEnabled(false);
+        ui->groupBoxUVParams->setEnabled(false);
         ui->groupBoxCursor->setEnabled(true);
 
         model->UnselectObjects();
@@ -128,7 +128,10 @@ void MainWindow::CreateCursorOnScene(std::shared_ptr<SceneMouseClickEvent> event
 void MainWindow::on_listWidgetObjects_itemClicked(QListWidgetItem *item)
 {
     auto rItem = (QListWidgetRenderableItem*)item;
+
     ui->groupBoxTransform->setEnabled(true);
+    ui->groupBoxUVParams->setEnabled(dynamic_cast<TorusObject*>(rItem->obj) != nullptr);
+
     rItem->SelectOnScene(ui->listWidgetObjects->selectedItems().size() > 1);
     ui->sceneWidget->update();
 }
@@ -272,6 +275,8 @@ void MainWindow::UpdateSelectedObject()
         selectedTransform->Position = QVector3D(ui->spinPosX->value(), ui->spinPosY->value(), ui->spinPosZ->value());
         selectedTransform->Rotation = QVector3D(ui->spinRotX->value(), ui->spinRotY->value(), ui->spinRotZ->value());
         selectedTransform->Scale = QVector3D(ui->spinScaleX->value(), ui->spinScaleY->value(), ui->spinScaleZ->value());
+
+        UpdateUVParamsOfObject(dynamic_cast<TorusObject*>(selectedTransform));
     }
 
     ui->sceneWidget->update();
@@ -291,6 +296,8 @@ void MainWindow::SelectObjectChanged(std::shared_ptr<SelectedObjectChangedEvent>
     ui->spinScaleY->setValue(selectedTransform->Scale.y());
     ui->spinScaleZ->setValue(selectedTransform->Scale.z());
     BlockTransformUISignals(false);
+
+    UpdateUVParamsOfControls(dynamic_cast<TorusObject*>(selectedTransform));
 
     ui->sceneWidget->update();
 }
@@ -326,28 +333,59 @@ void MainWindow::BlockTransformUISignals(bool b)
 #pragma region UVParamsUIEvents
 void MainWindow::on_spinParamU_valueChanged(double arg1)
 {
-
+    UpdateSelectedObject();
 }
 
 
 void MainWindow::on_spinParamUDens_valueChanged(int arg1)
 {
-
+    UpdateSelectedObject();
 }
 
 
 void MainWindow::on_spinParamV_valueChanged(double arg1)
 {
-
+    UpdateSelectedObject();
 }
 
 
 void MainWindow::on_spinParamVDens_valueChanged(int arg1)
 {
-
+    UpdateSelectedObject();
 }
 
+void MainWindow::UpdateUVParamsOfObject(TorusObject* UVObject)
+{
+    if (UVObject)
+    {
+        UVObject->SetBiggerRadius(ui->spinParamU->value());
+        UVObject->SetSmallerRadius(ui->spinParamV->value());
+        UVObject->SetBiggerRadiusDensity(ui->spinParamUDens->value());
+        UVObject->SetSmallerRadiusDensity(ui->spinParamVDens->value());
+    }
+}
 
+void MainWindow::BlockUVParamUISignals(bool b)
+{
+    ui->spinParamU->blockSignals(b);
+    ui->spinParamV->blockSignals(b);
+    ui->spinParamUDens->blockSignals(b);
+    ui->spinParamVDens->blockSignals(b);
+}
 
+void MainWindow::UpdateUVParamsOfControls(TorusObject *UVObject)
+{
+    if (UVObject)
+    {
+        BlockUVParamUISignals(true);
+
+        ui->spinParamU->setValue(UVObject->GetBiggerR());
+        ui->spinParamV->setValue(UVObject->GetSmallerR());
+        ui->spinParamUDens->setValue(UVObject->GetBiggerRDensity());
+        ui->spinParamVDens->setValue(UVObject->GetSmallerRDensity());
+
+        BlockUVParamUISignals(false);
+    }
+}
 
 #pragma endregion

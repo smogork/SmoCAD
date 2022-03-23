@@ -17,10 +17,11 @@
 class IRenderableObject: public TransformableObject
 {
 private:
-    bool buffersCreated;
+    bool buffersCreated = false;
 
 protected:
     std::unique_ptr<QOpenGLVertexArrayObject> va = nullptr;
+    bool buffersToUpdate = false;
 
 public:
     bool Selected = false;
@@ -36,9 +37,11 @@ public:
             va->destroy();
     }
 
-    bool AreBuffersCreated() { return buffersCreated; }
+    bool AreBuffersCreated() { return buffersCreated;}
+    bool AreBuffersToUpdate() { return buffersToUpdate; }
 
     virtual void DefineBuffers() { buffersCreated = true; }
+    virtual void UpdateBuffers() { buffersToUpdate = false; }
     virtual int GetIndexCount() = 0;
     virtual int GetDrawType() = 0;
     virtual float TestAgainstRaycast(QVector4D raycastStart, QVector4D raycastDirection) { return NAN; }

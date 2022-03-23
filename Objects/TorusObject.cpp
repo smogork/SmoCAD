@@ -26,21 +26,25 @@ TorusObject::~TorusObject()
 
 void TorusObject::SetBiggerRadius(float value)
 {
+    buffersToUpdate = true;
     biggerR = value > 0.1f ? value : 0.1f;
 }
 
 void TorusObject::SetSmallerRadius(float value)
 {
+    buffersToUpdate = true;
     smallerR = value > 0.1f ? value : 0.1f;
 }
 
 void TorusObject::SetBiggerRadiusDensity(int value)
 {
+    buffersToUpdate = true;
     biggerRDensity = value < 4 ? 4 : value;
 }
 
 void TorusObject::SetSmallerRadiusDensity(int value)
 {
+    buffersToUpdate = true;
     smallerRDensity = value < 4 ? 4 : value;
 }
 
@@ -186,10 +190,12 @@ void TorusObject::UpdateBuffers()
     vb->bind();
     vb->allocate(vertices.data(), sizeof(float) * vertices.size());
     vb->release();
-    va->bind();
+    //va->bind();
     ib->bind();
     ib->allocate(edges.data(), sizeof(int) * edges.size());
-    va->release();
+    //va->release();
+
+    IRenderableObject::UpdateBuffers();
 }
 
 void TorusObject::DefineBuffers()

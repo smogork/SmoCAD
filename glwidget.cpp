@@ -79,6 +79,9 @@ void GLWidget::DrawRenderableObject(IRenderableObject *ro, std::shared_ptr<Shade
         if (!ro->AreBuffersCreated())
             ro->DefineBuffers();
 
+        if (ro->AreBuffersToUpdate())
+            ro->UpdateBuffers();
+
         ro->Bind(shader.get());
         if (uniformOverrides)
         {

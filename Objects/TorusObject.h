@@ -24,7 +24,6 @@ private:
     std::vector<float> GenerateGeometryVertices();
     std::vector<int> GenerateTopologyEdges();
     void CreateBuffers();
-    void UpdateBuffers();
 
 public:
 
@@ -42,6 +41,7 @@ public:
     int GetSmallerRDensity();
 
     void DefineBuffers() override;
+    void UpdateBuffers() override;
     int GetIndexCount() override;
     int GetDrawType() override { return GL_LINES; }
     void Bind(ShaderWrapper* shader) override;

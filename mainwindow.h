@@ -9,6 +9,7 @@
 #include "Objects/CursorObject.h"
 #include "Scene/SceneModel.h"
 #include "Controls/QListWidgetRenderableItem.h"
+#include "Objects/TorusObject.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -31,11 +32,15 @@ private:
     void UpdateCursorUI(QVector3D wPos, QPoint vPos);
     void UpdateCursorWorldPosition();
     void UpdateCursorViewPosition();
-    void BlockCursorUISignals(bool b);
     QPoint GetCursorViewPosition();
-
     void UpdateSelectedObject();
+
+    void UpdateUVParamsOfObject(TorusObject* UVObject);
+    void UpdateUVParamsOfControls(TorusObject* UVObject);
+
+    void BlockCursorUISignals(bool b);
     void BlockTransformUISignals(bool b);
+    void BlockUVParamUISignals(bool b);
 
 protected slots:
     void MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event);
@@ -73,5 +78,8 @@ private slots:
     void on_actionPoint_triggered();
     void on_actionDelete_triggered();
     void on_actionCube_triggered();
+
+
+
 };
 #endif // MAINWINDOW_H
