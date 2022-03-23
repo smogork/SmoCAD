@@ -99,11 +99,14 @@ void SceneModel::AppendToSelectedObjects(IRenderableObject *ro)
     if (selectedObject && !composite)
     {
         composite = std::make_unique<CompositeObject>(selectedObject, ro);
+        renderableObjects.remove(selectedObject);
+        renderableObjects.remove(ro);
         selectedObject = nullptr;
     }
     else
     {
         composite->AddObject(ro);
+        renderableObjects.remove(ro);
     }
 
     auto event =std::make_shared<SelectedObjectChangedEvent>(composite.get());
@@ -115,6 +118,8 @@ void SceneModel::UnselectObjects()
     if (composite)
     {
         composite->ApplyTransformationsToChildren();
+        for (CompositeObject::CompositeTransform &o: composite->GetObjects())
+            renderableObjects.push_back(o.Object);
         composite.reset();
     }
     if (selectedObject)

@@ -4,7 +4,6 @@
 
 #include "TransformableObject.h"
 #include <Qt3DCore>
-#include <QTransform>
 
 TransformableObject::TransformableObject(QVector3D position): TransformableObject(position, QVector3D(), QVector3D(1, 1, 1)) {}
 
@@ -32,5 +31,8 @@ TransformableObject TransformableObject::DecomposeTransformations(QMatrix4x4 tra
 {
     Qt3DCore::QTransform test;
     test.setMatrix(transform);
-    return TransformableObject(test.translation(), test.rotation().toEulerAngles(), test.scale3D());
+    auto t = test.translation();
+    auto r = test.rotation().toEulerAngles();
+    auto s = test.scale3D();
+    return TransformableObject(t, r, s);
 }

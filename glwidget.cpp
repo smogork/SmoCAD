@@ -42,9 +42,24 @@ void GLWidget::paintGL()
     glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    //Objects on scene
     for (IRenderableObject* ro : scene->GetRenderableObjects())
         DrawRenderableObject(ro, shader);
 
+    //Composite object
+    const std::unique_ptr<CompositeObject>& composite = scene->GetCompositeObject();
+    if (composite)
+    {
+        for (CompositeObject::CompositeTransform &o: composite->GetObjects())
+        {
+            DrawRenderableObject(o.Object, shader, [&](ShaderWrapper* sh) {
+                sh->SetUniform("u_MVP.Model", composite->GetModelMatrix() * o.dTransform.GetModelMatrix());
+            });
+        }
+        DrawRenderableObject(composite->GetCenterCursor().get(), shader2);
+    }
+
+    //User cursor
     DrawRenderableObject(scene->GetCursorObject().get(), shader2);
 }
 
@@ -55,7 +70,8 @@ GLWidget::~GLWidget()
     scene->ReleaseObjectsOnScene();
 }
 
-void GLWidget::DrawRenderableObject(IRenderableObject *ro, std::shared_ptr<ShaderWrapper> shader)
+void GLWidget::DrawRenderableObject(IRenderableObject *ro, std::shared_ptr<ShaderWrapper> shader, const std::function< void(
+        ShaderWrapper*)>& uniformOverrides)
 {
     if (ro)
     {
@@ -63,6 +79,8 @@ void GLWidget::DrawRenderableObject(IRenderableObject *ro, std::shared_ptr<Shade
             ro->DefineBuffers();
 
         ro->Bind(shader.get());
+        if (uniformOverrides)
+            uniformOverrides(shader.get());
         glDrawElements(ro->GetDrawType(), ro->GetIndexCount(), GL_UNSIGNED_INT, 0);
         ro->Release(shader.get());
     }

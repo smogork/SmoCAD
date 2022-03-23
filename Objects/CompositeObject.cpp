@@ -7,6 +7,8 @@
 CompositeObject::CompositeObject(IRenderableObject* one, IRenderableObject* two):
     TransformableObject((one->Position + two->Position) / 2)
 {
+    centerCursor = std::make_unique<CursorObject>(Position);
+
     one->Selected = true;
     two->Selected = true;
     objects.push_back(CompositeTransform(this, one));
@@ -50,4 +52,13 @@ void CompositeObject::ApplyTransformationsToChildren()
 std::list<CompositeObject::CompositeTransform> &CompositeObject::GetObjects()
 {
     return objects;
+}
+
+const std::unique_ptr<CursorObject> &CompositeObject::GetCenterCursor()
+{
+    centerCursor->Position = Position;
+    centerCursor->Rotation = Rotation;
+    centerCursor->Scale = Scale;
+
+    return centerCursor;
 }
