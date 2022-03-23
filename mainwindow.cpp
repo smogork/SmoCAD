@@ -20,6 +20,8 @@ MainWindow::MainWindow(QWidget *parent)
                      this, &MainWindow::CameraUpdated);
     QObject::connect(this->model.get(), &SceneModel::SelectedObjectChanged,
                      this, &MainWindow::SelectObjectChanged);
+    QObject::connect(ui->sceneWidget, &GLWidget::WidgetResized,
+                     this, &MainWindow::ResizeEvent);
 
     for (auto ro : model->GetRenderableObjects())
         listObjects.push_back(std::make_unique<QListWidgetRenderableItem>(ui->listWidgetObjects, "Start objects", ro, model));
@@ -413,6 +415,12 @@ void MainWindow::UpdateUVParamsOfControls(TorusObject *UVObject)
 
         BlockUVParamUISignals(false);
     }
+}
+
+void MainWindow::ResizeEvent(QSize size)
+{
+    ui->spinCurViewPosX->setMaximum(size.width());
+    ui->spinCurViewPosY->setMaximum(size.height());
 }
 
 #pragma endregion

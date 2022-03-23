@@ -27,6 +27,9 @@ public:
 
     void SetupSceneAndControls(std::shared_ptr<InputController> controler, std::shared_ptr<SceneModel> model);
 
+    signals:
+    void WidgetResized(QSize size);
+
 public slots:
     void UpdateCameraSlot(std::shared_ptr<CameraUpdateEvent> event);
 

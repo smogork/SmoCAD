@@ -41,6 +41,7 @@ private:
     void BlockCursorUISignals(bool b);
     void BlockTransformUISignals(bool b);
     void BlockUVParamUISignals(bool b);
+    void ResizeEvent(QSize size);
 
 protected slots:
     void MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event);
