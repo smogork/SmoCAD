@@ -1,19 +1,16 @@
 //
-// Created by ksm on 3/13/22.
+// Created by ksm on 3/21/22.
 //
 
-#ifndef SMOCAD_CUBEOBJECT_H
-#define SMOCAD_CUBEOBJECT_H
+#ifndef SMOCAD_CURSOROBJECT_H
+#define SMOCAD_CURSOROBJECT_H
 
-
-#include "TransformableObject.h"
-#include "IRenderableObject.h"
 
 #include <QOpenGLBuffer>
+#include "IRenderableObject.h"
+#include "TransformableObject.h"
 
-#include <Renderer/ShaderWrapper.h>
-
-class CubeObject: public IRenderableObject
+class CursorObject: public IRenderableObject
 {
 private:
     std::unique_ptr<QOpenGLBuffer> vb = nullptr;
@@ -24,8 +21,8 @@ private:
     void CreateBuffers();
 
 public:
-    explicit CubeObject(QVector3D pos);
-    ~CubeObject() override;
+    CursorObject(QVector3D pos);
+    ~CursorObject() override;
 
     void DefineBuffers() override;
     int GetIndexCount() override;
@@ -34,4 +31,4 @@ public:
 };
 
 
-#endif //SMOCAD_CUBEOBJECT_H
+#endif //SMOCAD_CURSOROBJECT_H

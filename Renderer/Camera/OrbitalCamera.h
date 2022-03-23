@@ -19,6 +19,7 @@ private:
     QVector3D topVec;
 
     void UpdateFrontAndRight();
+    QVector3D GetPivotVector();
 
 public:
     QVector3D CenterPoint;
@@ -37,6 +38,8 @@ public:
     void ChangePivotLength(float dPivotLength);
 
     QVector3D GetPosition();
+    //CenterViewPlain - płaszczyzna równoległa do neara i fara przechodząca przez centerPoint
+    QVector4D GetCenterViewPlain();
 
     void MoveUp(float moveValue);
     void MoveRight(float moveValue);

@@ -1,17 +1,28 @@
+#include <QListWidget>
+#include <QInputDialog>
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
-
-/*Trzeba zrobić:
- * 2. Zastapic szescian torusem.
- * 3. Polaczyc kontrolki z parametrami torusa.
- */
+#include "Objects/PointObject.h"
 
 MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
+    model = std::make_unique<SceneModel>();
+    viewport = std::make_shared<Viewport>(ui->sceneWidget->size(), 60);
+    controls = std::make_shared<InputController>(viewport, this);
+    ui->sceneWidget->SetupSceneAndControls(controls, model);
 
+    QObject::connect(this->controls.get(), &InputController::SceneMouseClicked,
+                     this, &MainWindow::MouseRaycastSlot);
+    QObject::connect(this->controls.get(), &InputController::CameraUpdated,
+                     this, &MainWindow::CameraUpdated);
+    QObject::connect(this->model.get(), &SceneModel::SelectedObjectChanged,
+                     this, &MainWindow::SelectObjectChanged);
+
+    for (auto ro : model->GetRenderableObjects())
+        listObjects.push_back(std::make_unique<QListWidgetRenderableItem>(ui->listWidgetObjects, "Start objects", ro, model));
 }
 
 MainWindow::~MainWindow()
@@ -19,191 +30,392 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-
-void MainWindow::on_spinTorusR_valueChanged(double arg1)
+void MainWindow::AddNewObject(IRenderableObject* ro, const QString& name)
 {
-    ui->sceneWidget->UpdateTorusObjectParameters(
-            arg1,
-            ui->sceneWidget->torus->GetSmallerR(),
-            ui->sceneWidget->torus->GetBiggerRDensity(),
-            ui->sceneWidget->torus->GetSmallerRDensity()
-    );
+    if (model->GetCursorObject())
+    {
+        model->AddObject(ro);
+        listObjects.push_back(std::make_unique<QListWidgetRenderableItem>(ui->listWidgetObjects, name, ro, model));
+        ui->sceneWidget->update();
+    }
+    else
+        delete ro;
+}
+
+void MainWindow::on_actionTorus_triggered()
+{
+    AddNewObject(new TorusObject(QVector3D(), 5, 1, 36, 18), "Torus");
+}
+
+void MainWindow::on_actionPoint_triggered()
+{
+    AddNewObject(new PointObject(QVector3D()), "Point");
+}
+
+void MainWindow::on_actionCube_triggered()
+{
+    AddNewObject(new CubeObject(QVector3D()), "Cube");
 }
 
 
-void MainWindow::on_spinTorusr_valueChanged(double arg1)
+void MainWindow::on_actionRename_triggered()
 {
-    ui->sceneWidget->UpdateTorusObjectParameters(
-            ui->sceneWidget->torus->GetBiggerR(),
-            arg1,
-            ui->sceneWidget->torus->GetBiggerRDensity(),
-            ui->sceneWidget->torus->GetSmallerRDensity()
-    );
+    IRenderableObject* selected = model->GetSelectedObject();
+    if (selected)
+    {
+        bool ok;
+        //[TODO] stowrzyc strukture aby kazdy obiekt mial nazwe
+        QString newName = QInputDialog::getText(this, "Rename object", "Insert new name of object", QLineEdit::Normal, "", &ok);
+
+        if (!ok)
+            return;
+
+        auto found = std::find_if(listObjects.begin(), listObjects.end(),
+                [&](std::unique_ptr<QListWidgetRenderableItem> &item)
+                {
+                    return item->CompareInsideObject(selected);
+                }
+        );
+        if (found != listObjects.end())
+        {
+            (*found)->setText(newName);
+        }
+    }
+}
+
+void MainWindow::on_actionDelete_triggered()
+{
+    if (model->GetSelectedObject())
+    {
+        listObjects.remove_if(
+                [&](std::unique_ptr<QListWidgetRenderableItem> &item)
+                {
+                    return item->CompareInsideObject(model->GetSelectedObject());
+                }
+        );
+        model->RemoveObject(model->GetSelectedObject());
+    }
+    else if (model->GetCompositeObject())
+    {
+        for (CompositeObject::CompositeTransform& o: model->GetCompositeObject()->GetObjects())
+        {
+            listObjects.remove_if(
+                    [&](std::unique_ptr<QListWidgetRenderableItem> &item)
+                    {
+                        return item->CompareInsideObject(o.Object);
+                    }
+            );
+        }
+        model->RemoveComposite();
+    }
+
+    selectedTransform = nullptr;
+    ui->sceneWidget->update();
+}
+
+void MainWindow::MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event)
+{
+    if (model->SelectObjectByMouse(event->RaycastStart, event->RaycastDirection))
+    {
+        ui->groupBoxTransform->setEnabled(true);
+        ui->groupBoxUVParams->setEnabled(dynamic_cast<TorusObject*>(selectedTransform) != nullptr);
+        ui->groupBoxCursor->setEnabled(false);
+
+        model->DeleteCursor();
+    }
+    else
+    {
+        ui->groupBoxTransform->setEnabled(false);
+        ui->groupBoxUVParams->setEnabled(false);
+        ui->groupBoxCursor->setEnabled(true);
+
+        model->UnselectObjects();
+        CreateCursorOnScene(event);
+    }
+
+    ui->sceneWidget->update();
+}
+
+void MainWindow::CreateCursorOnScene(std::shared_ptr<SceneMouseClickEvent> event)
+{
+    QVector4D plain = controls->Camera->GetCenterViewPlain();
+
+    float t = -QVector4D::dotProduct(plain, event->RaycastStart) /
+              QVector4D::dotProduct(plain, event->RaycastDirection);
+
+    QVector3D clickPoint = (event->RaycastDirection * t + event->RaycastStart).toVector3D();
+
+    /*qDebug() << "CenterViewPlain:" << plain;
+    qDebug() << "ClickPoint:" << clickPoint;*/
+
+    model->UpdateCursor(clickPoint);
+    UpdateCursorUI(clickPoint, event->ViewClickPoint);
+}
+
+void MainWindow::on_listWidgetObjects_itemClicked(QListWidgetItem *item)
+{
+    auto rItem = (QListWidgetRenderableItem*)item;
+
+    ui->groupBoxTransform->setEnabled(true);
+    ui->groupBoxUVParams->setEnabled(dynamic_cast<TorusObject*>(rItem->obj) != nullptr);
+
+    rItem->SelectOnScene(ui->listWidgetObjects->selectedItems().size() > 1);
+    ui->sceneWidget->update();
+}
+
+#pragma region CursorUiEvents
+void MainWindow::on_spinCurPosX_valueChanged(double arg1)
+{
+    UpdateCursorWorldPosition();
 }
 
 
-void MainWindow::on_spinTorusRDensity_valueChanged(int arg1)
+void MainWindow::on_spinCurPosY_valueChanged(double arg1)
 {
-    ui->sceneWidget->UpdateTorusObjectParameters(
-            ui->sceneWidget->torus->GetBiggerR(),
-            ui->sceneWidget->torus->GetSmallerR(),
-            arg1,
-            ui->sceneWidget->torus->GetSmallerRDensity()
-    );
+    UpdateCursorWorldPosition();
 }
 
 
-void MainWindow::on_spinTorusrDensity_valueChanged(int arg1)
+void MainWindow::on_spinCurPosZ_valueChanged(double arg1)
 {
-    ui->sceneWidget->UpdateTorusObjectParameters(
-            ui->sceneWidget->torus->GetBiggerR(),
-            ui->sceneWidget->torus->GetSmallerR(),
-            ui->sceneWidget->torus->GetBiggerRDensity(),
-            arg1
-    );
+    UpdateCursorWorldPosition();
 }
 
 
+void MainWindow::on_spinCurViewPosX_valueChanged(int arg1)
+{
+    UpdateCursorViewPosition();
+}
+
+
+void MainWindow::on_spinCurViewPosY_valueChanged(int arg1)
+{
+    UpdateCursorViewPosition();
+}
+
+void MainWindow::UpdateCursorUI(QVector3D wPos, QPoint vPos)
+{
+    BlockCursorUISignals(true);
+    ui->spinCurPosX->setValue(wPos.x());
+    ui->spinCurPosY->setValue(wPos.y());
+    ui->spinCurPosZ->setValue(wPos.z());
+    ui->spinCurViewPosX->setValue(vPos.x());
+    ui->spinCurViewPosY->setValue(vPos.y());
+    BlockCursorUISignals(false);
+}
+
+void MainWindow::BlockCursorUISignals(bool b)
+{
+    ui->spinCurPosX->blockSignals(b);
+    ui->spinCurPosY->blockSignals(b);
+    ui->spinCurPosZ->blockSignals(b);
+    ui->spinCurViewPosX->blockSignals(b);
+    ui->spinCurViewPosY->blockSignals(b);
+}
+
+void MainWindow::UpdateCursorWorldPosition()
+{
+    model->UpdateCursor(QVector3D(ui->spinCurPosX->value(), ui->spinCurPosY->value(), ui->spinCurPosZ->value()));
+    CameraUpdated(nullptr);
+}
+
+void MainWindow::UpdateCursorViewPosition()
+{
+    controls->EmitSceneMouseClickedEvent(QPoint(ui->spinCurViewPosX->value(), ui->spinCurViewPosY->value()));
+    ui->sceneWidget->update();
+}
+
+QPoint MainWindow::GetCursorViewPosition()
+{
+    QVector3D pos = model->GetCursorObject()->Position;
+    QVector3D vPoint = pos.project(
+            controls->Camera->GetViewMatrix(),
+            viewport->GetProjectionMatrix(),
+            QRect(QPoint(0.0f, 0.0f), viewport->GetViewportSize()));
+    return QPoint(vPoint.x(), viewport->GetViewportSize().height() - vPoint.y());
+}
+
+void MainWindow::CameraUpdated(std::shared_ptr<CameraUpdateEvent> event)
+{
+    if (model->GetCursorObject())
+    {
+        QPoint vPos = GetCursorViewPosition();
+        BlockCursorUISignals(true);
+        ui->spinCurViewPosX->setValue(vPos.x());
+        ui->spinCurViewPosY->setValue(vPos.y());
+        BlockCursorUISignals(false);
+        ui->sceneWidget->update();
+    }
+}
+#pragma endregion
+
+#pragma region TransformUIEvents
 void MainWindow::on_spinPosX_valueChanged(double arg1)
 {
-    QVector3D change(
-            arg1,
-            ui->sceneWidget->torus->Position.y(),
-            ui->sceneWidget->torus->Position.z()
-    );
-
-    ui->sceneWidget->UpdateTorusObjectTransform(
-            change,
-            ui->sceneWidget->torus->Rotation,
-            ui->sceneWidget->torus->Scale
-    );
+    UpdateSelectedObject();
 }
-
 
 void MainWindow::on_spinPosY_valueChanged(double arg1)
 {
-    QVector3D change(
-            ui->sceneWidget->torus->Position.x(),
-            arg1,
-            ui->sceneWidget->torus->Position.z()
-    );
-
-    ui->sceneWidget->UpdateTorusObjectTransform(
-            change,
-            ui->sceneWidget->torus->Rotation,
-            ui->sceneWidget->torus->Scale
-    );
+    UpdateSelectedObject();
 }
-
 
 void MainWindow::on_spinPosZ_valueChanged(double arg1)
 {
-    QVector3D change(
-            ui->sceneWidget->torus->Position.x(),
-            ui->sceneWidget->torus->Position.y(),
-            arg1
-    );
-
-    ui->sceneWidget->UpdateTorusObjectTransform(
-            change,
-            ui->sceneWidget->torus->Rotation,
-            ui->sceneWidget->torus->Scale
-    );
+    UpdateSelectedObject();
 }
-
 
 void MainWindow::on_spinRotX_valueChanged(double arg1)
 {
-    QVector3D change(
-            arg1,
-            ui->sceneWidget->torus->Rotation.y(),
-            ui->sceneWidget->torus->Rotation.z()
-    );
-
-    ui->sceneWidget->UpdateTorusObjectTransform(
-            ui->sceneWidget->torus->Position,
-            change,
-            ui->sceneWidget->torus->Scale
-    );
+    UpdateSelectedObject();
 }
-
 
 void MainWindow::on_spinRotY_valueChanged(double arg1)
 {
-    QVector3D change(
-            ui->sceneWidget->torus->Rotation.x(),
-            arg1,
-            ui->sceneWidget->torus->Rotation.z()
-    );
-
-    ui->sceneWidget->UpdateTorusObjectTransform(
-            ui->sceneWidget->torus->Position,
-            change,
-            ui->sceneWidget->torus->Scale
-    );
+    UpdateSelectedObject();
 }
-
 
 void MainWindow::on_spinRotZ_valueChanged(double arg1)
 {
-    QVector3D change(
-            ui->sceneWidget->torus->Rotation.x(),
-            ui->sceneWidget->torus->Rotation.y(),
-            arg1
-    );
-
-    ui->sceneWidget->UpdateTorusObjectTransform(
-            ui->sceneWidget->torus->Position,
-            change,
-            ui->sceneWidget->torus->Scale
-    );
+    UpdateSelectedObject();
 }
-
 
 void MainWindow::on_spinScaleX_valueChanged(double arg1)
 {
-    QVector3D change(
-            arg1,
-            ui->sceneWidget->torus->Scale.y(),
-            ui->sceneWidget->torus->Scale.z()
-    );
-
-    ui->sceneWidget->UpdateTorusObjectTransform(
-            ui->sceneWidget->torus->Position,
-            ui->sceneWidget->torus->Rotation,
-            change
-    );
+    UpdateSelectedObject();
 }
-
 
 void MainWindow::on_spinScaleY_valueChanged(double arg1)
 {
-    QVector3D change(
-            ui->sceneWidget->torus->Scale.x(),
-            arg1,
-            ui->sceneWidget->torus->Scale.z()
-    );
-
-    ui->sceneWidget->UpdateTorusObjectTransform(
-            ui->sceneWidget->torus->Position,
-            ui->sceneWidget->torus->Rotation,
-            change
-    );
+    UpdateSelectedObject();
 }
-
 
 void MainWindow::on_spinScaleZ_valueChanged(double arg1)
 {
-    QVector3D change(
-            ui->sceneWidget->torus->Scale.x(),
-            ui->sceneWidget->torus->Scale.y(),
-            arg1
-    );
-
-    ui->sceneWidget->UpdateTorusObjectTransform(
-            ui->sceneWidget->torus->Position,
-            ui->sceneWidget->torus->Rotation,
-            change
-    );
+    UpdateSelectedObject();
 }
+
+void MainWindow::UpdateSelectedObject()
+{
+    if (selectedTransform)
+    {
+        selectedTransform->Position = QVector3D(ui->spinPosX->value(), ui->spinPosY->value(), ui->spinPosZ->value());
+        selectedTransform->Rotation = QVector3D(ui->spinRotX->value(), ui->spinRotY->value(), ui->spinRotZ->value());
+        selectedTransform->Scale = QVector3D(ui->spinScaleX->value(), ui->spinScaleY->value(), ui->spinScaleZ->value());
+
+        UpdateUVParamsOfObject(dynamic_cast<TorusObject*>(selectedTransform));
+    }
+
+    ui->sceneWidget->update();
+}
+
+void MainWindow::SelectObjectChanged(std::shared_ptr<SelectedObjectChangedEvent> event)
+{
+    selectedTransform = event->ObjectToTransform;
+    BlockTransformUISignals(true);
+    ui->spinPosX->setValue(selectedTransform->Position.x());
+    ui->spinPosY->setValue(selectedTransform->Position.y());
+    ui->spinPosZ->setValue(selectedTransform->Position.z());
+    ui->spinRotX->setValue(selectedTransform->Rotation.x());
+    ui->spinRotY->setValue(selectedTransform->Rotation.y());
+    ui->spinRotZ->setValue(selectedTransform->Rotation.z());
+    ui->spinScaleX->setValue(selectedTransform->Scale.x());
+    ui->spinScaleY->setValue(selectedTransform->Scale.y());
+    ui->spinScaleZ->setValue(selectedTransform->Scale.z());
+    BlockTransformUISignals(false);
+
+    UpdateUVParamsOfControls(dynamic_cast<TorusObject*>(selectedTransform));
+
+    ui->sceneWidget->update();
+}
+
+void MainWindow::BlockTransformUISignals(bool b)
+{
+    ui->spinPosX->blockSignals(b);
+    ui->spinPosY->blockSignals(b);
+    ui->spinPosZ->blockSignals(b);
+    ui->spinRotX->blockSignals(b);
+    ui->spinRotY->blockSignals(b);
+    ui->spinRotZ->blockSignals(b);
+    ui->spinScaleX->blockSignals(b);
+    ui->spinScaleY->blockSignals(b);
+    ui->spinScaleZ->blockSignals(b);
+}
+
+
+/*void MainWindow::EnableTransformContorls(bool b)
+{
+    ui->spinPosX->setEnabled(b);
+    ui->spinPosY->setEnabled(b);
+    ui->spinPosZ->setEnabled(b);
+    ui->spinRotX->setEnabled(b);
+    ui->spinRotY->setEnabled(b);
+    ui->spinRotZ->setEnabled(b);
+    ui->spinScaleX->setEnabled(b);
+    ui->spinScaleY->setEnabled(b);
+    ui->spinScaleZ->setEnabled(b);
+}*/
+#pragma endregion
+
+#pragma region UVParamsUIEvents
+void MainWindow::on_spinParamU_valueChanged(double arg1)
+{
+    UpdateSelectedObject();
+}
+
+
+void MainWindow::on_spinParamUDens_valueChanged(int arg1)
+{
+    UpdateSelectedObject();
+}
+
+
+void MainWindow::on_spinParamV_valueChanged(double arg1)
+{
+    UpdateSelectedObject();
+}
+
+
+void MainWindow::on_spinParamVDens_valueChanged(int arg1)
+{
+    UpdateSelectedObject();
+}
+
+void MainWindow::UpdateUVParamsOfObject(TorusObject* UVObject)
+{
+    if (UVObject)
+    {
+        UVObject->SetBiggerRadius(ui->spinParamU->value());
+        UVObject->SetSmallerRadius(ui->spinParamV->value());
+        UVObject->SetBiggerRadiusDensity(ui->spinParamUDens->value());
+        UVObject->SetSmallerRadiusDensity(ui->spinParamVDens->value());
+    }
+}
+
+void MainWindow::BlockUVParamUISignals(bool b)
+{
+    ui->spinParamU->blockSignals(b);
+    ui->spinParamV->blockSignals(b);
+    ui->spinParamUDens->blockSignals(b);
+    ui->spinParamVDens->blockSignals(b);
+}
+
+void MainWindow::UpdateUVParamsOfControls(TorusObject *UVObject)
+{
+    if (UVObject)
+    {
+        BlockUVParamUISignals(true);
+
+        ui->spinParamU->setValue(UVObject->GetBiggerR());
+        ui->spinParamV->setValue(UVObject->GetSmallerR());
+        ui->spinParamUDens->setValue(UVObject->GetBiggerRDensity());
+        ui->spinParamVDens->setValue(UVObject->GetSmallerRDensity());
+
+        BlockUVParamUISignals(false);
+    }
+}
+
+#pragma endregion
+
+
 

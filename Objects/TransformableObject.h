@@ -20,7 +20,9 @@ public:
 
     TransformableObject(QVector3D position, QVector3D rotation, QVector3D scale);
 
-    QMatrix4x4 GetModelMatrix();
+    virtual QMatrix4x4 GetModelMatrix();
+
+    static TransformableObject DecomposeTransformations(QMatrix4x4 transform);
 
     static QVector3D GetXAxis() { return {1.0, 0.0, 0.0}; }
 

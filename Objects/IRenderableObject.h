@@ -5,19 +5,53 @@
 #ifndef SMOCAD_IRENDERABLEOBJECT_H
 #define SMOCAD_IRENDERABLEOBJECT_H
 
+#include <QOpenGLVertexArrayObject>
 #include <vector>
+
+#include <Renderer/ShaderWrapper.h>
+#include "TransformableObject.h"
 
 /*
  * Interfejs definiujacy metody obliczające wierzcholki geometrii oraz krawedzie topologii obiektu.
  */
-class IRenderableObject
+class IRenderableObject: public TransformableObject
 {
-public:
+private:
+    bool buffersCreated = false;
 
-    //[TODO] przerobic aby obiekty zwracaly jakies ludzkie typu na punkty i krawedzie
-    virtual std::vector<float> GenerateGeometryVertices() = 0;
-    virtual std::vector<int> GenerateTopologyEdges() = 0;
+protected:
+    std::unique_ptr<QOpenGLVertexArrayObject> va = nullptr;
+    bool buffersToUpdate = false;
+
+public:
+    bool Selected = false;
+
+    IRenderableObject(QVector3D pos):
+            TransformableObject(pos)
+    {
+        va = std::make_unique<QOpenGLVertexArrayObject>();
+    }
+    virtual ~IRenderableObject()
+    {
+        if (va->isCreated())
+            va->destroy();
+    }
+
+    bool AreBuffersCreated() { return buffersCreated;}
+    bool AreBuffersToUpdate() { return buffersToUpdate; }
+
+    virtual void DefineBuffers() { buffersCreated = true; }
+    virtual void UpdateBuffers() { buffersToUpdate = false; }
     virtual int GetIndexCount() = 0;
+    virtual int GetDrawType() = 0;
+    virtual float TestAgainstRaycast(QVector4D raycastStart, QVector4D raycastDirection) { return NAN; }
+    virtual void Bind(ShaderWrapper* shader)
+    {
+        shader->Bind();
+        va->bind();
+    }
+    virtual void Release(ShaderWrapper* shader) { va->release(); shader->Release(); }
+
 };
 
 

@@ -49,11 +49,7 @@ void OrbitalCamera::SetPivotLength(float pivotLength)
 
 QVector3D OrbitalCamera::GetPosition()
 {
-    QVector3D pivot(
-            r * cosf(thetaAngle) * cosf(fiAngle),
-            r * sinf(thetaAngle),
-            r * sinf(fiAngle) * cosf(thetaAngle));
-    return CenterPoint + pivot;
+    return CenterPoint + r * GetPivotVector();
 }
 
 void OrbitalCamera::ChangePivotLength(float dPivotLength)
@@ -73,12 +69,29 @@ void OrbitalCamera::MoveRight(float moveValue)
 
 void OrbitalCamera::UpdateFrontAndRight()
 {
-    QVector3D frontVec(
-            -cosf(thetaAngle) * cosf(fiAngle),
-            -sinf(thetaAngle),
-            -sinf(fiAngle) * cosf(thetaAngle));
+    QVector3D frontVec = - GetPivotVector();
     rightVec = QVector3D::crossProduct(frontVec, TransformableObject::GetYAxis()).normalized();
     topVec = QVector3D::crossProduct(rightVec, frontVec);
+}
+
+QVector4D OrbitalCamera::GetCenterViewPlain()
+{
+    QVector3D back = GetPivotVector();
+
+    return {
+            back.x(),
+            back.y(),
+            back.z(),
+            QVector3D::dotProduct(back, -CenterPoint)
+    };
+}
+
+QVector3D OrbitalCamera::GetPivotVector()
+{
+    return QVector3D (
+            cosf(thetaAngle) * cosf(fiAngle),
+            sinf(thetaAngle),
+            sinf(fiAngle) * cosf(thetaAngle));
 }
 
 
