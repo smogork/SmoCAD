@@ -555,6 +555,8 @@
     </widget>
     <addaction name="menuAdd"/>
     <addaction name="actionDelete"/>
+    <addaction name="separator"/>
+    <addaction name="actionRename"/>
    </widget>
    <addaction name="menuObjects"/>
   </widget>
@@ -577,6 +579,11 @@
   <action name="actionCube">
    <property name="text">
     <string>Cube</string>
+   </property>
+  </action>
+  <action name="actionRename">
+   <property name="text">
+    <string>Rename</string>
    </property>
   </action>
  </widget>

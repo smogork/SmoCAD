@@ -1,4 +1,5 @@
 #include <QListWidget>
+#include <QInputDialog>
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include "Objects/PointObject.h"
@@ -54,6 +55,32 @@ void MainWindow::on_actionPoint_triggered()
 void MainWindow::on_actionCube_triggered()
 {
     AddNewObject(new CubeObject(QVector3D()), "Cube");
+}
+
+
+void MainWindow::on_actionRename_triggered()
+{
+    IRenderableObject* selected = model->GetSelectedObject();
+    if (selected)
+    {
+        bool ok;
+        //[TODO] stowrzyc strukture aby kazdy obiekt mial nazwe
+        QString newName = QInputDialog::getText(this, "Rename object", "Insert new name of object", QLineEdit::Normal, "", &ok);
+
+        if (!ok)
+            return;
+
+        auto found = std::find_if(listObjects.begin(), listObjects.end(),
+                [&](std::unique_ptr<QListWidgetRenderableItem> &item)
+                {
+                    return item->CompareInsideObject(selected);
+                }
+        );
+        if (found != listObjects.end())
+        {
+            (*found)->setText(newName);
+        }
+    }
 }
 
 void MainWindow::on_actionDelete_triggered()
@@ -389,3 +416,6 @@ void MainWindow::UpdateUVParamsOfControls(TorusObject *UVObject)
 }
 
 #pragma endregion
+
+
+

@@ -81,5 +81,6 @@ private slots:
 
 
 
+    void on_actionRename_triggered();
 };
 #endif // MAINWINDOW_H

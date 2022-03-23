@@ -126,6 +126,7 @@ void SceneModel::UnselectObjects()
     if (selectedObject)
     {
         selectedObject->Selected = false;
+        selectedObject = nullptr;
     }
 }
 
