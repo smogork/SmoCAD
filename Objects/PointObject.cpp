@@ -84,3 +84,30 @@ void PointObject::DefineBuffers()
     CreateBuffers();
     IRenderableObject::DefineBuffers();
 }
+
+float PointObject::TestAgainstRaycast(QVector4D raycastStart, QVector4D raycastDirection)
+{
+    QMatrix4x4 sphereMatrix;
+    sphereMatrix(3,3) = -raycastSphereR * raycastSphereR;
+    QMatrix4x4 model;
+    model.translate(Position.x(), Position.y(), Position.z());
+    QMatrix4x4 reverseModel = model.inverted();
+
+    sphereMatrix = reverseModel.transposed() * sphereMatrix * reverseModel;
+
+    float a = QVector4D::dotProduct(raycastDirection * sphereMatrix, raycastDirection);
+    float b = 2 * QVector4D::dotProduct(raycastDirection * sphereMatrix, raycastStart);
+    float c = QVector4D::dotProduct(raycastStart  * sphereMatrix, raycastStart);
+
+    float delta = b * b - 4 * a * c;
+    if (delta < 0.0f)
+        return NAN;
+
+    float deltasq = std::sqrt(delta);
+    float t1 = (-b + deltasq) / (2.0f * a);
+    float t2 = (-b - deltasq) / (2.0f * a);
+
+    float t = std::min(t1, t2);
+
+    return t;
+}

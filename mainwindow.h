@@ -25,6 +25,9 @@ private:
     std::list<std::unique_ptr<QListWidgetRenderableItem>> listObjects;
     TransformableObject* selectedTransform = nullptr;
 
+    void AddNewObject(IRenderableObject* ro, const QString& name);
+
+    void CreateCursorOnScene(std::shared_ptr<SceneMouseClickEvent> event);
     void UpdateCursorUI(QVector3D wPos, QPoint vPos);
     void UpdateCursorWorldPosition();
     void UpdateCursorViewPosition();
@@ -69,5 +72,6 @@ private slots:
     void on_actionTorus_triggered();
     void on_actionPoint_triggered();
     void on_actionDelete_triggered();
+    void on_actionCube_triggered();
 };
 #endif // MAINWINDOW_H

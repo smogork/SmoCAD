@@ -41,12 +41,12 @@ public:
     virtual void DefineBuffers() { buffersCreated = true; }
     virtual int GetIndexCount() = 0;
     virtual int GetDrawType() = 0;
+    virtual float TestAgainstRaycast(QVector4D raycastStart, QVector4D raycastDirection) { return NAN; }
     virtual void Bind(ShaderWrapper* shader)
     {
         shader->Bind();
         va->bind();
     }
-
     virtual void Release(ShaderWrapper* shader) { va->release(); shader->Release(); }
 
 };

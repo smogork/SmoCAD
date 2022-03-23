@@ -2,6 +2,7 @@
 // Created by ksm on 3/22/22.
 //
 
+#include <cfloat>
 #include "SceneModel.h"
 #include "Objects/CubeObject.h"
 #include "Objects/PointObject.h"
@@ -141,4 +142,26 @@ void SceneModel::RemoveComposite()
             delete o.Object;
         composite.reset();
     }
+}
+
+bool SceneModel::SelectObjectByMouse(QVector4D raycastStart, QVector4D raycastDirection)
+{
+    UnselectObjects();
+
+    float t_min = FLT_MAX;
+    IRenderableObject* closest = nullptr;
+    for (IRenderableObject* ro : renderableObjects)
+    {
+        float t = ro->TestAgainstRaycast(raycastStart, raycastDirection);
+        if (t != NAN && t < t_min)
+        {
+            t_min = t;
+            closest = ro;
+        }
+    }
+
+    if (closest)
+        SelectObject(closest);
+
+    return closest != nullptr;
 }

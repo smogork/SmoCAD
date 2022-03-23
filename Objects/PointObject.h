@@ -11,6 +11,8 @@
 class PointObject: public IRenderableObject
 {
 private:
+    const float raycastSphereR = 0.08f;
+
     std::unique_ptr<QOpenGLBuffer> vb = nullptr;
     std::unique_ptr<QOpenGLBuffer> ib = nullptr;
 
@@ -26,6 +28,8 @@ public:
     int GetIndexCount() override;
     int GetDrawType() override { return GL_POINTS; }
     void Bind(ShaderWrapper* shader) override;
+
+    float TestAgainstRaycast(QVector4D raycastStart, QVector4D raycastDirection) override;
 };
 
 #endif //SMOCAD_POINTOBJECT_H

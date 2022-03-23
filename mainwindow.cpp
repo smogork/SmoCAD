@@ -23,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
                      this, &MainWindow::SelectObjectChanged);
 
     for (auto ro : model->GetRenderableObjects())
-        listObjects.push_back(std::make_unique<QListWidgetRenderableItem>(ui->listWidgetObjects, "dupa_start", ro, model));
+        listObjects.push_back(std::make_unique<QListWidgetRenderableItem>(ui->listWidgetObjects, "Start objects", ro, model));
 }
 
 MainWindow::~MainWindow()
@@ -31,20 +31,31 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::AddNewObject(IRenderableObject* ro, const QString& name)
+{
+    if (model->GetCursorObject())
+    {
+        model->AddObject(ro);
+        listObjects.push_back(std::make_unique<QListWidgetRenderableItem>(ui->listWidgetObjects, name, ro, model));
+        ui->sceneWidget->update();
+    }
+    else
+        delete ro;
+}
+
 void MainWindow::on_actionTorus_triggered()
 {
-    auto ro = new TorusObject(QVector3D(), 5, 1, 36, 18);
-    model->AddObject(ro);
-    listObjects.push_back(std::make_unique<QListWidgetRenderableItem>(ui->listWidgetObjects, "Torus", ro, model));
-    ui->sceneWidget->update();
+    AddNewObject(new TorusObject(QVector3D(), 5, 1, 36, 18), "Cube");
 }
 
 void MainWindow::on_actionPoint_triggered()
 {
-    auto ro = new PointObject(QVector3D());
-    model->AddObject(ro);
-    listObjects.push_back(std::make_unique<QListWidgetRenderableItem>(ui->listWidgetObjects, "Point", ro, model));
-    ui->sceneWidget->update();
+    AddNewObject(new PointObject(QVector3D()), "Point");
+}
+
+void MainWindow::on_actionCube_triggered()
+{
+    AddNewObject(new CubeObject(QVector3D()), "Cube");
 }
 
 void MainWindow::on_actionDelete_triggered()
@@ -79,6 +90,27 @@ void MainWindow::on_actionDelete_triggered()
 
 void MainWindow::MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event)
 {
+    if (model->SelectObjectByMouse(event->RaycastStart, event->RaycastDirection))
+    {
+        ui->groupBoxTransform->setEnabled(true);
+        ui->groupBoxCursor->setEnabled(false);
+
+        model->DeleteCursor();
+    }
+    else
+    {
+        ui->groupBoxTransform->setEnabled(false);
+        ui->groupBoxCursor->setEnabled(true);
+
+        model->UnselectObjects();
+        CreateCursorOnScene(event);
+    }
+
+    ui->sceneWidget->update();
+}
+
+void MainWindow::CreateCursorOnScene(std::shared_ptr<SceneMouseClickEvent> event)
+{
     QVector4D plain = controls->Camera->GetCenterViewPlain();
 
     float t = -QVector4D::dotProduct(plain, event->RaycastStart) /
@@ -91,13 +123,12 @@ void MainWindow::MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event)
 
     model->UpdateCursor(clickPoint);
     UpdateCursorUI(clickPoint, event->ViewClickPoint);
-
-    ui->sceneWidget->update();
 }
 
 void MainWindow::on_listWidgetObjects_itemClicked(QListWidgetItem *item)
 {
     auto rItem = (QListWidgetRenderableItem*)item;
+    ui->groupBoxTransform->setEnabled(true);
     rItem->SelectOnScene(ui->listWidgetObjects->selectedItems().size() > 1);
     ui->sceneWidget->update();
 }
@@ -276,6 +307,20 @@ void MainWindow::BlockTransformUISignals(bool b)
     ui->spinScaleY->blockSignals(b);
     ui->spinScaleZ->blockSignals(b);
 }
+
+
+/*void MainWindow::EnableTransformContorls(bool b)
+{
+    ui->spinPosX->setEnabled(b);
+    ui->spinPosY->setEnabled(b);
+    ui->spinPosZ->setEnabled(b);
+    ui->spinRotX->setEnabled(b);
+    ui->spinRotY->setEnabled(b);
+    ui->spinRotZ->setEnabled(b);
+    ui->spinScaleX->setEnabled(b);
+    ui->spinScaleY->setEnabled(b);
+    ui->spinScaleZ->setEnabled(b);
+}*/
 #pragma endregion
 
 #pragma region UVParamsUIEvents
@@ -301,19 +346,8 @@ void MainWindow::on_spinParamVDens_valueChanged(int arg1)
 {
 
 }
+
+
+
+
 #pragma endregion
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

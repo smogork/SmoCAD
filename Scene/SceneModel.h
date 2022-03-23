@@ -40,6 +40,7 @@ public:
     void ReleaseObjectsOnScene();
 
     void SelectObject(IRenderableObject* ro);
+    bool SelectObjectByMouse(QVector4D raycastStart, QVector4D raycastDirection);
     void AppendToSelectedObjects(IRenderableObject* ro);
     void UnselectObjects();
 

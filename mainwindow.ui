@@ -45,6 +45,9 @@
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
        <widget class="QGroupBox" name="groupBoxCursor">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="title">
          <string>Cursor</string>
         </property>
@@ -155,6 +158,9 @@
       </item>
       <item>
        <widget class="QGroupBox" name="groupBoxTransform">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="title">
          <string>Transform</string>
         </property>
@@ -378,6 +384,9 @@
       </item>
       <item>
        <widget class="QGroupBox" name="groupBoxUVParams">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="title">
          <string>UV Parameters</string>
         </property>
@@ -542,6 +551,7 @@
      </property>
      <addaction name="actionTorus"/>
      <addaction name="actionPoint"/>
+     <addaction name="actionCube"/>
     </widget>
     <addaction name="menuAdd"/>
     <addaction name="actionDelete"/>
@@ -562,6 +572,11 @@
   <action name="actionDelete">
    <property name="text">
     <string>Delete</string>
+   </property>
+  </action>
+  <action name="actionCube">
+   <property name="text">
+    <string>Cube</string>
    </property>
   </action>
  </widget>
