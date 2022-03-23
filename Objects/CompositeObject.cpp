@@ -58,7 +58,7 @@ const std::unique_ptr<CursorObject> &CompositeObject::GetCenterCursor()
 {
     centerCursor->Position = Position;
     centerCursor->Rotation = Rotation;
-    centerCursor->Scale = Scale;
+    centerCursor->Scale = Scale * 0.25f;
 
     return centerCursor;
 }

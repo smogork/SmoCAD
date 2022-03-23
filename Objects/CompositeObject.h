@@ -15,7 +15,7 @@ public:
     struct CompositeTransform
     {
         CompositeTransform(CompositeObject *comp, IRenderableObject *obj)
-                : dTransform( obj->Position - comp->Position)
+                : dTransform( obj->Position - comp->Position, obj->Rotation, obj->Scale)
         {
             Object = obj;
         }
@@ -25,7 +25,7 @@ public:
 
         void UpdateTransformations(CompositeObject *comp)
         {
-            dTransform = TransformableObject(Object->Position - comp->Position);
+            dTransform = TransformableObject(Object->Position - comp->Position, Object->Rotation, Object->Scale);
         }
 
         TransformableObject dTransform;

@@ -52,8 +52,9 @@ void GLWidget::paintGL()
     {
         for (CompositeObject::CompositeTransform &o: composite->GetObjects())
         {
-            DrawRenderableObject(o.Object, shader, [&](ShaderWrapper* sh) {
-                sh->SetUniform("u_MVP.Model", composite->GetModelMatrix() * o.dTransform.GetModelMatrix());
+            QMatrix4x4 model = composite->GetModelMatrix() * o.dTransform.GetModelMatrix();
+            DrawRenderableObject(o.Object, shader, [model](ShaderWrapper* sh) {
+                sh->SetUniform("u_MVP.Model", model);
             });
         }
         DrawRenderableObject(composite->GetCenterCursor().get(), shader2);
@@ -80,7 +81,10 @@ void GLWidget::DrawRenderableObject(IRenderableObject *ro, std::shared_ptr<Shade
 
         ro->Bind(shader.get());
         if (uniformOverrides)
+        {
             uniformOverrides(shader.get());
+            shader->Bind();
+        }
         glDrawElements(ro->GetDrawType(), ro->GetIndexCount(), GL_UNSIGNED_INT, 0);
         ro->Release(shader.get());
     }
