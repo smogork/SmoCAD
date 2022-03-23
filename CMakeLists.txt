@@ -11,10 +11,12 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets LinguistTools REQUIRED)
-find_package(Qt6 COMPONENTS OpenGLWidgets REQUIRED)
-find_package(Qt6 COMPONENTS Gui REQUIRED)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS OpenGLWidgets REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS 3DCore REQUIRED)
+#find_package(Qt6 COMPONENTS Widgets LinguistTools REQUIRED)
 
 set(TS_FILES SmoCAD_en_GB.ts)
 set(SHADER_FILES
@@ -44,7 +46,7 @@ set(PROJECT_SOURCES
         Renderer/Camera/Viewport.cpp Renderer/Camera/Viewport.h
         Objects/PointObject.cpp Objects/PointObject.h
         Controls/controls.cpp Controls/controls.h Controls/controls.ui
-        Scene/SceneModel.cpp Scene/SceneModel.h Controls/QListWidgetRenderableItem.cpp Controls/QListWidgetRenderableItem.h Scene/Events/CursorChangedEvent.cpp Scene/Events/CursorChangedEvent.h Scene/Events/SelectedObjectChangedEvent.cpp Scene/Events/SelectedObjectChangedEvent.h)
+        Scene/SceneModel.cpp Scene/SceneModel.h Controls/QListWidgetRenderableItem.cpp Controls/QListWidgetRenderableItem.h Scene/Events/CursorChangedEvent.cpp Scene/Events/CursorChangedEvent.h Scene/Events/SelectedObjectChangedEvent.cpp Scene/Events/SelectedObjectChangedEvent.h Objects/CompositeObject.cpp Objects/CompositeObject.h)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(SmoCAD
@@ -52,7 +54,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${PROJECT_SOURCES}
     )
 # Define target properties for Android with Qt 6 as:
-#    set_property(TARGET SmoCAD APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
+#    set_property(TARGET SmoCAD APPEND PROPsERTY QT_ANDROID_PACKAGE_SOURCE_DIR
 #                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
 # For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
 
@@ -75,7 +77,9 @@ endif()
 
 target_link_libraries(SmoCAD PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(SmoCAD PRIVATE Qt${QT_VERSION_MAJOR}::OpenGLWidgets)
-target_link_libraries(SmoCAD PRIVATE Qt6::Gui)
+target_link_libraries(SmoCAD PRIVATE Qt${QT_VERSION_MAJOR}::Gui)
+target_link_libraries(SmoCAD PRIVATE Qt${QT_VERSION_MAJOR}::3DCore)
+target_link_libraries(SmoCAD PRIVATE Qt${QT_VERSION_MAJOR}::Core)
 
 set_target_properties(SmoCAD PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com

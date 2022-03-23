@@ -23,6 +23,7 @@ private:
     std::shared_ptr<Viewport> viewport = nullptr;
     std::shared_ptr<SceneModel> model = nullptr;
     std::list<std::unique_ptr<QListWidgetRenderableItem>> listObjects;
+    TransformableObject* selectedTransform = nullptr;
 
     void UpdateCursorUI(QVector3D wPos, QPoint vPos);
     void UpdateCursorWorldPosition();

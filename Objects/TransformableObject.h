@@ -22,6 +22,8 @@ public:
 
     QMatrix4x4 GetModelMatrix();
 
+    static TransformableObject DecomposeTransformations(QMatrix4x4 transform);
+
     static QVector3D GetXAxis() { return {1.0, 0.0, 0.0}; }
 
     static QVector3D GetYAxis() { return {0.0, 1.0, 0.0}; }

@@ -8,6 +8,7 @@
 #include <QObject>
 #include "Objects/CursorObject.h"
 #include "Scene/Events/SelectedObjectChangedEvent.h"
+#include "Objects/CompositeObject.h"
 
 class SceneModel: public QObject
 {
@@ -16,7 +17,8 @@ class SceneModel: public QObject
 private:
     std::list<IRenderableObject*> renderableObjects;
     std::unique_ptr<CursorObject> cursor = nullptr;
-    std::list<IRenderableObject*> selectedObjects;
+    IRenderableObject* selectedObject = nullptr;
+    std::unique_ptr<CompositeObject> composite = nullptr;
 
     void InitializeScene();
 
@@ -26,13 +28,15 @@ public:
 
     const std::list<IRenderableObject*>& GetRenderableObjects();
     const std::unique_ptr<CursorObject>& GetCursorObject();
-    const std::list<IRenderableObject*>& GetSelectedObjects();
+    const std::unique_ptr<CompositeObject>& GetCompositeObject();
+    IRenderableObject* GetSelectedObject();
 
     void UpdateCursor(QVector3D position);
     void DeleteCursor();
 
     void AddObject(IRenderableObject* ro);
     void RemoveObject(IRenderableObject* ro);
+    void RemoveComposite();
     void ReleaseObjectsOnScene();
 
     void SelectObject(IRenderableObject* ro);

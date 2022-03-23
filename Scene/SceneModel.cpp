@@ -56,8 +56,7 @@ void SceneModel::UpdateCursor(QVector3D position)
 
 void SceneModel::DeleteCursor()
 {
-    delete cursor.release();
-    cursor = nullptr;
+   cursor.reset();
 }
 
 const std::unique_ptr<CursorObject> &SceneModel::GetCursorObject()
@@ -71,12 +70,16 @@ void SceneModel::SelectObject(IRenderableObject *ro)
         return;
 
     UnselectObjects();
-    AppendToSelectedObjects(ro);
+    selectedObject = ro;
+    selectedObject->Selected = true;
+
+    auto event =std::make_shared<SelectedObjectChangedEvent>(selectedObject);
+    emit SelectedObjectChanged(event);
 }
 
-const std::list<IRenderableObject*>& SceneModel::GetSelectedObjects()
+IRenderableObject* SceneModel::GetSelectedObject()
 {
-    return selectedObjects;
+    return selectedObject;
 }
 
 void SceneModel::RemoveObject(IRenderableObject *ro)
@@ -90,19 +93,47 @@ void SceneModel::RemoveObject(IRenderableObject *ro)
 
 void SceneModel::AppendToSelectedObjects(IRenderableObject *ro)
 {
-    if (!ro && std::find(selectedObjects.begin(), selectedObjects.end(), ro) != selectedObjects.end())
+    if (!ro)
         return;
 
-    ro->Selected = true;
-    selectedObjects.push_back(ro);
+    if (selectedObject && !composite)
+    {
+        composite = std::make_unique<CompositeObject>(selectedObject, ro);
+        selectedObject = nullptr;
+    }
+    else
+    {
+        composite->AddObject(ro);
+    }
 
-    auto event =std::make_shared<SelectedObjectChangedEvent>();
+    auto event =std::make_shared<SelectedObjectChangedEvent>(composite.get());
     emit SelectedObjectChanged(event);
 }
 
 void SceneModel::UnselectObjects()
 {
-    for (auto ro : selectedObjects)
-        ro->Selected = false;
-    selectedObjects.clear();
+    if (composite)
+    {
+        composite->ApplyTransformationsToChildren();
+        composite.reset();
+    }
+    if (selectedObject)
+    {
+        selectedObject->Selected = false;
+    }
+}
+
+const std::unique_ptr<CompositeObject> &SceneModel::GetCompositeObject()
+{
+    return composite;
+}
+
+void SceneModel::RemoveComposite()
+{
+    if (composite)
+    {
+        for (CompositeObject::CompositeTransform &o: composite->GetObjects())
+            delete o.Object;
+        composite.reset();
+    }
 }

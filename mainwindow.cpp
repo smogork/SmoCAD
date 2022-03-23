@@ -49,17 +49,31 @@ void MainWindow::on_actionPoint_triggered()
 
 void MainWindow::on_actionDelete_triggered()
 {
-    auto selectedObjects = model->GetSelectedObjects();
-    for (auto o : selectedObjects)
+    if (model->GetSelectedObject())
     {
         listObjects.remove_if(
                 [&](std::unique_ptr<QListWidgetRenderableItem> &item)
                 {
-                    return item->CompareInsideObject(o);
+                    return item->CompareInsideObject(model->GetSelectedObject());
                 }
         );
-        model->RemoveObject(o);
+        model->RemoveObject(model->GetSelectedObject());
     }
+    else if (model->GetCompositeObject())
+    {
+        for (CompositeObject::CompositeTransform& o: model->GetCompositeObject()->GetObjects())
+        {
+            listObjects.remove_if(
+                    [&](std::unique_ptr<QListWidgetRenderableItem> &item)
+                    {
+                        return item->CompareInsideObject(o.Object);
+                    }
+            );
+        }
+        model->RemoveComposite();
+    }
+
+    selectedTransform = nullptr;
     ui->sceneWidget->update();
 }
 
@@ -222,13 +236,11 @@ void MainWindow::on_spinScaleZ_valueChanged(double arg1)
 
 void MainWindow::UpdateSelectedObject()
 {
-    auto selectedObjects = model->GetSelectedObjects();
-    if (selectedObjects.size() == 1)
+    if (selectedTransform)
     {
-        IRenderableObject* item = selectedObjects.front();
-        item->Position = QVector3D(ui->spinPosX->value(), ui->spinPosY->value(), ui->spinPosZ->value());
-        item->Rotation = QVector3D(ui->spinRotX->value(), ui->spinRotY->value(), ui->spinRotZ->value());
-        item->Scale = QVector3D(ui->spinScaleX->value(), ui->spinScaleY->value(), ui->spinScaleZ->value());
+        selectedTransform->Position = QVector3D(ui->spinPosX->value(), ui->spinPosY->value(), ui->spinPosZ->value());
+        selectedTransform->Rotation = QVector3D(ui->spinRotX->value(), ui->spinRotY->value(), ui->spinRotZ->value());
+        selectedTransform->Scale = QVector3D(ui->spinScaleX->value(), ui->spinScaleY->value(), ui->spinScaleZ->value());
     }
 
     ui->sceneWidget->update();
@@ -236,22 +248,18 @@ void MainWindow::UpdateSelectedObject()
 
 void MainWindow::SelectObjectChanged(std::shared_ptr<SelectedObjectChangedEvent> event)
 {
-    auto selectedObjects = model->GetSelectedObjects();
-    if (selectedObjects.size() == 1)
-    {
-        IRenderableObject* item = selectedObjects.front();
-        BlockTransformUISignals(true);
-        ui->spinPosX->setValue(item->Position.x());
-        ui->spinPosY->setValue(item->Position.y());
-        ui->spinPosZ->setValue(item->Position.z());
-        ui->spinRotX->setValue(item->Rotation.x());
-        ui->spinRotY->setValue(item->Rotation.y());
-        ui->spinRotZ->setValue(item->Rotation.z());
-        ui->spinScaleX->setValue(item->Scale.x());
-        ui->spinScaleY->setValue(item->Scale.y());
-        ui->spinScaleZ->setValue(item->Scale.z());
-        BlockTransformUISignals(false);
-    }
+    selectedTransform = event->ObjectToTransform;
+    BlockTransformUISignals(true);
+    ui->spinPosX->setValue(selectedTransform->Position.x());
+    ui->spinPosY->setValue(selectedTransform->Position.y());
+    ui->spinPosZ->setValue(selectedTransform->Position.z());
+    ui->spinRotX->setValue(selectedTransform->Rotation.x());
+    ui->spinRotY->setValue(selectedTransform->Rotation.y());
+    ui->spinRotZ->setValue(selectedTransform->Rotation.z());
+    ui->spinScaleX->setValue(selectedTransform->Scale.x());
+    ui->spinScaleY->setValue(selectedTransform->Scale.y());
+    ui->spinScaleZ->setValue(selectedTransform->Scale.z());
+    BlockTransformUISignals(false);
 
     ui->sceneWidget->update();
 }
@@ -270,6 +278,7 @@ void MainWindow::BlockTransformUISignals(bool b)
 }
 #pragma endregion
 
+#pragma region UVParamsUIEvents
 void MainWindow::on_spinParamU_valueChanged(double arg1)
 {
 
@@ -292,6 +301,7 @@ void MainWindow::on_spinParamVDens_valueChanged(int arg1)
 {
 
 }
+#pragma endregion
 
 
 
