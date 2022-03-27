@@ -9,6 +9,7 @@
 #include "Objects/CursorObject.h"
 #include "Scene/Events/SelectedObjectChangedEvent.h"
 #include "Objects/CompositeObject.h"
+#include "Objects/BezierCurveC0.h"
 
 class SceneModel: public QObject
 {
@@ -19,6 +20,7 @@ private:
     std::unique_ptr<CursorObject> cursor = nullptr;
     IRenderableObject* selectedObject = nullptr;
     std::unique_ptr<CompositeObject> composite = nullptr;
+    std::unique_ptr<BezierCurveC0> bezier = nullptr;
 
     void InitializeScene();
 
@@ -29,6 +31,7 @@ public:
     const std::list<IRenderableObject*>& GetRenderableObjects();
     const std::unique_ptr<CursorObject>& GetCursorObject();
     const std::unique_ptr<CompositeObject>& GetCompositeObject();
+    const std::unique_ptr<BezierCurveC0>& GetBezierObject();
     IRenderableObject* GetSelectedObject();
 
     void UpdateCursor(QVector3D position);

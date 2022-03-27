@@ -24,6 +24,7 @@ void GLWidget::initializeGL()
     shaders.push_back(std::make_shared<ShaderWrapper>("Shaders/buffer_color.vert", "Shaders/simple_color.frag"));//cursor
     shaders.push_back(std::make_shared<ShaderWrapper>("Shaders/bezier.vert", "Shaders/bezier.frag",
                                                       "Shaders/bezier.tess", "Shaders/bezier.eval"));//bezier
+    shaders[BEZIER_SHADER]->GetRawProgram()->setPatchVertexCount(4);
 
     InitializeUniforms();
 }
@@ -66,6 +67,9 @@ void GLWidget::paintGL()
 
     //User cursor
     DrawRenderableObject(scene->GetCursorObject().get(), shaders[CURSOR_SHADER]);
+
+    //Bezier
+    DrawRenderableObject(scene->GetBezierObject().get(), shaders[BEZIER_SHADER]);
 }
 
 GLWidget::~GLWidget()
@@ -92,6 +96,7 @@ void GLWidget::DrawRenderableObject(IRenderableObject *ro, std::shared_ptr<Shade
             uniformOverrides(shader.get());
             shader->Bind();
         }
+
         glDrawElements(ro->GetDrawType(), ro->GetIndexCount(), GL_UNSIGNED_INT, 0);
         ro->Release(shader.get());
     }

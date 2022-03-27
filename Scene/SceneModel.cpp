@@ -16,7 +16,10 @@ void SceneModel::InitializeScene()
     renderableObjects.push_back(new PointObject(QVector3D(0.0f, 0.0f, 0.0f)));
     renderableObjects.push_back(new PointObject(QVector3D(1.0f, 0.0f, 0.0f)));
     renderableObjects.push_back(new PointObject(QVector3D(2.0f, 0.0f, 1.0f)));
+    renderableObjects.push_back(new PointObject(QVector3D(2.0f, 1.0f, 1.0f)));
     renderableObjects.push_back(new TorusObject(QVector3D(5.0f, 0.0f, 10.0f), 5, 1, 36, 18));
+
+    bezier = std::make_unique<BezierCurveC0>();
 }
 
 SceneModel::~SceneModel()
@@ -165,4 +168,9 @@ bool SceneModel::SelectObjectByMouse(QVector4D raycastStart, QVector4D raycastDi
         SelectObject(closest);
 
     return closest != nullptr;
+}
+
+const std::unique_ptr<BezierCurveC0> &SceneModel::GetBezierObject()
+{
+    return bezier;
 }
