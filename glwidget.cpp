@@ -9,7 +9,7 @@ GLWidget::GLWidget(QWidget *pWidget)
     QSurfaceFormat format;
     format.setRenderableType(QSurfaceFormat::OpenGL);
     format.setProfile(QSurfaceFormat::CoreProfile);
-    format.setVersion(3,3);
+    format.setVersion(4,4);
     setFormat(format);
 }
 
@@ -20,8 +20,10 @@ void GLWidget::initializeGL()
     glEnable(GL_PROGRAM_POINT_SIZE);
     //glEnable(GL_POINT_SMOOTH);
 
-    shader = std::make_shared<ShaderWrapper>("Shaders/uniform_color.vert", "Shaders/simple_color.frag");
-    shader2 = std::make_shared<ShaderWrapper>("Shaders/buffer_color.vert", "Shaders/simple_color.frag");
+    shaders.push_back(std::make_shared<ShaderWrapper>("Shaders/uniform_color.vert", "Shaders/simple_color.frag"));//default
+    shaders.push_back(std::make_shared<ShaderWrapper>("Shaders/buffer_color.vert", "Shaders/simple_color.frag"));//cursor
+    shaders.push_back(std::make_shared<ShaderWrapper>("Shaders/bezier.vert", "Shaders/bezier.frag",
+                                                      "Shaders/bezier.tess", "Shaders/bezier.eval"));//bezier
 
     InitializeUniforms();
 }
@@ -32,8 +34,10 @@ void GLWidget::resizeGL(int w, int h)
     emit WidgetResized(QSize(w, h));
 
     auto proj = controls->viewport->UpdatePerspectiveMatrix(QSize(w, h));
-    shader->SetUniform("u_MVP.Projection", proj);
-    shader2->SetUniform("u_MVP.Projection", proj);
+
+    for (auto sh : shaders)
+        sh->SetUniform("u_MVP.Projection", proj);
+
 }
 
 void GLWidget::paintGL()
@@ -44,7 +48,7 @@ void GLWidget::paintGL()
 
     //Objects on scene
     for (IRenderableObject* ro : scene->GetRenderableObjects())
-        DrawRenderableObject(ro, shader);
+        DrawRenderableObject(ro, shaders[DEFAULT_SHADER]);
 
     //Composite object
     const std::unique_ptr<CompositeObject>& composite = scene->GetCompositeObject();
@@ -53,15 +57,15 @@ void GLWidget::paintGL()
         for (CompositeObject::CompositeTransform &o: composite->GetObjects())
         {
             QMatrix4x4 model = composite->GetModelMatrix() * o.dTransform.GetModelMatrix();
-            DrawRenderableObject(o.Object, shader, [model](ShaderWrapper* sh) {
+            DrawRenderableObject(o.Object, shaders[DEFAULT_SHADER], [model](ShaderWrapper* sh) {
                 sh->SetUniform("u_MVP.Model", model);
             });
         }
-        DrawRenderableObject(composite->GetCenterCursor().get(), shader2);
+        DrawRenderableObject(composite->GetCenterCursor().get(), shaders[CURSOR_SHADER]);
     }
 
     //User cursor
-    DrawRenderableObject(scene->GetCursorObject().get(), shader2);
+    DrawRenderableObject(scene->GetCursorObject().get(), shaders[CURSOR_SHADER]);
 }
 
 GLWidget::~GLWidget()
@@ -96,8 +100,8 @@ void GLWidget::DrawRenderableObject(IRenderableObject *ro, std::shared_ptr<Shade
 void GLWidget::UpdateCameraSlot(std::shared_ptr<CameraUpdateEvent> event)
 {
     makeCurrent();
-    shader->SetUniform("u_MVP.View", event->NewViewMatrix);
-    shader2->SetUniform("u_MVP.View", event->NewViewMatrix);
+    for (auto sh : shaders)
+        sh->SetUniform("u_MVP.View", event->NewViewMatrix);
     update();
 }
 
@@ -112,9 +116,9 @@ void GLWidget::SetupSceneAndControls(std::shared_ptr<InputController> controler,
 
 void GLWidget::InitializeUniforms()
 {
-    shader->SetUniform("u_MVP.View", controls->Camera->GetViewMatrix());
-    shader->SetUniform("u_MVP.Projection", controls->viewport->GetProjectionMatrix());
-
-    shader2->SetUniform("u_MVP.View", controls->Camera->GetViewMatrix());
-    shader2->SetUniform("u_MVP.Projection", controls->viewport->GetProjectionMatrix());
+    for (auto sh : shaders)
+    {
+        sh->SetUniform("u_MVP.View", controls->Camera->GetViewMatrix());
+        sh->SetUniform("u_MVP.Projection", controls->viewport->GetProjectionMatrix());
+    }
 }

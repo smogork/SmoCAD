@@ -15,11 +15,15 @@ private:
     std::map<std::string, int> uniformLocations;
     QString vsFilepath;
     QString fsFilepath;
+    QString tessFilepath;
+    QString evalFilepath;
 
     void Create();
 
 public:
     ShaderWrapper(const QString& vsFilepath, const QString& fsFilename);
+    ShaderWrapper(const QString& vsFilepath, const QString& fsFilename,
+                  const QString& tessFilepath, const QString& evalFilename);
     ~ShaderWrapper();
 
     void Bind();

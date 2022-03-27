@@ -17,6 +17,9 @@
 #include <Renderer/ShaderWrapper.h>
 #include "Scene/SceneModel.h"
 
+#define DEFAULT_SHADER 0
+#define CURSOR_SHADER 1
+#define BEZIER_SHADER 2
 
 class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
@@ -34,11 +37,11 @@ public slots:
     void UpdateCameraSlot(std::shared_ptr<CameraUpdateEvent> event);
 
 protected:
+
     std::shared_ptr<SceneModel> scene = nullptr;
     std::shared_ptr<InputController> controls = nullptr;
 
-    std::shared_ptr<ShaderWrapper> shader = nullptr;
-    std::shared_ptr<ShaderWrapper> shader2 = nullptr;
+    std::vector<std::shared_ptr<ShaderWrapper>> shaders;
 
     void paintGL() Q_DECL_OVERRIDE;
     void initializeGL() Q_DECL_OVERRIDE;
