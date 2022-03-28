@@ -12,7 +12,7 @@
 class BezierCurveC0: public IRenderableObject
 {
 private:
-    std::list<QVector3D> controlPoints;
+    std::list<PointObject*> controlPoints;
     std::unique_ptr<QOpenGLBuffer> vb = nullptr;
     std::unique_ptr<QOpenGLBuffer> ib = nullptr;
 
@@ -25,9 +25,13 @@ public:
     ~BezierCurveC0() override;
 
     void DefineBuffers() override;
+    void UpdateBuffers() override;
     int GetIndexCount() override;
     int GetDrawType() override { return GL_PATCHES; }
     void Bind(ShaderWrapper* shader) override;
+
+    void AddControlPoint(PointObject* point);
+    void RemovePoint(PointObject* point);
 };
 
 

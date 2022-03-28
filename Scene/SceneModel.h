@@ -5,11 +5,15 @@
 #ifndef SMOCAD_SCENEMODEL_H
 #define SMOCAD_SCENEMODEL_H
 
+#include <list>
+
 #include <QObject>
+
 #include "Objects/CursorObject.h"
 #include "Scene/Events/SelectedObjectChangedEvent.h"
 #include "Objects/CompositeObject.h"
 #include "Objects/BezierCurveC0.h"
+
 
 class SceneModel: public QObject
 {
@@ -37,6 +41,7 @@ public:
     void UpdateCursor(QVector3D position);
     void DeleteCursor();
 
+    void CreateNewObject(IRenderableObject* ro, std::shared_ptr<ShaderWrapper> shader);
     void AddObject(IRenderableObject* ro);
     void RemoveObject(IRenderableObject* ro);
     void RemoveComposite();

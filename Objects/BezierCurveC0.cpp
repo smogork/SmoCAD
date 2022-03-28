@@ -6,19 +6,35 @@
 
 std::vector<float> BezierCurveC0::GenerateGeometryVertices()
 {
-    return {
-            0.0f, 0.0f, 0.0f,
-            1.0f, 0.0f, 0.0f,
-            2.0f, 0.0f, 1.0f,
-            2.0f, 1.0f, 1.0f,
-    };
+    std::vector<float> res (4 * controlPoints.size());
+
+    int i = 0;
+    for (PointObject* p : controlPoints)
+    {
+        res[4 * i] = p->Position.x();
+        res[4 * i + 1] = p->Position.y();
+        res[4 * i + 2] = p->Position.z();
+        res[4 * i + 3] = 1.0f;
+        i++;
+    }
+
+    return res;
 }
 
 std::vector<int> BezierCurveC0::GenerateTopologyEdges()
 {
-    return {
-        0, 1, 2, 3
-    };
+    int groups = std::ceil(controlPoints.size() / 4.0f);
+    std::vector<int> res (4 * groups);
+
+    for (int i = 0; i < groups; ++i)
+    {
+        res[4 * i] = 3 * i;
+        res[4 * i + 1] = 3 * i + 1;
+        res[4 * i + 2] = 3 * i + 2;
+        res[4 * i + 3] = 3 * i + 3;
+    }
+
+    return res;
 }
 
 void BezierCurveC0::CreateBuffers()
@@ -47,10 +63,10 @@ void BezierCurveC0::CreateBuffers()
     va->bind();
     vb->bind();
 
-    int stride = 3 * sizeof(float); //only position on 3 floats
+    int stride = 4 * sizeof(float); //only position on 3 floats
     //[TODO] Dodac klase opisujaca uklad buforow
     prog.enableAttributeArray(0);
-    prog.setAttributeBuffer(0, GL_FLOAT, 0, 3, stride);
+    prog.setAttributeBuffer(0, GL_FLOAT, 0, 4, stride);
 
     ib->bind();
     va->release();
@@ -62,7 +78,7 @@ void BezierCurveC0::CreateBuffers()
 
 int BezierCurveC0::GetIndexCount()
 {
-    return 4;
+    return 4 * std::ceil(controlPoints.size() / 4.0f);
 }
 
 void BezierCurveC0::Bind(ShaderWrapper *shader)
@@ -93,4 +109,34 @@ BezierCurveC0::~BezierCurveC0()
 {
     vb->destroy();
     ib->destroy();
+}
+
+void BezierCurveC0::AddControlPoint(PointObject *point)
+{
+    controlPoints.push_back(point);
+    buffersToUpdate = true;
+}
+
+void BezierCurveC0::RemovePoint(PointObject *point)
+{
+    controlPoints.remove(point);
+    buffersToUpdate = true;
+}
+
+void BezierCurveC0::UpdateBuffers()
+{
+    if (!AreBuffersCreated())
+        return;
+
+    auto edges = GenerateTopologyEdges();
+    auto vertices = GenerateGeometryVertices();
+
+    vb->bind();
+    vb->allocate(vertices.data(), sizeof(float) * vertices.size());
+    vb->release();
+
+    ib->bind();
+    ib->allocate(edges.data(), sizeof(int) * edges.size());
+
+    IRenderableObject::UpdateBuffers();
 }
