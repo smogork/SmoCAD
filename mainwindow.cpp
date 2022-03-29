@@ -65,7 +65,9 @@ void MainWindow::on_actionCube_triggered()
 
 void MainWindow::on_actionBezierC0_triggered()
 {
-    AddNewObject(new BezierCurveC0(), "BezierC0", true);
+    BezierCurveC0* bezier =  new BezierCurveC0();
+    connect(this, &MainWindow::PointObjectChanged, bezier, &BezierCurveC0::onPointChanged);
+    AddNewObject(bezier, "BezierC0", true);
 }
 
 void MainWindow::on_actionRename_triggered()
@@ -103,6 +105,13 @@ void MainWindow::on_actionDelete_triggered()
                     return item->CompareInsideObject(model->GetSelectedObject());
                 }
         );
+
+        PointObject* point = dynamic_cast<PointObject*>(model->GetSelectedObject());
+        if (point)
+        {
+            std::shared_ptr<PointObjectChangedEvent> event = std::make_shared<PointObjectChangedEvent>(point, true);
+            emit PointObjectChanged(event);
+        }
         model->RemoveObject(model->GetSelectedObject());
     }
     else if (model->GetCompositeObject())
@@ -135,7 +144,7 @@ void MainWindow::MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event)
     }
     else
     {
-        if (!controls->IsKeyPressed(Qt::Key_A))
+        if (event->UnselectObjects)
         {
             ui->groupBoxTransform->setEnabled(false);
             ui->groupBoxUVParams->setEnabled(false);
@@ -236,7 +245,7 @@ void MainWindow::UpdateCursorWorldPosition()
 
 void MainWindow::UpdateCursorViewPosition()
 {
-    controls->EmitSceneMouseClickedEvent(QPoint(ui->spinCurViewPosX->value(), ui->spinCurViewPosY->value()));
+    controls->EmitSceneMouseClickedEvent(QPoint(ui->spinCurViewPosX->value(), ui->spinCurViewPosY->value()), false);
     ui->sceneWidget->update();
 }
 
@@ -319,6 +328,13 @@ void MainWindow::UpdateSelectedObject()
         selectedTransform->Scale = QVector3D(ui->spinScaleX->value(), ui->spinScaleY->value(), ui->spinScaleZ->value());
 
         UpdateUVParamsOfObject(dynamic_cast<TorusObject*>(selectedTransform));
+
+        PointObject* point = dynamic_cast<PointObject*>(selectedTransform);
+        if (point)
+        {
+            std::shared_ptr<PointObjectChangedEvent> event = std::make_shared<PointObjectChangedEvent>(point, false);
+            emit PointObjectChanged(event);
+        }
     }
 
     ui->sceneWidget->update();

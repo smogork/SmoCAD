@@ -55,8 +55,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent* event) Q_DECL_OVERRIDE {this->controls->mouseReleaseSlot(event);}
     void mouseMoveEvent(QMouseEvent* event) Q_DECL_OVERRIDE {this->controls->mouseMoveSlot(event);}
     void wheelEvent(QWheelEvent* event) Q_DECL_OVERRIDE {this->controls->wheelSlot(event);}
-    void keyPressEvent(QKeyEvent* event) Q_DECL_OVERRIDE {this->controls->keyPressSlot(event);}
-    void keyReleaseEvent(QKeyEvent* event) Q_DECL_OVERRIDE {this->controls->keyReleaseSlot(event);}
+
 };
 
 #endif // GLWIDGET_H

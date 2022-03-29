@@ -13,6 +13,7 @@
 #include "Scene/Events/SelectedObjectChangedEvent.h"
 #include "Objects/CompositeObject.h"
 #include "Objects/BezierCurveC0.h"
+#include "Scene/Events/PointObjectChangedEvent.h"
 
 
 class SceneModel: public QObject

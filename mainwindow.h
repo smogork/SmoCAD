@@ -48,9 +48,16 @@ protected slots:
     void CameraUpdated(std::shared_ptr<CameraUpdateEvent> event);
     void SelectObjectChanged(std::shared_ptr<SelectedObjectChangedEvent> event);
 
+protected:
+    void keyPressEvent(QKeyEvent* event) Q_DECL_OVERRIDE {this->controls->keyPressSlot(event);}
+    void keyReleaseEvent(QKeyEvent* event) Q_DECL_OVERRIDE {this->controls->keyReleaseSlot(event);}
+
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+signals:
+    void PointObjectChanged(std::shared_ptr<PointObjectChangedEvent> event);
 
 private slots:
     void on_spinPosX_valueChanged(double arg1);

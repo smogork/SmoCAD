@@ -56,7 +56,7 @@ set(PROJECT_SOURCES
         Scene/Events/CursorChangedEvent.cpp Scene/Events/CursorChangedEvent.h
         Scene/Events/SelectedObjectChangedEvent.cpp Scene/Events/SelectedObjectChangedEvent.h
         Objects/CompositeObject.cpp Objects/CompositeObject.h
-        Objects/BezierCurveC0.cpp Objects/BezierCurveC0.h)
+        Objects/BezierCurveC0.cpp Objects/BezierCurveC0.h Scene/Events/PointObjectChangedEvent.cpp Scene/Events/PointObjectChangedEvent.h)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(SmoCAD

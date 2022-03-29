@@ -146,3 +146,19 @@ void BezierCurveC0::UpdateBuffers()
 
     IRenderableObject::UpdateBuffers();
 }
+
+void BezierCurveC0::onPointChanged(std::shared_ptr<PointObjectChangedEvent> event)
+{
+    auto found = std::find_if(controlPoints.begin(), controlPoints.end(),
+                              [&](PointObject* &item)
+                              {
+                                  return event->ChangedPoint == item;
+                              });
+
+    if (found != controlPoints.end())
+    {
+        if (event->IsRemoved)
+            RemovePoint(event->ChangedPoint);
+        buffersToUpdate = true;
+    }
+}

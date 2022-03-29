@@ -8,8 +8,9 @@
 
 #include "IRenderableObject.h"
 #include "PointObject.h"
+#include "Scene/Events/PointObjectChangedEvent.h"
 
-class BezierCurveC0: public IRenderableObject
+class BezierCurveC0: public IRenderableObject, public QObject
 {
 private:
     std::list<PointObject*> controlPoints;
@@ -32,6 +33,9 @@ public:
 
     void AddControlPoint(PointObject* point);
     void RemovePoint(PointObject* point);
+
+public slots:
+    void onPointChanged(std::shared_ptr<PointObjectChangedEvent> event);
 };
 
 
