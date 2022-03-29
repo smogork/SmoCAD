@@ -2,6 +2,7 @@
 // Created by ksm on 3/27/22.
 //
 
+#include <cfloat>
 #include "BezierCurveC0.h"
 
 std::vector<float> BezierCurveC0::GenerateGeometryVertices()
@@ -161,4 +162,24 @@ void BezierCurveC0::onPointChanged(std::shared_ptr<PointObjectChangedEvent> even
             RemovePoint(event->ChangedPoint);
         buffersToUpdate = true;
     }
+}
+
+int BezierCurveC0::CalculateDrawableChunks(QMatrix4x4 proj, QMatrix4x4 view, QSize viewport)
+{
+    float maxX = FLT_MIN, maxY = FLT_MIN, minX = FLT_MAX, minY = FLT_MAX;
+    for (PointObject* p : controlPoints)
+    {
+        QVector3D screenPoint = p->Position.project(view, proj, QRect(QPoint(), viewport));
+
+        maxX = std::max(maxX, screenPoint.x());
+        maxY = std::max(maxY, screenPoint.y());
+        minX = std::min(minX, screenPoint.x());
+        minY = std::min(minY, screenPoint.y());
+    }
+
+    int length = std::max(maxX - minX, maxY - minY);
+    length /= 4;
+    int res = std::min(std::max(4, length), 64);
+
+    return res;
 }

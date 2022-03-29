@@ -23,8 +23,6 @@ void SceneModel::InitializeScene()
     renderableObjects.push_back(new PointObject(QVector3D(0.0f, -1.0f, -1.0f)));
     renderableObjects.push_back(new PointObject(QVector3D(-2.0f, 0.0f, -0.0f)));
     renderableObjects.push_back(new PointObject(QVector3D(-5.0f, 0.0f, -1.0f)));
-
-
 }
 
 SceneModel::~SceneModel()

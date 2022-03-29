@@ -34,6 +34,7 @@ public:
 
     void AddControlPoint(PointObject* point);
     void RemovePoint(PointObject* point);
+    int CalculateDrawableChunks(QMatrix4x4 proj, QMatrix4x4 view, QSize viewport);
 
 public slots:
     void onPointChanged(std::shared_ptr<PointObjectChangedEvent> event);

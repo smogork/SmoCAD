@@ -155,12 +155,13 @@ void GLWidget::DrawBezier(BezierCurveC0 *bezier, const std::function<void(Shader
         }
 
         bezier->Bind(shaders[BEZIER_SHADER].get());
+        shaders[BEZIER_SHADER]->SetUniform("m_Chunks",
+                                           bezier->CalculateDrawableChunks(controls->viewport->GetProjectionMatrix(), controls->Camera->GetViewMatrix(), controls->viewport->GetViewportSize()));
         if (uniformOverrides)
         {
             uniformOverrides(shaders[BEZIER_SHADER].get());
-            shaders[BEZIER_SHADER]->Bind();
         }
-
+        shaders[BEZIER_SHADER]->Bind();
         glDrawElements(bezier->GetDrawType(), bezier->GetIndexCount(), GL_UNSIGNED_INT, 0);
 
 
