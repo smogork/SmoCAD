@@ -49,7 +49,13 @@ void GLWidget::paintGL()
 
     //Objects on scene
     for (IRenderableObject* ro : scene->GetRenderableObjects())
-        DrawRenderableObject(ro, shaders[DEFAULT_SHADER]);
+    {
+        //[TODO] Poprawić aby obiekty IRenderable mialy opcje renderowania sie same
+        if (dynamic_cast<BezierCurveC0*>(ro) == nullptr)
+            DrawRenderableObject(ro, shaders[DEFAULT_SHADER]);
+        else
+            DrawBezier(dynamic_cast<BezierCurveC0*>(ro));
+    }
 
     //Composite object
     const std::unique_ptr<CompositeObject>& composite = scene->GetCompositeObject();
@@ -67,9 +73,6 @@ void GLWidget::paintGL()
 
     //User cursor
     DrawRenderableObject(scene->GetCursorObject().get(), shaders[CURSOR_SHADER]);
-
-    //Bezier
-    DrawRenderableObject(scene->GetBezierObject().get(), shaders[BEZIER_SHADER]);
 }
 
 GLWidget::~GLWidget()
@@ -125,5 +128,43 @@ void GLWidget::InitializeUniforms()
     {
         sh->SetUniform("u_MVP.View", controls->Camera->GetViewMatrix());
         sh->SetUniform("u_MVP.Projection", controls->viewport->GetProjectionMatrix());
+    }
+}
+
+void GLWidget::DrawBezier(BezierCurveC0 *bezier, const std::function<void(ShaderWrapper *)> &uniformOverrides)
+{
+    if (bezier)
+    {
+        if (!bezier->AreBuffersCreated())
+            bezier->DefineBuffers();
+
+        if (bezier->AreBuffersToUpdate())
+            bezier->UpdateBuffers();
+
+        if (scene->ShowBezeierPolygon)
+        {
+            bezier->Bind(shaders[DEFAULT_SHADER].get());
+            shaders[DEFAULT_SHADER]->SetUniform("u_ObjectColor", QVector4D(0.0f, 0.7f, 0.9f, 1.0f));
+            if (uniformOverrides)
+            {
+                uniformOverrides(shaders[DEFAULT_SHADER].get());
+            }
+            shaders[DEFAULT_SHADER]->Bind();
+
+            glDrawArrays(GL_LINE_STRIP, 0, bezier->GetVertexCount());
+        }
+
+        bezier->Bind(shaders[BEZIER_SHADER].get());
+        shaders[BEZIER_SHADER]->SetUniform("m_Chunks",
+                                           bezier->CalculateDrawableChunks(controls->viewport->GetProjectionMatrix(), controls->Camera->GetViewMatrix(), controls->viewport->GetViewportSize()));
+        if (uniformOverrides)
+        {
+            uniformOverrides(shaders[BEZIER_SHADER].get());
+        }
+        shaders[BEZIER_SHADER]->Bind();
+        glDrawElements(bezier->GetDrawType(), bezier->GetIndexCount(), GL_UNSIGNED_INT, 0);
+
+
+        bezier->Release(shaders[DEFAULT_SHADER].get());
     }
 }

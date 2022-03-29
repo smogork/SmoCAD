@@ -26,7 +26,7 @@ private:
     std::list<std::unique_ptr<QListWidgetRenderableItem>> listObjects;
     TransformableObject* selectedTransform = nullptr;
 
-    void AddNewObject(IRenderableObject* ro, const QString& name);
+    void AddNewObject(IRenderableObject* ro, const QString& name, bool positionless = false);
 
     void CreateCursorOnScene(std::shared_ptr<SceneMouseClickEvent> event);
     void UpdateCursorUI(QVector3D wPos, QPoint vPos);
@@ -48,9 +48,20 @@ protected slots:
     void CameraUpdated(std::shared_ptr<CameraUpdateEvent> event);
     void SelectObjectChanged(std::shared_ptr<SelectedObjectChangedEvent> event);
 
+    void showObjectListContextMenu(const QPoint& pos);
+    void AddPointToBezier();
+    void CreateBezierFromPoints();
+
+protected:
+    void keyPressEvent(QKeyEvent* event) Q_DECL_OVERRIDE {this->controls->keyPressSlot(event);}
+    void keyReleaseEvent(QKeyEvent* event) Q_DECL_OVERRIDE {this->controls->keyReleaseSlot(event);}
+
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+signals:
+    void PointObjectChanged(std::shared_ptr<PointObjectChangedEvent> event);
 
 private slots:
     void on_spinPosX_valueChanged(double arg1);
@@ -80,8 +91,9 @@ private slots:
     void on_actionDelete_triggered();
     void on_actionCube_triggered();
 
-
+    void on_actionShow_Bezier_polygon_toggled(bool arg1);
 
     void on_actionRename_triggered();
+    void on_actionBezierC0_triggered();
 };
 #endif // MAINWINDOW_H

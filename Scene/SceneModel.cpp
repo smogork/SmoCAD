@@ -7,13 +7,15 @@
 #include "Objects/CubeObject.h"
 #include "Objects/PointObject.h"
 #include "Objects/TorusObject.h"
+#include "Scene/Events/PointObjectChangedEvent.h"
 
 void SceneModel::InitializeScene()
 {
     //Tutaj poczatkowe ohbiektu dodac
     renderableObjects.push_back(new CubeObject(QVector3D(0.0f, 5.0f, 5.0f)));
     renderableObjects.push_back(new CubeObject(QVector3D(0.0f, 0.0f, 5.0f)));
-    renderableObjects.push_back(new PointObject(QVector3D(0.0f, 0.0f, 0.0f)));//2
+    renderableObjects.push_back(new TorusObject(QVector3D(5.0f, 0.0f, 10.0f), 5, 1, 36, 18));
+    renderableObjects.push_back(new PointObject(QVector3D(0.0f, 0.0f, 0.0f)));//3
     renderableObjects.push_back(new PointObject(QVector3D(1.0f, 0.0f, 0.0f)));
     renderableObjects.push_back(new PointObject(QVector3D(2.0f, 0.0f, 1.0f)));
     renderableObjects.push_back(new PointObject(QVector3D(2.0f, 1.0f, 1.0f)));
@@ -21,16 +23,6 @@ void SceneModel::InitializeScene()
     renderableObjects.push_back(new PointObject(QVector3D(0.0f, -1.0f, -1.0f)));
     renderableObjects.push_back(new PointObject(QVector3D(-2.0f, 0.0f, -0.0f)));
     renderableObjects.push_back(new PointObject(QVector3D(-5.0f, 0.0f, -1.0f)));
-    renderableObjects.push_back(new TorusObject(QVector3D(5.0f, 0.0f, 10.0f), 5, 1, 36, 18));
-
-    bezier = std::make_unique<BezierCurveC0>();
-    auto it = renderableObjects.begin();
-    std::advance(it, 2);
-    for (int i = 0; i < 5; ++i)
-    {
-        bezier->AddControlPoint((PointObject *) *it);
-        std::advance(it, 1);
-    }
 }
 
 SceneModel::~SceneModel()
@@ -45,13 +37,20 @@ const std::list<IRenderableObject *> &SceneModel::GetRenderableObjects()
     return renderableObjects;
 }
 
-void SceneModel::AddObject(IRenderableObject *ro)
+bool SceneModel::AddObject(IRenderableObject *ro, bool positionless)
 {
-    if (ro && cursor)
+    if (ro)
     {
-        ro->Position = cursor->Position;
+        if (!cursor && !positionless)
+            return false;
+
+        if (cursor && !positionless)
+            ro->Position = cursor->Position;
+
         renderableObjects.push_back(ro);
+        return true;
     }
+    return false;
 }
 
 void SceneModel::ReleaseObjectsOnScene()
@@ -79,10 +78,10 @@ const std::unique_ptr<CursorObject> &SceneModel::GetCursorObject()
     return cursor;
 }
 
-void SceneModel::SelectObject(IRenderableObject *ro)
+bool SceneModel::SelectObject(IRenderableObject *ro)
 {
     if (!ro)
-        return;
+        return false;
 
     UnselectObjects();
     selectedObject = ro;
@@ -90,6 +89,7 @@ void SceneModel::SelectObject(IRenderableObject *ro)
 
     auto event =std::make_shared<SelectedObjectChangedEvent>(selectedObject);
     emit SelectedObjectChanged(event);
+    return true;
 }
 
 IRenderableObject* SceneModel::GetSelectedObject()
@@ -106,13 +106,16 @@ void SceneModel::RemoveObject(IRenderableObject *ro)
     }
 }
 
-void SceneModel::AppendToSelectedObjects(IRenderableObject *ro)
+bool SceneModel::AppendToSelectedObjects(IRenderableObject *ro)
 {
-    if (!ro)
-        return;
+    if (!ro || dynamic_cast<BezierCurveC0*>(ro))
+        return false;
 
     if (selectedObject && !composite)
     {
+        if (dynamic_cast<BezierCurveC0*>(selectedObject) || ro == selectedObject)
+            return false;
+
         composite = std::make_unique<CompositeObject>(selectedObject, ro);
         renderableObjects.remove(selectedObject);
         renderableObjects.remove(ro);
@@ -126,6 +129,7 @@ void SceneModel::AppendToSelectedObjects(IRenderableObject *ro)
 
     auto event =std::make_shared<SelectedObjectChangedEvent>(composite.get());
     emit SelectedObjectChanged(event);
+    return true;
 }
 
 void SceneModel::UnselectObjects()
@@ -161,7 +165,7 @@ void SceneModel::RemoveComposite()
 
 bool SceneModel::SelectObjectByMouse(QVector4D raycastStart, QVector4D raycastDirection)
 {
-    UnselectObjects();
+    //UnselectObjects();
 
     float t_min = FLT_MAX;
     IRenderableObject* closest = nullptr;
@@ -179,9 +183,4 @@ bool SceneModel::SelectObjectByMouse(QVector4D raycastStart, QVector4D raycastDi
         SelectObject(closest);
 
     return closest != nullptr;
-}
-
-const std::unique_ptr<BezierCurveC0> &SceneModel::GetBezierObject()
-{
-    return bezier;
 }

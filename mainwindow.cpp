@@ -9,6 +9,9 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    ui->listWidgetObjects->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->listWidgetObjects, &QListWidget::customContextMenuRequested, this, &MainWindow::showObjectListContextMenu);
+
     model = std::make_unique<SceneModel>();
     viewport = std::make_shared<Viewport>(ui->sceneWidget->size(), 60);
     controls = std::make_shared<InputController>(viewport, this);
@@ -32,13 +35,15 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::AddNewObject(IRenderableObject* ro, const QString& name)
+void MainWindow::AddNewObject(IRenderableObject* ro, const QString& name, bool positionless)
 {
-    if (model->GetCursorObject())
+    if (model->GetCursorObject() || positionless)
     {
-        model->AddObject(ro);
-        listObjects.push_back(std::make_unique<QListWidgetRenderableItem>(ui->listWidgetObjects, name, ro, model));
-        ui->sceneWidget->update();
+        if (model->AddObject(ro, positionless))
+        {
+            listObjects.push_back(std::make_unique<QListWidgetRenderableItem>(ui->listWidgetObjects, name, ro, model));
+            ui->sceneWidget->update();
+        }
     }
     else
         delete ro;
@@ -51,7 +56,11 @@ void MainWindow::on_actionTorus_triggered()
 
 void MainWindow::on_actionPoint_triggered()
 {
-    AddNewObject(new PointObject(QVector3D()), "Point");
+    PointObject* pointObject = new PointObject(QVector3D());
+    AddNewObject(pointObject, "Point");
+    BezierCurveC0* bezier = dynamic_cast<BezierCurveC0*>(model->GetSelectedObject());
+    if (bezier)
+        bezier->AddControlPoint(pointObject);
 }
 
 void MainWindow::on_actionCube_triggered()
@@ -59,6 +68,12 @@ void MainWindow::on_actionCube_triggered()
     AddNewObject(new CubeObject(QVector3D()), "Cube");
 }
 
+void MainWindow::on_actionBezierC0_triggered()
+{
+    BezierCurveC0* bezier =  new BezierCurveC0();
+    connect(this, &MainWindow::PointObjectChanged, bezier, &BezierCurveC0::onPointChanged);
+    AddNewObject(bezier, "BezierC0", true);
+}
 
 void MainWindow::on_actionRename_triggered()
 {
@@ -95,6 +110,13 @@ void MainWindow::on_actionDelete_triggered()
                     return item->CompareInsideObject(model->GetSelectedObject());
                 }
         );
+
+        PointObject* point = dynamic_cast<PointObject*>(model->GetSelectedObject());
+        if (point)
+        {
+            std::shared_ptr<PointObjectChangedEvent> event = std::make_shared<PointObjectChangedEvent>(point, true);
+            emit PointObjectChanged(event);
+        }
         model->RemoveObject(model->GetSelectedObject());
     }
     else if (model->GetCompositeObject())
@@ -127,11 +149,14 @@ void MainWindow::MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event)
     }
     else
     {
-        ui->groupBoxTransform->setEnabled(false);
-        ui->groupBoxUVParams->setEnabled(false);
-        ui->groupBoxCursor->setEnabled(true);
+        if (event->UnselectObjects)
+        {
+            ui->groupBoxTransform->setEnabled(false);
+            ui->groupBoxUVParams->setEnabled(false);
+            ui->groupBoxCursor->setEnabled(true);
 
-        model->UnselectObjects();
+            model->UnselectObjects();
+        }
         CreateCursorOnScene(event);
     }
 
@@ -158,11 +183,13 @@ void MainWindow::on_listWidgetObjects_itemClicked(QListWidgetItem *item)
 {
     auto rItem = (QListWidgetRenderableItem*)item;
 
-    ui->groupBoxTransform->setEnabled(true);
-    ui->groupBoxUVParams->setEnabled(dynamic_cast<TorusObject*>(rItem->obj) != nullptr);
+    if (rItem->SelectOnScene(ui->listWidgetObjects->selectedItems().size() > 1))
+    {
+        ui->groupBoxTransform->setEnabled(true);
+        ui->groupBoxUVParams->setEnabled(dynamic_cast<TorusObject*>(rItem->obj) != nullptr);
 
-    rItem->SelectOnScene(ui->listWidgetObjects->selectedItems().size() > 1);
-    ui->sceneWidget->update();
+        ui->sceneWidget->update();
+    }
 }
 
 #pragma region CursorUiEvents
@@ -223,7 +250,7 @@ void MainWindow::UpdateCursorWorldPosition()
 
 void MainWindow::UpdateCursorViewPosition()
 {
-    controls->EmitSceneMouseClickedEvent(QPoint(ui->spinCurViewPosX->value(), ui->spinCurViewPosY->value()));
+    controls->EmitSceneMouseClickedEvent(QPoint(ui->spinCurViewPosX->value(), ui->spinCurViewPosY->value()), false);
     ui->sceneWidget->update();
 }
 
@@ -306,6 +333,13 @@ void MainWindow::UpdateSelectedObject()
         selectedTransform->Scale = QVector3D(ui->spinScaleX->value(), ui->spinScaleY->value(), ui->spinScaleZ->value());
 
         UpdateUVParamsOfObject(dynamic_cast<TorusObject*>(selectedTransform));
+
+        PointObject* point = dynamic_cast<PointObject*>(selectedTransform);
+        if (point)
+        {
+            std::shared_ptr<PointObjectChangedEvent> event = std::make_shared<PointObjectChangedEvent>(point, false);
+            emit PointObjectChanged(event);
+        }
     }
 
     ui->sceneWidget->update();
@@ -425,5 +459,64 @@ void MainWindow::ResizeEvent(QSize size)
 
 #pragma endregion
 
+void MainWindow::AddPointToBezier()
+{
+    BezierCurveC0* bezier = dynamic_cast<BezierCurveC0*>(model->GetSelectedObject());
 
+    for (QListWidgetItem* i : ui->listWidgetObjects->selectedItems())
+    {
+        auto item = dynamic_cast<QListWidgetRenderableItem*>(i);
+
+        if (item)
+        {
+            bezier->AddControlPoint(dynamic_cast<PointObject*>(item->obj));
+            ui->sceneWidget->update();
+        }
+    }
+}
+
+void MainWindow::showObjectListContextMenu(const QPoint &pos)
+{
+// Handle global position
+    QPoint globalPos = ui->listWidgetObjects->mapToGlobal(pos);
+
+    int selectedPoints = 0;
+    for (QListWidgetItem* i : ui->listWidgetObjects->selectedItems())
+        selectedPoints += dynamic_cast<QListWidgetRenderableItem*>(i) ? 1 : 0;
+
+    // Create menu and insert some actions
+    QMenu myMenu;
+    myMenu.addAction("Remove", this, &MainWindow::on_actionDelete_triggered);
+    if (dynamic_cast<BezierCurveC0*>(model->GetSelectedObject()))
+        myMenu.addAction("Add to bezier", this, &MainWindow::AddPointToBezier);
+    if (selectedPoints > 1)
+        myMenu.addAction("Create bezier from points", this, &MainWindow::CreateBezierFromPoints);
+    //myMenu.addAction("Erase",  this, SLOT(eraseItem()));
+
+    // Show context menu at handling position
+    myMenu.exec(globalPos);
+}
+
+void MainWindow::CreateBezierFromPoints()
+{
+    BezierCurveC0* bezier =  new BezierCurveC0();
+    connect(this, &MainWindow::PointObjectChanged, bezier, &BezierCurveC0::onPointChanged);
+    AddNewObject(bezier, "BezierC0", true);
+
+    for (QListWidgetItem* i : ui->listWidgetObjects->selectedItems())
+    {
+        auto item = dynamic_cast<QListWidgetRenderableItem*>(i);
+
+        if (item)
+            bezier->AddControlPoint(dynamic_cast<PointObject*>(item->obj));
+    }
+
+    ui->sceneWidget->update();
+}
+
+void MainWindow::on_actionShow_Bezier_polygon_toggled(bool arg1)
+{
+    model->ShowBezeierPolygon = arg1;
+    ui->sceneWidget->update();
+}
 
