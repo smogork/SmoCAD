@@ -32,9 +32,9 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::AddNewObject(IRenderableObject* ro, const QString& name)
+void MainWindow::AddNewObject(IRenderableObject* ro, const QString& name, bool positionless)
 {
-    if (model->GetCursorObject())
+    if (model->GetCursorObject() || positionless)
     {
         model->AddObject(ro);
         listObjects.push_back(std::make_unique<QListWidgetRenderableItem>(ui->listWidgetObjects, name, ro, model));
@@ -59,6 +59,10 @@ void MainWindow::on_actionCube_triggered()
     AddNewObject(new CubeObject(QVector3D()), "Cube");
 }
 
+void MainWindow::on_actionBezierC0_triggered()
+{
+    AddNewObject(new BezierCurveC0(), "BezierC0", true);
+}
 
 void MainWindow::on_actionRename_triggered()
 {
@@ -158,11 +162,13 @@ void MainWindow::on_listWidgetObjects_itemClicked(QListWidgetItem *item)
 {
     auto rItem = (QListWidgetRenderableItem*)item;
 
-    ui->groupBoxTransform->setEnabled(true);
-    ui->groupBoxUVParams->setEnabled(dynamic_cast<TorusObject*>(rItem->obj) != nullptr);
+    if (rItem->SelectOnScene(ui->listWidgetObjects->selectedItems().size() > 1))
+    {
+        ui->groupBoxTransform->setEnabled(true);
+        ui->groupBoxUVParams->setEnabled(dynamic_cast<TorusObject*>(rItem->obj) != nullptr);
 
-    rItem->SelectOnScene(ui->listWidgetObjects->selectedItems().size() > 1);
-    ui->sceneWidget->update();
+        ui->sceneWidget->update();
+    }
 }
 
 #pragma region CursorUiEvents

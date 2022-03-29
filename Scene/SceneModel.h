@@ -24,7 +24,6 @@ private:
     std::unique_ptr<CursorObject> cursor = nullptr;
     IRenderableObject* selectedObject = nullptr;
     std::unique_ptr<CompositeObject> composite = nullptr;
-    std::unique_ptr<BezierCurveC0> bezier = nullptr;
 
     void InitializeScene();
 
@@ -35,21 +34,20 @@ public:
     const std::list<IRenderableObject*>& GetRenderableObjects();
     const std::unique_ptr<CursorObject>& GetCursorObject();
     const std::unique_ptr<CompositeObject>& GetCompositeObject();
-    const std::unique_ptr<BezierCurveC0>& GetBezierObject();
     IRenderableObject* GetSelectedObject();
 
     void UpdateCursor(QVector3D position);
     void DeleteCursor();
 
     void CreateNewObject(IRenderableObject* ro, std::shared_ptr<ShaderWrapper> shader);
-    void AddObject(IRenderableObject* ro);
+    void AddObject(IRenderableObject* ro, bool positionless = false);
     void RemoveObject(IRenderableObject* ro);
     void RemoveComposite();
     void ReleaseObjectsOnScene();
 
-    void SelectObject(IRenderableObject* ro);
+    bool SelectObject(IRenderableObject* ro);
     bool SelectObjectByMouse(QVector4D raycastStart, QVector4D raycastDirection);
-    void AppendToSelectedObjects(IRenderableObject* ro);
+    bool AppendToSelectedObjects(IRenderableObject* ro);
     void UnselectObjects();
 
 signals:

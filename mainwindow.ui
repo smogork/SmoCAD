@@ -558,6 +558,7 @@
      <addaction name="actionTorus"/>
      <addaction name="actionPoint"/>
      <addaction name="actionCube"/>
+     <addaction name="actionBezierC0"/>
     </widget>
     <addaction name="menuAdd"/>
     <addaction name="actionDelete"/>
@@ -590,6 +591,11 @@
   <action name="actionRename">
    <property name="text">
     <string>Rename</string>
+   </property>
+  </action>
+  <action name="actionBezierC0">
+   <property name="text">
+    <string>BezierC0</string>
    </property>
   </action>
  </widget>

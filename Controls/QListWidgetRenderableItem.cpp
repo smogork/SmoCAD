@@ -11,12 +11,11 @@ QListWidgetRenderableItem::QListWidgetRenderableItem(QListWidget *parent, const 
     this->scene = scene;
 }
 
-void QListWidgetRenderableItem::SelectOnScene(bool append)
+bool QListWidgetRenderableItem::SelectOnScene(bool append)
 {
     if (append)
-        scene->AppendToSelectedObjects(obj);
-    else
-        scene->SelectObject(obj);
+        return scene->AppendToSelectedObjects(obj);
+    return scene->SelectObject(obj);
 }
 
 bool QListWidgetRenderableItem::CompareInsideObject(const IRenderableObject* other)

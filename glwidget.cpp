@@ -49,7 +49,11 @@ void GLWidget::paintGL()
 
     //Objects on scene
     for (IRenderableObject* ro : scene->GetRenderableObjects())
-        DrawRenderableObject(ro, shaders[DEFAULT_SHADER]);
+    {
+        //[TODO] Poprawić aby obiekty IRenderable mialy opcje renderowania sie same
+        int shaderIdx = dynamic_cast<BezierCurveC0*>(ro) == nullptr ? DEFAULT_SHADER : BEZIER_SHADER;
+        DrawRenderableObject(ro, shaders[shaderIdx]);
+    }
 
     //Composite object
     const std::unique_ptr<CompositeObject>& composite = scene->GetCompositeObject();
@@ -67,9 +71,6 @@ void GLWidget::paintGL()
 
     //User cursor
     DrawRenderableObject(scene->GetCursorObject().get(), shaders[CURSOR_SHADER]);
-
-    //Bezier
-    DrawRenderableObject(scene->GetBezierObject().get(), shaders[BEZIER_SHADER]);
 }
 
 GLWidget::~GLWidget()

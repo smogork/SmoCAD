@@ -113,14 +113,20 @@ BezierCurveC0::~BezierCurveC0()
 
 void BezierCurveC0::AddControlPoint(PointObject *point)
 {
+    if (!point)
+        return;
+
     controlPoints.push_back(point);
     buffersToUpdate = true;
 }
 
 void BezierCurveC0::RemovePoint(PointObject *point)
 {
-    controlPoints.remove(point);
-    buffersToUpdate = true;
+    if (!point)
+        return;
+
+    if (controlPoints.remove(point))
+        buffersToUpdate = true;
 }
 
 void BezierCurveC0::UpdateBuffers()
