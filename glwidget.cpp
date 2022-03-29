@@ -51,8 +51,10 @@ void GLWidget::paintGL()
     for (IRenderableObject* ro : scene->GetRenderableObjects())
     {
         //[TODO] Poprawić aby obiekty IRenderable mialy opcje renderowania sie same
-        int shaderIdx = dynamic_cast<BezierCurveC0*>(ro) == nullptr ? DEFAULT_SHADER : BEZIER_SHADER;
-        DrawRenderableObject(ro, shaders[shaderIdx]);
+        if (dynamic_cast<BezierCurveC0*>(ro) == nullptr)
+            DrawRenderableObject(ro, shaders[DEFAULT_SHADER]);
+        else
+            DrawBezier(dynamic_cast<BezierCurveC0*>(ro));
     }
 
     //Composite object
@@ -126,5 +128,42 @@ void GLWidget::InitializeUniforms()
     {
         sh->SetUniform("u_MVP.View", controls->Camera->GetViewMatrix());
         sh->SetUniform("u_MVP.Projection", controls->viewport->GetProjectionMatrix());
+    }
+}
+
+void GLWidget::DrawBezier(BezierCurveC0 *bezier, const std::function<void(ShaderWrapper *)> &uniformOverrides)
+{
+    if (bezier)
+    {
+        if (!bezier->AreBuffersCreated())
+            bezier->DefineBuffers();
+
+        if (bezier->AreBuffersToUpdate())
+            bezier->UpdateBuffers();
+
+        if (scene->ShowBezeierPolygon)
+        {
+            bezier->Bind(shaders[DEFAULT_SHADER].get());
+            shaders[DEFAULT_SHADER]->SetUniform("u_ObjectColor", QVector4D(0.0f, 0.7f, 0.9f, 1.0f));
+            if (uniformOverrides)
+            {
+                uniformOverrides(shaders[DEFAULT_SHADER].get());
+            }
+            shaders[DEFAULT_SHADER]->Bind();
+
+            glDrawArrays(GL_LINE_STRIP, 0, bezier->GetVertexCount());
+        }
+
+        bezier->Bind(shaders[BEZIER_SHADER].get());
+        if (uniformOverrides)
+        {
+            uniformOverrides(shaders[BEZIER_SHADER].get());
+            shaders[BEZIER_SHADER]->Bind();
+        }
+
+        glDrawElements(bezier->GetDrawType(), bezier->GetIndexCount(), GL_UNSIGNED_INT, 0);
+
+
+        bezier->Release(shaders[DEFAULT_SHADER].get());
     }
 }

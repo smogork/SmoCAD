@@ -28,6 +28,7 @@ public:
     void DefineBuffers() override;
     void UpdateBuffers() override;
     int GetIndexCount() override;
+    int GetVertexCount() { return GenerateGeometryVertices().size() / 4; }
     int GetDrawType() override { return GL_PATCHES; }
     void Bind(ShaderWrapper* shader) override;
 

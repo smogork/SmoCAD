@@ -91,7 +91,7 @@ private slots:
     void on_actionDelete_triggered();
     void on_actionCube_triggered();
 
-
+    void on_actionShow_Bezier_polygon_toggled(bool arg1);
 
     void on_actionRename_triggered();
     void on_actionBezierC0_triggered();

@@ -15,6 +15,16 @@ void SceneModel::InitializeScene()
     renderableObjects.push_back(new CubeObject(QVector3D(0.0f, 5.0f, 5.0f)));
     renderableObjects.push_back(new CubeObject(QVector3D(0.0f, 0.0f, 5.0f)));
     renderableObjects.push_back(new TorusObject(QVector3D(5.0f, 0.0f, 10.0f), 5, 1, 36, 18));
+    renderableObjects.push_back(new PointObject(QVector3D(0.0f, 0.0f, 0.0f)));//3
+    renderableObjects.push_back(new PointObject(QVector3D(1.0f, 0.0f, 0.0f)));
+    renderableObjects.push_back(new PointObject(QVector3D(2.0f, 0.0f, 1.0f)));
+    renderableObjects.push_back(new PointObject(QVector3D(2.0f, 1.0f, 1.0f)));
+    renderableObjects.push_back(new PointObject(QVector3D(2.0f, 1.0f, -1.0f)));
+    renderableObjects.push_back(new PointObject(QVector3D(0.0f, -1.0f, -1.0f)));
+    renderableObjects.push_back(new PointObject(QVector3D(-2.0f, 0.0f, -0.0f)));
+    renderableObjects.push_back(new PointObject(QVector3D(-5.0f, 0.0f, -1.0f)));
+
+
 }
 
 SceneModel::~SceneModel()
@@ -29,18 +39,20 @@ const std::list<IRenderableObject *> &SceneModel::GetRenderableObjects()
     return renderableObjects;
 }
 
-void SceneModel::AddObject(IRenderableObject *ro, bool positionless)
+bool SceneModel::AddObject(IRenderableObject *ro, bool positionless)
 {
     if (ro)
     {
         if (!cursor && !positionless)
-            return;
+            return false;
 
         if (cursor && !positionless)
             ro->Position = cursor->Position;
 
         renderableObjects.push_back(ro);
+        return true;
     }
+    return false;
 }
 
 void SceneModel::ReleaseObjectsOnScene()

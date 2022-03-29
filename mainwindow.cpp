@@ -39,9 +39,11 @@ void MainWindow::AddNewObject(IRenderableObject* ro, const QString& name, bool p
 {
     if (model->GetCursorObject() || positionless)
     {
-        model->AddObject(ro);
-        listObjects.push_back(std::make_unique<QListWidgetRenderableItem>(ui->listWidgetObjects, name, ro, model));
-        ui->sceneWidget->update();
+        if (model->AddObject(ro, positionless))
+        {
+            listObjects.push_back(std::make_unique<QListWidgetRenderableItem>(ui->listWidgetObjects, name, ro, model));
+            ui->sceneWidget->update();
+        }
     }
     else
         delete ro;
@@ -512,6 +514,9 @@ void MainWindow::CreateBezierFromPoints()
     ui->sceneWidget->update();
 }
 
-
-
+void MainWindow::on_actionShow_Bezier_polygon_toggled(bool arg1)
+{
+    model->ShowBezeierPolygon = arg1;
+    ui->sceneWidget->update();
+}
 

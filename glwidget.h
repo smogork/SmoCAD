@@ -23,17 +23,20 @@
 
 class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
-    Q_OBJECT
+Q_OBJECT
 public:
     GLWidget(QWidget *pWidget);
+
     virtual ~GLWidget() Q_DECL_OVERRIDE;
 
     void SetupSceneAndControls(std::shared_ptr<InputController> controler, std::shared_ptr<SceneModel> model);
 
-    signals:
+signals:
+
     void WidgetResized(QSize size);
 
 public slots:
+
     void UpdateCameraSlot(std::shared_ptr<CameraUpdateEvent> event);
 
 protected:
@@ -44,17 +47,25 @@ protected:
     std::vector<std::shared_ptr<ShaderWrapper>> shaders;
 
     void paintGL() Q_DECL_OVERRIDE;
+
     void initializeGL() Q_DECL_OVERRIDE;
+
     void resizeGL(int w, int h) Q_DECL_OVERRIDE;
 
-    void DrawRenderableObject(IRenderableObject *ro, std::shared_ptr<ShaderWrapper> shader, const std::function< void(
-            ShaderWrapper*)>& uniformOverrides = {});
+    void DrawRenderableObject(IRenderableObject *ro, std::shared_ptr<ShaderWrapper> shader,
+                              const std::function<void(ShaderWrapper *)> &uniformOverrides = {});
+
+    void DrawBezier(BezierCurveC0 *bezier, const std::function<void(ShaderWrapper *)> &uniformOverrides = {});
+
     void InitializeUniforms();
 
-    void mousePressEvent(QMouseEvent* event) Q_DECL_OVERRIDE {this->controls->mousePressSlot(event);}
-    void mouseReleaseEvent(QMouseEvent* event) Q_DECL_OVERRIDE {this->controls->mouseReleaseSlot(event);}
-    void mouseMoveEvent(QMouseEvent* event) Q_DECL_OVERRIDE {this->controls->mouseMoveSlot(event);}
-    void wheelEvent(QWheelEvent* event) Q_DECL_OVERRIDE {this->controls->wheelSlot(event);}
+    void mousePressEvent(QMouseEvent *event) Q_DECL_OVERRIDE { this->controls->mousePressSlot(event); }
+
+    void mouseReleaseEvent(QMouseEvent *event) Q_DECL_OVERRIDE { this->controls->mouseReleaseSlot(event); }
+
+    void mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE { this->controls->mouseMoveSlot(event); }
+
+    void wheelEvent(QWheelEvent *event) Q_DECL_OVERRIDE { this->controls->wheelSlot(event); }
 
 };
 

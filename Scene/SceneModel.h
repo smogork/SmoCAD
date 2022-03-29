@@ -29,6 +29,8 @@ private:
     void InitializeScene();
 
 public:
+    bool ShowBezeierPolygon = true;
+
     SceneModel();
     ~SceneModel();
 
@@ -37,11 +39,12 @@ public:
     const std::unique_ptr<CompositeObject>& GetCompositeObject();
     IRenderableObject* GetSelectedObject();
 
+
     void UpdateCursor(QVector3D position);
     void DeleteCursor();
 
     void CreateNewObject(IRenderableObject* ro, std::shared_ptr<ShaderWrapper> shader);
-    void AddObject(IRenderableObject* ro, bool positionless = false);
+    bool AddObject(IRenderableObject* ro, bool positionless = false);
     void RemoveObject(IRenderableObject* ro);
     void RemoveComposite();
     void ReleaseObjectsOnScene();

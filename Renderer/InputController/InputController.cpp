@@ -48,8 +48,13 @@ void InputController::mouseReleaseSlot(QMouseEvent *event)
     {
         case Qt::LeftButton:
             EmitSceneMouseClickedEvent(event->pos(), true);
-        case Qt::RightButton:
+            break;
+        case Qt::MiddleButton:
             EmitSceneMouseClickedEvent(event->pos(), false);
+            break;
+        case Qt::RightButton:
+            //tutaj w przyslzosci tworzenie contextMenu
+            break;
     }
 
     if (!(mouseButtonStates[LMOUSE_ID] == KeyState::Released or
