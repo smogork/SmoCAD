@@ -9,6 +9,9 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    ui->listWidgetObjects->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->listWidgetObjects, &QListWidget::customContextMenuRequested, this, &MainWindow::showObjectListContextMenu);
+
     model = std::make_unique<SceneModel>();
     viewport = std::make_shared<Viewport>(ui->sceneWidget->size(), 60);
     controls = std::make_shared<InputController>(viewport, this);
@@ -453,6 +456,62 @@ void MainWindow::ResizeEvent(QSize size)
 }
 
 #pragma endregion
+
+void MainWindow::AddPointToBezier()
+{
+    BezierCurveC0* bezier = dynamic_cast<BezierCurveC0*>(model->GetSelectedObject());
+
+    for (QListWidgetItem* i : ui->listWidgetObjects->selectedItems())
+    {
+        auto item = dynamic_cast<QListWidgetRenderableItem*>(i);
+
+        if (item)
+        {
+            bezier->AddControlPoint(dynamic_cast<PointObject*>(item->obj));
+            ui->sceneWidget->update();
+        }
+    }
+}
+
+void MainWindow::showObjectListContextMenu(const QPoint &pos)
+{
+// Handle global position
+    QPoint globalPos = ui->listWidgetObjects->mapToGlobal(pos);
+
+    int selectedPoints = 0;
+    for (QListWidgetItem* i : ui->listWidgetObjects->selectedItems())
+        selectedPoints += dynamic_cast<QListWidgetRenderableItem*>(i) ? 1 : 0;
+
+    // Create menu and insert some actions
+    QMenu myMenu;
+    myMenu.addAction("Remove", this, &MainWindow::on_actionDelete_triggered);
+    if (dynamic_cast<BezierCurveC0*>(model->GetSelectedObject()))
+        myMenu.addAction("Add to bezier", this, &MainWindow::AddPointToBezier);
+    if (selectedPoints > 1)
+        myMenu.addAction("Create bezier from points", this, &MainWindow::CreateBezierFromPoints);
+    //myMenu.addAction("Erase",  this, SLOT(eraseItem()));
+
+    // Show context menu at handling position
+    myMenu.exec(globalPos);
+}
+
+void MainWindow::CreateBezierFromPoints()
+{
+    BezierCurveC0* bezier =  new BezierCurveC0();
+    connect(this, &MainWindow::PointObjectChanged, bezier, &BezierCurveC0::onPointChanged);
+    AddNewObject(bezier, "BezierC0", true);
+
+    for (QListWidgetItem* i : ui->listWidgetObjects->selectedItems())
+    {
+        auto item = dynamic_cast<QListWidgetRenderableItem*>(i);
+
+        if (item)
+            bezier->AddControlPoint(dynamic_cast<PointObject*>(item->obj));
+    }
+
+    ui->sceneWidget->update();
+}
+
 
 
 

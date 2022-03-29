@@ -48,6 +48,10 @@ protected slots:
     void CameraUpdated(std::shared_ptr<CameraUpdateEvent> event);
     void SelectObjectChanged(std::shared_ptr<SelectedObjectChangedEvent> event);
 
+    void showObjectListContextMenu(const QPoint& pos);
+    void AddPointToBezier();
+    void CreateBezierFromPoints();
+
 protected:
     void keyPressEvent(QKeyEvent* event) Q_DECL_OVERRIDE {this->controls->keyPressSlot(event);}
     void keyReleaseEvent(QKeyEvent* event) Q_DECL_OVERRIDE {this->controls->keyReleaseSlot(event);}
