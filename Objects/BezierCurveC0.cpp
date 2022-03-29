@@ -23,7 +23,7 @@ std::vector<float> BezierCurveC0::GenerateGeometryVertices()
 
 std::vector<int> BezierCurveC0::GenerateTopologyEdges()
 {
-    int groups = std::ceil(controlPoints.size() / 4.0f);
+    int groups = std::ceil(controlPoints.size() / 3.0f);
     std::vector<int> res (4 * groups);
 
     for (int i = 0; i < groups; ++i)
@@ -78,7 +78,7 @@ void BezierCurveC0::CreateBuffers()
 
 int BezierCurveC0::GetIndexCount()
 {
-    return 4 * std::ceil(controlPoints.size() / 4.0f);
+    return 4 * std::ceil(controlPoints.size() / 3.0f);
 }
 
 void BezierCurveC0::Bind(ShaderWrapper *shader)

@@ -51,7 +51,11 @@ void MainWindow::on_actionTorus_triggered()
 
 void MainWindow::on_actionPoint_triggered()
 {
-    AddNewObject(new PointObject(QVector3D()), "Point");
+    PointObject* pointObject = new PointObject(QVector3D());
+    AddNewObject(pointObject, "Point");
+    BezierCurveC0* bezier = dynamic_cast<BezierCurveC0*>(model->GetSelectedObject());
+    if (bezier)
+        bezier->AddControlPoint(pointObject);
 }
 
 void MainWindow::on_actionCube_triggered()
@@ -131,11 +135,14 @@ void MainWindow::MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event)
     }
     else
     {
-        ui->groupBoxTransform->setEnabled(false);
-        ui->groupBoxUVParams->setEnabled(false);
-        ui->groupBoxCursor->setEnabled(true);
+        if (!controls->IsKeyPressed(Qt::Key_A))
+        {
+            ui->groupBoxTransform->setEnabled(false);
+            ui->groupBoxUVParams->setEnabled(false);
+            ui->groupBoxCursor->setEnabled(true);
 
-        model->UnselectObjects();
+            model->UnselectObjects();
+        }
         CreateCursorOnScene(event);
     }
 

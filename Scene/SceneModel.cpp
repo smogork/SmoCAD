@@ -120,7 +120,7 @@ bool SceneModel::AppendToSelectedObjects(IRenderableObject *ro)
 
     if (selectedObject && !composite)
     {
-        if (dynamic_cast<BezierCurveC0*>(selectedObject))
+        if (dynamic_cast<BezierCurveC0*>(selectedObject) || ro == selectedObject)
             return false;
 
         composite = std::make_unique<CompositeObject>(selectedObject, ro);
@@ -172,7 +172,7 @@ void SceneModel::RemoveComposite()
 
 bool SceneModel::SelectObjectByMouse(QVector4D raycastStart, QVector4D raycastDirection)
 {
-    UnselectObjects();
+    //UnselectObjects();
 
     float t_min = FLT_MAX;
     IRenderableObject* closest = nullptr;
