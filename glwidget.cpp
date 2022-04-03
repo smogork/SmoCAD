@@ -113,7 +113,7 @@ void GLWidget::UpdateCameraSlot(std::shared_ptr<CameraUpdateEvent> event)
     update();
 }
 
-void GLWidget::SetupSceneAndControls(std::shared_ptr<InputController> controler, std::shared_ptr<SceneModel> model)
+void GLWidget::SetupSceneAndControls(std::shared_ptr<InputController> controler, std::shared_ptr<SceneModelOld> model)
 {
     this->controls = controler;
     this->scene = model;

@@ -7,7 +7,7 @@
 #include <Renderer/InputController/InputController.h>
 #include "Objects/IRenderableObject.h"
 #include "Objects/CursorObject.h"
-#include "Scene/SceneModel.h"
+#include "Scene/SceneModelOld.h"
 #include "Controls/QListWidgetRenderableItem.h"
 #include "Objects/TorusObject.h"
 
@@ -22,7 +22,7 @@ private:
     Ui::MainWindow *ui;
     std::shared_ptr<InputController> controls = nullptr;
     std::shared_ptr<Viewport> viewport = nullptr;
-    std::shared_ptr<SceneModel> model = nullptr;
+    std::shared_ptr<SceneModelOld> model = nullptr;
     std::list<std::unique_ptr<QListWidgetRenderableItem>> listObjects;
     TransformableObject* selectedTransform = nullptr;
 

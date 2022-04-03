@@ -15,7 +15,7 @@
 #include "Renderer/InputController/InputEvents/CameraUpdateEvent.h"
 
 #include <Renderer/ShaderWrapper.h>
-#include "Scene/SceneModel.h"
+#include "Scene/SceneModelOld.h"
 
 #define DEFAULT_SHADER 0
 #define CURSOR_SHADER 1
@@ -29,7 +29,7 @@ public:
 
     virtual ~GLWidget() Q_DECL_OVERRIDE;
 
-    void SetupSceneAndControls(std::shared_ptr<InputController> controler, std::shared_ptr<SceneModel> model);
+    void SetupSceneAndControls(std::shared_ptr<InputController> controler, std::shared_ptr<SceneModelOld> model);
 
 signals:
 
@@ -41,7 +41,7 @@ public slots:
 
 protected:
 
-    std::shared_ptr<SceneModel> scene = nullptr;
+    std::shared_ptr<SceneModelOld> scene = nullptr;
     std::shared_ptr<InputController> controls = nullptr;
 
     std::vector<std::shared_ptr<ShaderWrapper>> shaders;

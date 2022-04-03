@@ -12,7 +12,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->listWidgetObjects->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->listWidgetObjects, &QListWidget::customContextMenuRequested, this, &MainWindow::showObjectListContextMenu);
 
-    model = std::make_unique<SceneModel>();
+    model = std::make_unique<SceneModelOld>();
     viewport = std::make_shared<Viewport>(ui->sceneWidget->size(), 60);
     controls = std::make_shared<InputController>(viewport, this);
     ui->sceneWidget->SetupSceneAndControls(controls, model);
@@ -21,7 +21,7 @@ MainWindow::MainWindow(QWidget *parent)
                      this, &MainWindow::MouseRaycastSlot);
     QObject::connect(this->controls.get(), &InputController::CameraUpdated,
                      this, &MainWindow::CameraUpdated);
-    QObject::connect(this->model.get(), &SceneModel::SelectedObjectChanged,
+    QObject::connect(this->model.get(), &SceneModelOld::SelectedObjectChanged,
                      this, &MainWindow::SelectObjectChanged);
     QObject::connect(ui->sceneWidget, &GLWidget::WidgetResized,
                      this, &MainWindow::ResizeEvent);

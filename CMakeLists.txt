@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(SmoCAD VERSION 0.1 LANGUAGES CXX)
+project(SmoCAD VERSION 0.5 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -51,12 +51,17 @@ set(PROJECT_SOURCES
         Renderer/Camera/Viewport.cpp Renderer/Camera/Viewport.h
         Objects/PointObject.cpp Objects/PointObject.h
         Controls/controls.cpp Controls/controls.h Controls/controls.ui
-        Scene/SceneModel.cpp Scene/SceneModel.h
+        Scene/SceneModelOld.cpp Scene/SceneModelOld.h
         Controls/QListWidgetRenderableItem.cpp Controls/QListWidgetRenderableItem.h
         Scene/Events/CursorChangedEvent.cpp Scene/Events/CursorChangedEvent.h
         Scene/Events/SelectedObjectChangedEvent.cpp Scene/Events/SelectedObjectChangedEvent.h
         Objects/CompositeObject.cpp Objects/CompositeObject.h
-        Objects/BezierCurveC0.cpp Objects/BezierCurveC0.h Scene/Events/PointObjectChangedEvent.cpp Scene/Events/PointObjectChangedEvent.h)
+        Objects/BezierCurveC0.cpp Objects/BezierCurveC0.h
+        Scene/Events/PointObjectChangedEvent.cpp Scene/Events/PointObjectChangedEvent.h
+        Scene/Systems/ISystem.cpp Scene/Systems/ISystem.h
+        Scene/Entities/IEntity.cpp Scene/Entities/IEntity.h
+        Scene/Components/IComponent.cpp Scene/Components/IComponent.h
+        Scene/Entities/Point.cpp Scene/Entities/Point.h Scene/Components/Transform.cpp Scene/Components/Transform.h Scene/SceneECS.cpp Scene/SceneECS.h)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(SmoCAD

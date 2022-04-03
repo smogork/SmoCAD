@@ -2,8 +2,8 @@
 // Created by ksm on 3/22/22.
 //
 
-#ifndef SMOCAD_SCENEMODEL_H
-#define SMOCAD_SCENEMODEL_H
+#ifndef SMOCAD_SCENEMODELOLD_H
+#define SMOCAD_SCENEMODELOLD_H
 
 #include <list>
 
@@ -16,7 +16,7 @@
 #include "Scene/Events/PointObjectChangedEvent.h"
 
 
-class SceneModel: public QObject
+class SceneModelOld: public QObject
 {
     Q_OBJECT
 
@@ -31,8 +31,8 @@ private:
 public:
     bool ShowBezeierPolygon = true;
 
-    SceneModel();
-    ~SceneModel();
+    SceneModelOld();
+    ~SceneModelOld();
 
     const std::list<IRenderableObject*>& GetRenderableObjects();
     const std::unique_ptr<CursorObject>& GetCursorObject();
@@ -60,4 +60,4 @@ signals:
 };
 
 
-#endif //SMOCAD_SCENEMODEL_H
+#endif //SMOCAD_SCENEMODELOLD_H
