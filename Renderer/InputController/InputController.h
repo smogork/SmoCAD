@@ -40,7 +40,7 @@ public:
     std::shared_ptr<Viewport> viewport = nullptr;
 
     bool IsKeyPressed(Qt::Key key);
-    void EmitSceneMouseClickedEvent(QPoint screenPoint);
+    void EmitSceneMouseClickedEvent(QPoint screenPoint, bool unselect);
 
 public:
     virtual void keyPressSlot(QKeyEvent *event);

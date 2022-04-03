@@ -5,10 +5,16 @@
 #ifndef SMOCAD_SCENEMODEL_H
 #define SMOCAD_SCENEMODEL_H
 
+#include <list>
+
 #include <QObject>
+
 #include "Objects/CursorObject.h"
 #include "Scene/Events/SelectedObjectChangedEvent.h"
 #include "Objects/CompositeObject.h"
+#include "Objects/BezierCurveC0.h"
+#include "Scene/Events/PointObjectChangedEvent.h"
+
 
 class SceneModel: public QObject
 {
@@ -23,6 +29,8 @@ private:
     void InitializeScene();
 
 public:
+    bool ShowBezeierPolygon = true;
+
     SceneModel();
     ~SceneModel();
 
@@ -31,17 +39,19 @@ public:
     const std::unique_ptr<CompositeObject>& GetCompositeObject();
     IRenderableObject* GetSelectedObject();
 
+
     void UpdateCursor(QVector3D position);
     void DeleteCursor();
 
-    void AddObject(IRenderableObject* ro);
+    void CreateNewObject(IRenderableObject* ro, std::shared_ptr<ShaderWrapper> shader);
+    bool AddObject(IRenderableObject* ro, bool positionless = false);
     void RemoveObject(IRenderableObject* ro);
     void RemoveComposite();
     void ReleaseObjectsOnScene();
 
-    void SelectObject(IRenderableObject* ro);
+    bool SelectObject(IRenderableObject* ro);
     bool SelectObjectByMouse(QVector4D raycastStart, QVector4D raycastDirection);
-    void AppendToSelectedObjects(IRenderableObject* ro);
+    bool AppendToSelectedObjects(IRenderableObject* ro);
     void UnselectObjects();
 
 signals:

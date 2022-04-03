@@ -16,8 +16,9 @@ public:
     QVector3D ClickViewPointFar;
     QVector4D RaycastDirection;
     QVector4D RaycastStart;
+    bool UnselectObjects;
 
-    explicit SceneMouseClickEvent(QPoint vPos, QVector3D near, QVector3D far) : ClickViewPointFar(far), ClickViewPointNear(near)
+    explicit SceneMouseClickEvent(QPoint vPos, QVector3D near, QVector3D far, bool unselect) : ClickViewPointFar(far), ClickViewPointNear(near), UnselectObjects(unselect)
     {
         ViewClickPoint = vPos;
         RaycastDirection = (ClickViewPointFar - ClickViewPointNear).toVector4D();

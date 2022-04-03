@@ -558,13 +558,21 @@
      <addaction name="actionTorus"/>
      <addaction name="actionPoint"/>
      <addaction name="actionCube"/>
+     <addaction name="actionBezierC0"/>
     </widget>
     <addaction name="menuAdd"/>
     <addaction name="actionDelete"/>
     <addaction name="separator"/>
     <addaction name="actionRename"/>
    </widget>
+   <widget class="QMenu" name="menuOptions">
+    <property name="title">
+     <string>Options</string>
+    </property>
+    <addaction name="actionShow_Bezier_polygon"/>
+   </widget>
    <addaction name="menuObjects"/>
+   <addaction name="menuOptions"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionTorus">
@@ -590,6 +598,22 @@
   <action name="actionRename">
    <property name="text">
     <string>Rename</string>
+   </property>
+  </action>
+  <action name="actionBezierC0">
+   <property name="text">
+    <string>BezierC0</string>
+   </property>
+  </action>
+  <action name="actionShow_Bezier_polygon">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Bezier polygon</string>
    </property>
   </action>
  </widget>

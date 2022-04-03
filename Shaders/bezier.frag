@@ -1,9 +1,9 @@
 #version 440 core
 out vec4 FragColor;
-in vec4 last_FragColor;
+uniform vec4 u_ObjectColor;
 
 void main()
 {
-    FragColor = last_FragColor;
+    FragColor = u_ObjectColor;
     //FragColor = (1.0f, 1.0f, 0.0f, 1.0f);
 }

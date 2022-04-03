@@ -47,7 +47,14 @@ void InputController::mouseReleaseSlot(QMouseEvent *event)
     switch (event->button())
     {
         case Qt::LeftButton:
-            EmitSceneMouseClickedEvent(event->pos());
+            EmitSceneMouseClickedEvent(event->pos(), true);
+            break;
+        case Qt::MiddleButton:
+            EmitSceneMouseClickedEvent(event->pos(), false);
+            break;
+        case Qt::RightButton:
+            //tutaj w przyslzosci tworzenie contextMenu
+            break;
     }
 
     if (!(mouseButtonStates[LMOUSE_ID] == KeyState::Released or
@@ -157,7 +164,7 @@ void InputController::EmitCameraUpdateEvent()
     emit CameraUpdated(event);
 }
 
-void InputController::EmitSceneMouseClickedEvent(QPoint screenPoint)
+void InputController::EmitSceneMouseClickedEvent(QPoint screenPoint, bool unselect)
 {
     QVector3D viewNear(screenPoint.x(), viewport->GetViewportSize().height() - screenPoint.y(), 0.0f);
     QVector3D viewFar(screenPoint.x(), viewport->GetViewportSize().height() - screenPoint.y(), 1.0f);
@@ -171,7 +178,7 @@ void InputController::EmitSceneMouseClickedEvent(QPoint screenPoint)
     qDebug() << "UnprojectFar:" << resultFar;
     qDebug() << "ViewFar:" << viewFar;*/
 
-    std::shared_ptr<SceneMouseClickEvent> event = std::make_shared<SceneMouseClickEvent>(screenPoint, resultNear, resultFar);
+    std::shared_ptr<SceneMouseClickEvent> event = std::make_shared<SceneMouseClickEvent>(screenPoint, resultNear, resultFar, unselect);
     emit SceneMouseClicked(event);
 }
 

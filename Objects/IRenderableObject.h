@@ -40,7 +40,7 @@ public:
     bool AreBuffersCreated() { return buffersCreated;}
     bool AreBuffersToUpdate() { return buffersToUpdate; }
 
-    virtual void DefineBuffers() { buffersCreated = true; }
+    virtual void DefineBuffers() { buffersCreated = true; buffersToUpdate = false; }
     virtual void UpdateBuffers() { buffersToUpdate = false; }
     virtual int GetIndexCount() = 0;
     virtual int GetDrawType() = 0;

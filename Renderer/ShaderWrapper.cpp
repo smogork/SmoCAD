@@ -34,6 +34,25 @@ void ShaderWrapper::Create()
     if (!shader->addShaderFromSourceFile(QOpenGLShader::Fragment, fsFilepath))
         qDebug() << "Fragment shader errors:\n" << shader->log();
 
+    if (tessFilepath != "")
+    {
+        if (!shader->addShaderFromSourceFile(QOpenGLShader::TessellationControl, tessFilepath))
+            qDebug() << "tesselayion control shader errors:\n" << shader->log();
+    }
+
+    if (evalFilepath != "")
+    {
+        if (!shader->addShaderFromSourceFile(QOpenGLShader::TessellationEvaluation, evalFilepath))
+            qDebug() << "Tesselation evaluation shader errors:\n" << shader->log();
+    }
+
     if (!shader->link())
         qDebug() << "Shader linker errors:\n" << shader->log();
+}
+
+ShaderWrapper::ShaderWrapper(const QString &vsFilepath, const QString &fsFilename, const QString &tessFilepath,
+                             const QString &evalFilename):
+        fsFilepath(fsFilename), vsFilepath(vsFilepath), shader(nullptr), tessFilepath(tessFilepath), evalFilepath(evalFilename)
+{
+    Create();
 }
