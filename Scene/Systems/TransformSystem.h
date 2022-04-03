@@ -15,12 +15,12 @@ public:
     { }
 
 private:
-    std::map<unsigned int, std::shared_ptr<Transform>> components;
+    std::map<unsigned int, std::weak_ptr<Transform>> components;
 
 public:
 
     std::weak_ptr<Transform> GetComponent(unsigned int oid);
-    std::vector<std::shared_ptr<Transform>> GetComponents();
+    std::vector<std::weak_ptr<Transform>> GetComponents();
     std::shared_ptr<Transform> CreateRegistered(unsigned int oid);
     bool Unregister(unsigned int oid);
 

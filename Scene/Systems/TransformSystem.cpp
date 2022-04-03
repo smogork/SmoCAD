@@ -11,10 +11,10 @@ std::weak_ptr<Transform> TransformSystem::GetComponent(unsigned int oid)
     return std::shared_ptr<Transform>(nullptr);
 }
 
-std::vector<std::shared_ptr<Transform>> TransformSystem::GetComponents()
+std::vector<std::weak_ptr<Transform>> TransformSystem::GetComponents()
 {
-    std::vector<std::shared_ptr<Transform>> res;
-    for (std::pair<unsigned int, std::shared_ptr<Transform>> p : components)
+    std::vector<std::weak_ptr<Transform>> res;
+    for (std::pair<unsigned int, std::weak_ptr<Transform>> p : components)
         res.push_back(p.second);
     return res;
 }

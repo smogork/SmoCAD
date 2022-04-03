@@ -11,10 +11,9 @@
 
 class Point: public IEntity
 {
-private:
+public:
     std::shared_ptr<Transform> transform;
 
-public:
     explicit Point(QVector3D pos);
     ~Point() override;
 };

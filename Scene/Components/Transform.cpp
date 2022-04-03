@@ -13,7 +13,6 @@ Transform(oid, QVector3D(), QVector3D(), QVector3D(1, 1, 1)) {}
 
 Transform::Transform(unsigned int oid, QVector3D position, QVector3D rotation, QVector3D scale): IComponent(oid, SYSTEM_ID::TRANSFORM)
 {
-    //RegisterComponent();
     this->Position = position;
     this->Rotation = rotation;
     this->Scale = scale;

@@ -7,10 +7,10 @@
 Point::Point(QVector3D pos): IEntity(POINT_CLASS)
 {
     transform = Transform::CreateRegisteredComponent(objectID, pos);
-    transform->Rotation.setX(90);
+    //Transform->Rotation.setX(90);
 }
 
 Point::~Point()
 {
-    transform->UnregisterComponent();
+    //Transform->UnregisterComponent();
 }
