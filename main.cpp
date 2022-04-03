@@ -8,14 +8,14 @@
 #include "Scene/Entities/Point.h"
 #include "Scene/SceneECS.h"
 #include "Scene/Systems/DrawingSystem.h"
+#include "Scene/Systems/TransformSystem.h"
 
 void testCount()
 {
     auto transformSys = SceneECS::Instance().lock()->GetSystem<TransformSystem>();
-    //auto transformSys = SceneECS::Instance().lock()->GetSystem<TransformSystem>();
-    //auto drawingSys = SceneECS::Instance().lock()->GetSystem<DrawingSystem>();
-    //std::cout << transformSys.lock()->GetComponents().size() << " " << drawingSys.lock()->GetComponents().size() << std::endl;
-    std::cout << transformSys.lock()->GetComponents().size() << std::endl;
+    auto drawingSys = SceneECS::Instance().lock()->GetSystem<DrawingSystem>();
+    std::cout << transformSys.lock()->GetComponents().size() << " " << drawingSys.lock()->GetComponents().size() << std::endl;
+    //std::cout << transformSys.lock()->GetComponents().size() << std::endl;
 }
 
 void test()

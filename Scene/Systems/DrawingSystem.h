@@ -15,10 +15,6 @@ public:
     DrawingSystem(): ISystem(SYSTEM_ID::DRAWING)
     { }
 
-private:
-
-public:
-
 };
 
 

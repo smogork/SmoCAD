@@ -5,6 +5,7 @@
 #include "Transform.h"
 #include "Renderer/LazyRenderer.h"
 #include "Scene/SceneECS.h"
+#include "Scene/Systems/TransformSystem.h"
 #include <Qt3DCore>
 
 Transform::Transform(unsigned int oid):

@@ -16,11 +16,6 @@ public:
 
 public:
 
-    /*std::weak_ptr<Transform> GetComponent(unsigned int oid);
-    std::vector<std::weak_ptr<Transform>> GetComponents();
-    std::shared_ptr<Transform> CreateRegistered(unsigned int oid);
-    bool Unregister(unsigned int oid);*/
-
 };
 
 

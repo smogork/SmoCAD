@@ -14,6 +14,9 @@ public:
 
     static std::shared_ptr<Drawing> CreateRegisteredComponent(unsigned int oid);
     void UnregisterComponent();
+
+    Drawing(unsigned int oid);
+    ~Drawing() override;
 };
 
 

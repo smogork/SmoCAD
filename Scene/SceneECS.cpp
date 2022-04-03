@@ -3,6 +3,8 @@
 //
 
 #include "SceneECS.h"
+#include "Scene/Systems/DrawingSystem.h"
+#include "Scene/Systems/TransformSystem.h"
 
 std::shared_ptr<SceneECS> SceneECS::scene = nullptr;
 
@@ -17,8 +19,8 @@ SceneECS::SceneECS()
 {
     objectCounter = 0;
 
-    auto test = std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<TransformSystem>());
     systems.put<TransformSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<TransformSystem>()));
+    systems.put<DrawingSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<DrawingSystem>()));
 }
 
 SceneECS::~SceneECS()

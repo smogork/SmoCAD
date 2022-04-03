@@ -8,7 +8,6 @@
 
 #include <QObject>
 #include "Scene/Systems/ISystem.h"
-#include "Scene/Systems/TransformSystem.h"
 #include "Scene/Utilities/TypeMap.h"
 
 class SceneECS: QObject
