@@ -12,10 +12,15 @@ class IComponent: QObject
 {
     Q_OBJECT
 private:
+    unsigned int attachedObjectId;
+    unsigned int attachedSystemId;
 
+protected:
+    explicit IComponent(unsigned int oid, unsigned sid);
+    virtual ~IComponent();
 public:
-
-
+    unsigned int GetAttachedObjectID();
+    unsigned int GetAttachedSystemID();
 };
 
 

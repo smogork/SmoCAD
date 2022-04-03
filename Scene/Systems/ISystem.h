@@ -7,34 +7,25 @@
 
 #include <map>
 #include <memory>
+#include <vector>
+
+enum SYSTEM_ID
+{
+    TRANSFORM,
+    SYSTEM_COUNT
+};
 
 
-template<typename C>
 class ISystem
 {
-protected:
+private:
     unsigned int systemID;
 
-private:
-    std::map<unsigned int, std::shared_ptr<C>> components;
-
 public:
-    ISystem(unsigned int sid) { systemID = sid; }
+    explicit ISystem(unsigned int sid) { systemID = sid; }
 
-    std::shared_ptr<C> GetComponent(unsigned int oid)
-    {
+    unsigned int GetSystemID() { return systemID; }
 
-    }
-
-    bool Register(std::shared_ptr<C> component)
-    {
-
-    }
-
-    bool Unregister(std::shared_ptr<C> component)
-    {
-
-    }
 };
 
 

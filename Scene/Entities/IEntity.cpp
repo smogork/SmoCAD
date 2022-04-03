@@ -3,7 +3,7 @@
 //
 
 #include "IEntity.h"
-#include <fmt/core.h>
+#include "Scene/SceneECS.h"
 #include <QString>
 
 IEntity::IEntity(unsigned int cid)
@@ -12,6 +12,8 @@ IEntity::IEntity(unsigned int cid)
         throw std::runtime_error(QString("entity classID %1 unknown").arg(cid).toStdString());
 
     classID = cid;
+    if (auto scene = SceneECS::Instance().lock())
+        objectID = scene->GetNewObjectID();
 }
 
 unsigned int IEntity::GetObjectID()
@@ -22,4 +24,9 @@ unsigned int IEntity::GetObjectID()
 unsigned int IEntity::GetClassID()
 {
     return classID;
+}
+
+IEntity::~IEntity()
+{
+
 }

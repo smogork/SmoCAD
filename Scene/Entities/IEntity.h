@@ -11,7 +11,7 @@
 
 enum ENTITY_CLASS
 {
-    POINT_CLASS = 0,
+    POINT_CLASS,
     CLASS_COUNT
 };
 

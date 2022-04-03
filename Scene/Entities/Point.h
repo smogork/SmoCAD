@@ -7,10 +7,16 @@
 
 
 #include "IEntity.h"
+#include "Scene/Components/Transform.h"
 
 class Point: public IEntity
 {
+private:
+    std::shared_ptr<Transform> transform;
 
+public:
+    explicit Point(QVector3D pos);
+    ~Point() override;
 };
 
 
