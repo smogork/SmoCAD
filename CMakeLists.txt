@@ -61,7 +61,15 @@ set(PROJECT_SOURCES
         Scene/Systems/ISystem.cpp Scene/Systems/ISystem.h
         Scene/Entities/IEntity.cpp Scene/Entities/IEntity.h
         Scene/Components/IComponent.cpp Scene/Components/IComponent.h
-        Scene/Entities/Point.cpp Scene/Entities/Point.h Scene/Components/Transform.cpp Scene/Components/Transform.h Scene/SceneECS.cpp Scene/SceneECS.h Renderer/LazyRenderer.cpp Renderer/LazyRenderer.h Scene/Systems/TransformSystem.cpp Scene/Systems/TransformSystem.h Scene/Utilities/TypeMap.cpp Scene/Utilities/TypeMap.h Scene/Utilities/TypeNumbering.cpp Scene/Utilities/TypeNumbering.h Scene/Components/Drawing.cpp Scene/Components/Drawing.h Scene/Systems/DrawingSystem.cpp Scene/Systems/DrawingSystem.h Scene/Systems/IAbstractSystem.cpp Scene/Systems/IAbstractSystem.h)
+        Scene/Entities/Point.cpp Scene/Entities/Point.h
+        Scene/Components/Transform.cpp Scene/Components/Transform.h
+        Scene/SceneECS.cpp Scene/SceneECS.h
+        Scene/Systems/TransformSystem.cpp Scene/Systems/TransformSystem.h
+        Scene/Utilities/TypeMap.cpp Scene/Utilities/TypeMap.h
+        Scene/Utilities/TypeNumbering.cpp Scene/Utilities/TypeNumbering.h
+        Scene/Components/Drawing.cpp Scene/Components/Drawing.h
+        Scene/Systems/DrawingSystem.cpp Scene/Systems/DrawingSystem.h
+        Scene/Systems/IAbstractSystem.cpp Scene/Systems/IAbstractSystem.h Scene/Entities/Cube.cpp Scene/Entities/Cube.h)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(SmoCAD

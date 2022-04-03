@@ -34,3 +34,10 @@ Drawing::Drawing(unsigned int oid): IComponent(oid, SYSTEM_ID::DRAWING)
 {
 
 }
+
+void Drawing::Render()
+{
+
+    int i = 1;
+    i++;
+}

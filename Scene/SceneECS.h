@@ -9,6 +9,7 @@
 #include <QObject>
 #include "Scene/Systems/ISystem.h"
 #include "Scene/Utilities/TypeMap.h"
+#include "Scene/Entities/IEntity.h"
 
 class SceneECS: QObject
 {
@@ -40,8 +41,10 @@ private:
     static std::shared_ptr<SceneECS> scene;
     unsigned int objectCounter;
     TypeMap<std::shared_ptr<IAbstractSystem>> systems;
+    std::list<std::shared_ptr<IEntity>> objects;
 
     SceneECS();
+    void InitObjects();
 };
 
 

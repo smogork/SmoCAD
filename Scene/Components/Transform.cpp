@@ -3,7 +3,6 @@
 //
 
 #include "Transform.h"
-#include "Renderer/LazyRenderer.h"
 #include "Scene/SceneECS.h"
 #include "Scene/Systems/TransformSystem.h"
 #include <Qt3DCore>
@@ -24,9 +23,9 @@ QMatrix4x4 Transform::GetModelMatrix()
     QMatrix4x4 result;
     result.setToIdentity();
     result.translate(Position);
-    result.rotate(Rotation.x(), LazyRenderer::GetXAxis());
-    result.rotate(Rotation.y(), LazyRenderer::GetYAxis());
-    result.rotate(Rotation.z(), LazyRenderer::GetZAxis());
+    result.rotate(Rotation.x(), Transform::GetXAxis());
+    result.rotate(Rotation.y(), Transform::GetYAxis());
+    result.rotate(Rotation.z(), Transform::GetZAxis());
     result.scale(Scale);
     return result;
 }

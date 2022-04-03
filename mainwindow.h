@@ -10,6 +10,7 @@
 #include "Scene/SceneModelOld.h"
 #include "Controls/QListWidgetRenderableItem.h"
 #include "Objects/TorusObject.h"
+#include "Scene/SceneECS.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -22,7 +23,8 @@ private:
     Ui::MainWindow *ui;
     std::shared_ptr<InputController> controls = nullptr;
     std::shared_ptr<Viewport> viewport = nullptr;
-    std::shared_ptr<SceneModelOld> model = nullptr;
+    //std::shared_ptr<SceneModelOld> model = nullptr;
+    //std::shared_ptr<SceneECS> model = nullptr;
     std::list<std::unique_ptr<QListWidgetRenderableItem>> listObjects;
     TransformableObject* selectedTransform = nullptr;
 

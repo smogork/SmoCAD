@@ -39,7 +39,7 @@ void test()
 
 int main(int argc, char *argv[])
 {
-    /*QApplication a(argc, argv);
+    QApplication a(argc, argv);
 
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();
@@ -52,6 +52,6 @@ int main(int argc, char *argv[])
     }
     MainWindow w;
     w.show();
-    return a.exec();*/
-    test();
+    return a.exec();
+    //test();
 }

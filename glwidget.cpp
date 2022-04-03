@@ -2,15 +2,18 @@
 #include "glwidget.h"
 #include "Objects/CursorObject.h"
 #include "Objects/PointObject.h"
+#include "Scene/Systems/DrawingSystem.h"
+#include "Scene/SceneECS.h"
 
 GLWidget::GLWidget(QWidget *pWidget)
-    : QOpenGLWidget(pWidget)
+        : QOpenGLWidget(pWidget)
 {
     QSurfaceFormat format;
     format.setRenderableType(QSurfaceFormat::OpenGL);
     format.setProfile(QSurfaceFormat::CoreProfile);
-    format.setVersion(4,4);
+    format.setVersion(4, 4);
     setFormat(format);
+    makeCurrent();
 }
 
 void GLWidget::initializeGL()
@@ -20,24 +23,15 @@ void GLWidget::initializeGL()
     glEnable(GL_PROGRAM_POINT_SIZE);
     //glEnable(GL_POINT_SMOOTH);
 
-    shaders.push_back(std::make_shared<ShaderWrapper>("Shaders/uniform_color.vert", "Shaders/simple_color.frag"));//default
-    shaders.push_back(std::make_shared<ShaderWrapper>("Shaders/buffer_color.vert", "Shaders/simple_color.frag"));//cursor
-    shaders.push_back(std::make_shared<ShaderWrapper>("Shaders/bezier.vert", "Shaders/bezier.frag",
-                                                      "Shaders/bezier.tess", "Shaders/bezier.eval"));//bezier
-    shaders[BEZIER_SHADER]->GetRawProgram()->setPatchVertexCount(4);
-
-    InitializeUniforms();
+    LoadShaders();
+    UpdateUniforms();
 }
 
 void GLWidget::resizeGL(int w, int h)
 {
-    QOpenGLWidget::resizeGL(w,h);
+    QOpenGLWidget::resizeGL(w, h);
     emit WidgetResized(QSize(w, h));
-
-    auto proj = controls->viewport->UpdatePerspectiveMatrix(QSize(w, h));
-
-    for (auto sh : shaders)
-        sh->SetUniform("u_MVP.Projection", proj);
+    //renderer->UpdateUniforms(controls);
 
 }
 
@@ -47,7 +41,7 @@ void GLWidget::paintGL()
     glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    //Objects on scene
+    /*//Objects on scene
     for (IRenderableObject* ro : scene->GetRenderableObjects())
     {
         //[TODO] Poprawić aby obiekty IRenderable mialy opcje renderowania sie same
@@ -72,20 +66,31 @@ void GLWidget::paintGL()
     }
 
     //User cursor
-    DrawRenderableObject(scene->GetCursorObject().get(), shaders[CURSOR_SHADER]);
+    DrawRenderableObject(scene->GetCursorObject().get(), shaders[CURSOR_SHADER]);*/
+
+    if (auto scene = SceneECS::Instance().lock())
+    {
+        if (auto dSystem = scene->GetSystem<DrawingSystem>().lock())
+        {
+            for (const std::weak_ptr<Drawing> &d: dSystem->GetComponents())
+                if (auto obj = d.lock())
+                    obj->Render();
+        }
+    }
 }
 
 GLWidget::~GLWidget()
 {
     makeCurrent();
 
-    scene->ReleaseObjectsOnScene();
+    //scene->ReleaseObjectsOnScene();
 }
 
-void GLWidget::DrawRenderableObject(IRenderableObject *ro, std::shared_ptr<ShaderWrapper> shader, const std::function< void(
-        ShaderWrapper*)>& uniformOverrides)
+void
+GLWidget::DrawRenderableObject(IRenderableObject *ro, std::shared_ptr<ShaderWrapper> shader, const std::function<void(
+        ShaderWrapper *)> &uniformOverrides)
 {
-    if (ro)
+    /*if (ro)
     {
         if (!ro->AreBuffersCreated())
             ro->DefineBuffers();
@@ -102,38 +107,28 @@ void GLWidget::DrawRenderableObject(IRenderableObject *ro, std::shared_ptr<Shade
 
         glDrawElements(ro->GetDrawType(), ro->GetIndexCount(), GL_UNSIGNED_INT, 0);
         ro->Release(shader.get());
-    }
+    }*/
 }
 
 void GLWidget::UpdateCameraSlot(std::shared_ptr<CameraUpdateEvent> event)
 {
     makeCurrent();
-    for (auto sh : shaders)
-        sh->SetUniform("u_MVP.View", event->NewViewMatrix);
+    UpdateUniforms();
     update();
 }
 
-void GLWidget::SetupSceneAndControls(std::shared_ptr<InputController> controler, std::shared_ptr<SceneModelOld> model)
+void GLWidget::SetupSceneAndControls(std::shared_ptr<InputController> controler)
 {
     this->controls = controler;
-    this->scene = model;
 
     QObject::connect(this->controls.get(), &InputController::CameraUpdated,
                      this, &GLWidget::UpdateCameraSlot);
 }
 
-void GLWidget::InitializeUniforms()
-{
-    for (auto sh : shaders)
-    {
-        sh->SetUniform("u_MVP.View", controls->Camera->GetViewMatrix());
-        sh->SetUniform("u_MVP.Projection", controls->viewport->GetProjectionMatrix());
-    }
-}
 
 void GLWidget::DrawBezier(BezierCurveC0 *bezier, const std::function<void(ShaderWrapper *)> &uniformOverrides)
 {
-    if (bezier)
+    /*if (bezier)
     {
         if (!bezier->AreBuffersCreated())
             bezier->DefineBuffers();
@@ -166,5 +161,52 @@ void GLWidget::DrawBezier(BezierCurveC0 *bezier, const std::function<void(Shader
 
 
         bezier->Release(shaders[DEFAULT_SHADER].get());
+    }*/
+}
+
+void GLWidget::DrawTriangles(unsigned int count)
+{
+    glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0);
+}
+
+void GLWidget::DrawLines(unsigned int count)
+{
+    glDrawElements(GL_LINES, count, GL_UNSIGNED_INT, 0);
+}
+
+void GLWidget::DrawPatches(unsigned int count)
+{
+    glDrawElements(GL_PATCHES, count, GL_UNSIGNED_INT, 0);
+}
+
+void GLWidget::DrawLineStrip(unsigned int count)
+{
+    glDrawArrays(GL_LINE_STRIP, 0, count);
+}
+
+std::weak_ptr<ShaderWrapper> GLWidget::GetShader(SHADERS shNumber)
+{
+    if (shNumber >= SHADERS::SHADERS_COUNT)
+        throw std::runtime_error(QString("shader number %1 unknown").arg(shNumber).toStdString());
+    return shaders[shNumber];
+}
+
+void GLWidget::LoadShaders()
+{
+    shaders.push_back(
+            std::make_shared<ShaderWrapper>("Shaders/uniform_color.vert", "Shaders/simple_color.frag"));//default
+    shaders.push_back(
+            std::make_shared<ShaderWrapper>("Shaders/buffer_color.vert", "Shaders/simple_color.frag"));//cursor
+    shaders.push_back(std::make_shared<ShaderWrapper>("Shaders/bezier.vert", "Shaders/bezier.frag",
+                                                      "Shaders/bezier.tess", "Shaders/bezier.eval"));//bezier
+    shaders[SHADERS::BEZIER]->GetRawProgram()->setPatchVertexCount(4);
+}
+
+void GLWidget::UpdateUniforms()
+{
+    for (auto sh : shaders)
+    {
+        sh->SetUniform("u_MVP.View", controls->Camera->GetViewMatrix());
+        sh->SetUniform("u_MVP.Projection", controls->viewport->GetProjectionMatrix());
     }
 }
