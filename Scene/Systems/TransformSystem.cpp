@@ -4,7 +4,7 @@
 
 #include "TransformSystem.h"
 
-std::weak_ptr<Transform> TransformSystem::GetComponent(unsigned int oid)
+/*std::weak_ptr<Transform> TransformSystem::GetComponent(unsigned int oid)
 {
     if (components.contains(oid))
         return components[oid];
@@ -30,4 +30,4 @@ std::shared_ptr<Transform> TransformSystem::CreateRegistered(unsigned int oid)
 bool TransformSystem::Unregister(unsigned int oid)
 {
     return components.erase(oid) > 0;
-}
+}*/

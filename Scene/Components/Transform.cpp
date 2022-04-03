@@ -60,6 +60,7 @@ std::shared_ptr<Transform>  Transform::CreateRegisteredComponent(unsigned int oi
         auto system = scene->GetSystem<TransformSystem>().lock();
         return system->CreateRegistered(oid);
     }
+    return nullptr;
 }
 
 

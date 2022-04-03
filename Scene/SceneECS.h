@@ -33,14 +33,14 @@ public:
     {
         auto it = systems.find<S>();
         assert(it != systems.end());
-        auto system = std::static_pointer_cast(it->second);
+        auto system = std::static_pointer_cast<S>(it->second);
         return system->GetComponent(oid);
     }
 
 private:
     static std::shared_ptr<SceneECS> scene;
     unsigned int objectCounter;
-    TypeMap<std::shared_ptr<ISystem>> systems;
+    TypeMap<std::shared_ptr<IAbstractSystem>> systems;
 
     SceneECS();
 };

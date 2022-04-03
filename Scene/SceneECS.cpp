@@ -17,7 +17,8 @@ SceneECS::SceneECS()
 {
     objectCounter = 0;
 
-    systems.put<TransformSystem>(std::make_shared<TransformSystem>());
+    auto test = std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<TransformSystem>());
+    systems.put<TransformSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<TransformSystem>()));
 }
 
 SceneECS::~SceneECS()

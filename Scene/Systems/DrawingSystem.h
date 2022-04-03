@@ -7,9 +7,17 @@
 
 
 #include "ISystem.h"
+#include "Scene/Components/Drawing.h"
 
-class DrawingSystem: public ISystem
+class DrawingSystem: public ISystem<Drawing>
 {
+public:
+    DrawingSystem(): ISystem(SYSTEM_ID::DRAWING)
+    { }
+
+private:
+
+public:
 
 };
 

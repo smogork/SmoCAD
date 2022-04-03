@@ -7,29 +7,34 @@
 
 #include "Scene/Entities/Point.h"
 #include "Scene/SceneECS.h"
+#include "Scene/Systems/DrawingSystem.h"
+
+void testCount()
+{
+    auto transformSys = SceneECS::Instance().lock()->GetSystem<TransformSystem>();
+    //auto transformSys = SceneECS::Instance().lock()->GetSystem<TransformSystem>();
+    //auto drawingSys = SceneECS::Instance().lock()->GetSystem<DrawingSystem>();
+    //std::cout << transformSys.lock()->GetComponents().size() << " " << drawingSys.lock()->GetComponents().size() << std::endl;
+    std::cout << transformSys.lock()->GetComponents().size() << std::endl;
+}
 
 void test()
 {
 
     {
-        auto transformSys = SceneECS::Instance().lock()->GetSystem<TransformSystem>();
-        std::cout << transformSys.lock()->GetComponents().size() << std::endl;
 
+        testCount();
         Point p1((QVector3D(1, 0, 0)));
         {
-            auto transformSys = SceneECS::Instance().lock()->GetSystem<TransformSystem>();
-            std::cout << transformSys.lock()->GetComponents().size() << std::endl;
+            testCount();
 
             Point p2((QVector3D(0, 1, 0))), p3((QVector3D(0, 0, 1)));
 
-            transformSys = SceneECS::Instance().lock()->GetSystem<TransformSystem>();
-            std::cout << transformSys.lock()->GetComponents().size() << std::endl;
+            testCount();
         }
-        transformSys = SceneECS::Instance().lock()->GetSystem<TransformSystem>();
-        std::cout << transformSys.lock()->GetComponents().size() << std::endl;
+        testCount();
     }
-    auto transformSys = SceneECS::Instance().lock()->GetSystem<TransformSystem>();
-    std::cout << transformSys.lock()->GetComponents().size() << std::endl;
+    testCount();
 }
 
 int main(int argc, char *argv[])
