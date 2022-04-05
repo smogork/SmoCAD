@@ -30,7 +30,10 @@ void GLWidget::initializeGL()
 void GLWidget::resizeGL(int w, int h)
 {
     QOpenGLWidget::resizeGL(w, h);
-    emit WidgetResized(QSize(w, h));
+    auto s = QSize(w, h);
+    controls->viewport->UpdatePerspectiveMatrix(s);
+    UpdateUniforms();
+    emit WidgetResized(s);
     //renderer->UpdateUniforms(controls);
 
 }
@@ -74,7 +77,11 @@ void GLWidget::paintGL()
         {
             for (const std::weak_ptr<Drawing> &d: dSystem->GetComponents())
                 if (auto obj = d.lock())
-                    obj->Render();
+                {
+                    //[TODO] wyprowadzic gdzies shadery
+                    obj->AttachShader(shaders[DEFAULT]);
+                    obj->Render(context());
+                }
         }
     }
 }
@@ -98,15 +105,15 @@ GLWidget::DrawRenderableObject(IRenderableObject *ro, std::shared_ptr<ShaderWrap
         if (ro->AreBuffersToUpdate())
             ro->UpdateBuffers();
 
-        ro->Bind(shader.get());
+        ro->Bind(m_shader.get());
         if (uniformOverrides)
         {
-            uniformOverrides(shader.get());
-            shader->Bind();
+            uniformOverrides(m_shader.get());
+            m_shader->Bind();
         }
 
         glDrawElements(ro->GetDrawType(), ro->GetIndexCount(), GL_UNSIGNED_INT, 0);
-        ro->Release(shader.get());
+        ro->Release(m_shader.get());
     }*/
 }
 
@@ -164,30 +171,10 @@ void GLWidget::DrawBezier(BezierCurveC0 *bezier, const std::function<void(Shader
     }*/
 }
 
-void GLWidget::DrawTriangles(unsigned int count)
-{
-    glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0);
-}
-
-void GLWidget::DrawLines(unsigned int count)
-{
-    glDrawElements(GL_LINES, count, GL_UNSIGNED_INT, 0);
-}
-
-void GLWidget::DrawPatches(unsigned int count)
-{
-    glDrawElements(GL_PATCHES, count, GL_UNSIGNED_INT, 0);
-}
-
-void GLWidget::DrawLineStrip(unsigned int count)
-{
-    glDrawArrays(GL_LINE_STRIP, 0, count);
-}
-
 std::weak_ptr<ShaderWrapper> GLWidget::GetShader(SHADERS shNumber)
 {
     if (shNumber >= SHADERS::SHADERS_COUNT)
-        throw std::runtime_error(QString("shader number %1 unknown").arg(shNumber).toStdString());
+        throw std::runtime_error(QString("m_shader number %1 unknown").arg(shNumber).toStdString());
     return shaders[shNumber];
 }
 
@@ -208,5 +195,13 @@ void GLWidget::UpdateUniforms()
     {
         sh->SetUniform("u_MVP.View", controls->Camera->GetViewMatrix());
         sh->SetUniform("u_MVP.Projection", controls->viewport->GetProjectionMatrix());
+
+        //qDebug() << "Camera space (0,0,0) " << controls->Camera->GetViewMatrix() * QVector4D(0, 0, 0, 1);
+        //qDebug() << "NDC space (0,0,0) " << controls->viewport->GetProjectionMatrix() * controls->Camera->GetViewMatrix() * QVector4D(0, 0, 0, 1);
     }
+}
+
+std::vector<std::shared_ptr<ShaderWrapper>> GLWidget::GetShaders()
+{
+    return std::vector<std::shared_ptr<ShaderWrapper>>();
 }

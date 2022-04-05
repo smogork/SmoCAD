@@ -54,7 +54,7 @@ void BezierCurveC0::CreateBuffers()
     ib->allocate(edges.data(), sizeof(int) * edges.size());
     ib->release();
 
-    //To jest fake shader, który oszukuje qt wrapper na opengl
+    //To jest fake m_shader, który oszukuje qt wrapper na opengl
     //atrybuty nie są zwaizane ze stane shadera, tylko vertex array.
     //Wiec tworzymy sztuczny obiekt shadera aby zadeklarowac w VA uklad atrybutow.
     QOpenGLShaderProgram prog;

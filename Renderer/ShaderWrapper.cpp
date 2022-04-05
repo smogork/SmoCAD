@@ -15,7 +15,7 @@ ShaderWrapper::~ShaderWrapper() {}
 void ShaderWrapper::Bind()
 {
     if (!shader->bind())
-        qDebug() << "Error on binding shader " << shader->log();
+        qDebug() << "Error on binding m_shader " << shader->log();
 }
 
 void ShaderWrapper::Release()
@@ -27,23 +27,23 @@ void ShaderWrapper::Create()
 {
     shader = std::make_unique<QOpenGLShaderProgram>();
 
-    // read the shader programs from the resource
+    // read the m_shader programs from the resource
     if (!shader->addShaderFromSourceFile(QOpenGLShader::Vertex, vsFilepath))
-        qDebug() << "Vertex shader errors:\n" << shader->log();
+        qDebug() << "Vertex m_shader errors:\n" << shader->log();
 
     if (!shader->addShaderFromSourceFile(QOpenGLShader::Fragment, fsFilepath))
-        qDebug() << "Fragment shader errors:\n" << shader->log();
+        qDebug() << "Fragment m_shader errors:\n" << shader->log();
 
     if (tessFilepath != "")
     {
         if (!shader->addShaderFromSourceFile(QOpenGLShader::TessellationControl, tessFilepath))
-            qDebug() << "tesselayion control shader errors:\n" << shader->log();
+            qDebug() << "tesselayion control m_shader errors:\n" << shader->log();
     }
 
     if (evalFilepath != "")
     {
         if (!shader->addShaderFromSourceFile(QOpenGLShader::TessellationEvaluation, evalFilepath))
-            qDebug() << "Tesselation evaluation shader errors:\n" << shader->log();
+            qDebug() << "Tesselation evaluation m_shader errors:\n" << shader->log();
     }
 
     if (!shader->link())

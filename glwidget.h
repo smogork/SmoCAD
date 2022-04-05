@@ -37,13 +37,6 @@ public:
 
     std::vector<std::shared_ptr<ShaderWrapper>> GetShaders();
 
-#pragma region Draw primitives
-    void DrawTriangles(unsigned int count);
-    void DrawLines(unsigned int count);
-    void DrawPatches(unsigned int count);
-    void DrawLineStrip(unsigned int count);
-#pragma endregion
-
     std::weak_ptr<ShaderWrapper> GetShader(SHADERS shNumber);
 
 signals:

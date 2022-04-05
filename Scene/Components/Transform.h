@@ -22,7 +22,7 @@ public:
     static QVector3D GetYAxis() { return {0.0, 1.0, 0.0}; }
     static QVector3D GetZAxis() { return {0.0, 0.0, 1.0}; }
 
-    static std::shared_ptr<Transform> CreateRegisteredComponent(unsigned int oid, QVector3D position);
+    static std::shared_ptr<Transform> CreateRegisteredComponent(unsigned int oid);
     void UnregisterComponent();
 
     explicit Transform(unsigned int oid);
