@@ -24,18 +24,18 @@ void GLWidget::initializeGL()
     //glEnable(GL_POINT_SMOOTH);
 
     LoadShaders();
-    UpdateUniforms();
+    Renderer::UpdateShaders(controls);
 }
 
 void GLWidget::resizeGL(int w, int h)
 {
     QOpenGLWidget::resizeGL(w, h);
     auto s = QSize(w, h);
-    controls->viewport->UpdatePerspectiveMatrix(s);
-    UpdateUniforms();
-    emit WidgetResized(s);
-    //renderer->UpdateUniforms(controls);
 
+    controls->viewport->UpdatePerspectiveMatrix(s);
+    Renderer::UpdateShaders(controls);
+
+    emit WidgetResized(s);
 }
 
 void GLWidget::paintGL()
@@ -47,7 +47,6 @@ void GLWidget::paintGL()
     /*//Objects on scene
     for (IRenderableObject* ro : scene->GetRenderableObjects())
     {
-        //[TODO] Poprawić aby obiekty IRenderable mialy opcje renderowania sie same
         if (dynamic_cast<BezierCurveC0*>(ro) == nullptr)
             DrawRenderableObject(ro, shaders[DEFAULT_SHADER]);
         else
@@ -77,11 +76,7 @@ void GLWidget::paintGL()
         {
             for (const std::weak_ptr<Drawing> &d: dSystem->GetComponents())
                 if (auto obj = d.lock())
-                {
-                    //[TODO] wyprowadzic gdzies shadery
-                    obj->AttachShader(shaders[DEFAULT]);
                     obj->Render(context());
-                }
         }
     }
 }
@@ -124,7 +119,7 @@ GLWidget::DrawRenderableObject(IRenderableObject *ro, std::shared_ptr<ShaderWrap
 void GLWidget::UpdateCameraSlot(std::shared_ptr<CameraUpdateEvent> event)
 {
     makeCurrent();
-    UpdateUniforms();
+    Renderer::UpdateShaders(this->controls);
     update();
 }
 
@@ -175,37 +170,15 @@ void GLWidget::DrawBezier(BezierCurveC0 *bezier, const std::function<void(Shader
     }*/
 }
 
-std::weak_ptr<ShaderWrapper> GLWidget::GetShader(SHADERS shNumber)
-{
-    if (shNumber >= SHADERS::SHADERS_COUNT)
-        throw std::runtime_error(QString("m_shader number %1 unknown").arg(shNumber).toStdString());
-    return shaders[shNumber];
-}
-
 void GLWidget::LoadShaders()
 {
-    shaders.push_back(
+    Renderer::AddShader(DEFAULT,
             std::make_shared<ShaderWrapper>("Shaders/uniform_color.vert", "Shaders/simple_color.frag"));//default
-    shaders.push_back(
+    Renderer::AddShader(CURSOR,
             std::make_shared<ShaderWrapper>("Shaders/buffer_color.vert", "Shaders/simple_color.frag"));//cursor
-    shaders.push_back(std::make_shared<ShaderWrapper>("Shaders/bezier.vert", "Shaders/bezier.frag",
-                                                      "Shaders/bezier.tess", "Shaders/bezier.eval"));//bezier
-    shaders[SHADERS::BEZIER]->GetRawProgram()->setPatchVertexCount(4);
+    Renderer::AddShader(BEZIER,
+    std::make_shared<ShaderWrapper>("Shaders/bezier.vert", "Shaders/bezier.frag",
+                                    "Shaders/bezier.tess", "Shaders/bezier.eval"));//bezier
+    Renderer::GetShader(SHADERS::BEZIER).lock()->GetRawProgram()->setPatchVertexCount(4);
 }
 
-void GLWidget::UpdateUniforms()
-{
-    for (auto sh : shaders)
-    {
-        sh->SetUniform("u_MVP.View", controls->Camera->GetViewMatrix());
-        sh->SetUniform("u_MVP.Projection", controls->viewport->GetProjectionMatrix());
-
-        //qDebug() << "Camera space (0,0,0) " << controls->Camera->GetViewMatrix() * QVector4D(0, 0, 0, 1);
-        //qDebug() << "NDC space (0,0,0) " << controls->viewport->GetProjectionMatrix() * controls->Camera->GetViewMatrix() * QVector4D(0, 0, 0, 1);
-    }
-}
-
-std::vector<std::shared_ptr<ShaderWrapper>> GLWidget::GetShaders()
-{
-    return std::vector<std::shared_ptr<ShaderWrapper>>();
-}

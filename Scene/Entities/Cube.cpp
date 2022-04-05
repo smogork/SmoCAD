@@ -54,6 +54,8 @@ void Cube::InitializeDrawing()
     p_Drawing->p_vertexArrayData = vertices;
     p_Drawing->p_indexArrayData = indices;
     p_Drawing->p_bufferLayout.Push<float>(3);//position
+    if (auto sh = Renderer::GetShader(DEFAULT).lock())
+        p_Drawing->AttachShader(sh);
 
     p_Drawing->p_renderingFunction = ASSIGN_DRAWING_FUNCTION(&Cube::DrawingFunction);
 }

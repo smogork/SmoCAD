@@ -16,14 +16,6 @@
 #include "Objects/IRenderableObject.h"
 #include "Objects/BezierCurveC0.h"
 
-enum SHADERS
-{
-    DEFAULT,
-    CURSOR,
-    BEZIER,
-    SHADERS_COUNT
-};
-
 class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
 Q_OBJECT
@@ -35,9 +27,9 @@ public:
     //void SetupSceneAndControls(std::shared_ptr<InputController> controler, std::shared_ptr<SceneModelOld> model);
     void SetupSceneAndControls(std::shared_ptr<InputController> controler);
 
-    std::vector<std::shared_ptr<ShaderWrapper>> GetShaders();
+    //std::vector<std::shared_ptr<ShaderWrapper>> GetShaders();
 
-    std::weak_ptr<ShaderWrapper> GetShader(SHADERS shNumber);
+    //std::weak_ptr<ShaderWrapper> GetShader(SHADERS shNumber);
 
 signals:
     void WidgetResized(QSize size);
@@ -50,7 +42,7 @@ protected:
     //std::shared_ptr<SceneModelOld> scene = nullptr;
     std::shared_ptr<InputController> controls = nullptr;
 
-    std::vector<std::shared_ptr<ShaderWrapper>> shaders;
+    //std::vector<std::shared_ptr<ShaderWrapper>> shaders;
 
 #pragma region QOpenGLWidget overrides
     void paintGL() Q_DECL_OVERRIDE;
@@ -61,7 +53,7 @@ protected:
 #pragma endregion
 
     void LoadShaders();
-    void UpdateUniforms();
+    //void UpdateUniforms();
 
     void DrawRenderableObject(IRenderableObject *ro, std::shared_ptr<ShaderWrapper> shader,
                               const std::function<void(ShaderWrapper *)> &uniformOverrides = {});

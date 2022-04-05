@@ -28,6 +28,8 @@ void Grid::InitializeDrawing()
     p_Drawing->p_vertexArrayData = gridVertices;
     p_Drawing->p_indexArrayData = gridIndices;
     p_Drawing->p_bufferLayout.Push<float>(3);//position
+    if (auto sh = Renderer::GetShader(DEFAULT).lock())
+        p_Drawing->AttachShader(sh);
 
     p_Drawing->p_renderingFunction = ASSIGN_DRAWING_FUNCTION(&Grid::DrawingFunction);
 }

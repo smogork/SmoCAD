@@ -22,6 +22,8 @@ void Point::InitializeDrawing()
     p_Drawing->p_vertexArrayData = {0.0f, 0.0f, 0.0f};
     p_Drawing->p_indexArrayData = {0};
     p_Drawing->p_bufferLayout.Push<float>(3);//position
+    if (auto sh = Renderer::GetShader(DEFAULT).lock())
+        p_Drawing->AttachShader(sh);
 
     //https://stackoverflow.com/a/7582576/18323924
     p_Drawing->p_renderingFunction = std::bind(&Point::DrawingFunction, this, std::placeholders::_1, std::placeholders::_2);
