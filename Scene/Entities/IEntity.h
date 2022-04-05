@@ -13,6 +13,7 @@ enum ENTITY_CLASS
 {
     POINT_CLASS,
     GRID_CLASS,
+    CUBE_CLASS,
     CLASS_COUNT
 };
 

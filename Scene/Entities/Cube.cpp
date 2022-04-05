@@ -3,3 +3,67 @@
 //
 
 #include "Cube.h"
+
+std::vector<float> Cube::vertices = GenerateGeometryVertices();
+std::vector<int> Cube::indices = GenerateTopologyIndices();
+
+std::vector<float> Cube::GenerateGeometryVertices()
+{
+    return {
+            +0.5f, +0.5f, +0.5f,  // front top right 0
+            +0.5f, -0.5f, +0.5f,  // front bottom right 1
+            -0.5f, -0.5f, +0.5f,  // front bottom left 2
+            -0.5f, +0.5f, +0.5f,   // front top left 3
+            +0.5f, +0.5f, -0.5f,  // back top right 4
+            +0.5f, -0.5f, -0.5f,  // back bottom right 5
+            -0.5f, -0.5f, -0.5f,  // back bottom left 6
+            -0.5f, +0.5f, -0.5f  //back top left 7
+    };
+}
+
+std::vector<int> Cube::GenerateTopologyIndices()
+{
+    return {
+            0, 1,
+            1, 2,
+            2, 3,
+            0, 3,
+            4, 5,
+            5, 6,
+            6, 7,
+            4, 7,
+            3, 7,
+            2, 6,
+            1, 5,
+            0, 4,
+    };
+}
+
+
+Cube::Cube(QVector3D position): IEntity(CUBE_CLASS)
+{
+    p_Transform = Transform::CreateRegisteredComponent(objectID);
+    p_Drawing = Drawing::CreateRegisteredComponent(objectID);
+
+    p_Transform->Position = position;
+    InitializeDrawing();
+}
+
+void Cube::InitializeDrawing()
+{
+    p_Drawing->p_vertexArrayData = vertices;
+    p_Drawing->p_indexArrayData = indices;
+    p_Drawing->p_bufferLayout.Push<float>(3);//position
+
+    p_Drawing->p_renderingFunction = ASSIGN_DRAWING_FUNCTION(&Cube::DrawingFunction);
+}
+
+void Cube::DrawingFunction(QOpenGLContext *context, std::shared_ptr<ShaderWrapper> shader)
+{
+    shader->SetUniform("u_MVP.Model", p_Transform->GetModelMatrix());
+    shader->SetUniform("u_ObjectColor", QVector4D(0.8f, 0.8f, 0.8f, 1.0f));
+    shader->Bind();
+
+    Renderer::DrawLines(context->functions(), indices.size());
+}
+

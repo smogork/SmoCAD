@@ -28,7 +28,7 @@ std::vector<float> CubeObject::GenerateGeometryVertices()
         +0.5f, -0.5f, -0.5f,  // back bottom right 5
         -0.5f, -0.5f, -0.5f,  // back bottom left 6
         -0.5f, +0.5f, -0.5f  //back top left 7
-};
+    };
 }
 
 std::vector<int> CubeObject::GenerateTopologyEdges()
@@ -46,7 +46,7 @@ std::vector<int> CubeObject::GenerateTopologyEdges()
         2, 6,
         1, 5,
         0, 4,
-};
+    };
 }
 
 void CubeObject::CreateBuffers()

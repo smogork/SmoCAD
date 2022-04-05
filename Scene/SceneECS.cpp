@@ -6,6 +6,7 @@
 #include "Scene/Systems/DrawingSystem.h"
 #include "Scene/Systems/TransformSystem.h"
 #include "Scene/Entities/Point.h"
+#include "Scene/Entities/Cube.h"
 
 std::shared_ptr<SceneECS> SceneECS::scene = nullptr;
 
@@ -45,13 +46,9 @@ void SceneECS::InitUniqueObjects()
 
 void SceneECS::InitSceneObjects()
 {
-    objects.push_back(std::make_shared<Point>(QVector3D(0, 0, 0)));
     objects.push_back(std::make_shared<Point>(QVector3D(0, 0, 1)));
-    objects.push_back(std::make_shared<Point>(QVector3D(0, 0, 2)));
-    objects.push_back(std::make_shared<Point>(QVector3D(1, 0, 0)));
     objects.push_back(std::make_shared<Point>(QVector3D(2, 0, 0)));
-    objects.push_back(std::make_shared<Point>(QVector3D(0, -2, 0)));
-    objects.push_back(std::make_shared<Point>(QVector3D(0, -1, 0)));
+    objects.push_back(std::make_shared<Cube>(QVector3D(2, 2, 0)));
 }
 
 void SceneECS::RemoveUniqueObjects()

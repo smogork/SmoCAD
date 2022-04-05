@@ -6,9 +6,26 @@
 #define SMOCAD_CUBE_H
 
 
-class Cube
-{
+#include "IEntity.h"
+#include "Scene/Components/Transform.h"
+#include "Scene/Components/Drawing.h"
 
+class Cube: public IEntity
+{
+private:
+    static std::vector<float> GenerateGeometryVertices();
+    static std::vector<int> GenerateTopologyIndices();
+    static std::vector<float> vertices;
+    static std::vector<int> indices;
+
+    void InitializeDrawing();
+    void DrawingFunction(QOpenGLContext* context, std::shared_ptr<ShaderWrapper> shader);
+
+public:
+    std::shared_ptr<Transform> p_Transform;
+    std::shared_ptr<Drawing> p_Drawing;
+
+    explicit Cube(QVector3D position);
 };
 
 
