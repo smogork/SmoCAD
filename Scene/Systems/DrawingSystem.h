@@ -7,7 +7,7 @@
 
 
 #include "ISystem.h"
-#include "Scene/Components/Drawing.h"
+#include "Scene/Components/Drawing/Drawing.h"
 
 class DrawingSystem: public ISystem<Drawing>
 {

@@ -1,47 +1,12 @@
 //
-// Created by ksm on 4/3/22.
+// Created by ksm on 4/5/22.
 //
 
-#include "Drawing.h"
+#include "StaticDrawing.h"
 #include "Scene/SceneECS.h"
 #include "Scene/Systems/DrawingSystem.h"
 
-std::shared_ptr<Drawing> Drawing::CreateRegisteredComponent(unsigned int oid)
-{
-    if (auto scene = SceneECS::Instance().lock())
-    {
-        if (auto system = scene->GetSystem<DrawingSystem>().lock())
-            return system->CreateRegistered(oid);
-    }
-    return nullptr;
-}
-
-void Drawing::UnregisterComponent()
-{
-    if (auto scene = SceneECS::Instance().lock())
-    {
-        if (auto system = scene->GetSystem<DrawingSystem>().lock())
-            system->Unregister(GetAttachedObjectID());
-    }
-}
-
-Drawing::~Drawing()
-{
-    UnregisterComponent();
-
-    m_vao->destroy();
-    m_vbo->destroy();
-    m_ibo->destroy();
-}
-
-Drawing::Drawing(unsigned int oid): IComponent(oid, SYSTEM_ID::DRAWING)
-{
-    m_vbo = std::make_unique<QOpenGLBuffer>(QOpenGLBuffer::VertexBuffer);
-    m_ibo = std::make_unique<QOpenGLBuffer>(QOpenGLBuffer::IndexBuffer);
-    m_vao = std::make_unique<QOpenGLVertexArrayObject>();
-}
-
-void Drawing::Render(QOpenGLContext* context)
+void StaticDrawing::Render(QOpenGLContext* context)
 {
     if (!m_created)
     {
@@ -55,18 +20,18 @@ void Drawing::Render(QOpenGLContext* context)
     m_vao->release();
 }
 
-void Drawing::IntializeBuffers()
+void StaticDrawing::IntializeBuffers()
 {
     m_vbo->create();
     m_vbo->bind();
     m_vbo->setUsagePattern(QOpenGLBuffer::StaticDraw);
-    m_vbo->allocate(p_vertexArrayData.data(), sizeof(float) * p_vertexArrayData.size());
+    m_vbo->allocate(m_vertexArrayData.data(), sizeof(float) * m_vertexArrayData.size());
     m_vbo->release();
 
     m_ibo->create();
     m_ibo->bind();
     m_ibo->setUsagePattern(QOpenGLBuffer::StaticDraw);
-    m_ibo->allocate(p_indexArrayData.data(), sizeof(int) * p_indexArrayData.size());
+    m_ibo->allocate(m_indexArrayData.data(), sizeof(int) * m_indexArrayData.size());
     m_ibo->release();
 
     //To jest fake m_shader, który oszukuje qt wrapper na opengl
@@ -97,7 +62,21 @@ void Drawing::IntializeBuffers()
     prog.release();
 }
 
-void Drawing::AttachShader(std::shared_ptr<ShaderWrapper> shader)
+StaticDrawing::StaticDrawing(unsigned int oid) : Drawing(oid)
 {
-    m_shader = shader;
+
+}
+
+std::shared_ptr<StaticDrawing> StaticDrawing::CreateRegisteredComponent(unsigned int oid)
+{
+    if (auto scene = SceneECS::Instance().lock())
+    {
+        if (auto system = scene->GetSystem<DrawingSystem>().lock())
+        {
+            std::shared_ptr<StaticDrawing> res = std::make_shared<StaticDrawing>(oid);
+            system->RegisterComponent(res);
+            return res;
+        }
+    }
+    return nullptr;
 }

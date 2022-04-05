@@ -53,6 +53,11 @@ public:
         return nullptr;
     }
 
+    bool RegisterComponent(std::shared_ptr<C> component)
+    {
+        return components.insert(std::make_pair(component->GetAttachedObjectID(), component)).second;
+    }
+
     bool Unregister(unsigned int oid)
     {
         return components.erase(oid) > 0;

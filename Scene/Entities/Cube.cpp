@@ -43,7 +43,7 @@ std::vector<int> Cube::GenerateTopologyIndices()
 Cube::Cube(QVector3D position): IEntity(CUBE_CLASS)
 {
     p_Transform = Transform::CreateRegisteredComponent(objectID);
-    p_Drawing = Drawing::CreateRegisteredComponent(objectID);
+    p_Drawing = StaticDrawing::CreateRegisteredComponent(objectID);
 
     p_Transform->Position = position;
     InitializeDrawing();
@@ -51,8 +51,8 @@ Cube::Cube(QVector3D position): IEntity(CUBE_CLASS)
 
 void Cube::InitializeDrawing()
 {
-    p_Drawing->p_vertexArrayData = vertices;
-    p_Drawing->p_indexArrayData = indices;
+    p_Drawing->SetVertexData(vertices);
+    p_Drawing->SetIndexData(indices);
     p_Drawing->p_bufferLayout.Push<float>(3);//position
     if (auto sh = Renderer::GetShader(DEFAULT).lock())
         p_Drawing->AttachShader(sh);

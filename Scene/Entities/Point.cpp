@@ -7,7 +7,7 @@
 Point::Point(QVector3D pos): IEntity(POINT_CLASS)
 {
     p_Transform = Transform::CreateRegisteredComponent(objectID);
-    p_Drawing = Drawing::CreateRegisteredComponent(objectID);
+    p_Drawing = StaticDrawing::CreateRegisteredComponent(objectID);
 
     p_Transform->Position = pos;
     InitializeDrawing();
@@ -19,8 +19,8 @@ Point::~Point()
 
 void Point::InitializeDrawing()
 {
-    p_Drawing->p_vertexArrayData = {0.0f, 0.0f, 0.0f};
-    p_Drawing->p_indexArrayData = {0};
+    p_Drawing->SetVertexData({0.0f, 0.0f, 0.0f});
+    p_Drawing->SetIndexData({0});
     p_Drawing->p_bufferLayout.Push<float>(3);//position
     if (auto sh = Renderer::GetShader(DEFAULT).lock())
         p_Drawing->AttachShader(sh);

@@ -6,7 +6,7 @@
 #define SMOCAD_GRID_H
 
 #include "IEntity.h"
-#include "Scene/Components/Drawing.h"
+#include "Scene/Components/Drawing/StaticDrawing.h"
 
 class Grid: public IEntity
 {
@@ -25,7 +25,7 @@ private:
     void DrawingFunction(QOpenGLContext* context, std::shared_ptr<ShaderWrapper> shader);
 
 public:
-    std::shared_ptr<Drawing> p_Drawing;
+    std::shared_ptr<StaticDrawing> p_Drawing;
 
     Grid();
 };

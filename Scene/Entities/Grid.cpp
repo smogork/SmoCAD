@@ -9,7 +9,7 @@ std::vector<int> Grid::gridIndices = GenerateGridIndices();
 
 Grid::Grid() : IEntity(GRID_CLASS)
 {
-    p_Drawing = Drawing::CreateRegisteredComponent(objectID);
+    p_Drawing = StaticDrawing::CreateRegisteredComponent(objectID);
 
     InitializeDrawing();
 }
@@ -25,8 +25,8 @@ void Grid::DrawingFunction(QOpenGLContext *context, std::shared_ptr<ShaderWrappe
 
 void Grid::InitializeDrawing()
 {
-    p_Drawing->p_vertexArrayData = gridVertices;
-    p_Drawing->p_indexArrayData = gridIndices;
+    p_Drawing->SetVertexData(gridVertices);
+    p_Drawing->SetIndexData(gridIndices);
     p_Drawing->p_bufferLayout.Push<float>(3);//position
     if (auto sh = Renderer::GetShader(DEFAULT).lock())
         p_Drawing->AttachShader(sh);
