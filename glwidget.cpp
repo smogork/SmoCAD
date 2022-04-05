@@ -90,7 +90,11 @@ GLWidget::~GLWidget()
 {
     makeCurrent();
 
-    //scene->ReleaseObjectsOnScene();
+    if (auto scene = SceneECS::Instance().lock())
+    {
+        scene->RemoveObjectsFromScene();
+        scene->RemoveUniqueObjects();
+    }
 }
 
 void

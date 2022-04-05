@@ -26,8 +26,6 @@ SceneECS::SceneECS()
 
     systems.put<TransformSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<TransformSystem>()));
     systems.put<DrawingSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<DrawingSystem>()));
-
-
 }
 
 SceneECS::~SceneECS()
@@ -54,4 +52,14 @@ void SceneECS::InitSceneObjects()
     objects.push_back(std::make_shared<Point>(QVector3D(2, 0, 0)));
     objects.push_back(std::make_shared<Point>(QVector3D(0, -2, 0)));
     objects.push_back(std::make_shared<Point>(QVector3D(0, -1, 0)));
+}
+
+void SceneECS::RemoveUniqueObjects()
+{
+    grid.reset();
+}
+
+void SceneECS::RemoveObjectsFromScene()
+{
+    objects.clear();
 }

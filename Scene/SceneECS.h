@@ -38,6 +38,9 @@ public:
         return system->GetComponent(oid);
     }
 
+    void RemoveObjectsFromScene();
+    void RemoveUniqueObjects();
+
 private:
     static std::shared_ptr<SceneECS> scene;
     unsigned int objectCounter;
