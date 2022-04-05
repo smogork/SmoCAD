@@ -12,12 +12,13 @@
 
 class Point: public IEntity
 {
+private:
+    void InitializeDrawing();
+    void DrawingFunction(QOpenGLContext* context, std::shared_ptr<ShaderWrapper> shader);
+
 public:
     std::shared_ptr<Transform> p_Transform;
     std::shared_ptr<Drawing> p_Drawing;
-
-    void InitializeDrawing();
-    void DrawingFunction(QOpenGLContext* context, std::shared_ptr<ShaderWrapper> shader);
 
     explicit Point(QVector3D pos);
     ~Point() override;

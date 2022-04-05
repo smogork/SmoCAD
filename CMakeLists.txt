@@ -69,7 +69,7 @@ set(PROJECT_SOURCES
         Scene/Utilities/TypeNumbering.cpp Scene/Utilities/TypeNumbering.h
         Scene/Components/Drawing.cpp Scene/Components/Drawing.h
         Scene/Systems/DrawingSystem.cpp Scene/Systems/DrawingSystem.h
-        Scene/Systems/IAbstractSystem.cpp Scene/Systems/IAbstractSystem.h Scene/Entities/Cube.cpp Scene/Entities/Cube.h Renderer/BufferLayout.cpp Renderer/BufferLayout.h Renderer/Renderer.cpp Renderer/Renderer.h)
+        Scene/Systems/IAbstractSystem.cpp Scene/Systems/IAbstractSystem.h Scene/Entities/Cube.cpp Scene/Entities/Cube.h Renderer/BufferLayout.cpp Renderer/BufferLayout.h Renderer/Renderer.cpp Renderer/Renderer.h Scene/Entities/Grid.cpp Scene/Entities/Grid.h)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(SmoCAD

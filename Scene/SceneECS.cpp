@@ -14,7 +14,8 @@ std::weak_ptr<SceneECS> SceneECS::Instance()
     if (!SceneECS::scene)
     {
         SceneECS::scene.reset(new SceneECS());
-        scene->InitObjects();
+        scene->InitUniqueObjects();
+        scene->InitSceneObjects();
     }
     return SceneECS::scene;
 }
@@ -39,9 +40,18 @@ unsigned int SceneECS::GetNewObjectID()
     return objectCounter++;
 }
 
-void SceneECS::InitObjects()
+void SceneECS::InitUniqueObjects()
 {
+    grid = std::make_unique<Grid>();
+}
+
+void SceneECS::InitSceneObjects()
+{
+    objects.push_back(std::make_shared<Point>(QVector3D(0, 0, 0)));
+    objects.push_back(std::make_shared<Point>(QVector3D(0, 0, 1)));
+    objects.push_back(std::make_shared<Point>(QVector3D(0, 0, 2)));
     objects.push_back(std::make_shared<Point>(QVector3D(1, 0, 0)));
-    objects.push_back(std::make_shared<Point>(QVector3D(1, 1, 0)));
-    objects.push_back(std::make_shared<Point>(QVector3D(1, 1, 1)));
+    objects.push_back(std::make_shared<Point>(QVector3D(2, 0, 0)));
+    objects.push_back(std::make_shared<Point>(QVector3D(0, -2, 0)));
+    objects.push_back(std::make_shared<Point>(QVector3D(0, -1, 0)));
 }

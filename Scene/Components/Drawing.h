@@ -15,6 +15,7 @@
 #include "Renderer/BufferLayout.h"
 #include "Renderer/Renderer.h"
 
+//https://stackoverflow.com/a/7582576/18323924
 #define ASSIGN_DRAWING_FUNCTION(F)  std::bind(F, this, std::placeholders::_1, std::placeholders::_2)
 
 class Drawing: public IComponent

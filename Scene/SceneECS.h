@@ -10,6 +10,7 @@
 #include "Scene/Systems/ISystem.h"
 #include "Scene/Utilities/TypeMap.h"
 #include "Scene/Entities/IEntity.h"
+#include "Scene/Entities/Grid.h"
 
 class SceneECS: QObject
 {
@@ -42,9 +43,11 @@ private:
     unsigned int objectCounter;
     TypeMap<std::shared_ptr<IAbstractSystem>> systems;
     std::list<std::shared_ptr<IEntity>> objects;
+    std::unique_ptr<Grid> grid = nullptr;
 
     SceneECS();
-    void InitObjects();
+    void InitUniqueObjects();
+    void InitSceneObjects();
 };
 
 

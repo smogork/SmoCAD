@@ -31,7 +31,6 @@ void Point::InitializeDrawing()
 void Point::DrawingFunction(QOpenGLContext *context, std::shared_ptr<ShaderWrapper> shader)
 {
     shader->SetUniform("u_MVP.Model", p_Transform->GetModelMatrix());
-    //shader->SetUniform("u_MVP.Model", QMatrix4x4());
     shader->SetUniform("u_ObjectColor", QVector4D(0.8f, 0.8f, 0.8f, 1.0f));
     shader->Bind();
 
