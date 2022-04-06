@@ -5,9 +5,7 @@
 #ifndef SMOCAD_IENTITY_H
 #define SMOCAD_IENTITY_H
 
-
 #include <QObject>
-
 
 enum ENTITY_CLASS
 {
@@ -15,6 +13,7 @@ enum ENTITY_CLASS
     GRID_CLASS,
     CUBE_CLASS,
     TORUS_CLASS,
+    CURSOR_CLASS,
     CLASS_COUNT
 };
 

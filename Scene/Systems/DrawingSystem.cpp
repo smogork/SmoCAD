@@ -23,3 +23,10 @@ bool DrawingSystem::Unregister(unsigned int oid)
 {
     return false;
 }*/
+
+void DrawingSystem::Render(QOpenGLContext* context)
+{
+    for (const std::pair<unsigned int, std::weak_ptr<Drawing>> &p : components)
+        if (auto obj = p.second.lock())
+            obj->Render(context);
+}

@@ -15,6 +15,7 @@ public:
     DrawingSystem(): ISystem(SYSTEM_ID::DRAWING)
     { }
 
+    void Render(QOpenGLContext* context);
 };
 
 

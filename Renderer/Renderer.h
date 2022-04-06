@@ -12,9 +12,9 @@
 
 enum SHADERS
 {
-    DEFAULT,
-    CURSOR,
-    BEZIER,
+    DEFAULT_SHADER,
+    CURSOR_SHADER,
+    BEZIER_SHADER,
     SHADERS_COUNT
 };
 

@@ -74,9 +74,7 @@ void GLWidget::paintGL()
     {
         if (auto dSystem = scene->GetSystem<DrawingSystem>().lock())
         {
-            for (const std::weak_ptr<Drawing> &d: dSystem->GetComponents())
-                if (auto obj = d.lock())
-                    obj->Render(context());
+            dSystem->Render(context());
         }
     }
 }
@@ -173,13 +171,13 @@ void GLWidget::DrawBezier(BezierCurveC0 *bezier, const std::function<void(Shader
 
 void GLWidget::LoadShaders()
 {
-    Renderer::AddShader(DEFAULT,
-            std::make_shared<ShaderWrapper>("Shaders/uniform_color.vert", "Shaders/simple_color.frag"));//default
-    Renderer::AddShader(CURSOR,
-            std::make_shared<ShaderWrapper>("Shaders/buffer_color.vert", "Shaders/simple_color.frag"));//cursor
-    Renderer::AddShader(BEZIER,
-    std::make_shared<ShaderWrapper>("Shaders/bezier.vert", "Shaders/bezier.frag",
+    Renderer::AddShader(DEFAULT_SHADER,
+                        std::make_shared<ShaderWrapper>("Shaders/uniform_color.vert", "Shaders/simple_color.frag"));//default
+    Renderer::AddShader(CURSOR_SHADER,
+                        std::make_shared<ShaderWrapper>("Shaders/buffer_color.vert", "Shaders/simple_color.frag"));//cursor
+    Renderer::AddShader(BEZIER_SHADER,
+                        std::make_shared<ShaderWrapper>("Shaders/bezier.vert", "Shaders/bezier.frag",
                                     "Shaders/bezier.tess", "Shaders/bezier.eval"));//bezier
-    Renderer::GetShader(SHADERS::BEZIER).lock()->GetRawProgram()->setPatchVertexCount(4);
+    Renderer::GetShader(SHADERS::BEZIER_SHADER).lock()->GetRawProgram()->setPatchVertexCount(4);
 }
 

@@ -21,7 +21,7 @@ enum SYSTEM_ID
 template <typename C>
 class ISystem: public IAbstractSystem
 {
-private:
+protected:
     unsigned int systemID;
     std::map<unsigned int, std::weak_ptr<C>> components;
 

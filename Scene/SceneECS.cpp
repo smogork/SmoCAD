@@ -9,6 +9,7 @@
 #include "Scene/Entities/Cube.h"
 #include "Scene/Systems/UVParamsSystem.h"
 #include "Scene/Entities/Torus.h"
+#include "Scene/Entities/Cursor.h"
 
 std::shared_ptr<SceneECS> SceneECS::scene = nullptr;
 
@@ -53,6 +54,7 @@ void SceneECS::InitSceneObjects()
     objects.push_back(std::make_shared<Point>(QVector3D(2, 0, 0)));
     objects.push_back(std::make_shared<Cube>(QVector3D(2, 2, 0)));
     objects.push_back(std::make_shared<Torus>(QVector3D(5, 1, 5)));
+    objects.push_back(std::make_shared<Cursor>(QVector3D(0, 0, 0)));
 }
 
 void SceneECS::RemoveUniqueObjects()

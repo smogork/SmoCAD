@@ -55,7 +55,7 @@ void DynamicDrawing::IntializeBuffers()
     for (int i = 0; i < elements.size(); ++i)
     {
         const auto& element = elements[i];
-        prog.enableAttributeArray(0);
+        prog.enableAttributeArray(i);
         prog.setAttributeBuffer(i, element.type, offset, element.count, p_bufferLayout.GetStride());
         offset += element.count * VertexBufferElement::GetSizeOfType(element.type);
     }

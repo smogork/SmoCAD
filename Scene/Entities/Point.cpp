@@ -22,7 +22,7 @@ void Point::InitializeDrawing()
     p_Drawing->SetVertexData({0.0f, 0.0f, 0.0f});
     p_Drawing->SetIndexData({0});
     p_Drawing->p_bufferLayout.Push<float>(3);//position
-    if (auto sh = Renderer::GetShader(DEFAULT).lock())
+    if (auto sh = Renderer::GetShader(DEFAULT_SHADER).lock())
         p_Drawing->AttachShader(sh);
 
     //https://stackoverflow.com/a/7582576/18323924

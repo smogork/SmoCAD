@@ -69,7 +69,7 @@ set(PROJECT_SOURCES
         Scene/Utilities/TypeNumbering.cpp Scene/Utilities/TypeNumbering.h
         Scene/Components/Drawing/Drawing.cpp Scene/Components/Drawing/Drawing.h
         Scene/Systems/DrawingSystem.cpp Scene/Systems/DrawingSystem.h
-        Scene/Systems/IAbstractSystem.cpp Scene/Systems/IAbstractSystem.h Scene/Entities/Cube.cpp Scene/Entities/Cube.h Renderer/BufferLayout.cpp Renderer/BufferLayout.h Renderer/Renderer.cpp Renderer/Renderer.h Scene/Entities/Grid.cpp Scene/Entities/Grid.h Scene/Components/Drawing/DynamicDrawing.cpp Scene/Components/Drawing/DynamicDrawing.h Scene/Components/Drawing/StaticDrawing.cpp Scene/Components/Drawing/StaticDrawing.h Scene/Entities/Torus.cpp Scene/Entities/Torus.h Scene/Components/UVParams.cpp Scene/Components/UVParams.h Scene/Systems/UVParamsSystem.cpp Scene/Systems/UVParamsSystem.h Scene/Events/SystemEvents/UVParamsChanged.cpp Scene/Events/SystemEvents/UVParamsChanged.h)
+        Scene/Systems/IAbstractSystem.cpp Scene/Systems/IAbstractSystem.h Scene/Entities/Cube.cpp Scene/Entities/Cube.h Renderer/BufferLayout.cpp Renderer/BufferLayout.h Renderer/Renderer.cpp Renderer/Renderer.h Scene/Entities/Grid.cpp Scene/Entities/Grid.h Scene/Components/Drawing/DynamicDrawing.cpp Scene/Components/Drawing/DynamicDrawing.h Scene/Components/Drawing/StaticDrawing.cpp Scene/Components/Drawing/StaticDrawing.h Scene/Entities/Torus.cpp Scene/Entities/Torus.h Scene/Components/UVParams.cpp Scene/Components/UVParams.h Scene/Systems/UVParamsSystem.cpp Scene/Systems/UVParamsSystem.h Scene/Events/SystemEvents/UVParamsChanged.cpp Scene/Events/SystemEvents/UVParamsChanged.h Scene/Entities/Cursor.cpp Scene/Entities/Cursor.h)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(SmoCAD

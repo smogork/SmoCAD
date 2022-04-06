@@ -28,7 +28,7 @@ void Grid::InitializeDrawing()
     p_Drawing->SetVertexData(gridVertices);
     p_Drawing->SetIndexData(gridIndices);
     p_Drawing->p_bufferLayout.Push<float>(3);//position
-    if (auto sh = Renderer::GetShader(DEFAULT).lock())
+    if (auto sh = Renderer::GetShader(DEFAULT_SHADER).lock())
         p_Drawing->AttachShader(sh);
 
     p_Drawing->p_renderingFunction = ASSIGN_DRAWING_FUNCTION(&Grid::DrawingFunction);
