@@ -7,6 +7,8 @@
 #include "Scene/Systems/TransformSystem.h"
 #include "Scene/Entities/Point.h"
 #include "Scene/Entities/Cube.h"
+#include "Scene/Systems/UVParamsSystem.h"
+#include "Scene/Entities/Torus.h"
 
 std::shared_ptr<SceneECS> SceneECS::scene = nullptr;
 
@@ -27,6 +29,7 @@ SceneECS::SceneECS()
 
     systems.put<TransformSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<TransformSystem>()));
     systems.put<DrawingSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<DrawingSystem>()));
+    systems.put<UVParamsSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<UVParamsSystem>()));
 }
 
 SceneECS::~SceneECS()
@@ -49,6 +52,7 @@ void SceneECS::InitSceneObjects()
     objects.push_back(std::make_shared<Point>(QVector3D(0, 0, 1)));
     objects.push_back(std::make_shared<Point>(QVector3D(2, 0, 0)));
     objects.push_back(std::make_shared<Cube>(QVector3D(2, 2, 0)));
+    objects.push_back(std::make_shared<Torus>(QVector3D(5, 1, 5)));
 }
 
 void SceneECS::RemoveUniqueObjects()
@@ -59,4 +63,10 @@ void SceneECS::RemoveUniqueObjects()
 void SceneECS::RemoveObjectsFromScene()
 {
     objects.clear();
+}
+
+QString SceneECS::DebugSystemReport()
+{
+    //[TODO] dodac raport liczby elementow w kazdym systemie
+    return QString();
 }

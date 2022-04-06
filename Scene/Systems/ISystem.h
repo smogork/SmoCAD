@@ -14,6 +14,7 @@ enum SYSTEM_ID
 {
     TRANSFORM,
     DRAWING,
+    UV,
     SYSTEM_COUNT
 };
 

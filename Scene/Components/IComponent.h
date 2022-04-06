@@ -8,7 +8,7 @@
 
 #include <QObject>
 
-class IComponent: QObject
+class IComponent: public QObject
 {
     Q_OBJECT
 private:

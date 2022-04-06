@@ -20,6 +20,7 @@
 
 class Drawing: public IComponent
 {
+    Q_OBJECT
 protected:
     std::shared_ptr<ShaderWrapper> m_shader = nullptr;
     std::unique_ptr<QOpenGLBuffer> m_vbo = nullptr;

@@ -10,8 +10,7 @@
 
 class StaticDrawing: public Drawing
 {
-private:
-
+    Q_OBJECT
 public:
     explicit StaticDrawing(unsigned int oid);
     static std::shared_ptr<StaticDrawing> CreateRegisteredComponent(unsigned int oid);

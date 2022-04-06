@@ -10,6 +10,7 @@
 
 class DynamicDrawing: public Drawing
 {
+    Q_OBJECT
 protected:
     bool m_toUpdate = false;
 
