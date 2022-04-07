@@ -69,6 +69,8 @@ void SceneECS::RemoveObjectsFromScene()
 
 QString SceneECS::DebugSystemReport()
 {
-    //[TODO] dodac raport liczby elementow w kazdym systemie
-    return QString();
+    QString result;
+    for (auto s : systems)
+        result.append(QString("%1: %2    ").arg(s.second->GetSystemName()).arg(s.second->GetComponentCount()));
+    return result;
 }

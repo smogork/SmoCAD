@@ -12,6 +12,8 @@ class UVParamsSystem: public ISystem<UVParams>
 {
 public:
     UVParamsSystem(): ISystem<UVParams>(UV) { }
+
+    const char* GetSystemName() override { return "UVParamsSystem"; }
 };
 
 

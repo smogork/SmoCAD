@@ -7,6 +7,7 @@
 
 
 #include <QObject>
+#include <QString>
 #include "Scene/Systems/ISystem.h"
 #include "Scene/Utilities/TypeMap.h"
 #include "Scene/Entities/IEntity.h"

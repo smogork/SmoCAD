@@ -16,6 +16,7 @@ public:
     { }
 
     void Render(QOpenGLContext* context);
+    const char* GetSystemName() override { return "DrawingSystem"; }
 };
 
 

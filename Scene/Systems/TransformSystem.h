@@ -15,7 +15,7 @@ public:
     { }
 
 public:
-
+    const char* GetSystemName() override { return "TransformSystem"; }
 };
 
 

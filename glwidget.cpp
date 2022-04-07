@@ -87,7 +87,7 @@ GLWidget::~GLWidget()
     {
         scene->RemoveObjectsFromScene();
         scene->RemoveUniqueObjects();
-        //qDebug() << scene->DebugSystemReport();
+        qDebug() << scene->DebugSystemReport();
     }
 }
 

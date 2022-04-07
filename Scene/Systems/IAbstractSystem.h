@@ -6,10 +6,16 @@
 #define SMOCAD_IABSTRACTSYSTEM_H
 
 
+#include <string>
+
 class IAbstractSystem
 {
 protected:
     IAbstractSystem() {};
+
+public:
+    virtual int GetComponentCount() = 0;
+    virtual const char* GetSystemName() = 0;
 };
 
 

@@ -64,6 +64,10 @@ public:
         return components.erase(oid) > 0;
     }
 
+    int GetComponentCount() override
+    {
+        return components.size();
+    }
 };
 
 
