@@ -48,6 +48,7 @@ unsigned int SceneECS::GetNewObjectID()
 void SceneECS::InitUniqueObjects()
 {
     grid = std::make_unique<Grid>();
+    cursor = nullptr;
 }
 
 void SceneECS::InitSceneObjects()
@@ -55,13 +56,15 @@ void SceneECS::InitSceneObjects()
     objects.push_back(std::make_shared<Point>(QVector3D(0, 0, 1)));
     objects.push_back(std::make_shared<Point>(QVector3D(2, 0, 0)));
     objects.push_back(std::make_shared<Cube>(QVector3D(2, 2, 0)));
+    objects.push_back(std::make_shared<Cube>(QVector3D(2, 4, 0)));
+    objects.push_back(std::make_shared<Cube>(QVector3D(2, 6, 2)));
     objects.push_back(std::make_shared<Torus>(QVector3D(5, 1, 5)));
-    objects.push_back(std::make_shared<Cursor>(QVector3D(0, 0, 0)));
 }
 
 void SceneECS::RemoveUniqueObjects()
 {
     grid.reset();
+    cursor.reset();
 }
 
 void SceneECS::RemoveObjectsFromScene()
@@ -81,5 +84,22 @@ QString SceneECS::DebugSystemReport()
     for (auto s : systems)
         result.append(QString("%1: %2    ").arg(s.second->GetSystemName()).arg(s.second->GetComponentCount()));
     return result;
+}
+
+void SceneECS::MouseClicked(std::shared_ptr<SceneMouseClickEvent> event)
+{
+    if (auto select = GetSystem<SelectableSystem>().lock())
+    {
+        if (!select->SelectObject(event))
+            UpdateCursorObject(event->ClickCenterPlainPoint);
+    }
+}
+
+void SceneECS::UpdateCursorObject(QVector3D cursorPos)
+{
+    if (cursor)
+        cursor->p_Transform->Position = cursorPos;
+    else
+        cursor = std::make_unique<Cursor>(cursorPos);
 }
 

@@ -12,6 +12,7 @@
 #include "Scene/Utilities/TypeMap.h"
 #include "Scene/Entities/IEntity.h"
 #include "Scene/Entities/Grid.h"
+#include "Scene/Entities/Cursor.h"
 
 class SceneECS: QObject
 {
@@ -39,6 +40,8 @@ public:
         return system->GetComponent(oid);
     }
 
+    void MouseClicked(std::shared_ptr<SceneMouseClickEvent> event);
+
     void RemoveObjectsFromScene();
     void RemoveUniqueObjects();
     void ClearSystems();
@@ -49,11 +52,15 @@ private:
     unsigned int objectCounter;
     TypeMap<std::shared_ptr<IAbstractSystem>> systems;
     std::list<std::shared_ptr<IEntity>> objects;
+
     std::unique_ptr<Grid> grid = nullptr;
+    std::unique_ptr<Cursor> cursor = nullptr;
 
     SceneECS();
     void InitUniqueObjects();
     void InitSceneObjects();
+
+    void UpdateCursorObject(QVector3D cursorPos);
 };
 
 

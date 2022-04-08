@@ -20,6 +20,8 @@ protected:
     explicit IComponent(unsigned int oid, unsigned sid);
     virtual ~IComponent();
 public:
+    bool Enabled = true;
+
     unsigned int GetAttachedObjectID();
     unsigned int GetAttachedSystemID();
 };

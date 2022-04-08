@@ -145,11 +145,8 @@ void MainWindow::MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event)
 {
     if (auto scene = SceneECS::Instance().lock())
     {
-        if (auto select = scene->GetSystem<SelectableSystem>().lock())
-        {
-            select->SelectObject(event);
-            ui->sceneWidget->update();
-        }
+        scene->MouseClicked(event);
+        ui->sceneWidget->update();
     }
 
     /*if (model->SelectObjectByMouse(event->RaycastStart, event->RaycastDirection))
