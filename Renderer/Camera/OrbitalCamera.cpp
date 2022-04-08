@@ -95,4 +95,9 @@ QVector3D OrbitalCamera::GetPivotVector()
             sinf(fiAngle) * cosf(thetaAngle));
 }
 
+float OrbitalCamera::Pivotlength()
+{
+    return r;
+}
+
 

@@ -17,6 +17,10 @@ class Point: public IEntity
 private:
     void InitializeDrawing();
     void DrawingFunction(QOpenGLContext* context, std::shared_ptr<ShaderWrapper> shader);
+    QVector4D m_color = QVector4D(0.8f, 0.8f, 0.8f, 1.0f);
+
+private slots:
+    void SelectedChanged(std::shared_ptr<SelectionChanged> e);
 
 public:
     std::shared_ptr<Transform> p_Transform;

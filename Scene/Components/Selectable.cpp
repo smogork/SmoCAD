@@ -41,7 +41,7 @@ Selectable::~Selectable()
 float Selectable::TestAgainstRaycast(QVector4D raycastStart, QVector4D raycastDirection, float cameraPivotLength)
 {
     QMatrix4x4 sphereMatrix;
-    sphereMatrix(3,3) = -cameraPivotLength * cameraPivotLength;
+    sphereMatrix(3,3) = -cameraPivotLength * cameraPivotLength / 600;
     QMatrix4x4 model;
     model.translate(m_transform->Position.x(), m_transform->Position.y(), m_transform->Position.z());
     QMatrix4x4 reverseModel = model.inverted();

@@ -90,6 +90,7 @@ GLWidget::~GLWidget()
     {
         scene->RemoveObjectsFromScene();
         scene->RemoveUniqueObjects();
+        scene->ClearSystems();
         qDebug() << scene->DebugSystemReport();
     }
 }

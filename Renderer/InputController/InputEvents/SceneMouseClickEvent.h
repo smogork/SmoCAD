@@ -16,9 +16,11 @@ public:
     QVector3D ClickViewPointFar;
     QVector4D RaycastDirection;
     QVector4D RaycastStart;
+    float PivotLength;
     bool UnselectObjects;
 
-    explicit SceneMouseClickEvent(QPoint vPos, QVector3D near, QVector3D far, bool unselect) : ClickViewPointFar(far), ClickViewPointNear(near), UnselectObjects(unselect)
+    explicit SceneMouseClickEvent(QPoint vPos, QVector3D near, QVector3D far, bool unselect, float pivotLength)
+    : ClickViewPointFar(far), ClickViewPointNear(near), UnselectObjects(unselect), PivotLength(pivotLength)
     {
         ViewClickPoint = vPos;
         RaycastDirection = (ClickViewPointFar - ClickViewPointNear).toVector4D();

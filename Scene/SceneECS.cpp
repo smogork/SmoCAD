@@ -69,6 +69,12 @@ void SceneECS::RemoveObjectsFromScene()
     objects.clear();
 }
 
+void SceneECS::ClearSystems()
+{
+    for (auto s : systems)
+        s.second->ClearSystem();
+}
+
 QString SceneECS::DebugSystemReport()
 {
     QString result;
@@ -76,3 +82,4 @@ QString SceneECS::DebugSystemReport()
         result.append(QString("%1: %2    ").arg(s.second->GetSystemName()).arg(s.second->GetComponentCount()));
     return result;
 }
+

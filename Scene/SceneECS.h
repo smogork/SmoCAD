@@ -41,7 +41,8 @@ public:
 
     void RemoveObjectsFromScene();
     void RemoveUniqueObjects();
-     QString DebugSystemReport();
+    void ClearSystems();
+    QString DebugSystemReport();
 
 private:
     static std::shared_ptr<SceneECS> scene;

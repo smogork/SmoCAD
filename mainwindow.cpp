@@ -3,6 +3,7 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include "Objects/PointObject.h"
+#include "Scene/Systems/SelectableSystem.h"
 
 MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -142,6 +143,15 @@ void MainWindow::on_actionDelete_triggered()
 
 void MainWindow::MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event)
 {
+    if (auto scene = SceneECS::Instance().lock())
+    {
+        if (auto select = scene->GetSystem<SelectableSystem>().lock())
+        {
+            select->SelectObject(event);
+            ui->sceneWidget->update();
+        }
+    }
+
     /*if (model->SelectObjectByMouse(event->RaycastStart, event->RaycastDirection))
     {
         ui->groupBoxTransform->setEnabled(true);

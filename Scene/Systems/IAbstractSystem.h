@@ -17,6 +17,7 @@ protected:
 public:
     virtual int GetComponentCount() = 0;
     virtual const char* GetSystemName() = 0;
+    virtual void ClearSystem() { };
 };
 
 

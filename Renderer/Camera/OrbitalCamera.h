@@ -36,6 +36,7 @@ public:
 
     void SetPivotLength(float pivotLength);
     void ChangePivotLength(float dPivotLength);
+    float Pivotlength();
 
     QVector3D GetPosition();
     //CenterViewPlain - płaszczyzna równoległa do neara i fara przechodząca przez centerPoint
