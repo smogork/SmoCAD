@@ -6,11 +6,10 @@
 
 Point::Point(QVector3D pos): IEntity(POINT_CLASS)
 {
-    p_Transform = Transform::CreateRegisteredComponent(objectID);
+    p_Transform = Transform::CreateRegisteredComponent(objectID, pos);
     p_Drawing = StaticDrawing::CreateRegisteredComponent(objectID);
-
-    p_Transform->Position = pos;
     InitializeDrawing();
+    p_Selectable = Selectable::CreateRegisteredComponent(objectID, p_Transform);
 }
 
 Point::~Point()

@@ -53,12 +53,16 @@ Transform::~Transform()
     UnregisterComponent();
 }
 
-std::shared_ptr<Transform>  Transform::CreateRegisteredComponent(unsigned int oid)
+std::shared_ptr<Transform>  Transform::CreateRegisteredComponent(unsigned int oid, QVector3D position)
 {
     if (auto scene = SceneECS::Instance().lock())
     {
-        auto system = scene->GetSystem<TransformSystem>().lock();
-            return system->CreateRegistered(oid);
+        if (auto system = scene->GetSystem<TransformSystem>().lock())
+        {
+           auto item = system->CreateRegistered(oid);
+           item->Position = position;
+           return item;
+        }
     }
     return nullptr;
 }

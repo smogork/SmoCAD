@@ -42,10 +42,8 @@ std::vector<int> Cube::GenerateTopologyIndices()
 
 Cube::Cube(QVector3D position): IEntity(CUBE_CLASS)
 {
-    p_Transform = Transform::CreateRegisteredComponent(objectID);
+    p_Transform = Transform::CreateRegisteredComponent(objectID, position);
     p_Drawing = StaticDrawing::CreateRegisteredComponent(objectID);
-
-    p_Transform->Position = position;
     InitializeDrawing();
 }
 

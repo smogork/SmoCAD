@@ -48,9 +48,8 @@ void Cursor::DrawingFunction(QOpenGLContext *context, std::shared_ptr<ShaderWrap
 
 Cursor::Cursor(QVector3D position): IEntity(ENTITY_CLASS::CURSOR_CLASS)
 {
-    p_Transform = Transform::CreateRegisteredComponent(objectID);
+    p_Transform = Transform::CreateRegisteredComponent(objectID, position);
     p_Drawing = StaticDrawing::CreateRegisteredComponent(objectID);
 
-    p_Transform->Position = position;
     InitializeDrawing();
 }

@@ -10,6 +10,7 @@
 #include "Scene/Systems/UVParamsSystem.h"
 #include "Scene/Entities/Torus.h"
 #include "Scene/Entities/Cursor.h"
+#include "Scene/Systems/SelectableSystem.h"
 
 std::shared_ptr<SceneECS> SceneECS::scene = nullptr;
 
@@ -31,6 +32,7 @@ SceneECS::SceneECS()
     systems.put<TransformSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<TransformSystem>()));
     systems.put<DrawingSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<DrawingSystem>()));
     systems.put<UVParamsSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<UVParamsSystem>()));
+    systems.put<SelectableSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<SelectableSystem>()));
 }
 
 SceneECS::~SceneECS()

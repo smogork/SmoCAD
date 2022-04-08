@@ -7,6 +7,7 @@
 
 
 #include <QObject>
+#include <memory>
 
 class IComponent: public QObject
 {

@@ -6,11 +6,10 @@
 
 Torus::Torus(QVector3D position): IEntity(TORUS_CLASS)
 {
-    p_Transform = Transform::CreateRegisteredComponent(objectID);
+    p_Transform = Transform::CreateRegisteredComponent(objectID, position);
     p_Drawing = DynamicDrawing::CreateRegisteredComponent(objectID);
     p_UV = UVParams::CreateRegisteredComponent(objectID);
 
-    p_Transform->Position = position;
     InitializeDrawing();
     QObject::connect(p_UV.get(), &UVParams::ParametersChanged, this, &Torus::UVChanged);
 }

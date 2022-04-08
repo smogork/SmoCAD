@@ -15,6 +15,7 @@ enum SYSTEM_ID
     TRANSFORM,
     DRAWING,
     UV,
+    SELECTABLE,
     SYSTEM_COUNT
 };
 
