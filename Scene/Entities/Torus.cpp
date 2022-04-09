@@ -9,6 +9,7 @@ Torus::Torus(QVector3D position): IEntity(TORUS_CLASS)
     p_Transform = Transform::CreateRegisteredComponent(objectID, position);
     p_Drawing = DynamicDrawing::CreateRegisteredComponent(objectID);
     p_UV = UVParams::CreateRegisteredComponent(objectID);
+    p_CompositeAware = CompositeAware::CreateRegisteredComponent(objectID, p_Transform, p_Drawing);
 
     InitializeDrawing();
     QObject::connect(p_UV.get(), &UVParams::ParametersChanged, this, &Torus::UVChanged);

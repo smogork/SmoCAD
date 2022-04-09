@@ -22,7 +22,7 @@ Composite::CompositeElement::CompositeElement(Composite *composite, std::shared_
 
 Composite::CompositeElement::~CompositeElement()
 {
-    objTransform->DecomposeTransformations(dTransform->GetModelMatrix() * compositeTransform->GetModelMatrix());
+    objTransform->DecomposeTransformations(compositeTransform->GetModelMatrix() * dTransform->GetModelMatrix());
     objDrawing->p_uniformFunction = originalUniform;
 }
 
@@ -31,14 +31,23 @@ void Composite::CompositeElement::DecoratingUniformFunction(std::shared_ptr<Shad
     if (originalUniform)
         originalUniform(shader);
 
-    shader->SetUniform("u_MVP.Model", dTransform->GetModelMatrix() * compositeTransform->GetModelMatrix());
+    shader->SetUniform("u_MVP.Model", compositeTransform->GetModelMatrix() * dTransform->GetModelMatrix() );
 }
+
+void Composite::CompositeElement::UpdateDTransform()
+{
+    dTransform->Position = objTransform->Position - compositeTransform->Position;
+    dTransform->Rotation = objTransform->Rotation;
+    dTransform->Scale = objTransform->Scale;
+}
+
 #pragma endregion
 
 Composite::Composite(std::shared_ptr<CompositeAware> startObject): IEntity(COMPOSITE_CLASS)
 {
     p_Transform = Transform::CreateRegisteredComponent(objectID, startObject->p_Transform->Position);
     m_center = std::make_unique<Cursor>(p_Transform->Position);
+    m_center->p_Transform->Scale = QVector3D(0.25f, 0.25f, 0.25f);
     objects.push_back(std::make_unique<CompositeElement>(this, startObject->p_Transform, startObject->p_Drawing));
 }
 
@@ -55,6 +64,9 @@ void Composite::AddObject(std::shared_ptr<CompositeAware> newObject)
 
     SetPosition((objects.size() * p_Transform->Position + newObject->p_Transform->Position) / (objects.size() + 1));
     objects.push_back(std::make_unique<CompositeElement>(this, newObject->p_Transform, newObject->p_Drawing));
+
+    for (const std::unique_ptr<CompositeElement>& el : objects)
+        el->UpdateDTransform();
 }
 
 void Composite::SetPosition(QVector3D pos)

@@ -10,6 +10,7 @@ Point::Point(QVector3D pos): IEntity(POINT_CLASS)
     p_Drawing = StaticDrawing::CreateRegisteredComponent(objectID);
     InitializeDrawing();
     p_Selectable = Selectable::CreateRegisteredComponent(objectID, p_Transform);
+    p_CompositeAware = CompositeAware::CreateRegisteredComponent(objectID, p_Transform, p_Drawing);
 
     QObject::connect(p_Selectable.get(), &Selectable::SelectedChanged, this, &Point::SelectedChanged);
 }

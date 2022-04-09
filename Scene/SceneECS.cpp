@@ -66,13 +66,17 @@ void SceneECS::InitSceneObjects()
     objects.push_back(std::make_shared<Cube>(QVector3D(2, 6, 2)));
     objects.push_back(std::make_shared<Torus>(QVector3D(5, 1, 5)));
 
-    //composite = std::make_unique<Composite>(p1->);
+    //composite = std::make_unique<Composite>(p1->p_CompositeAware);
+    //composite->AddObject(p2->p_CompositeAware);
+
+    //composite->p_Transform->Rotation.setX(90);
 }
 
 void SceneECS::RemoveUniqueObjects()
 {
     grid.reset();
     cursor.reset();
+    composite.reset();
 }
 
 void SceneECS::RemoveObjectsFromScene()

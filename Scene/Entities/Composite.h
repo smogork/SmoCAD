@@ -29,6 +29,8 @@ class Composite: public IEntity
 
         CompositeElement(Composite* composite, std::shared_ptr<Transform> objTransform, std::shared_ptr<Drawing> objDrawing);
         ~CompositeElement();
+
+        void UpdateDTransform();
     };
 private:
     std::unique_ptr<Cursor> m_center;

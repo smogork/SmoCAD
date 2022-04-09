@@ -45,6 +45,7 @@ Cube::Cube(QVector3D position): IEntity(CUBE_CLASS)
     p_Transform = Transform::CreateRegisteredComponent(objectID, position);
     p_Drawing = StaticDrawing::CreateRegisteredComponent(objectID);
     InitializeDrawing();
+    p_CompositeAware = CompositeAware::CreateRegisteredComponent(objectID, p_Transform, p_Drawing);
 }
 
 void Cube::InitializeDrawing()

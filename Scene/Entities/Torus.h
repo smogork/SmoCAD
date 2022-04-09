@@ -10,6 +10,7 @@
 #include "Scene/Components/Transform.h"
 #include "Scene/Components/Drawing/DynamicDrawing.h"
 #include "Scene/Components/UVParams.h"
+#include "Scene/Components/CompositeAware.h"
 
 class Torus: public IEntity
 {
@@ -29,6 +30,7 @@ public:
     std::shared_ptr<Transform> p_Transform;
     std::shared_ptr<DynamicDrawing> p_Drawing;
     std::shared_ptr<UVParams> p_UV;//R - U, r - V
+    std::shared_ptr<CompositeAware> p_CompositeAware;
 
     explicit Torus(QVector3D position);
 };
