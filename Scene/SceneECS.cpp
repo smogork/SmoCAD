@@ -12,6 +12,7 @@
 #include "Scene/Entities/Cursor.h"
 #include "Scene/Systems/SelectableSystem.h"
 #include "Scene/Systems/CompositeAwareSystem.h"
+#include <list>
 
 std::shared_ptr<SceneECS> SceneECS::scene = nullptr;
 
@@ -51,16 +52,21 @@ void SceneECS::InitUniqueObjects()
 {
     grid = std::make_unique<Grid>();
     cursor = nullptr;
+    composite = nullptr;
 }
 
 void SceneECS::InitSceneObjects()
 {
-    objects.push_back(std::make_shared<Point>(QVector3D(0, 0, 1)));
-    objects.push_back(std::make_shared<Point>(QVector3D(2, 0, 0)));
+    auto p1 = std::make_shared<Point>(QVector3D(0, 0, 1));
+    auto p2 = std::make_shared<Point>(QVector3D(2, 0, 0));
+    objects.push_back(p1);
+    objects.push_back(p2);
     objects.push_back(std::make_shared<Cube>(QVector3D(2, 2, 0)));
     objects.push_back(std::make_shared<Cube>(QVector3D(2, 4, 0)));
     objects.push_back(std::make_shared<Cube>(QVector3D(2, 6, 2)));
     objects.push_back(std::make_shared<Torus>(QVector3D(5, 1, 5)));
+
+    //composite = std::make_unique<Composite>(p1->);
 }
 
 void SceneECS::RemoveUniqueObjects()

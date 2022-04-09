@@ -13,6 +13,7 @@
 #include "Scene/Entities/IEntity.h"
 #include "Scene/Entities/Grid.h"
 #include "Scene/Entities/Cursor.h"
+#include "Scene/Entities/Composite.h"
 
 class SceneECS: QObject
 {
@@ -55,6 +56,7 @@ private:
 
     std::unique_ptr<Grid> grid = nullptr;
     std::unique_ptr<Cursor> cursor = nullptr;
+    std::unique_ptr<Composite> composite = nullptr;
 
     SceneECS();
     void InitUniqueObjects();

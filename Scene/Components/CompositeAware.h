@@ -12,11 +12,10 @@
 
 class CompositeAware: public IComponent
 {
-private:
-    std::shared_ptr<Transform> m_Transform;
-    std::shared_ptr<Drawing> m_Drawing;
-
 public:
+    std::shared_ptr<Transform> p_Transform;
+    std::shared_ptr<Drawing> p_Drawing;
+
     static std::shared_ptr<CompositeAware> CreateRegisteredComponent(unsigned int oid, std::shared_ptr<Transform> t, std::shared_ptr<Drawing> d);
     void UnregisterComponent();
 

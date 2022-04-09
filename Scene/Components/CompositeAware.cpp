@@ -14,8 +14,8 @@ CompositeAware::CreateRegisteredComponent(unsigned int oid, std::shared_ptr<Tran
         if (auto system = scene->GetSystem<CompositeAwareSystem>().lock())
         {
             auto item = system->CreateRegistered(oid);
-            item->m_Drawing = d;
-            item->m_Transform = t;
+            item->p_Drawing = d;
+            item->p_Transform = t;
             return item;
         }
     }
