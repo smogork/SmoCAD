@@ -1,0 +1,30 @@
+//
+// Created by ksm on 4/9/22.
+//
+
+#ifndef SMOCAD_COMPOSITEAWARE_H
+#define SMOCAD_COMPOSITEAWARE_H
+
+
+#include "IComponent.h"
+#include "Transform.h"
+#include "Scene/Components/Drawing/Drawing.h"
+
+class CompositeAware: public IComponent
+{
+private:
+    std::shared_ptr<Transform> m_Transform;
+    std::shared_ptr<Drawing> m_Drawing;
+
+public:
+    static std::shared_ptr<CompositeAware> CreateRegisteredComponent(unsigned int oid, std::shared_ptr<Transform> t, std::shared_ptr<Drawing> d);
+    void UnregisterComponent();
+
+    explicit CompositeAware(unsigned int oid);
+    ~CompositeAware() override;
+
+    //CreateCompositeElement?
+};
+
+
+#endif //SMOCAD_COMPOSITEAWARE_H

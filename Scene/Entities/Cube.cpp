@@ -56,14 +56,17 @@ void Cube::InitializeDrawing()
         p_Drawing->AttachShader(sh);
 
     p_Drawing->p_renderingFunction = ASSIGN_DRAWING_FUNCTION(&Cube::DrawingFunction);
+    p_Drawing->p_uniformFunction = ASSIGN_UNIFORM_FUNCTION(&Cube::UniformFunction);
 }
 
-void Cube::DrawingFunction(QOpenGLContext *context, std::shared_ptr<ShaderWrapper> shader)
+void Cube::DrawingFunction(QOpenGLContext *context)
+{
+    Renderer::DrawLines(context->functions(), indices.size());
+}
+
+void Cube::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
 {
     shader->SetUniform("u_MVP.Model", p_Transform->GetModelMatrix());
     shader->SetUniform("u_ObjectColor", QVector4D(0.8f, 0.8f, 0.8f, 1.0f));
-    shader->Bind();
-
-    Renderer::DrawLines(context->functions(), indices.size());
 }
 

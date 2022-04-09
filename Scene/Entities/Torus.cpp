@@ -29,15 +29,18 @@ void Torus::InitializeDrawing()
         p_Drawing->AttachShader(sh);
 
     p_Drawing->p_renderingFunction = ASSIGN_DRAWING_FUNCTION(&Torus::DrawingFunction);
+    p_Drawing->p_uniformFunction = ASSIGN_UNIFORM_FUNCTION(&Torus::UniformFunction);
 }
 
-void Torus::DrawingFunction(QOpenGLContext *context, std::shared_ptr<ShaderWrapper> shader)
+void Torus::DrawingFunction(QOpenGLContext *context)
+{
+    Renderer::DrawLines(context->functions(), GetIndexCount());
+}
+
+void Torus::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
 {
     shader->SetUniform("u_MVP.Model", p_Transform->GetModelMatrix());
     shader->SetUniform("u_ObjectColor", QVector4D(0.8f, 0.8f, 0.8f, 1.0f));
-    shader->Bind();
-
-    Renderer::DrawLines(context->functions(), GetIndexCount());
 }
 
 std::vector<float> Torus::GenerateGeometryVertices()

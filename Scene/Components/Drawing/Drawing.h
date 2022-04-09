@@ -16,7 +16,8 @@
 #include "Renderer/Renderer.h"
 
 //https://stackoverflow.com/a/7582576/18323924
-#define ASSIGN_DRAWING_FUNCTION(F)  std::bind(F, this, std::placeholders::_1, std::placeholders::_2)
+#define ASSIGN_DRAWING_FUNCTION(F)  std::bind(F, this, std::placeholders::_1)
+#define ASSIGN_UNIFORM_FUNCTION(F)  std::bind(F, this, std::placeholders::_1)
 
 class Drawing: public IComponent
 {
@@ -35,7 +36,8 @@ protected:
 public:
 
     BufferLayout p_bufferLayout;
-    std::function<void(QOpenGLContext* context, std::shared_ptr<ShaderWrapper> shader)> p_renderingFunction = {};
+    std::function<void(QOpenGLContext* context)> p_renderingFunction = {};
+    std::function<void(std::shared_ptr<ShaderWrapper> shader)> p_uniformFunction = {};
 
     //static std::shared_ptr<Drawing> CreateRegisteredComponent(unsigned int oid);
     void UnregisterComponent();

@@ -7,7 +7,7 @@
 
 
 #include "Drawing.h"
-
+//[TODO] wyeliminowac duplikaty w Static i Dynamic draw
 class StaticDrawing: public Drawing
 {
     Q_OBJECT

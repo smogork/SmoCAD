@@ -14,12 +14,8 @@ Grid::Grid() : IEntity(GRID_CLASS)
     InitializeDrawing();
 }
 
-void Grid::DrawingFunction(QOpenGLContext *context, std::shared_ptr<ShaderWrapper> shader)
+void Grid::DrawingFunction(QOpenGLContext *context)
 {
-    shader->SetUniform("u_MVP.Model", QMatrix4x4());
-    shader->SetUniform("u_ObjectColor", gridColor);
-    shader->Bind();
-
     Renderer::DrawLines(context->functions(), gridIndices.size());
 }
 
@@ -32,6 +28,7 @@ void Grid::InitializeDrawing()
         p_Drawing->AttachShader(sh);
 
     p_Drawing->p_renderingFunction = ASSIGN_DRAWING_FUNCTION(&Grid::DrawingFunction);
+    p_Drawing->p_uniformFunction = ASSIGN_UNIFORM_FUNCTION(&Grid::UniformFunction);
 }
 
 std::vector<int> Grid::GenerateGridIndices()
@@ -82,5 +79,11 @@ std::vector<float> Grid::GenerateGridVertices()
     }
 
     return res;
+}
+
+void Grid::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
+{
+    shader->SetUniform("u_MVP.Model", QMatrix4x4());
+    shader->SetUniform("u_ObjectColor", gridColor);
 }
 

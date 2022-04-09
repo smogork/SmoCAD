@@ -26,18 +26,20 @@ void Point::InitializeDrawing()
     if (auto sh = Renderer::GetShader(DEFAULT_SHADER).lock())
         p_Drawing->AttachShader(sh);
 
-    //https://stackoverflow.com/a/7582576/18323924
-    p_Drawing->p_renderingFunction = std::bind(&Point::DrawingFunction, this, std::placeholders::_1, std::placeholders::_2);
-    //p_Drawing->p_renderingFunction = ASSIGN_DRAWING_FUNCTION(&Point::DrawingFunction);
+    p_Drawing->p_renderingFunction = ASSIGN_DRAWING_FUNCTION(&Point::DrawingFunction);
+    p_Drawing->p_uniformFunction = ASSIGN_UNIFORM_FUNCTION(&Point::UniformFunction);
 }
 
-void Point::DrawingFunction(QOpenGLContext *context, std::shared_ptr<ShaderWrapper> shader)
+void Point::DrawingFunction(QOpenGLContext *context)
+{
+    Renderer::DrawPoints(context->functions(), 1);
+}
+
+
+void Point::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
 {
     shader->SetUniform("u_MVP.Model", p_Transform->GetModelMatrix());
     shader->SetUniform("u_ObjectColor", m_color);
-    shader->Bind();
-
-    Renderer::DrawPoints(context->functions(), 1);
 }
 
 void Point::SelectedChanged(std::shared_ptr<SelectionChanged> e)
@@ -47,3 +49,4 @@ void Point::SelectedChanged(std::shared_ptr<SelectionChanged> e)
     else
         m_color = QVector4D(0.8f, 0.8f, 0.8f, 1.0f);
 }
+

@@ -15,8 +15,11 @@ void StaticDrawing::Render(QOpenGLContext* context)
     }
 
     m_vao->bind();
+    if (p_uniformFunction)
+        p_uniformFunction(m_shader);
+    m_shader->Bind();
     if (p_renderingFunction)
-        p_renderingFunction(context, m_shader);
+        p_renderingFunction(context);
     m_vao->release();
 }
 

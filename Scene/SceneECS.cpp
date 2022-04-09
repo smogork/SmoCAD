@@ -11,6 +11,7 @@
 #include "Scene/Entities/Torus.h"
 #include "Scene/Entities/Cursor.h"
 #include "Scene/Systems/SelectableSystem.h"
+#include "Scene/Systems/CompositeAwareSystem.h"
 
 std::shared_ptr<SceneECS> SceneECS::scene = nullptr;
 
@@ -33,6 +34,7 @@ SceneECS::SceneECS()
     systems.put<DrawingSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<DrawingSystem>()));
     systems.put<UVParamsSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<UVParamsSystem>()));
     systems.put<SelectableSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<SelectableSystem>()));
+    systems.put<CompositeAwareSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<CompositeAwareSystem>()));
 }
 
 SceneECS::~SceneECS()
@@ -82,7 +84,7 @@ QString SceneECS::DebugSystemReport()
 {
     QString result;
     for (auto s : systems)
-        result.append(QString("%1: %2    ").arg(s.second->GetSystemName()).arg(s.second->GetComponentCount()));
+        result.append(QString("%1: %2  ").arg(s.second->GetSystemName()).arg(s.second->GetComponentCount()));
     return result;
 }
 

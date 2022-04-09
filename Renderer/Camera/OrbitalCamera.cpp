@@ -60,12 +60,12 @@ void OrbitalCamera::ChangePivotLength(float dPivotLength)
 
 void OrbitalCamera::MoveUp(float moveValue)
 {
-    CenterPoint += moveValue * topVec;
+    CenterPoint += moveValue * topVec * r;
 }
 
 void OrbitalCamera::MoveRight(float moveValue)
 {
-    CenterPoint += moveValue * rightVec;
+    CenterPoint += moveValue * rightVec * r;
 }
 
 void OrbitalCamera::UpdateFrontAndRight()

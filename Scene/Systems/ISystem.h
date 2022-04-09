@@ -16,6 +16,7 @@ enum SYSTEM_ID
     DRAWING,
     UV,
     SELECTABLE,
+    COMPOSITE_AWARE,
     SYSTEM_COUNT
 };
 

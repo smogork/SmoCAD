@@ -36,13 +36,11 @@ void Cursor::InitializeDrawing()
         p_Drawing->AttachShader(sh);
 
     p_Drawing->p_renderingFunction = ASSIGN_DRAWING_FUNCTION(&Cursor::DrawingFunction);
+    p_Drawing->p_uniformFunction = ASSIGN_UNIFORM_FUNCTION(&Cursor::UniformFunction);
 }
 
-void Cursor::DrawingFunction(QOpenGLContext *context, std::shared_ptr<ShaderWrapper> shader)
+void Cursor::DrawingFunction(QOpenGLContext *context)
 {
-    shader->SetUniform("u_MVP.Model", p_Transform->GetModelMatrix());
-    shader->Bind();
-
     Renderer::DrawLines(context->functions(), indices.size());
 }
 
@@ -52,4 +50,9 @@ Cursor::Cursor(QVector3D position): IEntity(ENTITY_CLASS::CURSOR_CLASS)
     p_Drawing = StaticDrawing::CreateRegisteredComponent(objectID);
 
     InitializeDrawing();
+}
+
+void Cursor::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
+{
+    shader->SetUniform("u_MVP.Model", p_Transform->GetModelMatrix());
 }

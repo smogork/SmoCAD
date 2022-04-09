@@ -20,7 +20,8 @@ private:
     static std::vector<int> indices;
 
     void InitializeDrawing();
-    void DrawingFunction(QOpenGLContext* context, std::shared_ptr<ShaderWrapper> shader);
+    void DrawingFunction(QOpenGLContext* context);
+    void UniformFunction(std::shared_ptr<ShaderWrapper> shader);
 
 public:
     std::shared_ptr<Transform> p_Transform;

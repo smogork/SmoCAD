@@ -16,7 +16,8 @@ class Torus: public IEntity
 private:
     int GetIndexCount();
     void InitializeDrawing();
-    void DrawingFunction(QOpenGLContext* context, std::shared_ptr<ShaderWrapper> shader);
+    void DrawingFunction(QOpenGLContext* context);
+    void UniformFunction(std::shared_ptr<ShaderWrapper> shader);
 
     std::vector<float> GenerateGeometryVertices();
     std::vector<int> GenerateTopologyIndices();

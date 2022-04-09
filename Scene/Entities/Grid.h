@@ -22,7 +22,8 @@ private:
     static std::vector<int> gridIndices;
 
     void InitializeDrawing();
-    void DrawingFunction(QOpenGLContext* context, std::shared_ptr<ShaderWrapper> shader);
+    void DrawingFunction(QOpenGLContext* context);
+    void UniformFunction(std::shared_ptr<ShaderWrapper> shader);
 
 public:
     std::shared_ptr<StaticDrawing> p_Drawing;
