@@ -27,13 +27,13 @@ void StaticDrawing::IntializeBuffers()
 {
     m_vbo->create();
     m_vbo->bind();
-    m_vbo->setUsagePattern(QOpenGLBuffer::StaticDraw);
+    m_vbo->setUsagePattern(usage);
     m_vbo->allocate(m_vertexArrayData.data(), sizeof(float) * m_vertexArrayData.size());
     m_vbo->release();
 
     m_ibo->create();
     m_ibo->bind();
-    m_ibo->setUsagePattern(QOpenGLBuffer::StaticDraw);
+    m_ibo->setUsagePattern(usage);
     m_ibo->allocate(m_indexArrayData.data(), sizeof(int) * m_indexArrayData.size());
     m_ibo->release();
 
@@ -67,7 +67,7 @@ void StaticDrawing::IntializeBuffers()
 
 StaticDrawing::StaticDrawing(unsigned int oid) : Drawing(oid)
 {
-
+    usage = QOpenGLBuffer::StaticDraw;
 }
 
 std::shared_ptr<StaticDrawing> StaticDrawing::CreateRegisteredComponent(unsigned int oid)

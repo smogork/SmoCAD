@@ -32,7 +32,7 @@ protected:
 
     std::vector<float> m_vertexArrayData;
     std::vector<int> m_indexArrayData;
-
+    QOpenGLBuffer::UsagePattern usage;
 public:
 
     BufferLayout p_bufferLayout;

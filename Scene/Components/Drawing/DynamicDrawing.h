@@ -6,9 +6,9 @@
 #define SMOCAD_DYNAMICDRAWING_H
 
 
-#include "Drawing.h"
+#include "StaticDrawing.h"
 
-class DynamicDrawing: public Drawing
+class DynamicDrawing: public StaticDrawing
 {
     Q_OBJECT
 protected:
@@ -20,7 +20,6 @@ public:
     explicit DynamicDrawing(unsigned int oid);
     static std::shared_ptr<DynamicDrawing> CreateRegisteredComponent(unsigned int oid);
 
-    void IntializeBuffers() override;
     void Render(QOpenGLContext* context) override;
     void SetVertexData(std::vector<float> data) override;
     void SetIndexData(std::vector<int> data) override;
