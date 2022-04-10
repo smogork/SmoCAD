@@ -27,6 +27,7 @@ private:
 public:
     std::shared_ptr<DynamicDrawing> p_Drawing;
     std::shared_ptr<TransformCollection> p_Collection;
+    QColor DrawingColor = QColor(0.8f * 255, 0.8f * 255, 0.8f * 255);
 
     Polyline();
 };

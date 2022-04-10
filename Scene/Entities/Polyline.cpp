@@ -53,8 +53,10 @@ void Polyline::DrawingFunction(QOpenGLContext *context)
 
 void Polyline::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
 {
-    //[TODO] zmienic aby kolor lamanej byl polem
-    shader->SetUniform("u_ObjectColor", QVector4D(0.8f, 0.8f, 0.8f, 1.0f));
+    shader->SetUniform("u_ObjectColor", QVector4D(DrawingColor.redF(),
+                                                  DrawingColor.greenF(),
+                                                  DrawingColor.blueF(),
+                                                  DrawingColor.alphaF()));
     shader->SetUniform("u_MVP.Model", QMatrix4x4());
 }
 
