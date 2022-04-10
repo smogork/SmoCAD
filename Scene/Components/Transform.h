@@ -7,16 +7,16 @@
 
 
 #include <QVector3D>
+#include <QProperty>
 #include "IComponent.h"
 
 class Transform: public IComponent
 {
     Q_OBJECT
-
 public:
-    QVector3D Position;
-    QVector3D Rotation;
-    QVector3D Scale;
+    QProperty<QVector3D> Position;
+    QProperty<QVector3D> Rotation;
+    QProperty<QVector3D> Scale;
 
     static QVector3D GetXAxis() { return {1.0, 0.0, 0.0}; }
     static QVector3D GetYAxis() { return {0.0, 1.0, 0.0}; }

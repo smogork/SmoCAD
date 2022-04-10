@@ -16,8 +16,8 @@ Composite::CompositeElement::CompositeElement(Composite *composite, std::shared_
     compositeTransform = composite->p_Transform;
 
     dTransform = Transform::CreateRegisteredComponent(objectID, objTransform->Position - compositeTransform->Position);
-    dTransform->Rotation = objTransform->Rotation;
-    dTransform->Scale = objTransform->Scale;
+    dTransform->Rotation = *objTransform->Rotation;
+    dTransform->Scale = *objTransform->Scale;
 }
 
 Composite::CompositeElement::~CompositeElement()
@@ -37,8 +37,8 @@ void Composite::CompositeElement::DecoratingUniformFunction(std::shared_ptr<Shad
 void Composite::CompositeElement::UpdateDTransform()
 {
     dTransform->Position = objTransform->Position - compositeTransform->Position;
-    dTransform->Rotation = objTransform->Rotation;
-    dTransform->Scale = objTransform->Scale;
+    dTransform->Rotation = *objTransform->Rotation;
+    dTransform->Scale = *objTransform->Scale;
 }
 
 #pragma endregion
@@ -71,6 +71,7 @@ void Composite::AddObject(std::shared_ptr<CompositeAware> newObject)
 
 void Composite::SetPosition(QVector3D pos)
 {
+    //[TODO] trzeba zbindowac: pozycja -> pozycji kursora
     p_Transform->Position = pos;
     m_center->p_Transform->Position = pos;
 }

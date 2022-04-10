@@ -23,9 +23,9 @@ QMatrix4x4 Transform::GetModelMatrix()
     QMatrix4x4 result;
     result.setToIdentity();
     result.translate(Position);
-    result.rotate(Rotation.x(), Transform::GetXAxis());
-    result.rotate(Rotation.y(), Transform::GetYAxis());
-    result.rotate(Rotation.z(), Transform::GetZAxis());
+    result.rotate((*Rotation).x(), Transform::GetXAxis());
+    result.rotate((*Rotation).y(), Transform::GetYAxis());
+    result.rotate((*Rotation).z(), Transform::GetZAxis());
     result.scale(Scale);
     return result;
 }

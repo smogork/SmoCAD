@@ -44,7 +44,7 @@ float Selectable::TestAgainstRaycast(QVector4D raycastStart, QVector4D raycastDi
     //TODO: Zrobic sklaowanie przez odleglosc od kamery - punkt musi zajmowac zawsze taka sama odleglosc katowa (tw talesa)
     sphereMatrix(3,3) = -cameraPivotLength * cameraPivotLength / 600;
     QMatrix4x4 model;
-    model.translate(m_transform->Position.x(), m_transform->Position.y(), m_transform->Position.z());
+    model.translate((*m_transform->Position).x(), (*m_transform->Position).y(), (*m_transform->Position).z());
     QMatrix4x4 reverseModel = model.inverted();
 
     sphereMatrix = reverseModel.transposed() * sphereMatrix * reverseModel;

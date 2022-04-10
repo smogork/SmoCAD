@@ -21,4 +21,4 @@ public:
     ~CollectionAware() override;
 };
 
-#endif SMOCAD_COLLECTIONAWARE_H
+#endif //SMOCAD_COLLECTIONAWARE_H
