@@ -12,6 +12,7 @@
 class Transform: public IComponent
 {
     Q_OBJECT
+
 public:
     QVector3D Position;
     QVector3D Rotation;

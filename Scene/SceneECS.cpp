@@ -12,6 +12,9 @@
 #include "Scene/Entities/Cursor.h"
 #include "Scene/Systems/SelectableSystem.h"
 #include "Scene/Systems/CompositeAwareSystem.h"
+#include "Scene/Systems/CollectionAwareSystem.h"
+#include "Scene/Systems/TransformCollectionSystem.h"
+#include "Scene/Entities/Polyline.h"
 #include <list>
 
 std::shared_ptr<SceneECS> SceneECS::scene = nullptr;
@@ -36,6 +39,8 @@ SceneECS::SceneECS()
     systems.put<UVParamsSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<UVParamsSystem>()));
     systems.put<SelectableSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<SelectableSystem>()));
     systems.put<CompositeAwareSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<CompositeAwareSystem>()));
+    systems.put<CollectionAwareSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<CollectionAwareSystem>()));
+    systems.put<TransformCollectionSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<TransformCollectionSystem>()));
 }
 
 SceneECS::~SceneECS()
@@ -59,13 +64,23 @@ void SceneECS::InitSceneObjects()
 {
     auto p1 = std::make_shared<Point>(QVector3D(0, 0, 1));
     auto p2 = std::make_shared<Point>(QVector3D(2, 0, 0));
+    auto p3 = std::make_shared<Point>(QVector3D(2, 1, 1));
+    auto p4 = std::make_shared<Point>(QVector3D(1, -1, 3));
+    auto p5 = std::make_shared<Point>(QVector3D(0, 0, 0));
+    auto p6 = std::make_shared<Point>(QVector3D(-2, 0, 0));
     objects.push_back(p1);
     objects.push_back(p2);
+    objects.push_back(p3);
+    objects.push_back(p4);
+    objects.push_back(p5);
+    objects.push_back(p6);
     objects.push_back(std::make_shared<Cube>(QVector3D(2, 2, 0)));
     objects.push_back(std::make_shared<Cube>(QVector3D(2, 4, 0)));
     objects.push_back(std::make_shared<Cube>(QVector3D(2, 6, 2)));
     objects.push_back(std::make_shared<Torus>(QVector3D(5, 1, 5)));
 
+
+    auto polyline = std::make_shared<Polyline>();
     //composite = std::make_unique<Composite>(p1->p_CompositeAware);
     //composite->AddObject(p2->p_CompositeAware);
 
