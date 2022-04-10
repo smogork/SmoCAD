@@ -13,23 +13,32 @@
 //Jeden punkt moze znajdowac sie w wielu kolekcjach jednoczesnie
 class TransformCollection: public IComponent
 {
+    Q_OBJECT
 private:
+    std::list<std::shared_ptr<Transform>> points;
+    std::list<QPropertyNotifier> pointNotifiers;
 
+    void ConnectSignals(std::shared_ptr<Transform> p);
+    void DisconnectSignals(std::shared_ptr<Transform> p);
+
+private slots:
+    void CollectionElementTransformChanged(QVector3D val);
 
 public:
-    std::list<std::shared_ptr<Transform>> Points;
-
     static std::shared_ptr<TransformCollection> CreateRegisteredComponent(unsigned int oid);
     void UnregisterComponent();
 
     explicit TransformCollection(unsigned int oid);
     ~TransformCollection() override;
 
+    const std::list<std::shared_ptr<Transform>>& GetPoints();
     void AddPoint(std::shared_ptr<CollectionAware> newObject);
-    /*void Delete(unsigned int oid);
-    void Clear();*/
+    //void Delete(unsigned int oid);
+    void Clear();
+    int Size();
 
 signals:
+    //Sygnal informuje o zmianie polozenia pewnego punktu w kolekcji
     void PointInCollectionModified();
 };
 

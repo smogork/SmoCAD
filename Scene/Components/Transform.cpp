@@ -20,6 +20,7 @@ Transform::Transform(unsigned int oid, QVector3D position, QVector3D rotation, Q
 
 QMatrix4x4 Transform::GetModelMatrix()
 {
+    //[TODO] cos tu nie gra z tymi przeksztalceniami
     QMatrix4x4 result;
     result.setToIdentity();
     result.translate(Position);

@@ -81,6 +81,16 @@ void SceneECS::InitSceneObjects()
 
 
     auto polyline = std::make_shared<Polyline>();
+    polyline->p_Collection->AddPoint(p1->p_CollectionAware);
+    polyline->p_Collection->AddPoint(p2->p_CollectionAware);
+    polyline->p_Collection->AddPoint(p3->p_CollectionAware);
+    polyline->p_Collection->AddPoint(p4->p_CollectionAware);
+    polyline->p_Collection->AddPoint(p5->p_CollectionAware);
+    objects.push_back(polyline);
+
+    p5->p_Transform->Position = QVector3D(-3, -3, 0);
+
+
     //composite = std::make_unique<Composite>(p1->p_CompositeAware);
     //composite->AddObject(p2->p_CompositeAware);
 

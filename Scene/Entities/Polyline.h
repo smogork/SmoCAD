@@ -13,9 +13,13 @@
 //Entity reprezentujący łamaną w przestrzeni
 class Polyline: public IEntity
 {
+    Q_OBJECT
+private slots:
+    void OnCollectionModified();
+
 private:
-    static std::vector<float> GenerateGeometryVertices();
-    static std::vector<int> GenerateTopologyIndices();
+    std::vector<float> GenerateGeometryVertices();
+    std::vector<int> GenerateTopologyIndices();
 
     void InitializeDrawing();
     void DrawingFunction(QOpenGLContext* context);

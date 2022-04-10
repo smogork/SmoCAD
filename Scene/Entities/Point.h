@@ -12,6 +12,7 @@
 #include "Scene/Components/Drawing/StaticDrawing.h"
 #include "Scene/Components/Selectable.h"
 #include "Scene/Components/CompositeAware.h"
+#include "Scene/Components/CollectionAware.h"
 
 class Point: public IEntity
 {
@@ -29,6 +30,7 @@ public:
     std::shared_ptr<StaticDrawing> p_Drawing;
     std::shared_ptr<Selectable> p_Selectable;
     std::shared_ptr<CompositeAware> p_CompositeAware;
+    std::shared_ptr<CollectionAware> p_CollectionAware;
 
     explicit Point(QVector3D pos);
     ~Point() override;

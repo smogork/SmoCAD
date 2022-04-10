@@ -17,6 +17,7 @@ class Selectable: public IComponent
     Q_OBJECT
 private:
     std::shared_ptr<Transform> m_transform = nullptr;
+    //[TODO] przerobic na QProperty
     bool m_selected = false;
 
 signals:
