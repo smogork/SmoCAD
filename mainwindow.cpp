@@ -14,14 +14,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->listWidgetObjects, &QListWidget::customContextMenuRequested, this, &MainWindow::showObjectListContextMenu);
 
     //model = std::make_unique<SceneModelOld>();
-    viewport = std::make_shared<Viewport>(ui->sceneWidget->size(), 60);
-    controls = std::make_shared<InputController>(viewport, this);
 
-    ui->sceneWidget->SetupSceneAndControls(controls);
-
-    QObject::connect(this->controls.get(), &InputController::SceneMouseClicked,
+    QObject::connect(&Renderer::controller, &InputController::SceneMouseClicked,
                      this, &MainWindow::MouseRaycastSlot);
-    QObject::connect(this->controls.get(), &InputController::CameraUpdated,
+    QObject::connect(&Renderer::controller, &InputController::CameraUpdated,
                      this, &MainWindow::CameraUpdated);
     //QObject::connect(this->model.get(), &SceneModelOld::SelectedObjectChanged,
                      //this, &MainWindow::SelectObjectChanged);
@@ -175,7 +171,7 @@ void MainWindow::MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event)
 
 void MainWindow::CreateCursorOnScene(std::shared_ptr<SceneMouseClickEvent> event)
 {
-    QVector4D plain = controls->Camera->GetCenterViewPlain();
+    QVector4D plain = Renderer::controller.Camera->GetCenterViewPlain();
 
     float t = -QVector4D::dotProduct(plain, event->RaycastStart) /
               QVector4D::dotProduct(plain, event->RaycastDirection);
@@ -260,7 +256,7 @@ void MainWindow::UpdateCursorWorldPosition()
 
 void MainWindow::UpdateCursorViewPosition()
 {
-    controls->EmitSceneMouseClickedEvent(QPoint(ui->spinCurViewPosX->value(), ui->spinCurViewPosY->value()), false);
+    Renderer::controller.EmitSceneMouseClickedEvent(QPoint(ui->spinCurViewPosX->value(), ui->spinCurViewPosY->value()), false);
     ui->sceneWidget->update();
 }
 

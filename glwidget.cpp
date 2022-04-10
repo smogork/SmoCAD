@@ -14,6 +14,9 @@ GLWidget::GLWidget(QWidget *pWidget)
     format.setVersion(4, 4);
     setFormat(format);
     makeCurrent();
+
+    QObject::connect(&Renderer::controller, &InputController::CameraUpdated,
+                     this, &GLWidget::UpdateCameraSlot);
 }
 
 void GLWidget::initializeGL()
@@ -24,7 +27,7 @@ void GLWidget::initializeGL()
     //glEnable(GL_POINT_SMOOTH);
 
     LoadShaders();
-    Renderer::UpdateShaders(controls);
+    Renderer::UpdateShaders();
 
     if (auto scene = SceneECS::Instance().lock())
         qDebug() << scene->DebugSystemReport();
@@ -35,8 +38,8 @@ void GLWidget::resizeGL(int w, int h)
     QOpenGLWidget::resizeGL(w, h);
     auto s = QSize(w, h);
 
-    controls->viewport->UpdatePerspectiveMatrix(s);
-    Renderer::UpdateShaders(controls);
+    Renderer::controller.viewport->UpdatePerspectiveMatrix(s);
+    Renderer::UpdateShaders();
 
     emit WidgetResized(s);
 }
@@ -122,18 +125,9 @@ GLWidget::DrawRenderableObject(IRenderableObject *ro, std::shared_ptr<ShaderWrap
 void GLWidget::UpdateCameraSlot(std::shared_ptr<CameraUpdateEvent> event)
 {
     makeCurrent();
-    Renderer::UpdateShaders(this->controls);
+    Renderer::UpdateShaders();
     update();
 }
-
-void GLWidget::SetupSceneAndControls(std::shared_ptr<InputController> controler)
-{
-    this->controls = controler;
-
-    QObject::connect(this->controls.get(), &InputController::CameraUpdated,
-                     this, &GLWidget::UpdateCameraSlot);
-}
-
 
 void GLWidget::DrawBezier(BezierCurveC0 *bezier, const std::function<void(ShaderWrapper *)> &uniformOverrides)
 {

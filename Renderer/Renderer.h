@@ -24,9 +24,10 @@ private:
     static std::map<int, std::shared_ptr<ShaderWrapper>> shaders;
 
 public:
+    static InputController controller;
     static void AddShader(SHADERS id, std::shared_ptr<ShaderWrapper> sh);
     static std::weak_ptr<ShaderWrapper> GetShader(SHADERS id);
-    static void UpdateShaders(std::shared_ptr<InputController> controls);
+    static void UpdateShaders();
     static void DeleteShaders();
 
 #pragma region Draw primitives

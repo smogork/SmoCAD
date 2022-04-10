@@ -88,7 +88,7 @@ set(PROJECT_SOURCES
         Scene/Components/TransformCollection.cpp Scene/Components/TransformCollection.h
         Scene/Components/CollectionAware.cpp Scene/Components/CollectionAware.h
         Scene/Systems/TransformCollectionSystem.cpp Scene/Systems/TransformCollectionSystem.h
-        Scene/Systems/CollectionAwareSystem.cpp Scene/Systems/CollectionAwareSystem.h Scene/Utilities/Utilites.cpp Scene/Utilities/Utilites.h)
+        Scene/Systems/CollectionAwareSystem.cpp Scene/Systems/CollectionAwareSystem.h Scene/Utilities/Utilites.cpp Scene/Utilities/Utilites.h Scene/Entities/BezierC0.cpp Scene/Entities/BezierC0.h)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(SmoCAD

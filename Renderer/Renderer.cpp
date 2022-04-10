@@ -5,6 +5,7 @@
 #include "Renderer.h"
 
 std::map<int, std::shared_ptr<ShaderWrapper>> Renderer::shaders;
+InputController Renderer::controller(std::make_shared<Viewport>(QSize(), 60));
 
 void Renderer::DrawTriangles(QOpenGLFunctions* functions, unsigned int count)
 {
@@ -49,13 +50,13 @@ void Renderer::DeleteShaders()
     shaders.clear();
 }
 
-void Renderer::UpdateShaders(std::shared_ptr<InputController> controls)
+void Renderer::UpdateShaders()
 {
     for (auto sh : shaders)
     {
         std::shared_ptr<ShaderWrapper> shader = sh.second;
-        shader->SetUniform("u_MVP.View", controls->Camera->GetViewMatrix());
-        shader->SetUniform("u_MVP.Projection", controls->viewport->GetProjectionMatrix());
+        shader->SetUniform("u_MVP.View", controller.Camera->GetViewMatrix());
+        shader->SetUniform("u_MVP.Projection", controller.viewport->GetProjectionMatrix());
 
         //qDebug() << "Camera space (0,0,0) " << controls->Camera->GetViewMatrix() * QVector4D(0, 0, 0, 1);
         //qDebug() << "NDC space (0,0,0) " << controls->viewport->GetProjectionMatrix() * controls->Camera->GetViewMatrix() * QVector4D(0, 0, 0, 1);

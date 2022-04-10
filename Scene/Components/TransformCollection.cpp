@@ -57,37 +57,8 @@ void TransformCollection::ConnectSignals(std::shared_ptr<Transform> p)
     }));
 }
 
-//Odlacz wszystkie sygnaly od kolekcji
-void TransformCollection::DisconnectSignals(std::shared_ptr<Transform> p)
-{
-    //p->disconnect(this);
-}
-
-/*void TransformCollection::Delete(unsigned int oid)
-{
-    bool found = false;
-    for (const std::shared_ptr<Transform>& el : points)
-        if (el->GetAttachedObjectID() == oid)
-        {
-            DisconnectSignals(el);
-            found = true;
-            break;
-        }
-
-    if (!found)
-        return;
-
-    points.remove_if([oid](std::shared_ptr<Transform>& el) {
-       return el->GetAttachedObjectID() == oid;
-    } );
-    emit PointInCollectionModified();
-}*/
-
 void TransformCollection::Clear()
 {
-    /*for (const std::shared_ptr<Transform>& el : points)
-            DisconnectSignals(el);*/
-
     pointNotifiers.clear();
     points.clear();
     emit PointInCollectionModified();

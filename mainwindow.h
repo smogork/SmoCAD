@@ -21,8 +21,6 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 private:
     Ui::MainWindow *ui;
-    std::shared_ptr<InputController> controls = nullptr;
-    std::shared_ptr<Viewport> viewport = nullptr;
     //std::shared_ptr<SceneModelOld> model = nullptr;
     //std::shared_ptr<SceneECS> model = nullptr;
     std::list<std::unique_ptr<QListWidgetRenderableItem>> listObjects;
@@ -55,8 +53,8 @@ protected slots:
     void CreateBezierFromPoints();
 
 protected:
-    void keyPressEvent(QKeyEvent* event) Q_DECL_OVERRIDE {this->controls->keyPressSlot(event);}
-    void keyReleaseEvent(QKeyEvent* event) Q_DECL_OVERRIDE {this->controls->keyReleaseSlot(event);}
+    void keyPressEvent(QKeyEvent* event) Q_DECL_OVERRIDE { Renderer::controller.keyPressSlot(event);}
+    void keyReleaseEvent(QKeyEvent* event) Q_DECL_OVERRIDE { Renderer::controller.keyReleaseSlot(event);}
 
 public:
     MainWindow(QWidget *parent = nullptr);

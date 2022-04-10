@@ -19,7 +19,6 @@ private:
     std::list<QPropertyNotifier> pointNotifiers;
 
     void ConnectSignals(std::shared_ptr<Transform> p);
-    void DisconnectSignals(std::shared_ptr<Transform> p);
 
 private slots:
     void CollectionElementTransformChanged(QVector3D val);
