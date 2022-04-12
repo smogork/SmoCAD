@@ -16,7 +16,7 @@ class TransformCollection: public IComponent
 {
     Q_OBJECT
 private:
-    std::vector<std::shared_ptr<Transform>> points;
+    std::list<std::weak_ptr<Transform>> points;
     std::list<QPropertyNotifier> pointNotifiers;
 
     void ConnectSignals(std::shared_ptr<Transform> p);
@@ -31,12 +31,13 @@ public:
     explicit TransformCollection(unsigned int oid);
     ~TransformCollection() override;
 
-    const std::vector<std::shared_ptr<Transform>>& GetPoints();
+    const std::list<std::weak_ptr<Transform>>& GetPoints();
     void AddPoint(std::shared_ptr<CollectionAware> newObject);
-    //void Delete(unsigned int oid);
     void Clear();
     int Size();
-    const std::shared_ptr<Transform>& operator[](std::size_t idx) const;
+
+    //const std::weak_ptr<Transform>& operator[](std::size_t idx) const;
+    TransformCollection& operator=(const TransformCollection& other);
 
 signals:
     //Sygnal informuje o zmianie polozenia pewnego punktu w kolekcji

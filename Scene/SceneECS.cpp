@@ -83,11 +83,11 @@ void SceneECS::InitSceneObjects()
 
 
     auto polyline = std::make_shared<BezierC2>();
-    polyline->DeBoorPolyline.p_Collection->AddPoint(p1->p_CollectionAware);
-    polyline->DeBoorPolyline.p_Collection->AddPoint(p2->p_CollectionAware);
-    polyline->DeBoorPolyline.p_Collection->AddPoint(p3->p_CollectionAware);
-    polyline->DeBoorPolyline.p_Collection->AddPoint(p4->p_CollectionAware);
-    //polyline->DeBoorPolyline.p_Collection->AddPoint(p5->p_CollectionAware);
+    polyline->p_Collection->AddPoint(p1->p_CollectionAware);
+    polyline->p_Collection->AddPoint(p2->p_CollectionAware);
+    polyline->p_Collection->AddPoint(p3->p_CollectionAware);
+    polyline->p_Collection->AddPoint(p4->p_CollectionAware);
+    polyline->p_Collection->AddPoint(p5->p_CollectionAware);
     //polyline->DeBoorPolyline.p_Collection->AddPoint(p6->p_CollectionAware);
     objects.push_back(polyline);
 

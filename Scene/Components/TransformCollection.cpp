@@ -39,9 +39,17 @@ TransformCollection::~TransformCollection()
 void TransformCollection::AddPoint(std::shared_ptr<CollectionAware> newObject)
 {
     //[TODO] zastanowic sie nad wielokrotnymi punktami
-    for (const std::shared_ptr<Transform>& el : points)
-        if (el->GetAttachedObjectID() == newObject->GetAttachedObjectID())
-            return;
+    //std::list<std::weak_ptr<Transform>> toRemove;
+    for (const std::weak_ptr<Transform>& el_weak : points)
+    {
+        if (auto el = el_weak.lock())
+        {
+            if (el->GetAttachedObjectID() == newObject->GetAttachedObjectID())
+                return;
+        }
+        //else
+            //toRemove.push_back(el_weak);
+    }
 
     ConnectSignals(newObject->p_Transform);
     points.push_back(newObject->p_Transform);
@@ -69,8 +77,10 @@ void TransformCollection::CollectionElementTransformChanged(QVector3D val)
     emit PointInCollectionModified();
 }
 
-const std::vector<std::shared_ptr<Transform>> &TransformCollection::GetPoints()
+const std::list<std::weak_ptr<Transform>> &TransformCollection::GetPoints()
 {
+    //[TODO] wyeliminuj przy pobieraniu punktów te Transformy, które już straciły kontekst
+
     return points;
 }
 
@@ -79,7 +89,25 @@ int TransformCollection::Size()
     return points.size();
 }
 
-const std::shared_ptr<Transform> &TransformCollection::operator[](std::size_t idx) const
+/*const std::weak_ptr<Transform> &TransformCollection::operator[](std::size_t idx) const
 {
     return points[idx];
+}*/
+
+TransformCollection &TransformCollection::operator=(const TransformCollection &other)
+{
+    pointNotifiers.clear();
+    points.clear();
+
+    for (const std::weak_ptr<Transform>& el_weak : other.points)
+    {
+        if (auto el = el_weak.lock())
+        {
+            points.push_back(el);
+            ConnectSignals(el);
+        }
+    }
+
+    emit PointInCollectionModified();
+    return *this;
 }

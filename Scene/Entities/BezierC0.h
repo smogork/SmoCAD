@@ -18,6 +18,9 @@ private slots:
     void OnCollectionModified();
 
 private:
+    Polyline m_bezierPolyline;
+    QPropertyNotifier polylineColorNotify;
+
     std::vector<float> GenerateGeometryVertices();
     std::vector<int> GenerateTopologyIndices();
     int GetIndexCount();
@@ -29,7 +32,8 @@ private:
 
 public:
     std::shared_ptr<DynamicDrawing> p_Drawing;
-    Polyline BezierPolyline;
+    std::shared_ptr<TransformCollection> p_Collection;
+    QProperty<QColor> PolylineColor;
 
     BezierC0();
 };

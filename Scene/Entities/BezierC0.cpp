@@ -8,11 +8,15 @@
 BezierC0::BezierC0(): IEntity(BEZIERC0_CLASS)
 {
     p_Drawing = DynamicDrawing::CreateRegisteredComponent(objectID);
-    //BezierPoints = TransformCollection::CreateRegisteredComponent(objectID);
+    p_Collection = TransformCollection::CreateRegisteredComponent(objectID);
 
     InitializeDrawing();
-    QObject::connect(BezierPolyline.p_Collection.get(), &TransformCollection::PointInCollectionModified,
+    QObject::connect(p_Collection.get(), &TransformCollection::PointInCollectionModified,
                      this, &BezierC0::OnCollectionModified);
+
+    polylineColorNotify = PolylineColor.addNotifier([this]() {
+        this->m_bezierPolyline.DrawingColor = PolylineColor;
+    });
 }
 
 void BezierC0::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
@@ -47,7 +51,7 @@ void BezierC0::InitializeDrawing()
 
 std::vector<int> BezierC0::GenerateTopologyIndices()
 {
-    int groups = std::ceil(BezierPolyline.p_Collection->Size() / 3.0f);
+    int groups = std::ceil(p_Collection->Size() / 3.0f);
     std::vector<int> res (4 * groups);
 
     for (int i = 0; i < groups; ++i)
@@ -63,17 +67,18 @@ std::vector<int> BezierC0::GenerateTopologyIndices()
 
 std::vector<float> BezierC0::GenerateGeometryVertices()
 {
-    std::vector<float> res (4 * BezierPolyline.p_Collection->Size());
+    std::vector<float> res (4 * p_Collection->Size());
 
     int i = 0;
-    for (const std::shared_ptr<Transform>& p : BezierPolyline.p_Collection->GetPoints())
-    {
-        res[4 * i] = (*p->Position).x();
-        res[4 * i + 1] = (*p->Position).y();
-        res[4 * i + 2] = (*p->Position).z();
-        res[4 * i + 3] = 1.0f;
-        i++;
-    }
+    for (const std::weak_ptr<Transform>& pw : p_Collection->GetPoints())
+        if (auto p = pw.lock())
+        {
+            res[4 * i] = (*p->Position).x();
+            res[4 * i + 1] = (*p->Position).y();
+            res[4 * i + 2] = (*p->Position).z();
+            res[4 * i + 3] = 1.0f;
+            i++;
+        }
 
     return res;
 }
@@ -82,25 +87,27 @@ void BezierC0::OnCollectionModified()
 {
     p_Drawing->SetVertexData(GenerateGeometryVertices());
     p_Drawing->SetIndexData(GenerateTopologyIndices());
+    (*m_bezierPolyline.p_Collection) = (*p_Collection);
 }
 
 int BezierC0::GetIndexCount()
 {
-    return 4 * std::ceil(BezierPolyline.p_Collection->Size() / 3.0f);
+    return 4 * std::ceil(p_Collection->Size() / 3.0f);
 }
 
 int BezierC0::CalculateDrawableChunks(QMatrix4x4 proj, QMatrix4x4 view, QSize viewport)
 {
     float maxX = FLT_MIN, maxY = FLT_MIN, minX = FLT_MAX, minY = FLT_MAX;
-    for (const std::shared_ptr<Transform>& p : BezierPolyline.p_Collection->GetPoints())
-    {
-        QVector3D screenPoint = (*p->Position).project(view, proj, QRect(QPoint(), viewport));
+    for (const std::weak_ptr<Transform>& pw : p_Collection->GetPoints())
+        if (auto p = pw.lock())
+        {
+            QVector3D screenPoint = (*p->Position).project(view, proj, QRect(QPoint(), viewport));
 
-        maxX = std::max(maxX, screenPoint.x());
-        maxY = std::max(maxY, screenPoint.y());
-        minX = std::min(minX, screenPoint.x());
-        minY = std::min(minY, screenPoint.y());
-    }
+            maxX = std::max(maxX, screenPoint.x());
+            maxY = std::max(maxY, screenPoint.y());
+            minX = std::min(minX, screenPoint.x());
+            minY = std::min(minY, screenPoint.y());
+        }
 
     int length = std::max(maxX - minX, maxY - minY);
     length /= 4;

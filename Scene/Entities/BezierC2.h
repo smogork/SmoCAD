@@ -19,13 +19,15 @@ private slots:
     void OnDeBoorModified();
 
 private:
+    //[TODO] dodać entity klasy VirtualBezierC0 - nie będzie elementem sceny
     BezierC0 m_bezier;
+    Polyline m_deBoorPolyline;
     std::list<std::unique_ptr<VirtualPoint>> bezierPoints;
 
     void CalculateBezierPoints();
 
 public:
-    Polyline DeBoorPolyline;
+    std::shared_ptr<TransformCollection> p_Collection;
 
     BezierC2();
 };

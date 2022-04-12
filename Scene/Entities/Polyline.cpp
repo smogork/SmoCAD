@@ -19,12 +19,13 @@ std::vector<float> Polyline::GenerateGeometryVertices()
     std::vector<float> res;
     res.reserve(p_Collection->Size() * 3);
 
-    for (auto el : p_Collection->GetPoints())
-    {
-        res.push_back((*el->Position).x());
-        res.push_back((*el->Position).y());
-        res.push_back((*el->Position).z());
-    }
+    for (auto elw : p_Collection->GetPoints())
+        if (auto el = elw.lock())
+        {
+            res.push_back((*el->Position).x());
+            res.push_back((*el->Position).y());
+            res.push_back((*el->Position).z());
+        }
 
     return res;
 }
