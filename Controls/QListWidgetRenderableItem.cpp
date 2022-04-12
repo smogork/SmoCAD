@@ -4,7 +4,7 @@
 
 #include "QListWidgetRenderableItem.h"
 
-QListWidgetRenderableItem::QListWidgetRenderableItem(QListWidget *parent, const QString& name, IRenderableObject *obj, std::shared_ptr<SceneModel> scene)
+QListWidgetRenderableItem::QListWidgetRenderableItem(QListWidget *parent, const QString& name, IRenderableObject *obj, std::shared_ptr<SceneModelOld> scene)
 : QListWidgetItem(name, parent)
 {
     this->obj = obj;

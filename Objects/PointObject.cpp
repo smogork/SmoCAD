@@ -29,7 +29,6 @@ void PointObject::CreateBuffers()
     ib->bind();
 
     int stride = 3 * sizeof(float); //only position on 3 floats
-    //[TODO] Dodac klase opisujaca uklad buforow
     prog.enableAttributeArray(0);
     prog.setAttributeBuffer(0, GL_FLOAT, 0, 3, stride);
 

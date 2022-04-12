@@ -2,15 +2,21 @@
 #include "glwidget.h"
 #include "Objects/CursorObject.h"
 #include "Objects/PointObject.h"
+#include "Scene/Systems/DrawingSystem.h"
+#include "Scene/SceneECS.h"
 
 GLWidget::GLWidget(QWidget *pWidget)
-    : QOpenGLWidget(pWidget)
+        : QOpenGLWidget(pWidget)
 {
     QSurfaceFormat format;
     format.setRenderableType(QSurfaceFormat::OpenGL);
     format.setProfile(QSurfaceFormat::CoreProfile);
-    format.setVersion(4,4);
+    format.setVersion(4, 4);
     setFormat(format);
+    makeCurrent();
+
+    QObject::connect(&Renderer::controller, &InputController::CameraUpdated,
+                     this, &GLWidget::UpdateCameraSlot);
 }
 
 void GLWidget::initializeGL()
@@ -20,25 +26,22 @@ void GLWidget::initializeGL()
     glEnable(GL_PROGRAM_POINT_SIZE);
     //glEnable(GL_POINT_SMOOTH);
 
-    shaders.push_back(std::make_shared<ShaderWrapper>("Shaders/uniform_color.vert", "Shaders/simple_color.frag"));//default
-    shaders.push_back(std::make_shared<ShaderWrapper>("Shaders/buffer_color.vert", "Shaders/simple_color.frag"));//cursor
-    shaders.push_back(std::make_shared<ShaderWrapper>("Shaders/bezier.vert", "Shaders/bezier.frag",
-                                                      "Shaders/bezier.tess", "Shaders/bezier.eval"));//bezier
-    shaders[BEZIER_SHADER]->GetRawProgram()->setPatchVertexCount(4);
+    LoadShaders();
+    Renderer::UpdateShaders();
 
-    InitializeUniforms();
+    if (auto scene = SceneECS::Instance().lock())
+        qDebug() << scene->DebugSystemReport();
 }
 
 void GLWidget::resizeGL(int w, int h)
 {
-    QOpenGLWidget::resizeGL(w,h);
-    emit WidgetResized(QSize(w, h));
+    QOpenGLWidget::resizeGL(w, h);
+    auto s = QSize(w, h);
 
-    auto proj = controls->viewport->UpdatePerspectiveMatrix(QSize(w, h));
+    Renderer::controller.viewport->UpdatePerspectiveMatrix(s);
+    Renderer::UpdateShaders();
 
-    for (auto sh : shaders)
-        sh->SetUniform("u_MVP.Projection", proj);
-
+    emit WidgetResized(s);
 }
 
 void GLWidget::paintGL()
@@ -47,10 +50,9 @@ void GLWidget::paintGL()
     glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    //Objects on scene
+    /*//Objects on scene
     for (IRenderableObject* ro : scene->GetRenderableObjects())
     {
-        //[TODO] Poprawić aby obiekty IRenderable mialy opcje renderowania sie same
         if (dynamic_cast<BezierCurveC0*>(ro) == nullptr)
             DrawRenderableObject(ro, shaders[DEFAULT_SHADER]);
         else
@@ -72,20 +74,35 @@ void GLWidget::paintGL()
     }
 
     //User cursor
-    DrawRenderableObject(scene->GetCursorObject().get(), shaders[CURSOR_SHADER]);
+    DrawRenderableObject(scene->GetCursorObject().get(), shaders[CURSOR_SHADER]);*/
+
+    if (auto scene = SceneECS::Instance().lock())
+    {
+        if (auto dSystem = scene->GetSystem<DrawingSystem>().lock())
+        {
+            dSystem->Render(context());
+        }
+    }
 }
 
 GLWidget::~GLWidget()
 {
     makeCurrent();
 
-    scene->ReleaseObjectsOnScene();
+    if (auto scene = SceneECS::Instance().lock())
+    {
+        scene->RemoveObjectsFromScene();
+        scene->RemoveUniqueObjects();
+        scene->ClearSystems();
+        qDebug() << scene->DebugSystemReport();
+    }
 }
 
-void GLWidget::DrawRenderableObject(IRenderableObject *ro, std::shared_ptr<ShaderWrapper> shader, const std::function< void(
-        ShaderWrapper*)>& uniformOverrides)
+void
+GLWidget::DrawRenderableObject(IRenderableObject *ro, std::shared_ptr<ShaderWrapper> shader, const std::function<void(
+        ShaderWrapper *)> &uniformOverrides)
 {
-    if (ro)
+    /*if (ro)
     {
         if (!ro->AreBuffersCreated())
             ro->DefineBuffers();
@@ -93,47 +110,28 @@ void GLWidget::DrawRenderableObject(IRenderableObject *ro, std::shared_ptr<Shade
         if (ro->AreBuffersToUpdate())
             ro->UpdateBuffers();
 
-        ro->Bind(shader.get());
+        ro->Bind(m_shader.get());
         if (uniformOverrides)
         {
-            uniformOverrides(shader.get());
-            shader->Bind();
+            uniformOverrides(m_shader.get());
+            m_shader->Bind();
         }
 
         glDrawElements(ro->GetDrawType(), ro->GetIndexCount(), GL_UNSIGNED_INT, 0);
-        ro->Release(shader.get());
-    }
+        ro->Release(m_shader.get());
+    }*/
 }
 
 void GLWidget::UpdateCameraSlot(std::shared_ptr<CameraUpdateEvent> event)
 {
     makeCurrent();
-    for (auto sh : shaders)
-        sh->SetUniform("u_MVP.View", event->NewViewMatrix);
+    Renderer::UpdateShaders();
     update();
-}
-
-void GLWidget::SetupSceneAndControls(std::shared_ptr<InputController> controler, std::shared_ptr<SceneModel> model)
-{
-    this->controls = controler;
-    this->scene = model;
-
-    QObject::connect(this->controls.get(), &InputController::CameraUpdated,
-                     this, &GLWidget::UpdateCameraSlot);
-}
-
-void GLWidget::InitializeUniforms()
-{
-    for (auto sh : shaders)
-    {
-        sh->SetUniform("u_MVP.View", controls->Camera->GetViewMatrix());
-        sh->SetUniform("u_MVP.Projection", controls->viewport->GetProjectionMatrix());
-    }
 }
 
 void GLWidget::DrawBezier(BezierCurveC0 *bezier, const std::function<void(ShaderWrapper *)> &uniformOverrides)
 {
-    if (bezier)
+    /*if (bezier)
     {
         if (!bezier->AreBuffersCreated())
             bezier->DefineBuffers();
@@ -166,5 +164,18 @@ void GLWidget::DrawBezier(BezierCurveC0 *bezier, const std::function<void(Shader
 
 
         bezier->Release(shaders[DEFAULT_SHADER].get());
-    }
+    }*/
 }
+
+void GLWidget::LoadShaders()
+{
+    Renderer::AddShader(DEFAULT_SHADER,
+                        std::make_shared<ShaderWrapper>("Shaders/uniform_color.vert", "Shaders/simple_color.frag"));//default
+    Renderer::AddShader(CURSOR_SHADER,
+                        std::make_shared<ShaderWrapper>("Shaders/buffer_color.vert", "Shaders/simple_color.frag"));//cursor
+    Renderer::AddShader(BEZIER_SHADER,
+                        std::make_shared<ShaderWrapper>("Shaders/bezier.vert", "Shaders/bezier.frag",
+                                    "Shaders/bezier.tess", "Shaders/bezier.eval"));//bezier
+    Renderer::GetShader(SHADERS::BEZIER_SHADER).lock()->GetRawProgram()->setPatchVertexCount(4);
+}
+

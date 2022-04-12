@@ -3,6 +3,7 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include "Objects/PointObject.h"
+#include "Scene/Systems/SelectableSystem.h"
 
 MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -12,22 +13,21 @@ MainWindow::MainWindow(QWidget *parent)
     ui->listWidgetObjects->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->listWidgetObjects, &QListWidget::customContextMenuRequested, this, &MainWindow::showObjectListContextMenu);
 
-    model = std::make_unique<SceneModel>();
-    viewport = std::make_shared<Viewport>(ui->sceneWidget->size(), 60);
-    controls = std::make_shared<InputController>(viewport, this);
-    ui->sceneWidget->SetupSceneAndControls(controls, model);
+    //model = std::make_unique<SceneModelOld>();
 
-    QObject::connect(this->controls.get(), &InputController::SceneMouseClicked,
+    QObject::connect(&Renderer::controller, &InputController::SceneMouseClicked,
                      this, &MainWindow::MouseRaycastSlot);
-    QObject::connect(this->controls.get(), &InputController::CameraUpdated,
+    QObject::connect(&Renderer::controller, &InputController::CameraUpdated,
                      this, &MainWindow::CameraUpdated);
-    QObject::connect(this->model.get(), &SceneModel::SelectedObjectChanged,
-                     this, &MainWindow::SelectObjectChanged);
+    //QObject::connect(this->model.get(), &SceneModelOld::SelectedObjectChanged,
+                     //this, &MainWindow::SelectObjectChanged);
     QObject::connect(ui->sceneWidget, &GLWidget::WidgetResized,
                      this, &MainWindow::ResizeEvent);
 
-    for (auto ro : model->GetRenderableObjects())
-        listObjects.push_back(std::make_unique<QListWidgetRenderableItem>(ui->listWidgetObjects, "Start objects", ro, model));
+
+
+    //for (auto ro : model->GetRenderableObjects())
+    //    listObjects.push_back(std::make_unique<QListWidgetRenderableItem>(ui->listWidgetObjects, "Start objects", ro, model));
 }
 
 MainWindow::~MainWindow()
@@ -37,7 +37,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::AddNewObject(IRenderableObject* ro, const QString& name, bool positionless)
 {
-    if (model->GetCursorObject() || positionless)
+    /*if (model->GetCursorObject() || positionless)
     {
         if (model->AddObject(ro, positionless))
         {
@@ -46,7 +46,7 @@ void MainWindow::AddNewObject(IRenderableObject* ro, const QString& name, bool p
         }
     }
     else
-        delete ro;
+        delete ro;*/
 }
 
 void MainWindow::on_actionTorus_triggered()
@@ -58,9 +58,9 @@ void MainWindow::on_actionPoint_triggered()
 {
     PointObject* pointObject = new PointObject(QVector3D());
     AddNewObject(pointObject, "Point");
-    BezierCurveC0* bezier = dynamic_cast<BezierCurveC0*>(model->GetSelectedObject());
+    /*BezierCurveC0* bezier = dynamic_cast<BezierCurveC0*>(model->GetSelectedObject());
     if (bezier)
-        bezier->AddControlPoint(pointObject);
+        bezier->AddControlPoint(pointObject);*/
 }
 
 void MainWindow::on_actionCube_triggered()
@@ -77,7 +77,7 @@ void MainWindow::on_actionBezierC0_triggered()
 
 void MainWindow::on_actionRename_triggered()
 {
-    IRenderableObject* selected = model->GetSelectedObject();
+    /*IRenderableObject* selected = model->GetSelectedObject();
     if (selected)
     {
         bool ok;
@@ -97,12 +97,12 @@ void MainWindow::on_actionRename_triggered()
         {
             (*found)->setText(newName);
         }
-    }
+    }*/
 }
 
 void MainWindow::on_actionDelete_triggered()
 {
-    if (model->GetSelectedObject())
+    /*if (model->GetSelectedObject())
     {
         listObjects.remove_if(
                 [&](std::unique_ptr<QListWidgetRenderableItem> &item)
@@ -134,12 +134,18 @@ void MainWindow::on_actionDelete_triggered()
     }
 
     selectedTransform = nullptr;
-    ui->sceneWidget->update();
+    ui->sceneWidget->update();*/
 }
 
 void MainWindow::MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event)
 {
-    if (model->SelectObjectByMouse(event->RaycastStart, event->RaycastDirection))
+    if (auto scene = SceneECS::Instance().lock())
+    {
+        scene->MouseClicked(event);
+        ui->sceneWidget->update();
+    }
+
+    /*if (model->SelectObjectByMouse(event->RaycastStart, event->RaycastDirection))
     {
         ui->groupBoxTransform->setEnabled(true);
         ui->groupBoxUVParams->setEnabled(dynamic_cast<TorusObject*>(selectedTransform) != nullptr);
@@ -160,12 +166,12 @@ void MainWindow::MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event)
         CreateCursorOnScene(event);
     }
 
-    ui->sceneWidget->update();
+    ui->sceneWidget->update();*/
 }
 
 void MainWindow::CreateCursorOnScene(std::shared_ptr<SceneMouseClickEvent> event)
 {
-    QVector4D plain = controls->Camera->GetCenterViewPlain();
+    QVector4D plain = Renderer::controller.Camera->GetCenterViewPlain();
 
     float t = -QVector4D::dotProduct(plain, event->RaycastStart) /
               QVector4D::dotProduct(plain, event->RaycastDirection);
@@ -175,7 +181,7 @@ void MainWindow::CreateCursorOnScene(std::shared_ptr<SceneMouseClickEvent> event
     /*qDebug() << "CenterViewPlain:" << plain;
     qDebug() << "ClickPoint:" << clickPoint;*/
 
-    model->UpdateCursor(clickPoint);
+    //model->UpdateCursor(clickPoint);
     UpdateCursorUI(clickPoint, event->ViewClickPoint);
 }
 
@@ -244,29 +250,30 @@ void MainWindow::BlockCursorUISignals(bool b)
 
 void MainWindow::UpdateCursorWorldPosition()
 {
-    model->UpdateCursor(QVector3D(ui->spinCurPosX->value(), ui->spinCurPosY->value(), ui->spinCurPosZ->value()));
+    //model->UpdateCursor(QVector3D(ui->spinCurPosX->value(), ui->spinCurPosY->value(), ui->spinCurPosZ->value()));
     CameraUpdated(nullptr);
 }
 
 void MainWindow::UpdateCursorViewPosition()
 {
-    controls->EmitSceneMouseClickedEvent(QPoint(ui->spinCurViewPosX->value(), ui->spinCurViewPosY->value()), false);
+    Renderer::controller.EmitSceneMouseClickedEvent(QPoint(ui->spinCurViewPosX->value(), ui->spinCurViewPosY->value()), false);
     ui->sceneWidget->update();
 }
 
 QPoint MainWindow::GetCursorViewPosition()
 {
-    QVector3D pos = model->GetCursorObject()->Position;
+    /*QVector3D pos = model->GetCursorObject()->Position;
     QVector3D vPoint = pos.project(
             controls->Camera->GetViewMatrix(),
             viewport->GetProjectionMatrix(),
             QRect(QPoint(0.0f, 0.0f), viewport->GetViewportSize()));
-    return QPoint(vPoint.x(), viewport->GetViewportSize().height() - vPoint.y());
+    return QPoint(vPoint.x(), viewport->GetViewportSize().height() - vPoint.y());*/
+    return {};
 }
 
 void MainWindow::CameraUpdated(std::shared_ptr<CameraUpdateEvent> event)
 {
-    if (model->GetCursorObject())
+    /*if (model->GetCursorObject())
     {
         QPoint vPos = GetCursorViewPosition();
         BlockCursorUISignals(true);
@@ -274,7 +281,7 @@ void MainWindow::CameraUpdated(std::shared_ptr<CameraUpdateEvent> event)
         ui->spinCurViewPosY->setValue(vPos.y());
         BlockCursorUISignals(false);
         ui->sceneWidget->update();
-    }
+    }*/
 }
 #pragma endregion
 
@@ -461,7 +468,7 @@ void MainWindow::ResizeEvent(QSize size)
 
 void MainWindow::AddPointToBezier()
 {
-    BezierCurveC0* bezier = dynamic_cast<BezierCurveC0*>(model->GetSelectedObject());
+    /*BezierCurveC0* bezier = dynamic_cast<BezierCurveC0*>(model->GetSelectedObject());
 
     for (QListWidgetItem* i : ui->listWidgetObjects->selectedItems())
     {
@@ -472,13 +479,13 @@ void MainWindow::AddPointToBezier()
             bezier->AddControlPoint(dynamic_cast<PointObject*>(item->obj));
             ui->sceneWidget->update();
         }
-    }
+    }*/
 }
 
 void MainWindow::showObjectListContextMenu(const QPoint &pos)
 {
 // Handle global position
-    QPoint globalPos = ui->listWidgetObjects->mapToGlobal(pos);
+    /*QPoint globalPos = ui->listWidgetObjects->mapToGlobal(pos);
 
     int selectedPoints = 0;
     for (QListWidgetItem* i : ui->listWidgetObjects->selectedItems())
@@ -494,7 +501,7 @@ void MainWindow::showObjectListContextMenu(const QPoint &pos)
     //myMenu.addAction("Erase",  this, SLOT(eraseItem()));
 
     // Show context menu at handling position
-    myMenu.exec(globalPos);
+    myMenu.exec(globalPos);*/
 }
 
 void MainWindow::CreateBezierFromPoints()
@@ -516,7 +523,7 @@ void MainWindow::CreateBezierFromPoints()
 
 void MainWindow::on_actionShow_Bezier_polygon_toggled(bool arg1)
 {
-    model->ShowBezeierPolygon = arg1;
+    //model->ShowBezeierPolygon = arg1;
     ui->sceneWidget->update();
 }
 

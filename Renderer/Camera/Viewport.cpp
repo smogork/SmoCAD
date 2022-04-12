@@ -8,6 +8,7 @@ Viewport::Viewport(QSize viewport, float fov)
 {
     this->viewportSize = viewport;
     this->fov = fov;
+    //UpdatePerspectiveMatrix(viewport);
 }
 
 QMatrix4x4 Viewport::UpdatePerspectiveMatrix(QSize viewport)

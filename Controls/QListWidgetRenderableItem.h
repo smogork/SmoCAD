@@ -8,19 +8,19 @@
 
 #include <QListWidgetItem>
 #include "Objects/IRenderableObject.h"
-#include "Scene/SceneModel.h"
+#include "Scene/SceneModelOld.h"
 
 class QListWidgetRenderableItem: public QListWidgetItem
 {
 private:
 
-    std::shared_ptr<SceneModel> scene;
+    std::shared_ptr<SceneModelOld> scene;
 
 public:
     //[TODO] to jest do przneiesienia na private. tymczasowe rozwaizanie dla sprawdzenia czy przypoadkiem nie ma torusa tutaj
     IRenderableObject* obj;
 
-    QListWidgetRenderableItem(QListWidget* parent, const QString& name, IRenderableObject* obj, std::shared_ptr<SceneModel> scene);
+    QListWidgetRenderableItem(QListWidget* parent, const QString& name, IRenderableObject* obj, std::shared_ptr<SceneModelOld> scene);
 
     bool SelectOnScene(bool append = false);
     bool CompareInsideObject(const IRenderableObject* other);

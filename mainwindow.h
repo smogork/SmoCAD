@@ -7,9 +7,10 @@
 #include <Renderer/InputController/InputController.h>
 #include "Objects/IRenderableObject.h"
 #include "Objects/CursorObject.h"
-#include "Scene/SceneModel.h"
+#include "Scene/SceneModelOld.h"
 #include "Controls/QListWidgetRenderableItem.h"
 #include "Objects/TorusObject.h"
+#include "Scene/SceneECS.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -20,9 +21,8 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 private:
     Ui::MainWindow *ui;
-    std::shared_ptr<InputController> controls = nullptr;
-    std::shared_ptr<Viewport> viewport = nullptr;
-    std::shared_ptr<SceneModel> model = nullptr;
+    //std::shared_ptr<SceneModelOld> model = nullptr;
+    //std::shared_ptr<SceneECS> model = nullptr;
     std::list<std::unique_ptr<QListWidgetRenderableItem>> listObjects;
     TransformableObject* selectedTransform = nullptr;
 
@@ -53,8 +53,8 @@ protected slots:
     void CreateBezierFromPoints();
 
 protected:
-    void keyPressEvent(QKeyEvent* event) Q_DECL_OVERRIDE {this->controls->keyPressSlot(event);}
-    void keyReleaseEvent(QKeyEvent* event) Q_DECL_OVERRIDE {this->controls->keyReleaseSlot(event);}
+    void keyPressEvent(QKeyEvent* event) Q_DECL_OVERRIDE { Renderer::controller.keyPressSlot(event);}
+    void keyReleaseEvent(QKeyEvent* event) Q_DECL_OVERRIDE { Renderer::controller.keyReleaseSlot(event);}
 
 public:
     MainWindow(QWidget *parent = nullptr);

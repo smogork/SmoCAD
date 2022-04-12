@@ -13,13 +13,9 @@
 
 #include <Renderer/InputController/InputController.h>
 #include "Renderer/InputController/InputEvents/CameraUpdateEvent.h"
-
-#include <Renderer/ShaderWrapper.h>
-#include "Scene/SceneModel.h"
-
-#define DEFAULT_SHADER 0
-#define CURSOR_SHADER 1
-#define BEZIER_SHADER 2
+#include "Objects/IRenderableObject.h"
+#include "Objects/BezierCurveC0.h"
+#include "Renderer/Renderer.h"
 
 class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
@@ -29,44 +25,38 @@ public:
 
     virtual ~GLWidget() Q_DECL_OVERRIDE;
 
-    void SetupSceneAndControls(std::shared_ptr<InputController> controler, std::shared_ptr<SceneModel> model);
-
 signals:
-
     void WidgetResized(QSize size);
 
 public slots:
 
     void UpdateCameraSlot(std::shared_ptr<CameraUpdateEvent> event);
 
-protected:
-
-    std::shared_ptr<SceneModel> scene = nullptr;
-    std::shared_ptr<InputController> controls = nullptr;
-
-    std::vector<std::shared_ptr<ShaderWrapper>> shaders;
-
+#pragma region QOpenGLWidget overrides
     void paintGL() Q_DECL_OVERRIDE;
 
     void initializeGL() Q_DECL_OVERRIDE;
 
     void resizeGL(int w, int h) Q_DECL_OVERRIDE;
+#pragma endregion
+
+    void LoadShaders();
+    //void UpdateUniforms();
 
     void DrawRenderableObject(IRenderableObject *ro, std::shared_ptr<ShaderWrapper> shader,
                               const std::function<void(ShaderWrapper *)> &uniformOverrides = {});
 
     void DrawBezier(BezierCurveC0 *bezier, const std::function<void(ShaderWrapper *)> &uniformOverrides = {});
 
-    void InitializeUniforms();
+#pragma region Mouse Handlers
+    void mousePressEvent(QMouseEvent *event) Q_DECL_OVERRIDE { Renderer::controller.mousePressSlot(event); }
 
-    void mousePressEvent(QMouseEvent *event) Q_DECL_OVERRIDE { this->controls->mousePressSlot(event); }
+    void mouseReleaseEvent(QMouseEvent *event) Q_DECL_OVERRIDE { Renderer::controller.mouseReleaseSlot(event); }
 
-    void mouseReleaseEvent(QMouseEvent *event) Q_DECL_OVERRIDE { this->controls->mouseReleaseSlot(event); }
+    void mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE { Renderer::controller.mouseMoveSlot(event); }
 
-    void mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE { this->controls->mouseMoveSlot(event); }
-
-    void wheelEvent(QWheelEvent *event) Q_DECL_OVERRIDE { this->controls->wheelSlot(event); }
-
+    void wheelEvent(QWheelEvent *event) Q_DECL_OVERRIDE { Renderer::controller.wheelSlot(event); }
+#pragma endregion
 };
 
 #endif // GLWIDGET_H

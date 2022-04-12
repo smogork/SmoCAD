@@ -28,7 +28,7 @@ std::vector<float> CubeObject::GenerateGeometryVertices()
         +0.5f, -0.5f, -0.5f,  // back bottom right 5
         -0.5f, -0.5f, -0.5f,  // back bottom left 6
         -0.5f, +0.5f, -0.5f  //back top left 7
-};
+    };
 }
 
 std::vector<int> CubeObject::GenerateTopologyEdges()
@@ -46,7 +46,7 @@ std::vector<int> CubeObject::GenerateTopologyEdges()
         2, 6,
         1, 5,
         0, 4,
-};
+    };
 }
 
 void CubeObject::CreateBuffers()
@@ -65,7 +65,7 @@ void CubeObject::CreateBuffers()
     ib->allocate(edges.data(), sizeof(int) * edges.size());
     ib->release();
 
-    //To jest fake shader, który oszukuje qt wrapper na opengl
+    //To jest fake m_shader, który oszukuje qt wrapper na opengl
     //atrybuty nie są zwaizane ze stane shadera, tylko vertex array.
     //Wiec tworzymy sztuczny obiekt shadera aby zadeklarowac w VA uklad atrybutow.
     QOpenGLShaderProgram prog;
@@ -76,7 +76,6 @@ void CubeObject::CreateBuffers()
     vb->bind();
 
     int stride = 3 * sizeof(float); //only position on 3 floats
-    //[TODO] Dodac klase opisujaca uklad buforow
     prog.enableAttributeArray(0);
     prog.setAttributeBuffer(0, GL_FLOAT, 0, 3, stride);
 

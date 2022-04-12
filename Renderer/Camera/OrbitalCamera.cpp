@@ -4,6 +4,7 @@
 
 #include "OrbitalCamera.h"
 #include "Objects/TransformableObject.h"
+#include "Scene/Components/Transform.h"
 #include <cfloat>
 
 OrbitalCamera::OrbitalCamera(QVector3D centerPoint, float pivotLength)
@@ -18,7 +19,7 @@ OrbitalCamera::OrbitalCamera(QVector3D centerPoint, float pivotLength)
 QMatrix4x4 OrbitalCamera::GetViewMatrix()
 {
     QMatrix4x4 res;
-    res.lookAt(GetPosition(), CenterPoint, TransformableObject::GetYAxis());
+    res.lookAt(GetPosition(), CenterPoint, Transform::GetYAxis());
     return res;
 }
 
@@ -59,12 +60,12 @@ void OrbitalCamera::ChangePivotLength(float dPivotLength)
 
 void OrbitalCamera::MoveUp(float moveValue)
 {
-    CenterPoint += moveValue * topVec;
+    CenterPoint += moveValue * topVec * r;
 }
 
 void OrbitalCamera::MoveRight(float moveValue)
 {
-    CenterPoint += moveValue * rightVec;
+    CenterPoint += moveValue * rightVec * r;
 }
 
 void OrbitalCamera::UpdateFrontAndRight()
@@ -92,6 +93,11 @@ QVector3D OrbitalCamera::GetPivotVector()
             cosf(thetaAngle) * cosf(fiAngle),
             sinf(thetaAngle),
             sinf(fiAngle) * cosf(thetaAngle));
+}
+
+float OrbitalCamera::Pivotlength()
+{
+    return r;
 }
 
 

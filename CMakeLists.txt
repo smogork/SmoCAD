@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(SmoCAD VERSION 0.1 LANGUAGES CXX)
+project(SmoCAD VERSION 0.5 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -32,11 +32,8 @@ set(SHADER_FILES
 
 set(PROJECT_SOURCES
         main.cpp
-        mainwindow.cpp
-        mainwindow.h
-        mainwindow.ui
-        glwidget.cpp
-        glwidget.h
+        mainwindow.cpp mainwindow.h mainwindow.ui
+        glwidget.cpp glwidget.h
         ${TS_FILES}
         Objects/TransformableObject.cpp Objects/TransformableObject.h
         Renderer/Camera/OrbitalCamera.cpp Renderer/Camera/OrbitalCamera.h
@@ -51,12 +48,49 @@ set(PROJECT_SOURCES
         Renderer/Camera/Viewport.cpp Renderer/Camera/Viewport.h
         Objects/PointObject.cpp Objects/PointObject.h
         Controls/controls.cpp Controls/controls.h Controls/controls.ui
-        Scene/SceneModel.cpp Scene/SceneModel.h
+        Scene/SceneModelOld.cpp Scene/SceneModelOld.h
         Controls/QListWidgetRenderableItem.cpp Controls/QListWidgetRenderableItem.h
         Scene/Events/CursorChangedEvent.cpp Scene/Events/CursorChangedEvent.h
         Scene/Events/SelectedObjectChangedEvent.cpp Scene/Events/SelectedObjectChangedEvent.h
         Objects/CompositeObject.cpp Objects/CompositeObject.h
-        Objects/BezierCurveC0.cpp Objects/BezierCurveC0.h Scene/Events/PointObjectChangedEvent.cpp Scene/Events/PointObjectChangedEvent.h)
+        Objects/BezierCurveC0.cpp Objects/BezierCurveC0.h
+        Scene/Events/PointObjectChangedEvent.cpp Scene/Events/PointObjectChangedEvent.h
+        Scene/Systems/ISystem.cpp Scene/Systems/ISystem.h
+        Scene/Entities/IEntity.cpp Scene/Entities/IEntity.h
+        Scene/Components/IComponent.cpp Scene/Components/IComponent.h
+        Scene/Entities/Point.cpp Scene/Entities/Point.h
+        Scene/Components/Transform.cpp Scene/Components/Transform.h
+        Scene/SceneECS.cpp Scene/SceneECS.h
+        Scene/Systems/TransformSystem.cpp Scene/Systems/TransformSystem.h
+        Scene/Utilities/TypeMap.cpp Scene/Utilities/TypeMap.h
+        Scene/Utilities/TypeNumbering.cpp Scene/Utilities/TypeNumbering.h
+        Scene/Components/Drawing/Drawing.cpp Scene/Components/Drawing/Drawing.h
+        Scene/Systems/DrawingSystem.cpp Scene/Systems/DrawingSystem.h
+        Scene/Systems/IAbstractSystem.cpp Scene/Systems/IAbstractSystem.h
+        Scene/Entities/Cube.cpp Scene/Entities/Cube.h
+        Renderer/BufferLayout.cpp Renderer/BufferLayout.h
+        Renderer/Renderer.cpp Renderer/Renderer.h
+        Scene/Entities/Grid.cpp Scene/Entities/Grid.h
+        Scene/Components/Drawing/DynamicDrawing.cpp Scene/Components/Drawing/DynamicDrawing.h
+        Scene/Components/Drawing/StaticDrawing.cpp Scene/Components/Drawing/StaticDrawing.h
+        Scene/Entities/Torus.cpp Scene/Entities/Torus.h
+        Scene/Components/UVParams.cpp Scene/Components/UVParams.h
+        Scene/Systems/UVParamsSystem.cpp Scene/Systems/UVParamsSystem.h
+        Scene/Events/SystemEvents/UVParamsChanged.cpp Scene/Events/SystemEvents/UVParamsChanged.h
+        Scene/Entities/Cursor.cpp Scene/Entities/Cursor.h
+        Scene/Systems/SelectableSystem.cpp Scene/Systems/SelectableSystem.h
+        Scene/Components/Selectable.cpp Scene/Components/Selectable.h
+        Scene/Events/SystemEvents/SelectionChanged.cpp Scene/Events/SystemEvents/SelectionChanged.h
+        Scene/Entities/Composite.cpp Scene/Entities/Composite.h
+        Scene/Components/CompositeAware.cpp Scene/Components/CompositeAware.h
+        Scene/Systems/CompositeAwareSystem.cpp Scene/Systems/CompositeAwareSystem.h
+        Scene/Entities/Polyline.cpp Scene/Entities/Polyline.h
+        Scene/Components/TransformCollection.cpp Scene/Components/TransformCollection.h
+        Scene/Components/CollectionAware.cpp Scene/Components/CollectionAware.h
+        Scene/Systems/TransformCollectionSystem.cpp Scene/Systems/TransformCollectionSystem.h
+        Scene/Systems/CollectionAwareSystem.cpp Scene/Systems/CollectionAwareSystem.h
+        Scene/Utilities/Utilites.cpp Scene/Utilities/Utilites.h
+        Scene/Entities/BezierC0.cpp Scene/Entities/BezierC0.h Scene/Entities/BezierC2.cpp Scene/Entities/BezierC2.h Scene/Entities/VirtualPoint.cpp Scene/Entities/VirtualPoint.h)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(SmoCAD

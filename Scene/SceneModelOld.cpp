@@ -3,13 +3,13 @@
 //
 
 #include <cfloat>
-#include "SceneModel.h"
+#include "SceneModelOld.h"
 #include "Objects/CubeObject.h"
 #include "Objects/PointObject.h"
 #include "Objects/TorusObject.h"
 #include "Scene/Events/PointObjectChangedEvent.h"
 
-void SceneModel::InitializeScene()
+void SceneModelOld::InitializeScene()
 {
     //Tutaj poczatkowe ohbiektu dodac
     renderableObjects.push_back(new CubeObject(QVector3D(0.0f, 5.0f, 5.0f)));
@@ -25,19 +25,19 @@ void SceneModel::InitializeScene()
     renderableObjects.push_back(new PointObject(QVector3D(-5.0f, 0.0f, -1.0f)));
 }
 
-SceneModel::~SceneModel()
+SceneModelOld::~SceneModelOld()
 {
 
 }
 
-SceneModel::SceneModel() { InitializeScene(); }
+SceneModelOld::SceneModelOld() { InitializeScene(); }
 
-const std::list<IRenderableObject *> &SceneModel::GetRenderableObjects()
+const std::list<IRenderableObject *> &SceneModelOld::GetRenderableObjects()
 {
     return renderableObjects;
 }
 
-bool SceneModel::AddObject(IRenderableObject *ro, bool positionless)
+bool SceneModelOld::AddObject(IRenderableObject *ro, bool positionless)
 {
     if (ro)
     {
@@ -53,14 +53,14 @@ bool SceneModel::AddObject(IRenderableObject *ro, bool positionless)
     return false;
 }
 
-void SceneModel::ReleaseObjectsOnScene()
+void SceneModelOld::ReleaseObjectsOnScene()
 {
     for (IRenderableObject* ro : renderableObjects)
         delete ro;
     renderableObjects.clear();
 }
 
-void SceneModel::UpdateCursor(QVector3D position)
+void SceneModelOld::UpdateCursor(QVector3D position)
 {
     if (cursor)
         cursor->Position = position;
@@ -68,17 +68,17 @@ void SceneModel::UpdateCursor(QVector3D position)
         cursor = std::make_unique<CursorObject>(position);
 }
 
-void SceneModel::DeleteCursor()
+void SceneModelOld::DeleteCursor()
 {
    cursor.reset();
 }
 
-const std::unique_ptr<CursorObject> &SceneModel::GetCursorObject()
+const std::unique_ptr<CursorObject> &SceneModelOld::GetCursorObject()
 {
     return cursor;
 }
 
-bool SceneModel::SelectObject(IRenderableObject *ro)
+bool SceneModelOld::SelectObject(IRenderableObject *ro)
 {
     if (!ro)
         return false;
@@ -92,12 +92,12 @@ bool SceneModel::SelectObject(IRenderableObject *ro)
     return true;
 }
 
-IRenderableObject* SceneModel::GetSelectedObject()
+IRenderableObject* SceneModelOld::GetSelectedObject()
 {
     return selectedObject;
 }
 
-void SceneModel::RemoveObject(IRenderableObject *ro)
+void SceneModelOld::RemoveObject(IRenderableObject *ro)
 {
     if (ro)
     {
@@ -106,7 +106,7 @@ void SceneModel::RemoveObject(IRenderableObject *ro)
     }
 }
 
-bool SceneModel::AppendToSelectedObjects(IRenderableObject *ro)
+bool SceneModelOld::AppendToSelectedObjects(IRenderableObject *ro)
 {
     if (!ro || dynamic_cast<BezierCurveC0*>(ro))
         return false;
@@ -132,7 +132,7 @@ bool SceneModel::AppendToSelectedObjects(IRenderableObject *ro)
     return true;
 }
 
-void SceneModel::UnselectObjects()
+void SceneModelOld::UnselectObjects()
 {
     if (composite)
     {
@@ -148,12 +148,12 @@ void SceneModel::UnselectObjects()
     }
 }
 
-const std::unique_ptr<CompositeObject> &SceneModel::GetCompositeObject()
+const std::unique_ptr<CompositeObject> &SceneModelOld::GetCompositeObject()
 {
     return composite;
 }
 
-void SceneModel::RemoveComposite()
+void SceneModelOld::RemoveComposite()
 {
     if (composite)
     {
@@ -163,7 +163,7 @@ void SceneModel::RemoveComposite()
     }
 }
 
-bool SceneModel::SelectObjectByMouse(QVector4D raycastStart, QVector4D raycastDirection)
+bool SceneModelOld::SelectObjectByMouse(QVector4D raycastStart, QVector4D raycastDirection)
 {
     //UnselectObjects();
 

@@ -15,7 +15,9 @@ out vec4 last_FragColor;
 
 void main()
 {
-    gl_Position = u_MVP.Projection * u_MVP.View * u_MVP.Model * aPos;
-    gl_PointSize = 5;//[TODO] dodac uniform na rozmiar punktu
     last_FragColor = u_ObjectColor;
+
+    vec4 pos = vec4(aPos.xyz, 1.0f);
+    gl_Position = u_MVP.Projection * u_MVP.View * u_MVP.Model * pos;
+    gl_PointSize = 5;//[TODO] dodac uniform na rozmiar punktu
 }
