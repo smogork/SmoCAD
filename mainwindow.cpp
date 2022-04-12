@@ -9,6 +9,20 @@ MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    //ui->scrollAreaWidgetContents->ad
+    /*verticalLayout = new QVBoxLayout(scrollAreaWidgetContents);
+    verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+    label = new QLabel(scrollAreaWidgetContents);
+    label->setObjectName(QString::fromUtf8("label"));
+
+    verticalLayout->addWidget(label);*/
+    transformTest = std::make_unique<TransformContorol>();
+    transformTest->setSizePolicy(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
+    UVTest = std::make_unique<UVControl>();
+    UVTest->setSizePolicy(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
+    ui->verticalLayout->addWidget(transformTest.get());
+    ui->verticalLayout->addWidget(UVTest.get());
+    //dodac jeszcze spacera na dole
 
     ui->listWidgetObjects->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->listWidgetObjects, &QListWidget::customContextMenuRequested, this, &MainWindow::showObjectListContextMenu);
@@ -191,8 +205,8 @@ void MainWindow::on_listWidgetObjects_itemClicked(QListWidgetItem *item)
 
     if (rItem->SelectOnScene(ui->listWidgetObjects->selectedItems().size() > 1))
     {
-        ui->groupBoxTransform->setEnabled(true);
-        ui->groupBoxUVParams->setEnabled(dynamic_cast<TorusObject*>(rItem->obj) != nullptr);
+        //ui->groupBoxTransform->setEnabled(true);
+        //ui->groupBoxUVParams->setEnabled(dynamic_cast<TorusObject*>(rItem->obj) != nullptr);
 
         ui->sceneWidget->update();
     }
@@ -231,21 +245,21 @@ void MainWindow::on_spinCurViewPosY_valueChanged(int arg1)
 void MainWindow::UpdateCursorUI(QVector3D wPos, QPoint vPos)
 {
     BlockCursorUISignals(true);
-    ui->spinCurPosX->setValue(wPos.x());
+    /*ui->spinCurPosX->setValue(wPos.x());
     ui->spinCurPosY->setValue(wPos.y());
     ui->spinCurPosZ->setValue(wPos.z());
     ui->spinCurViewPosX->setValue(vPos.x());
-    ui->spinCurViewPosY->setValue(vPos.y());
+    ui->spinCurViewPosY->setValue(vPos.y());*/
     BlockCursorUISignals(false);
 }
 
 void MainWindow::BlockCursorUISignals(bool b)
 {
-    ui->spinCurPosX->blockSignals(b);
+    /*ui->spinCurPosX->blockSignals(b);
     ui->spinCurPosY->blockSignals(b);
     ui->spinCurPosZ->blockSignals(b);
     ui->spinCurViewPosX->blockSignals(b);
-    ui->spinCurViewPosY->blockSignals(b);
+    ui->spinCurViewPosY->blockSignals(b);*/
 }
 
 void MainWindow::UpdateCursorWorldPosition()
@@ -256,7 +270,7 @@ void MainWindow::UpdateCursorWorldPosition()
 
 void MainWindow::UpdateCursorViewPosition()
 {
-    Renderer::controller.EmitSceneMouseClickedEvent(QPoint(ui->spinCurViewPosX->value(), ui->spinCurViewPosY->value()), false);
+    //Renderer::controller.EmitSceneMouseClickedEvent(QPoint(ui->spinCurViewPosX->value(), ui->spinCurViewPosY->value()), false);
     ui->sceneWidget->update();
 }
 
@@ -335,9 +349,9 @@ void MainWindow::UpdateSelectedObject()
 {
     if (selectedTransform)
     {
-        selectedTransform->Position = QVector3D(ui->spinPosX->value(), ui->spinPosY->value(), ui->spinPosZ->value());
-        selectedTransform->Rotation = QVector3D(ui->spinRotX->value(), ui->spinRotY->value(), ui->spinRotZ->value());
-        selectedTransform->Scale = QVector3D(ui->spinScaleX->value(), ui->spinScaleY->value(), ui->spinScaleZ->value());
+        //selectedTransform->Position = QVector3D(ui->spinPosX->value(), ui->spinPosY->value(), ui->spinPosZ->value());
+        //selectedTransform->Rotation = QVector3D(ui->spinRotX->value(), ui->spinRotY->value(), ui->spinRotZ->value());
+        //selectedTransform->Scale = QVector3D(ui->spinScaleX->value(), ui->spinScaleY->value(), ui->spinScaleZ->value());
 
         UpdateUVParamsOfObject(dynamic_cast<TorusObject*>(selectedTransform));
 
@@ -356,15 +370,15 @@ void MainWindow::SelectObjectChanged(std::shared_ptr<SelectedObjectChangedEvent>
 {
     selectedTransform = event->ObjectToTransform;
     BlockTransformUISignals(true);
-    ui->spinPosX->setValue(selectedTransform->Position.x());
-    ui->spinPosY->setValue(selectedTransform->Position.y());
-    ui->spinPosZ->setValue(selectedTransform->Position.z());
-    ui->spinRotX->setValue(selectedTransform->Rotation.x());
-    ui->spinRotY->setValue(selectedTransform->Rotation.y());
-    ui->spinRotZ->setValue(selectedTransform->Rotation.z());
-    ui->spinScaleX->setValue(selectedTransform->Scale.x());
-    ui->spinScaleY->setValue(selectedTransform->Scale.y());
-    ui->spinScaleZ->setValue(selectedTransform->Scale.z());
+    //ui->spinPosX->setValue(selectedTransform->Position.x());
+    //ui->spinPosY->setValue(selectedTransform->Position.y());
+    //ui->spinPosZ->setValue(selectedTransform->Position.z());
+    //ui->spinRotX->setValue(selectedTransform->Rotation.x());
+    //ui->spinRotY->setValue(selectedTransform->Rotation.y());
+    //ui->spinRotZ->setValue(selectedTransform->Rotation.z());
+    //ui->spinScaleX->setValue(selectedTransform->Scale.x());
+    //ui->spinScaleY->setValue(selectedTransform->Scale.y());
+    //ui->spinScaleZ->setValue(selectedTransform->Scale.z());
     BlockTransformUISignals(false);
 
     UpdateUVParamsOfControls(dynamic_cast<TorusObject*>(selectedTransform));
@@ -374,7 +388,7 @@ void MainWindow::SelectObjectChanged(std::shared_ptr<SelectedObjectChangedEvent>
 
 void MainWindow::BlockTransformUISignals(bool b)
 {
-    ui->spinPosX->blockSignals(b);
+    /*ui->spinPosX->blockSignals(b);
     ui->spinPosY->blockSignals(b);
     ui->spinPosZ->blockSignals(b);
     ui->spinRotX->blockSignals(b);
@@ -382,7 +396,7 @@ void MainWindow::BlockTransformUISignals(bool b)
     ui->spinRotZ->blockSignals(b);
     ui->spinScaleX->blockSignals(b);
     ui->spinScaleY->blockSignals(b);
-    ui->spinScaleZ->blockSignals(b);
+    ui->spinScaleZ->blockSignals(b);*/
 }
 
 
@@ -428,19 +442,19 @@ void MainWindow::UpdateUVParamsOfObject(TorusObject* UVObject)
 {
     if (UVObject)
     {
-        UVObject->SetBiggerRadius(ui->spinParamU->value());
+        /*UVObject->SetBiggerRadius(ui->spinParamU->value());
         UVObject->SetSmallerRadius(ui->spinParamV->value());
         UVObject->SetBiggerRadiusDensity(ui->spinParamUDens->value());
-        UVObject->SetSmallerRadiusDensity(ui->spinParamVDens->value());
+        UVObject->SetSmallerRadiusDensity(ui->spinParamVDens->value());*/
     }
 }
 
 void MainWindow::BlockUVParamUISignals(bool b)
 {
-    ui->spinParamU->blockSignals(b);
+    /*ui->spinParamU->blockSignals(b);
     ui->spinParamV->blockSignals(b);
     ui->spinParamUDens->blockSignals(b);
-    ui->spinParamVDens->blockSignals(b);
+    ui->spinParamVDens->blockSignals(b);*/
 }
 
 void MainWindow::UpdateUVParamsOfControls(TorusObject *UVObject)
@@ -449,10 +463,10 @@ void MainWindow::UpdateUVParamsOfControls(TorusObject *UVObject)
     {
         BlockUVParamUISignals(true);
 
-        ui->spinParamU->setValue(UVObject->GetBiggerR());
+        /*ui->spinParamU->setValue(UVObject->GetBiggerR());
         ui->spinParamV->setValue(UVObject->GetSmallerR());
         ui->spinParamUDens->setValue(UVObject->GetBiggerRDensity());
-        ui->spinParamVDens->setValue(UVObject->GetSmallerRDensity());
+        ui->spinParamVDens->setValue(UVObject->GetSmallerRDensity());*/
 
         BlockUVParamUISignals(false);
     }
@@ -460,8 +474,8 @@ void MainWindow::UpdateUVParamsOfControls(TorusObject *UVObject)
 
 void MainWindow::ResizeEvent(QSize size)
 {
-    ui->spinCurViewPosX->setMaximum(size.width());
-    ui->spinCurViewPosY->setMaximum(size.height());
+    /*ui->spinCurViewPosX->setMaximum(size.width());
+    ui->spinCurViewPosY->setMaximum(size.height());*/
 }
 
 #pragma endregion
