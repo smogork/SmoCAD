@@ -16,6 +16,7 @@
 #include "Scene/Systems/TransformCollectionSystem.h"
 #include "Scene/Entities/Polyline.h"
 #include "Scene/Entities/BezierC0.h"
+#include "Scene/Entities/BezierC2.h"
 #include <list>
 
 std::shared_ptr<SceneECS> SceneECS::scene = nullptr;
@@ -81,13 +82,13 @@ void SceneECS::InitSceneObjects()
     objects.push_back(std::make_shared<Torus>(QVector3D(10, 1, 10)));
 
 
-    auto polyline = std::make_shared<BezierC0>();
-    polyline->BezierPolyline.p_Collection->AddPoint(p1->p_CollectionAware);
-    polyline->BezierPolyline.p_Collection->AddPoint(p2->p_CollectionAware);
-    polyline->BezierPolyline.p_Collection->AddPoint(p3->p_CollectionAware);
-    polyline->BezierPolyline.p_Collection->AddPoint(p4->p_CollectionAware);
-    polyline->BezierPolyline.p_Collection->AddPoint(p5->p_CollectionAware);
-    polyline->BezierPolyline.p_Collection->AddPoint(p6->p_CollectionAware);
+    auto polyline = std::make_shared<BezierC2>();
+    polyline->DeBoorPolyline.p_Collection->AddPoint(p1->p_CollectionAware);
+    polyline->DeBoorPolyline.p_Collection->AddPoint(p2->p_CollectionAware);
+    polyline->DeBoorPolyline.p_Collection->AddPoint(p3->p_CollectionAware);
+    polyline->DeBoorPolyline.p_Collection->AddPoint(p4->p_CollectionAware);
+    //polyline->DeBoorPolyline.p_Collection->AddPoint(p5->p_CollectionAware);
+    //polyline->DeBoorPolyline.p_Collection->AddPoint(p6->p_CollectionAware);
     objects.push_back(polyline);
 
     p5->p_Transform->Position = QVector3D(-3, -3, 0);

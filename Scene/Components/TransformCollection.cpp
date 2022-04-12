@@ -69,7 +69,7 @@ void TransformCollection::CollectionElementTransformChanged(QVector3D val)
     emit PointInCollectionModified();
 }
 
-const std::list<std::shared_ptr<Transform>> &TransformCollection::GetPoints()
+const std::vector<std::shared_ptr<Transform>> &TransformCollection::GetPoints()
 {
     return points;
 }
@@ -77,4 +77,9 @@ const std::list<std::shared_ptr<Transform>> &TransformCollection::GetPoints()
 int TransformCollection::Size()
 {
     return points.size();
+}
+
+const std::shared_ptr<Transform> &TransformCollection::operator[](std::size_t idx) const
+{
+    return points[idx];
 }

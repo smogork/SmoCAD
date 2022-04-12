@@ -8,6 +8,7 @@
 #include "IComponent.h"
 #include "Transform.h"
 #include "CollectionAware.h"
+#include <vector>
 
 //Komponent przedstawiajacy zbior pewnych punktów (transformacji) w przestrzeni
 //Jeden punkt moze znajdowac sie w wielu kolekcjach jednoczesnie
@@ -15,7 +16,7 @@ class TransformCollection: public IComponent
 {
     Q_OBJECT
 private:
-    std::list<std::shared_ptr<Transform>> points;
+    std::vector<std::shared_ptr<Transform>> points;
     std::list<QPropertyNotifier> pointNotifiers;
 
     void ConnectSignals(std::shared_ptr<Transform> p);
@@ -30,11 +31,12 @@ public:
     explicit TransformCollection(unsigned int oid);
     ~TransformCollection() override;
 
-    const std::list<std::shared_ptr<Transform>>& GetPoints();
+    const std::vector<std::shared_ptr<Transform>>& GetPoints();
     void AddPoint(std::shared_ptr<CollectionAware> newObject);
     //void Delete(unsigned int oid);
     void Clear();
     int Size();
+    const std::shared_ptr<Transform>& operator[](std::size_t idx) const;
 
 signals:
     //Sygnal informuje o zmianie polozenia pewnego punktu w kolekcji

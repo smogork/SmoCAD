@@ -29,7 +29,6 @@ private:
 
 public:
     std::shared_ptr<DynamicDrawing> p_Drawing;
-    //std::shared_ptr<TransformCollection> BezierPoints;
     Polyline BezierPolyline;
 
     BezierC0();
