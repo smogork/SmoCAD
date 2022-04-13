@@ -15,7 +15,7 @@
 #include "Scene/Systems/CollectionAwareSystem.h"
 #include "Scene/Systems/TransformCollectionSystem.h"
 #include "Scene/Entities/Polyline.h"
-#include "Scene/Entities/BezierC0.h"
+#include "Scene/Entities/VirtualBezierC0.h"
 #include "Scene/Entities/BezierC2.h"
 #include "Controls/ComponentControl.h"
 #include "Scene/Systems/ScreenSelectableSystem.h"
@@ -82,19 +82,19 @@ void SceneECS::InitSceneObjects()
     objects.push_back(p4);
     objects.push_back(p5);
     objects.push_back(p6);
-    objects.push_back(std::make_shared<Cube>(QVector3D(2, 2, 0)));//tutaj tez beda potrzebne nazwy
-    objects.push_back(std::make_shared<Cube>(QVector3D(2, 4, 0)));
-    objects.push_back(std::make_shared<Cube>(QVector3D(2, 6, 2)));
-    objects.push_back(std::make_shared<Torus>(QVector3D(10, 1, 10)));
+    objects.push_back(std::make_shared<Cube>("Cube1", QVector3D(2, 2, 0)));//tutaj tez beda potrzebne nazwy
+    objects.push_back(std::make_shared<Cube>("Cube2", QVector3D(2, 4, 0)));
+    objects.push_back(std::make_shared<Cube>("Cube3", QVector3D(2, 6, 2)));
+    objects.push_back(std::make_shared<Torus>("Torus1", QVector3D(10, 1, 10)));
 
 
-    auto polyline = std::make_shared<BezierC2>();
+    auto polyline = std::make_shared<BezierC2>("BezierC2Test");
     polyline->p_Collection->AddPoint(p1->p_CollectionAware);
     polyline->p_Collection->AddPoint(p2->p_CollectionAware);
     polyline->p_Collection->AddPoint(p3->p_CollectionAware);
     polyline->p_Collection->AddPoint(p4->p_CollectionAware);
     polyline->p_Collection->AddPoint(p5->p_CollectionAware);
-    //polyline->DeBoorPolyline.p_Collection->AddPoint(p6->p_CollectionAware);
+    //polyline->p_Collection->AddPoint(p6->p_CollectionAware);
     objects.push_back(polyline);
 
     p5->p_Transform->Position = QVector3D(-3, -3, 0);
@@ -142,10 +142,7 @@ unsigned int SceneECS::MouseClicked(std::shared_ptr<SceneMouseClickEvent> event)
     }
 
     /*if (auto select = GetSystem<SelectableSystem>().lock())
-    {
-        //select->Unselect();
-
-    }*/
+        //select->Unselect();*/
     UpdateCursorObject(event->ClickCenterPlainPoint);
 
 

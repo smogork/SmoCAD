@@ -72,12 +72,12 @@ void MainWindow::on_actionTorus_triggered()
 
 void MainWindow::on_actionPoint_triggered()
 {
-    Torus* test = new Torus(QVector3D(1, 2, 3));
+    /*Torus* test = new Torus(QVector3D(1, 2, 3));
 
 
     test->p_Transform->Rotation = QVector3D(90, 0, -90);
     test->p_Transform->Scale = QVector3D(1, 1, 2);
-    UpdateComponentUI(test->GetObjectID());
+    UpdateComponentUI(test->GetObjectID());*/
 
 
     //PointObject* pointObject = new PointObject(QVector3D());
@@ -96,7 +96,7 @@ void MainWindow::on_actionBezierC0_triggered()
 {
     BezierCurveC0* bezier =  new BezierCurveC0();
     connect(this, &MainWindow::PointObjectChanged, bezier, &BezierCurveC0::onPointChanged);
-    AddNewObject(bezier, "BezierC0", true);
+    AddNewObject(bezier, "VirtualBezierC0", true);
 }
 
 void MainWindow::on_actionRename_triggered()
@@ -366,7 +366,7 @@ void MainWindow::CreateBezierFromPoints()
 {
     BezierCurveC0* bezier =  new BezierCurveC0();
     connect(this, &MainWindow::PointObjectChanged, bezier, &BezierCurveC0::onPointChanged);
-    AddNewObject(bezier, "BezierC0", true);
+    AddNewObject(bezier, "VirtualBezierC0", true);
 
     /*for (QListWidgetItem* i : ui->listWidgetObjects->selectedItems())
     {

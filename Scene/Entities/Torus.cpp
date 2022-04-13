@@ -5,15 +5,23 @@
 #include "Torus.h"
 #include "Scene/Utilities/Utilites.h"
 
-Torus::Torus(QVector3D position): IEntity(TORUS_CLASS)
+Torus::Torus(const QString& name, QVector3D position): IEntity(TORUS_CLASS)
 {
     p_Transform = Transform::CreateRegisteredComponent(objectID, position);
     p_Drawing = DynamicDrawing::CreateRegisteredComponent(objectID);
     p_UV = UVParams::CreateRegisteredComponent(objectID);
     p_CompositeAware = CompositeAware::CreateRegisteredComponent(objectID, p_Transform, p_Drawing);
+    p_Selected = Selectable::CreateRegisteredComponent(objectID);
+    p_SceneElement = SceneElement::CreateRegisteredComponent(objectID, name, p_Selected);
+
+    selectedNotifier = p_Selected->Selected.addNotifier([this]() {
+        if (p_Selected->Selected)
+            m_color = QVector4D(1.0f, 0.5f, 0.2f, 1.0f);
+        else
+            m_color = QVector4D(0.8f, 0.8f, 0.8f, 1.0f);
+    });
 
     InitializeDrawing();
-    //QObject::connect(p_UV.get(), &UVParams::ParametersChanged, this, &Torus::UVChanged);
     uNotifier = p_UV->U.addNotifier(ASSIGN_NOTIFIER_FUNCTION(&Torus::UVChanged));
     vNotifier = p_UV->V.addNotifier(ASSIGN_NOTIFIER_FUNCTION(&Torus::UVChanged));
     udNotifier = p_UV->UDensity.addNotifier(ASSIGN_NOTIFIER_FUNCTION(&Torus::UVChanged));
@@ -46,7 +54,7 @@ void Torus::DrawingFunction(QOpenGLContext *context)
 void Torus::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
 {
     shader->SetUniform("u_MVP.Model", p_Transform->GetModelMatrix());
-    shader->SetUniform("u_ObjectColor", QVector4D(0.8f, 0.8f, 0.8f, 1.0f));
+    shader->SetUniform("u_ObjectColor", m_color);
 }
 
 std::vector<float> Torus::GenerateGeometryVertices()

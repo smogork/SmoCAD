@@ -10,10 +10,15 @@
 #include "Scene/Components/Drawing/DynamicDrawing.h"
 #include "Scene/Components/UVParams.h"
 #include "Scene/Components/CompositeAware.h"
+#include "Scene/Components/Selectable.h"
+#include "Scene/Components/SceneElement.h"
 
 class Torus: public IEntity
 {
 private:
+    QVector4D m_color = QVector4D(0.8f, 0.8f, 0.8f, 1.0f);
+    QPropertyNotifier selectedNotifier;
+
     int GetIndexCount();
     void InitializeDrawing();
     void DrawingFunction(QOpenGLContext* context);
@@ -32,8 +37,10 @@ public:
     std::shared_ptr<DynamicDrawing> p_Drawing;
     std::shared_ptr<UVParams> p_UV;//R - U, r - V
     std::shared_ptr<CompositeAware> p_CompositeAware;
+    std::shared_ptr<Selectable> p_Selected;
+    std::shared_ptr<SceneElement> p_SceneElement;
 
-    explicit Torus(QVector3D position);
+    explicit Torus(const QString& name, QVector3D position);
 };
 
 

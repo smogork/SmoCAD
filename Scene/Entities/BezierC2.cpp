@@ -5,9 +5,18 @@
 #include <cfloat>
 #include "BezierC2.h"
 
-BezierC2::BezierC2(): IEntity(BEZIERC2_CLASS)
+BezierC2::BezierC2(const QString& name): IEntity(BEZIERC2_CLASS)
 {
     p_Collection = TransformCollection::CreateRegisteredComponent(objectID);
+    p_Selected = Selectable::CreateRegisteredComponent(objectID);
+    p_SceneElement = SceneElement::CreateRegisteredComponent(objectID, name, p_Selected);
+
+    selectedNotifier = p_Selected->Selected.addNotifier([this](){
+        if (p_Selected->Selected)
+            m_bezier.CurveColor = QColor::fromRgbF(1.0f, 0.5f, 0.2f, 1.0f);
+        else
+            m_bezier.CurveColor = QColor::fromRgbF(0.8f, 0.8f, 0.8f, 1.0f);
+    });
 
     m_bezier.PolylineColor = Qt::red;
     m_deBoorPolyline.DrawingColor = Qt::blue;
