@@ -2,8 +2,7 @@
 #include "ui_transformcontrol.h"
 
 TransformControl::TransformControl(std::shared_ptr<Transform> t, QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::TransformControl)
+        ComponentControl(parent), ui(new Ui::TransformControl)
 {
     ui->setupUi(this);
     m_transform = t;

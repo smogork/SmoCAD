@@ -17,6 +17,7 @@
 #include "Scene/Entities/Polyline.h"
 #include "Scene/Entities/BezierC0.h"
 #include "Scene/Entities/BezierC2.h"
+#include "Controls/ComponentControl.h"
 #include <list>
 
 std::shared_ptr<SceneECS> SceneECS::scene = nullptr;
@@ -34,7 +35,7 @@ std::weak_ptr<SceneECS> SceneECS::Instance()
 
 SceneECS::SceneECS()
 {
-    objectCounter = 0;
+    objectCounter = NON_OBJECT_ID + 1;
 
     systems.put<TransformSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<TransformSystem>()));
     systems.put<DrawingSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<DrawingSystem>()));
@@ -126,13 +127,17 @@ QString SceneECS::DebugSystemReport()
     return result;
 }
 
-void SceneECS::MouseClicked(std::shared_ptr<SceneMouseClickEvent> event)
+unsigned int SceneECS::MouseClicked(std::shared_ptr<SceneMouseClickEvent> event)
 {
     if (auto select = GetSystem<SelectableSystem>().lock())
     {
-        if (!select->SelectObject(event))
-            UpdateCursorObject(event->ClickCenterPlainPoint);
+        auto item = select->SelectObject(event);
+        if (item)
+            return item->GetAttachedObjectID();
+
+        UpdateCursorObject(event->ClickCenterPlainPoint);
     }
+    return NON_OBJECT_ID;
 }
 
 void SceneECS::UpdateCursorObject(QVector3D cursorPos)
@@ -146,5 +151,22 @@ void SceneECS::UpdateCursorObject(QVector3D cursorPos)
 void SceneECS::AddObject(std::shared_ptr<IEntity> obj)
 {
 
+}
+
+std::list<std::unique_ptr<ComponentControl>> SceneECS::CreateUIForObject(unsigned int oid)
+{
+    std::list<std::unique_ptr<ComponentControl>> res;
+
+    if (oid == NON_OBJECT_ID)
+        return res;
+
+    for (auto s : systems)
+    {
+        std::unique_ptr<ComponentControl> elem = s.second->PrepareUIForObject(oid);
+        if (elem)
+            res.push_back(std::move(elem));
+    }
+
+    return res;
 }
 

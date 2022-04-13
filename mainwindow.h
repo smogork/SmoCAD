@@ -23,8 +23,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 private:
     Ui::MainWindow *ui;
-    //std::shared_ptr<SceneModelOld> model = nullptr;
-    //std::shared_ptr<SceneECS> model = nullptr;
+    std::list<std::unique_ptr<ComponentControl>> componentControls;
     std::list<std::unique_ptr<QListWidgetRenderableItem>> listObjects;
     TransformableObject* selectedTransform = nullptr;
     std::unique_ptr<TransformControl> transformTest;
@@ -37,20 +36,18 @@ private:
     void UpdateCursorWorldPosition();
     void UpdateCursorViewPosition();
     QPoint GetCursorViewPosition();
-    void UpdateSelectedObject();
 
     void UpdateUVParamsOfObject(TorusObject* UVObject);
     void UpdateUVParamsOfControls(TorusObject* UVObject);
 
     void BlockCursorUISignals(bool b);
-    void BlockTransformUISignals(bool b);
     void BlockUVParamUISignals(bool b);
     void ResizeEvent(QSize size);
 
 protected slots:
     void MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event);
     void CameraUpdated(std::shared_ptr<CameraUpdateEvent> event);
-    void SelectObjectChanged(std::shared_ptr<SelectedObjectChangedEvent> event);
+    //void SelectObjectChanged(std::shared_ptr<SelectedObjectChangedEvent> event);
 
     void showObjectListContextMenu(const QPoint& pos);
     void AddPointToBezier();
@@ -68,15 +65,6 @@ signals:
     void PointObjectChanged(std::shared_ptr<PointObjectChangedEvent> event);
 
 private slots:
-    void on_spinPosX_valueChanged(double arg1);
-    void on_spinPosY_valueChanged(double arg1);
-    void on_spinPosZ_valueChanged(double arg1);
-    void on_spinRotX_valueChanged(double arg1);
-    void on_spinRotY_valueChanged(double arg1);
-    void on_spinRotZ_valueChanged(double arg1);
-    void on_spinScaleX_valueChanged(double arg1);
-    void on_spinScaleY_valueChanged(double arg1);
-    void on_spinScaleZ_valueChanged(double arg1);
 
     void on_spinCurPosX_valueChanged(double arg1);
     void on_spinCurPosY_valueChanged(double arg1);

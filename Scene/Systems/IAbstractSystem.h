@@ -8,6 +8,8 @@
 
 #include <string>
 #include <memory>
+#include <QWidget>
+#include "Controls/ComponentControl.h"
 
 class IAbstractSystem
 {
@@ -18,6 +20,7 @@ public:
     virtual int GetComponentCount() = 0;
     virtual const char* GetSystemName() = 0;
     virtual void ClearSystem() { };
+    virtual std::unique_ptr<ComponentControl> PrepareUIForObject(unsigned int oid) { return nullptr; }
 };
 
 

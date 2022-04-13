@@ -3,6 +3,7 @@
 //
 
 #include "TransformSystem.h"
+#include "Controls/transformcontrol.h"
 
 /*std::weak_ptr<Transform> TransformSystem::GetComponent(unsigned int oid)
 {
@@ -31,3 +32,9 @@ bool TransformSystem::Unregister(unsigned int oid)
 {
     return components.erase(oid) > 0;
 }*/
+std::unique_ptr<ComponentControl> TransformSystem::PrepareUIForObject(unsigned int oid)
+{
+    if (auto transform = GetComponent(oid).lock())
+        return std::move(std::make_unique<TransformControl>(transform));
+    return nullptr;
+}

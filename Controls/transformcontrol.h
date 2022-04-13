@@ -3,21 +3,19 @@
 
 #include <QWidget>
 #include "Scene/Components/Transform.h"
+#include "ComponentControl.h"
 
 namespace Ui {
 class TransformControl;
 }
 
-class TransformControl : public QWidget
+class TransformControl : public ComponentControl
 {
     Q_OBJECT
 
 public:
     explicit TransformControl(std::shared_ptr<Transform> t, QWidget *parent = nullptr);
     ~TransformControl();
-
-signals:
-    void RequestRepaint();
 
 private slots:
     void on_spinPosX_valueChanged(double arg1);

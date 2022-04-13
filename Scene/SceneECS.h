@@ -20,7 +20,7 @@ class SceneECS: QObject
     Q_OBJECT
 public:
     static std::weak_ptr<SceneECS> Instance();
-
+    static const unsigned int NON_OBJECT_ID = 0;
     ~SceneECS() override;
     unsigned int GetNewObjectID();
 
@@ -41,8 +41,9 @@ public:
         return system->GetComponent(oid);
     }
 
-    void MouseClicked(std::shared_ptr<SceneMouseClickEvent> event);
+    unsigned int MouseClicked(std::shared_ptr<SceneMouseClickEvent> event);
     void AddObject(std::shared_ptr<IEntity> obj);
+    std::list<std::unique_ptr<ComponentControl>> CreateUIForObject(unsigned int oid);
 
     void RemoveObjectsFromScene();
     void RemoveUniqueObjects();

@@ -167,7 +167,16 @@ void MainWindow::MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event)
 {
     if (auto scene = SceneECS::Instance().lock())
     {
-        scene->MouseClicked(event);
+        unsigned int oid = scene->MouseClicked(event);
+
+        componentControls = scene->CreateUIForObject(oid);
+        for (const std::unique_ptr<ComponentControl> &widget : componentControls)
+        {
+            ui->verticalLayout->addWidget(widget.get());
+            QObject::connect(widget.get(), &ComponentControl::RequestRepaint,
+                             ui->sceneWidget, &GLWidget::RedrawScreen);
+        }
+
         ui->sceneWidget->update();
     }
 
@@ -311,143 +320,28 @@ void MainWindow::CameraUpdated(std::shared_ptr<CameraUpdateEvent> event)
 }
 #pragma endregion
 
-#pragma region TransformUIEvents
-void MainWindow::on_spinPosX_valueChanged(double arg1)
-{
-    UpdateSelectedObject();
-}
-
-void MainWindow::on_spinPosY_valueChanged(double arg1)
-{
-    UpdateSelectedObject();
-}
-
-void MainWindow::on_spinPosZ_valueChanged(double arg1)
-{
-    UpdateSelectedObject();
-}
-
-void MainWindow::on_spinRotX_valueChanged(double arg1)
-{
-    UpdateSelectedObject();
-}
-
-void MainWindow::on_spinRotY_valueChanged(double arg1)
-{
-    UpdateSelectedObject();
-}
-
-void MainWindow::on_spinRotZ_valueChanged(double arg1)
-{
-    UpdateSelectedObject();
-}
-
-void MainWindow::on_spinScaleX_valueChanged(double arg1)
-{
-    UpdateSelectedObject();
-}
-
-void MainWindow::on_spinScaleY_valueChanged(double arg1)
-{
-    UpdateSelectedObject();
-}
-
-void MainWindow::on_spinScaleZ_valueChanged(double arg1)
-{
-    UpdateSelectedObject();
-}
-
-void MainWindow::UpdateSelectedObject()
-{
-    if (selectedTransform)
-    {
-        //selectedTransform->Position = QVector3D(ui->spinPosX->value(), ui->spinPosY->value(), ui->spinPosZ->value());
-        //selectedTransform->Rotation = QVector3D(ui->spinRotX->value(), ui->spinRotY->value(), ui->spinRotZ->value());
-        //selectedTransform->Scale = QVector3D(ui->spinScaleX->value(), ui->spinScaleY->value(), ui->spinScaleZ->value());
-
-        UpdateUVParamsOfObject(dynamic_cast<TorusObject*>(selectedTransform));
-
-        PointObject* point = dynamic_cast<PointObject*>(selectedTransform);
-        if (point)
-        {
-            std::shared_ptr<PointObjectChangedEvent> event = std::make_shared<PointObjectChangedEvent>(point, false);
-            emit PointObjectChanged(event);
-        }
-    }
-
-    ui->sceneWidget->update();
-}
-
-void MainWindow::SelectObjectChanged(std::shared_ptr<SelectedObjectChangedEvent> event)
-{
-    selectedTransform = event->ObjectToTransform;
-    BlockTransformUISignals(true);
-    //ui->spinPosX->setValue(selectedTransform->Position.x());
-    //ui->spinPosY->setValue(selectedTransform->Position.y());
-    //ui->spinPosZ->setValue(selectedTransform->Position.z());
-    //ui->spinRotX->setValue(selectedTransform->Rotation.x());
-    //ui->spinRotY->setValue(selectedTransform->Rotation.y());
-    //ui->spinRotZ->setValue(selectedTransform->Rotation.z());
-    //ui->spinScaleX->setValue(selectedTransform->Scale.x());
-    //ui->spinScaleY->setValue(selectedTransform->Scale.y());
-    //ui->spinScaleZ->setValue(selectedTransform->Scale.z());
-    BlockTransformUISignals(false);
-
-    UpdateUVParamsOfControls(dynamic_cast<TorusObject*>(selectedTransform));
-
-    ui->sceneWidget->update();
-}
-
-void MainWindow::BlockTransformUISignals(bool b)
-{
-    /*ui->spinPosX->blockSignals(b);
-    ui->spinPosY->blockSignals(b);
-    ui->spinPosZ->blockSignals(b);
-    ui->spinRotX->blockSignals(b);
-    ui->spinRotY->blockSignals(b);
-    ui->spinRotZ->blockSignals(b);
-    ui->spinScaleX->blockSignals(b);
-    ui->spinScaleY->blockSignals(b);
-    ui->spinScaleZ->blockSignals(b);*/
-}
-
-
-/*void MainWindow::EnableTransformContorls(bool b)
-{
-    ui->spinPosX->setEnabled(b);
-    ui->spinPosY->setEnabled(b);
-    ui->spinPosZ->setEnabled(b);
-    ui->spinRotX->setEnabled(b);
-    ui->spinRotY->setEnabled(b);
-    ui->spinRotZ->setEnabled(b);
-    ui->spinScaleX->setEnabled(b);
-    ui->spinScaleY->setEnabled(b);
-    ui->spinScaleZ->setEnabled(b);
-}*/
-#pragma endregion
-
 #pragma region UVParamsUIEvents
 void MainWindow::on_spinParamU_valueChanged(double arg1)
 {
-    UpdateSelectedObject();
+    //UpdateSelectedObject();
 }
 
 
 void MainWindow::on_spinParamUDens_valueChanged(int arg1)
 {
-    UpdateSelectedObject();
+    //UpdateSelectedObject();
 }
 
 
 void MainWindow::on_spinParamV_valueChanged(double arg1)
 {
-    UpdateSelectedObject();
+    //UpdateSelectedObject();
 }
 
 
 void MainWindow::on_spinParamVDens_valueChanged(int arg1)
 {
-    UpdateSelectedObject();
+    //UpdateSelectedObject();
 }
 
 void MainWindow::UpdateUVParamsOfObject(TorusObject* UVObject)

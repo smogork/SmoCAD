@@ -16,6 +16,7 @@ public:
 
 public:
     const char* GetSystemName() override { return "TransformSystem"; }
+    std::unique_ptr<ComponentControl> PrepareUIForObject(unsigned int oid) override;
 };
 
 
