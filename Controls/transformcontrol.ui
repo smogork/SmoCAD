@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>TransformContorol</class>
- <widget class="QWidget" name="TransformContorol">
+ <class>TransformControl</class>
+ <widget class="QWidget" name="TransformControl">
   <property name="geometry">
    <rect>
     <x>0</x>

@@ -11,7 +11,7 @@
 #include "Controls/QListWidgetRenderableItem.h"
 #include "Objects/TorusObject.h"
 #include "Scene/SceneECS.h"
-#include "Controls/transformcontorol.h"
+#include "Controls/transformcontrol.h"
 #include "Controls/uvcontrol.h"
 
 QT_BEGIN_NAMESPACE
@@ -27,7 +27,7 @@ private:
     //std::shared_ptr<SceneECS> model = nullptr;
     std::list<std::unique_ptr<QListWidgetRenderableItem>> listObjects;
     TransformableObject* selectedTransform = nullptr;
-    std::unique_ptr<TransformContorol> transformTest;
+    std::unique_ptr<TransformControl> transformTest;
     std::unique_ptr<UVControl> UVTest;
 
     void AddNewObject(IRenderableObject* ro, const QString& name, bool positionless = false);

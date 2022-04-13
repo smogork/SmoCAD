@@ -33,7 +33,7 @@ set(SHADER_FILES
 set(CONTROL_SOURCES
         mainwindow.cpp mainwindow.h mainwindow.ui
         glwidget.cpp glwidget.h
-        Controls/transformcontorol.h Controls/transformcontorol.cpp Controls/transformcontorol.ui
+        Controls/transformcontrol.h Controls/transformcontrol.cpp Controls/transformcontrol.ui
         Controls/QListWidgetRenderableItem.cpp Controls/QListWidgetRenderableItem.h
         Controls/uvcontrol.h Controls/uvcontrol.cpp Controls/uvcontrol.ui
         Controls/cursorcontrol.h Controls/cursorcontrol.cpp Controls/cursorcontrol.ui

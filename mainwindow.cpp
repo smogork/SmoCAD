@@ -16,11 +16,11 @@ MainWindow::MainWindow(QWidget *parent)
     label->setObjectName(QString::fromUtf8("label"));
 
     verticalLayout->addWidget(label);*/
-    transformTest = std::make_unique<TransformContorol>();
-    transformTest->setSizePolicy(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
+    //transformTest = std::make_unique<TransformControl>();
+    //transformTest->setSizePolicy(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
     UVTest = std::make_unique<UVControl>();
     UVTest->setSizePolicy(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
-    ui->verticalLayout->addWidget(transformTest.get());
+    //ui->verticalLayout->addWidget(transformTest.get());
     ui->verticalLayout->addWidget(UVTest.get());
     //dodac jeszcze spacera na dole
 
