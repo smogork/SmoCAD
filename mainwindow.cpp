@@ -7,6 +7,8 @@
 #include "Scene/Entities/Point.h"
 #include "Scene/Entities/Torus.h"
 #include "Scene/Systems/SceneElementSystem.h"
+#include "Scene/Components/TransformCollection.h"
+#include "Scene/Systems/TransformCollectionSystem.h"
 
 MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -126,6 +128,7 @@ void MainWindow::on_actionRename_triggered()
 
 void MainWindow::on_actionDelete_triggered()
 {
+
     /*if (model->GetSelectedObject())
     {
         listObjects.remove_if(
@@ -157,8 +160,8 @@ void MainWindow::on_actionDelete_triggered()
         model->RemoveComposite();
     }
 
-    selectedTransform = nullptr;
-    ui->sceneWidget->update();*/
+    selectedTransform = nullptr;*/
+    ui->sceneWidget->update();
 }
 
 void MainWindow::MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event)
@@ -343,30 +346,33 @@ void MainWindow::AddPointToBezier()
 void MainWindow::showObjectListContextMenu(const QPoint &pos)
 {
 // Handle global position
-    /*QPoint globalPos = ui->listWidgetObjects->mapToGlobal(pos);
+    QPoint globalPos = ui->listWidgetObjects->mapToGlobal(pos);
 
     int selectedPoints = 0;
     for (QListWidgetItem* i : ui->listWidgetObjects->selectedItems())
-        selectedPoints += dynamic_cast<QListWidgetRenderableItem*>(i) ? 1 : 0;
+        selectedPoints += dynamic_cast<SceneElementSystem::QListWidgetSceneElement*>(i) ? 1 : 0;
 
     // Create menu and insert some actions
     QMenu myMenu;
-    myMenu.addAction("Remove", this, &MainWindow::on_actionDelete_triggered);
-    if (dynamic_cast<BezierCurveC0*>(model->GetSelectedObject()))
-        myMenu.addAction("Add to bezier", this, &MainWindow::AddPointToBezier);
-    if (selectedPoints > 1)
-        myMenu.addAction("Create bezier from points", this, &MainWindow::CreateBezierFromPoints);
-    //myMenu.addAction("Erase",  this, SLOT(eraseItem()));
+    if (auto scene = SceneECS::Instance().lock())
+    {
+        /*myMenu.addAction("Remove", this, &MainWindow::on_actionDelete_triggered);
+        if (scene->GetSystem<TransformCollectionSystem>().lock()->GetComponent())
+            myMenu.addAction("Add to bezier", this, &MainWindow::AddPointToBezier);
+        if (selectedPoints > 1)
+            myMenu.addAction("Create bezier from points", this, &MainWindow::CreateBezierFromPoints);
+        //myMenu.addAction("Erase",  this, SLOT(eraseItem()));*/
+    }
 
     // Show context menu at handling position
-    myMenu.exec(globalPos);*/
+    myMenu.exec(globalPos);
 }
 
 void MainWindow::CreateBezierFromPoints()
 {
     BezierCurveC0* bezier =  new BezierCurveC0();
     connect(this, &MainWindow::PointObjectChanged, bezier, &BezierCurveC0::onPointChanged);
-    AddNewObject(bezier, "VirtualBezierC0", true);
+    AddNewObject(bezier, "BezierC0", true);
 
     /*for (QListWidgetItem* i : ui->listWidgetObjects->selectedItems())
     {

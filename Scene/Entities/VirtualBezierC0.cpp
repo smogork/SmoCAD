@@ -123,3 +123,11 @@ int VirtualBezierC0::CalculateDrawableChunks(QMatrix4x4 proj, QMatrix4x4 view, Q
 
     return res;
 }
+
+void VirtualBezierC0::OnSinglePointModified(QVector3D pos, unsigned int changedOID)
+{
+    //[TODO] to popsuje C0 kiedy nie jest czescia C2 - wymyslic jak to obejsc
+    /*p_Drawing->SetVertexData(GenerateGeometryVertices());
+    p_Drawing->SetIndexData(GenerateTopologyIndices());
+    (*m_bezierPolyline.p_Collection) = (*p_Collection);*/
+}

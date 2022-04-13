@@ -42,6 +42,7 @@ public:
 signals:
     //Sygnal informuje o zmianie polozenia pewnego punktu w kolekcji
     void PointInCollectionModified();
+    void SinglePointChanged(QVector3D position, unsigned int changedOID);
 };
 
 

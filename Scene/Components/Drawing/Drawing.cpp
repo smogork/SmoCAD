@@ -46,3 +46,13 @@ void Drawing::SetVertexData(std::vector<float> data)
 {
     m_vertexArrayData = data;
 }
+
+std::vector<float> Drawing::GetVertex(int index, int indexStride)
+{
+   std::vector<float> res(indexStride);
+
+   int idx = (index) * indexStride;
+   for (int i = 0; i < indexStride; ++i)
+       res[i] = m_vertexArrayData[idx + i];
+   return res;
+}

@@ -59,9 +59,13 @@ void TransformCollection::AddPoint(std::shared_ptr<CollectionAware> newObject)
 //Podlacz sygnal zmiany polozenia do kolekcji
 void TransformCollection::ConnectSignals(std::shared_ptr<Transform> p)
 {
-    pointNotifiers.push_back(p->Position.addNotifier([this]()
+    std::weak_ptr<Transform> weakP = p;
+    pointNotifiers.push_back(p->Position.addNotifier([this, weakP]()
     {
-        emit this->PointInCollectionModified();
+        if (auto p = weakP.lock())
+        {
+            emit this->SinglePointChanged(p->Position, p->GetAttachedObjectID());
+        }
     }));
 }
 

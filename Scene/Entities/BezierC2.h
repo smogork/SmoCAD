@@ -18,6 +18,7 @@ class BezierC2: public IEntity
 Q_OBJECT
 private slots:
     void OnDeBoorModified();
+    void OnSingleBezierPointModified(QVector3D pos, unsigned int changedOID);
 
 private:
     QPropertyNotifier selectedNotifier;

@@ -82,7 +82,7 @@ void SceneECS::InitSceneObjects()
     objects.push_back(p4);
     objects.push_back(p5);
     objects.push_back(p6);
-    objects.push_back(std::make_shared<Cube>("Cube1", QVector3D(2, 2, 0)));//tutaj tez beda potrzebne nazwy
+    objects.push_back(std::make_shared<Cube>("Cube1", QVector3D(2, 2, 0)));
     objects.push_back(std::make_shared<Cube>("Cube2", QVector3D(2, 4, 0)));
     objects.push_back(std::make_shared<Cube>("Cube3", QVector3D(2, 6, 2)));
     objects.push_back(std::make_shared<Torus>("Torus1", QVector3D(10, 1, 10)));

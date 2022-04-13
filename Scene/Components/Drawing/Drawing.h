@@ -47,6 +47,7 @@ public:
 
     void AttachShader(std::shared_ptr<ShaderWrapper> shader);
     virtual void Render(QOpenGLContext* context) { };
+    std::vector<float> GetVertex(int index, int indexStride);
 
     virtual void SetVertexData(std::vector<float> data);
     virtual void SetIndexData(std::vector<int> data);
