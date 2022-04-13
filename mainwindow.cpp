@@ -9,6 +9,7 @@
 #include "Scene/Systems/SceneElementSystem.h"
 #include "Scene/Components/TransformCollection.h"
 #include "Scene/Systems/TransformCollectionSystem.h"
+#include "Scene/Entities/BezierC2.h"
 
 MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -69,11 +70,33 @@ void MainWindow::AddNewObject(IRenderableObject* ro, const QString& name, bool p
 
 void MainWindow::on_actionTorus_triggered()
 {
-    AddNewObject(new TorusObject(QVector3D(), 5, 1, 36, 18), "Torus");
+    //AddNewObject(new TorusObject(QVector3D(), 5, 1, 36, 18), "Torus");
 }
 
 void MainWindow::on_actionPoint_triggered()
 {
+    std::shared_ptr<Point> p = std::make_shared<Point>("NewPoint", QVector3D(0,0,0));
+    if (auto scene = SceneECS::Instance().lock())
+    {
+        scene->AddObject(p);
+
+        if (auto select = scene->GetSystem<SelectableSystem>().lock())
+        {
+            if (auto obj = select->GetSelectedObject())
+            {
+                auto oid = obj->GetAttachedObjectID();
+                auto col = scene->GetSystem<TransformCollectionSystem>().lock();
+                if (auto colection = col->GetComponent(oid).lock())
+                {
+                    colection->AddPoint(p->p_CollectionAware);
+                }
+            }
+        }
+    }
+    ui->sceneWidget->update();
+
+
+
     /*Torus* test = new Torus(QVector3D(1, 2, 3));
 
 
@@ -91,15 +114,22 @@ void MainWindow::on_actionPoint_triggered()
 
 void MainWindow::on_actionCube_triggered()
 {
-    AddNewObject(new CubeObject(QVector3D()), "Cube");
+    //AddNewObject(new CubeObject(QVector3D()), "Cube");
 }
 
 void MainWindow::on_actionBezierC0_triggered()
 {
-    BezierCurveC0* bezier =  new BezierCurveC0();
+    /*BezierCurveC0* bezier =  new BezierCurveC0();
     connect(this, &MainWindow::PointObjectChanged, bezier, &BezierCurveC0::onPointChanged);
-    AddNewObject(bezier, "VirtualBezierC0", true);
-}
+    AddNewObject(bezier, "VirtualBezierC0", true);*/
+
+    std::shared_ptr<BezierC2> bezier = std::make_shared<BezierC2>("NEwBezierC2");
+    if (auto scene = SceneECS::Instance().lock())
+    {
+        scene->AddObject(bezier);
+    }
+    ui->sceneWidget->update();
+ }
 
 void MainWindow::on_actionRename_triggered()
 {
@@ -370,9 +400,9 @@ void MainWindow::showObjectListContextMenu(const QPoint &pos)
 
 void MainWindow::CreateBezierFromPoints()
 {
-    BezierCurveC0* bezier =  new BezierCurveC0();
+    /*BezierCurveC0* bezier =  new BezierCurveC0();
     connect(this, &MainWindow::PointObjectChanged, bezier, &BezierCurveC0::onPointChanged);
-    AddNewObject(bezier, "BezierC0", true);
+    AddNewObject(bezier, "BezierC0", true);*/
 
     /*for (QListWidgetItem* i : ui->listWidgetObjects->selectedItems())
     {

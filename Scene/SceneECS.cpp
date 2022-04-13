@@ -159,7 +159,7 @@ void SceneECS::UpdateCursorObject(QVector3D cursorPos)
 
 void SceneECS::AddObject(std::shared_ptr<IEntity> obj)
 {
-
+    objects.push_back(obj);
 }
 
 std::list<std::unique_ptr<ComponentControl>> SceneECS::CreateUIForObject(unsigned int oid)

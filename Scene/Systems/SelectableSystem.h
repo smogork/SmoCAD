@@ -20,6 +20,7 @@ public:
     { }
 
     const char* GetSystemName() override { return "SelectableSystem"; }
+    const std::shared_ptr<Selectable>& GetSelectedObject() {return selectedObject;}
 
     std::shared_ptr<Selectable> CreateRegistered(unsigned int oid) override;
     bool RegisterComponent(std::shared_ptr<Selectable> component) override;
