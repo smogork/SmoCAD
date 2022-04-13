@@ -28,7 +28,7 @@ protected:
     std::unique_ptr<QOpenGLBuffer> m_ibo = nullptr;
     std::shared_ptr<QOpenGLVertexArrayObject> m_vao = nullptr;
     bool m_created = false;
-    virtual void IntializeBuffers() = 0;
+    virtual void IntializeBuffers() {};
 
     std::vector<float> m_vertexArrayData;
     std::vector<int> m_indexArrayData;
@@ -46,7 +46,7 @@ public:
     ~Drawing() override;
 
     void AttachShader(std::shared_ptr<ShaderWrapper> shader);
-    virtual void Render(QOpenGLContext* context) = 0;
+    virtual void Render(QOpenGLContext* context) { };
 
     virtual void SetVertexData(std::vector<float> data);
     virtual void SetIndexData(std::vector<int> data);

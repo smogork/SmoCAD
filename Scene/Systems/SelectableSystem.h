@@ -11,7 +11,9 @@
 
 class SelectableSystem: public ISystem<Selectable>
 {
+private:
     std::shared_ptr<Selectable> selectedObject = nullptr;
+    std::map<unsigned int, QPropertyNotifier> notifiers;
 
 public:
     SelectableSystem(): ISystem(SYSTEM_ID::SELECTABLE)
@@ -19,7 +21,9 @@ public:
 
     const char* GetSystemName() override { return "SelectableSystem"; }
 
-    std::shared_ptr<Selectable> SelectObject(std::shared_ptr<SceneMouseClickEvent> event);
+    std::shared_ptr<Selectable> CreateRegistered(unsigned int oid) override;
+    bool RegisterComponent(std::shared_ptr<Selectable> component) override;
+    bool Unregister(unsigned int oid) override;
     void ClearSystem() override;
 };
 

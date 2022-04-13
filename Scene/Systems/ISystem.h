@@ -19,6 +19,7 @@ enum SYSTEM_ID
     COMPOSITE_AWARE,
     TRANSFORM_COLLECTION,
     COLLECTION_AWARE,
+    SCREEN_SELECTABLE,
     SYSTEM_COUNT
 };
 
@@ -50,7 +51,7 @@ public:
         return res;
     }
 
-    std::shared_ptr<C> CreateRegistered(unsigned int oid)
+    virtual std::shared_ptr<C> CreateRegistered(unsigned int oid)
     {
         std::shared_ptr<C> res = std::make_shared<C>(oid);
         if (components.insert(std::make_pair(oid, res)).second)
@@ -58,12 +59,12 @@ public:
         return nullptr;
     }
 
-    bool RegisterComponent(std::shared_ptr<C> component)
+    virtual bool RegisterComponent(std::shared_ptr<C> component)
     {
         return components.insert(std::make_pair(component->GetAttachedObjectID(), component)).second;
     }
 
-    bool Unregister(unsigned int oid)
+    virtual bool Unregister(unsigned int oid)
     {
         return components.erase(oid) > 0;
     }

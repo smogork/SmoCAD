@@ -9,11 +9,17 @@ Point::Point(QVector3D pos): IEntity(POINT_CLASS)
     p_Transform = Transform::CreateRegisteredComponent(objectID, pos);
     p_Drawing = StaticDrawing::CreateRegisteredComponent(objectID);
     InitializeDrawing();
-    p_Selectable = Selectable::CreateRegisteredComponent(objectID, p_Transform);
+    p_Selectable = Selectable::CreateRegisteredComponent(objectID);
+    p_ScreenSelectable = ScreenSelectable::CreateRegisteredComponent(objectID, p_Transform, p_Selectable);
     p_CompositeAware = CompositeAware::CreateRegisteredComponent(objectID, p_Transform, p_Drawing);
     p_CollectionAware = CollectionAware::CreateRegisteredComponent(objectID, p_Transform);
 
-    QObject::connect(p_Selectable.get(), &Selectable::SelectedChanged, this, &Point::SelectedChanged);
+    selectedNotifier = p_Selectable->Selected.addNotifier([this]() {
+        if (p_Selectable->Selected)
+            m_color = QVector4D(1.0f, 0.5f, 0.2f, 1.0f);
+        else
+            m_color = QVector4D(0.8f, 0.8f, 0.8f, 1.0f);
+    });
 }
 
 Point::~Point()
@@ -42,13 +48,5 @@ void Point::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
 {
     shader->SetUniform("u_MVP.Model", p_Transform->GetModelMatrix());
     shader->SetUniform("u_ObjectColor", m_color);
-}
-
-void Point::SelectedChanged(std::shared_ptr<SelectionChanged> e)
-{
-    if (e->Selected)
-        m_color = QVector4D(1.0f, 0.5f, 0.2f, 1.0f);
-    else
-        m_color = QVector4D(0.8f, 0.8f, 0.8f, 1.0f);
 }
 

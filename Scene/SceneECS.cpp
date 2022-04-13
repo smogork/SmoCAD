@@ -18,6 +18,7 @@
 #include "Scene/Entities/BezierC0.h"
 #include "Scene/Entities/BezierC2.h"
 #include "Controls/ComponentControl.h"
+#include "Scene/Systems/ScreenSelectableSystem.h"
 #include <list>
 
 std::shared_ptr<SceneECS> SceneECS::scene = nullptr;
@@ -41,6 +42,7 @@ SceneECS::SceneECS()
     systems.put<DrawingSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<DrawingSystem>()));
     systems.put<UVParamsSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<UVParamsSystem>()));
     systems.put<SelectableSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<SelectableSystem>()));
+    systems.put<ScreenSelectableSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<ScreenSelectableSystem>()));
     systems.put<CompositeAwareSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<CompositeAwareSystem>()));
     systems.put<CollectionAwareSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<CollectionAwareSystem>()));
     systems.put<TransformCollectionSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<TransformCollectionSystem>()));
@@ -129,7 +131,7 @@ QString SceneECS::DebugSystemReport()
 
 unsigned int SceneECS::MouseClicked(std::shared_ptr<SceneMouseClickEvent> event)
 {
-    if (auto select = GetSystem<SelectableSystem>().lock())
+    if (auto select = GetSystem<ScreenSelectableSystem>().lock())
     {
         auto item = select->SelectObject(event);
         if (item)
