@@ -6,30 +6,16 @@
 #include "Scene/Systems/SelectableSystem.h"
 #include "Scene/Entities/Point.h"
 #include "Scene/Entities/Torus.h"
+#include "Scene/Systems/SceneElementSystem.h"
 
 MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    //ui->scrollAreaWidgetContents->ad
-    /*verticalLayout = new QVBoxLayout(scrollAreaWidgetContents);
-    verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
-    label = new QLabel(scrollAreaWidgetContents);
-    label->setObjectName(QString::fromUtf8("label"));
-
-    verticalLayout->addWidget(label);*/
-    //transformTest = std::make_unique<TransformControl>();
-    //transformTest->setSizePolicy(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
-    //UVTest = std::make_unique<UVControl>();
-    //UVTest->setSizePolicy(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
-    //ui->verticalLayout->addWidget(transformTest.get());
-    //ui->verticalLayout->addWidget(UVTest.get());
-    //dodac jeszcze spacera na dole
+    SceneECS::elementList = ui->listWidgetObjects;
 
     ui->listWidgetObjects->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->listWidgetObjects, &QListWidget::customContextMenuRequested, this, &MainWindow::showObjectListContextMenu);
-
-    //model = std::make_unique<SceneModelOld>();
 
     QObject::connect(&Renderer::controller, &InputController::SceneMouseClicked,
                      this, &MainWindow::MouseRaycastSlot);
@@ -49,6 +35,20 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::UpdateComponentUI(unsigned int oid)
+{
+    if (auto scene = SceneECS::Instance().lock())
+    {
+        componentControls = scene->CreateUIForObject(oid);
+        for (const std::unique_ptr<ComponentControl> &widget: componentControls)
+        {
+            ui->verticalLayout->addWidget(widget.get());
+            QObject::connect(widget.get(), &ComponentControl::RequestRepaint,
+                             ui->sceneWidget, &GLWidget::RedrawScreen);
+        }
+    }
 }
 
 void MainWindow::AddNewObject(IRenderableObject* ro, const QString& name, bool positionless)
@@ -77,17 +77,8 @@ void MainWindow::on_actionPoint_triggered()
 
     test->p_Transform->Rotation = QVector3D(90, 0, -90);
     test->p_Transform->Scale = QVector3D(1, 1, 2);
+    UpdateComponentUI(test->GetObjectID());
 
-    if (auto scene = SceneECS::Instance().lock())
-    {
-        componentControls = scene->CreateUIForObject(test->GetObjectID());
-        for (const std::unique_ptr<ComponentControl> &widget: componentControls)
-        {
-            ui->verticalLayout->addWidget(widget.get());
-            QObject::connect(widget.get(), &ComponentControl::RequestRepaint,
-                             ui->sceneWidget, &GLWidget::RedrawScreen);
-        }
-    }
 
     //PointObject* pointObject = new PointObject(QVector3D());
     //AddNewObject(pointObject, "Point");
@@ -175,15 +166,7 @@ void MainWindow::MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event)
     if (auto scene = SceneECS::Instance().lock())
     {
         unsigned int oid = scene->MouseClicked(event);
-
-        componentControls = scene->CreateUIForObject(oid);
-        for (const std::unique_ptr<ComponentControl> &widget : componentControls)
-        {
-            ui->verticalLayout->addWidget(widget.get());
-            QObject::connect(widget.get(), &ComponentControl::RequestRepaint,
-                             ui->sceneWidget, &GLWidget::RedrawScreen);
-        }
-
+        UpdateComponentUI(oid);
         ui->sceneWidget->update();
     }
 
@@ -229,15 +212,23 @@ void MainWindow::CreateCursorOnScene(std::shared_ptr<SceneMouseClickEvent> event
 
 void MainWindow::on_listWidgetObjects_itemClicked(QListWidgetItem *item)
 {
-    auto rItem = (QListWidgetRenderableItem*)item;
+    auto rItem = (SceneElementSystem::QListWidgetSceneElement*)item;
 
-    if (rItem->SelectOnScene(ui->listWidgetObjects->selectedItems().size() > 1))
+    if (ui->listWidgetObjects->selectedItems().size() == 1)
+    {
+        rItem->SelectItem();
+        UpdateComponentUI(rItem->GetAttachedObjectID());
+        ui->sceneWidget->update();
+    }
+
+
+    /*if (rItem->SelectOnScene(ui->listWidgetObjects->selectedItems().size() > 1))
     {
         //ui->groupBoxTransform->setEnabled(true);
         //ui->groupBoxUVParams->setEnabled(dynamic_cast<TorusObject*>(rItem->obj) != nullptr);
 
         ui->sceneWidget->update();
-    }
+    }*/
 }
 
 #pragma region CursorUiEvents
@@ -377,13 +368,13 @@ void MainWindow::CreateBezierFromPoints()
     connect(this, &MainWindow::PointObjectChanged, bezier, &BezierCurveC0::onPointChanged);
     AddNewObject(bezier, "BezierC0", true);
 
-    for (QListWidgetItem* i : ui->listWidgetObjects->selectedItems())
+    /*for (QListWidgetItem* i : ui->listWidgetObjects->selectedItems())
     {
         auto item = dynamic_cast<QListWidgetRenderableItem*>(i);
 
         if (item)
             bezier->AddControlPoint(dynamic_cast<PointObject*>(item->obj));
-    }
+    }*/
 
     ui->sceneWidget->update();
 }
@@ -393,4 +384,6 @@ void MainWindow::on_actionShow_Bezier_polygon_toggled(bool arg1)
     //model->ShowBezeierPolygon = arg1;
     ui->sceneWidget->update();
 }
+
+
 

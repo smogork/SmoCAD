@@ -8,7 +8,6 @@
 #include "Objects/IRenderableObject.h"
 #include "Objects/CursorObject.h"
 #include "Scene/SceneModelOld.h"
-#include "Controls/QListWidgetRenderableItem.h"
 #include "Objects/TorusObject.h"
 #include "Scene/SceneECS.h"
 #include "Controls/transformcontrol.h"
@@ -24,12 +23,13 @@ class MainWindow : public QMainWindow
 private:
     Ui::MainWindow *ui;
     std::list<std::unique_ptr<ComponentControl>> componentControls;
-    std::list<std::unique_ptr<QListWidgetRenderableItem>> listObjects;
+    //std::list<std::unique_ptr<QListWidgetRenderableItem>> listObjects;
     TransformableObject* selectedTransform = nullptr;
     std::unique_ptr<TransformControl> transformTest;
     std::unique_ptr<UVControl> UVTest;
 
     void AddNewObject(IRenderableObject* ro, const QString& name, bool positionless = false);
+    void UpdateComponentUI(unsigned int oid);
 
     void CreateCursorOnScene(std::shared_ptr<SceneMouseClickEvent> event);
     void UpdateCursorUI(QVector3D wPos, QPoint vPos);

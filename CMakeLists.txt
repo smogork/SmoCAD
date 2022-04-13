@@ -34,7 +34,6 @@ set(CONTROL_SOURCES
         mainwindow.cpp mainwindow.h mainwindow.ui
         glwidget.cpp glwidget.h
         Controls/transformcontrol.h Controls/transformcontrol.cpp Controls/transformcontrol.ui
-        Controls/QListWidgetRenderableItem.cpp Controls/QListWidgetRenderableItem.h
         Controls/uvcontrol.h Controls/uvcontrol.cpp Controls/uvcontrol.ui
         Controls/cursorcontrol.h Controls/cursorcontrol.cpp Controls/cursorcontrol.ui
         Controls/transformcollectioncontrol.h Controls/transformcollectioncontrol.cpp Controls/transformcollectioncontrol.ui
@@ -99,7 +98,7 @@ set(PROJECT_SOURCES
         Scene/Utilities/Utilites.cpp Scene/Utilities/Utilites.h
         Scene/Entities/BezierC0.cpp Scene/Entities/BezierC0.h
         Scene/Entities/BezierC2.cpp Scene/Entities/BezierC2.h
-        Scene/Entities/VirtualPoint.cpp Scene/Entities/VirtualPoint.h Controls/ComponentControl.cpp Controls/ComponentControl.h Scene/Components/SceneElement.cpp Scene/Components/SceneElement.h Scene/Components/ScreenSelectable.cpp Scene/Components/ScreenSelectable.h Scene/Systems/ScreenSelectableSystem.cpp Scene/Systems/ScreenSelectableSystem.h)
+        Scene/Entities/VirtualPoint.cpp Scene/Entities/VirtualPoint.h Controls/ComponentControl.cpp Controls/ComponentControl.h Scene/Components/SceneElement.cpp Scene/Components/SceneElement.h Scene/Components/ScreenSelectable.cpp Scene/Components/ScreenSelectable.h Scene/Systems/ScreenSelectableSystem.cpp Scene/Systems/ScreenSelectableSystem.h Scene/Systems/SceneElementSystem.cpp Scene/Systems/SceneElementSystem.h)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(SmoCAD

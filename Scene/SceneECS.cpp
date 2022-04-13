@@ -19,9 +19,11 @@
 #include "Scene/Entities/BezierC2.h"
 #include "Controls/ComponentControl.h"
 #include "Scene/Systems/ScreenSelectableSystem.h"
+#include "Scene/Systems/SceneElementSystem.h"
 #include <list>
 
 std::shared_ptr<SceneECS> SceneECS::scene = nullptr;
+QListWidget* SceneECS::elementList = nullptr;
 
 std::weak_ptr<SceneECS> SceneECS::Instance()
 {
@@ -46,6 +48,7 @@ SceneECS::SceneECS()
     systems.put<CompositeAwareSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<CompositeAwareSystem>()));
     systems.put<CollectionAwareSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<CollectionAwareSystem>()));
     systems.put<TransformCollectionSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<TransformCollectionSystem>()));
+    systems.put<SceneElementSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<SceneElementSystem>(elementList)));
 }
 
 SceneECS::~SceneECS()
@@ -67,19 +70,19 @@ void SceneECS::InitUniqueObjects()
 
 void SceneECS::InitSceneObjects()
 {
-    auto p1 = std::make_shared<Point>(QVector3D(0, 0, 1));
-    auto p2 = std::make_shared<Point>(QVector3D(2, 0, 0));
-    auto p3 = std::make_shared<Point>(QVector3D(2, 1, 1));
-    auto p4 = std::make_shared<Point>(QVector3D(1, -1, 3));
-    auto p5 = std::make_shared<Point>(QVector3D(0, 0, 0));
-    auto p6 = std::make_shared<Point>(QVector3D(-2, 0, 0));
+    auto p1 = std::make_shared<Point>("P1", QVector3D(0, 0, 1));
+    auto p2 = std::make_shared<Point>("P2", QVector3D(2, 0, 0));
+    auto p3 = std::make_shared<Point>("P3", QVector3D(2, 1, 1));
+    auto p4 = std::make_shared<Point>("P4", QVector3D(1, -1, 3));
+    auto p5 = std::make_shared<Point>("P5", QVector3D(0, 0, 0));
+    auto p6 = std::make_shared<Point>("P6", QVector3D(-2, 0, 0));
     objects.push_back(p1);
     objects.push_back(p2);
     objects.push_back(p3);
     objects.push_back(p4);
     objects.push_back(p5);
     objects.push_back(p6);
-    objects.push_back(std::make_shared<Cube>(QVector3D(2, 2, 0)));
+    objects.push_back(std::make_shared<Cube>(QVector3D(2, 2, 0)));//tutaj tez beda potrzebne nazwy
     objects.push_back(std::make_shared<Cube>(QVector3D(2, 4, 0)));
     objects.push_back(std::make_shared<Cube>(QVector3D(2, 6, 2)));
     objects.push_back(std::make_shared<Torus>(QVector3D(10, 1, 10)));
@@ -131,14 +134,21 @@ QString SceneECS::DebugSystemReport()
 
 unsigned int SceneECS::MouseClicked(std::shared_ptr<SceneMouseClickEvent> event)
 {
-    if (auto select = GetSystem<ScreenSelectableSystem>().lock())
+    if (auto screenSelect = GetSystem<ScreenSelectableSystem>().lock())
     {
-        auto item = select->SelectObject(event);
+        auto item = screenSelect->SelectObject(event);
         if (item)
             return item->GetAttachedObjectID();
-
-        UpdateCursorObject(event->ClickCenterPlainPoint);
     }
+
+    /*if (auto select = GetSystem<SelectableSystem>().lock())
+    {
+        //select->Unselect();
+
+    }*/
+    UpdateCursorObject(event->ClickCenterPlainPoint);
+
+
     return NON_OBJECT_ID;
 }
 

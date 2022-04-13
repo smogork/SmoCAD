@@ -15,12 +15,16 @@ std::shared_ptr<Selectable> SelectableSystem::CreateRegistered(unsigned int oid)
 {
     auto item = ISystem::CreateRegistered(oid);
 
-    auto notifier = item->Selected.addNotifier([this,item](){
-        if (item->Selected)
+    std::weak_ptr<Selectable> weakItem = item;
+    auto notifier = item->Selected.addNotifier([this,weakItem](){
+        if (auto s = weakItem.lock())
         {
-            if (this->selectedObject)
-                this->selectedObject->Selected = false;
-            selectedObject = item;
+            if (s->Selected)
+            {
+                if (this->selectedObject)
+                    this->selectedObject->Selected = false;
+                selectedObject = s;
+            }
         }
     });
     notifiers.insert(std::make_pair(item->GetAttachedObjectID(), std::move(notifier)));
@@ -39,15 +43,27 @@ bool SelectableSystem::RegisterComponent(std::shared_ptr<Selectable> component)
     bool res = ISystem::RegisterComponent(component);
     if (res)
     {
-        auto notifier = component->Selected.addNotifier([this,component](){
-            if (component->Selected)
+        std::weak_ptr<Selectable> weakItem = component;
+        auto notifier = component->Selected.addNotifier([this,weakItem](){
+            if (auto s = weakItem.lock())
             {
-                if (this->selectedObject)
-                    this->selectedObject->Selected = false;
-                selectedObject = component;
+                if (s->Selected)
+                {
+                    if (this->selectedObject)
+                        this->selectedObject->Selected = false;
+                    selectedObject = s;
+                }
             }
         });
-        notifiers.insert(std::make_pair(component->GetAttachedObjectID(), std::move(notifier)));
     }
     return res;
+}
+
+void SelectableSystem::Unselect()
+{
+    if (selectedObject)
+    {
+        this->selectedObject->Selected = false;
+        this->selectedObject.reset();
+    }
 }

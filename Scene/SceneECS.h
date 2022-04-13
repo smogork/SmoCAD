@@ -8,6 +8,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QListWidget>
 #include "Scene/Systems/ISystem.h"
 #include "Scene/Utilities/TypeMap.h"
 #include "Scene/Entities/IEntity.h"
@@ -21,6 +22,7 @@ class SceneECS: QObject
 public:
     static std::weak_ptr<SceneECS> Instance();
     static const unsigned int NON_OBJECT_ID = 0;
+    static QListWidget* elementList;
     ~SceneECS() override;
     unsigned int GetNewObjectID();
 

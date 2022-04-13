@@ -25,6 +25,8 @@ public:
     bool RegisterComponent(std::shared_ptr<Selectable> component) override;
     bool Unregister(unsigned int oid) override;
     void ClearSystem() override;
+
+    void Unselect();
 };
 
 

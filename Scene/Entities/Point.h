@@ -14,6 +14,7 @@
 #include "Scene/Components/CompositeAware.h"
 #include "Scene/Components/CollectionAware.h"
 #include "Scene/Components/ScreenSelectable.h"
+#include "Scene/Components/SceneElement.h"
 
 class Point: public IEntity
 {
@@ -31,8 +32,9 @@ public:
     std::shared_ptr<ScreenSelectable> p_ScreenSelectable;
     std::shared_ptr<CompositeAware> p_CompositeAware;
     std::shared_ptr<CollectionAware> p_CollectionAware;
+    std::shared_ptr<SceneElement> p_SceneElement;
 
-    explicit Point(QVector3D pos);
+    explicit Point(const QString& name, QVector3D pos);
     ~Point() override;
 };
 

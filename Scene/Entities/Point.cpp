@@ -4,7 +4,7 @@
 
 #include "Point.h"
 
-Point::Point(QVector3D pos): IEntity(POINT_CLASS)
+Point::Point(const QString& name, QVector3D pos): IEntity(POINT_CLASS)
 {
     p_Transform = Transform::CreateRegisteredComponent(objectID, pos);
     p_Drawing = StaticDrawing::CreateRegisteredComponent(objectID);
@@ -13,6 +13,7 @@ Point::Point(QVector3D pos): IEntity(POINT_CLASS)
     p_ScreenSelectable = ScreenSelectable::CreateRegisteredComponent(objectID, p_Transform, p_Selectable);
     p_CompositeAware = CompositeAware::CreateRegisteredComponent(objectID, p_Transform, p_Drawing);
     p_CollectionAware = CollectionAware::CreateRegisteredComponent(objectID, p_Transform);
+    p_SceneElement = SceneElement::CreateRegisteredComponent(objectID, name, p_Selectable);
 
     selectedNotifier = p_Selectable->Selected.addNotifier([this]() {
         if (p_Selectable->Selected)
