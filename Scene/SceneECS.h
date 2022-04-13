@@ -42,6 +42,7 @@ public:
     }
 
     void MouseClicked(std::shared_ptr<SceneMouseClickEvent> event);
+    void AddObject(std::shared_ptr<IEntity> obj);
 
     void RemoveObjectsFromScene();
     void RemoveUniqueObjects();

@@ -179,3 +179,8 @@ void GLWidget::LoadShaders()
     Renderer::GetShader(SHADERS::BEZIER_SHADER).lock()->GetRawProgram()->setPatchVertexCount(4);
 }
 
+void GLWidget::RedrawScreen()
+{
+    update();
+}
+

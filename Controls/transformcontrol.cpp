@@ -7,6 +7,18 @@ TransformControl::TransformControl(std::shared_ptr<Transform> t, QWidget *parent
 {
     ui->setupUi(this);
     m_transform = t;
+
+    this->ui->spinPosX->setValue(m_transform->Position.value().x());
+    this->ui->spinPosY->setValue(m_transform->Position.value().y());
+    this->ui->spinPosZ->setValue(m_transform->Position.value().z());
+    this->ui->spinRotX->setValue(m_transform->Rotation.value().x());
+    this->ui->spinRotY->setValue(m_transform->Rotation.value().y());
+    this->ui->spinRotZ->setValue(m_transform->Rotation.value().z());
+    this->ui->spinScaleX->setValue(m_transform->Scale.value().x());
+    this->ui->spinScaleY->setValue(m_transform->Scale.value().y());
+    this->ui->spinScaleZ->setValue(m_transform->Scale.value().z());
+    ignoreValueChanged = false;
+
     m_positionNotifier = m_transform->Position.addNotifier([this]()
             {
                 if (this->ignoreNotifier) return;
@@ -82,6 +94,9 @@ void TransformControl::on_spinScaleZ_valueChanged(double arg1)
 
 void TransformControl::UpdatePosition()
 {
+    if (ignoreValueChanged)
+        return;
+
     ignoreNotifier = true;
     m_transform->Position = QVector3D(ui->spinPosX->value(), ui->spinPosY->value(), ui->spinPosZ->value());
     ignoreNotifier = false;
@@ -90,6 +105,9 @@ void TransformControl::UpdatePosition()
 
 void TransformControl::UpdateRotation()
 {
+    if (ignoreValueChanged)
+        return;
+
     ignoreNotifier = true;
     m_transform->Rotation = QVector3D(ui->spinRotX->value(), ui->spinRotY->value(), ui->spinRotZ->value());
     ignoreNotifier = false;
@@ -98,6 +116,9 @@ void TransformControl::UpdateRotation()
 
 void TransformControl::UpdateScale()
 {
+    if (ignoreValueChanged)
+        return;
+
     ignoreNotifier = true;
     m_transform->Scale = QVector3D(ui->spinScaleX->value(), ui->spinScaleY->value(), ui->spinScaleZ->value());
     ignoreNotifier = false;

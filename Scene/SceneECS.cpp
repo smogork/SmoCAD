@@ -143,3 +143,8 @@ void SceneECS::UpdateCursorObject(QVector3D cursorPos)
         cursor = std::make_unique<Cursor>(cursorPos);
 }
 
+void SceneECS::AddObject(std::shared_ptr<IEntity> obj)
+{
+
+}
+

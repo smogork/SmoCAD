@@ -4,6 +4,8 @@
 #include "./ui_mainwindow.h"
 #include "Objects/PointObject.h"
 #include "Scene/Systems/SelectableSystem.h"
+#include "Scene/Entities/Point.h"
+#include "Scene/Entities/Torus.h"
 
 MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -18,10 +20,10 @@ MainWindow::MainWindow(QWidget *parent)
     verticalLayout->addWidget(label);*/
     //transformTest = std::make_unique<TransformControl>();
     //transformTest->setSizePolicy(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
-    UVTest = std::make_unique<UVControl>();
-    UVTest->setSizePolicy(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
+    //UVTest = std::make_unique<UVControl>();
+    //UVTest->setSizePolicy(QSizePolicy::Policy::Preferred, QSizePolicy::Policy::Minimum);
     //ui->verticalLayout->addWidget(transformTest.get());
-    ui->verticalLayout->addWidget(UVTest.get());
+    //ui->verticalLayout->addWidget(UVTest.get());
     //dodac jeszcze spacera na dole
 
     ui->listWidgetObjects->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -70,8 +72,18 @@ void MainWindow::on_actionTorus_triggered()
 
 void MainWindow::on_actionPoint_triggered()
 {
-    PointObject* pointObject = new PointObject(QVector3D());
-    AddNewObject(pointObject, "Point");
+    Torus* test = new Torus(QVector3D(1, 2, 3));
+
+    transformTest = std::make_unique<TransformControl>(test->p_Transform);
+    ui->verticalLayout->addWidget(transformTest.get());
+
+    test->p_Transform->Rotation = QVector3D(90, 0, -90);
+    test->p_Transform->Scale = QVector3D(1, 1, 2);
+    QObject::connect(transformTest.get(), &TransformControl::RequestRepaint,
+                     ui->sceneWidget, &GLWidget::RedrawScreen);
+
+    //PointObject* pointObject = new PointObject(QVector3D());
+    //AddNewObject(pointObject, "Point");
     /*BezierCurveC0* bezier = dynamic_cast<BezierCurveC0*>(model->GetSelectedObject());
     if (bezier)
         bezier->AddControlPoint(pointObject);*/
