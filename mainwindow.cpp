@@ -74,13 +74,20 @@ void MainWindow::on_actionPoint_triggered()
 {
     Torus* test = new Torus(QVector3D(1, 2, 3));
 
-    transformTest = std::make_unique<TransformControl>(test->p_Transform);
-    ui->verticalLayout->addWidget(transformTest.get());
 
     test->p_Transform->Rotation = QVector3D(90, 0, -90);
     test->p_Transform->Scale = QVector3D(1, 1, 2);
-    QObject::connect(transformTest.get(), &TransformControl::RequestRepaint,
-                     ui->sceneWidget, &GLWidget::RedrawScreen);
+
+    if (auto scene = SceneECS::Instance().lock())
+    {
+        componentControls = scene->CreateUIForObject(test->GetObjectID());
+        for (const std::unique_ptr<ComponentControl> &widget: componentControls)
+        {
+            ui->verticalLayout->addWidget(widget.get());
+            QObject::connect(widget.get(), &ComponentControl::RequestRepaint,
+                             ui->sceneWidget, &GLWidget::RedrawScreen);
+        }
+    }
 
     //PointObject* pointObject = new PointObject(QVector3D());
     //AddNewObject(pointObject, "Point");
@@ -318,72 +325,12 @@ void MainWindow::CameraUpdated(std::shared_ptr<CameraUpdateEvent> event)
         ui->sceneWidget->update();
     }*/
 }
-#pragma endregion
-
-#pragma region UVParamsUIEvents
-void MainWindow::on_spinParamU_valueChanged(double arg1)
-{
-    //UpdateSelectedObject();
-}
-
-
-void MainWindow::on_spinParamUDens_valueChanged(int arg1)
-{
-    //UpdateSelectedObject();
-}
-
-
-void MainWindow::on_spinParamV_valueChanged(double arg1)
-{
-    //UpdateSelectedObject();
-}
-
-
-void MainWindow::on_spinParamVDens_valueChanged(int arg1)
-{
-    //UpdateSelectedObject();
-}
-
-void MainWindow::UpdateUVParamsOfObject(TorusObject* UVObject)
-{
-    if (UVObject)
-    {
-        /*UVObject->SetBiggerRadius(ui->spinParamU->value());
-        UVObject->SetSmallerRadius(ui->spinParamV->value());
-        UVObject->SetBiggerRadiusDensity(ui->spinParamUDens->value());
-        UVObject->SetSmallerRadiusDensity(ui->spinParamVDens->value());*/
-    }
-}
-
-void MainWindow::BlockUVParamUISignals(bool b)
-{
-    /*ui->spinParamU->blockSignals(b);
-    ui->spinParamV->blockSignals(b);
-    ui->spinParamUDens->blockSignals(b);
-    ui->spinParamVDens->blockSignals(b);*/
-}
-
-void MainWindow::UpdateUVParamsOfControls(TorusObject *UVObject)
-{
-    if (UVObject)
-    {
-        BlockUVParamUISignals(true);
-
-        /*ui->spinParamU->setValue(UVObject->GetBiggerR());
-        ui->spinParamV->setValue(UVObject->GetSmallerR());
-        ui->spinParamUDens->setValue(UVObject->GetBiggerRDensity());
-        ui->spinParamVDens->setValue(UVObject->GetSmallerRDensity());*/
-
-        BlockUVParamUISignals(false);
-    }
-}
 
 void MainWindow::ResizeEvent(QSize size)
 {
     /*ui->spinCurViewPosX->setMaximum(size.width());
     ui->spinCurViewPosY->setMaximum(size.height());*/
 }
-
 #pragma endregion
 
 void MainWindow::AddPointToBezier()

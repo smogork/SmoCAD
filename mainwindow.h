@@ -37,11 +37,7 @@ private:
     void UpdateCursorViewPosition();
     QPoint GetCursorViewPosition();
 
-    void UpdateUVParamsOfObject(TorusObject* UVObject);
-    void UpdateUVParamsOfControls(TorusObject* UVObject);
-
     void BlockCursorUISignals(bool b);
-    void BlockUVParamUISignals(bool b);
     void ResizeEvent(QSize size);
 
 protected slots:
@@ -72,10 +68,6 @@ private slots:
     void on_spinCurViewPosX_valueChanged(int arg1);
     void on_spinCurViewPosY_valueChanged(int arg1);
 
-    void on_spinParamU_valueChanged(double arg1);
-    void on_spinParamUDens_valueChanged(int arg1);
-    void on_spinParamV_valueChanged(double arg1);
-    void on_spinParamVDens_valueChanged(int arg1);
 
     void on_listWidgetObjects_itemClicked(QListWidgetItem *item);
     void on_actionTorus_triggered();

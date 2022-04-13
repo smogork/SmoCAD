@@ -34,8 +34,6 @@ private:
     QPropertyNotifier m_positionNotifier;
     QPropertyNotifier m_rotationNotifier;
     QPropertyNotifier m_scaleNotifier;
-    bool ignoreNotifier = false;
-    bool ignoreValueChanged = true;
 
     void UpdatePosition();
     void UpdateRotation();

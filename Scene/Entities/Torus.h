@@ -5,7 +5,6 @@
 #ifndef SMOCAD_TORUS_H
 #define SMOCAD_TORUS_H
 
-
 #include "IEntity.h"
 #include "Scene/Components/Transform.h"
 #include "Scene/Components/Drawing/DynamicDrawing.h"
@@ -20,11 +19,13 @@ private:
     void DrawingFunction(QOpenGLContext* context);
     void UniformFunction(std::shared_ptr<ShaderWrapper> shader);
 
+    void UVChanged();
     std::vector<float> GenerateGeometryVertices();
     std::vector<int> GenerateTopologyIndices();
-    
-private slots:
-    void UVChanged(std::shared_ptr<UVParamsChanged> e);
+    QPropertyNotifier uNotifier;
+    QPropertyNotifier vNotifier;
+    QPropertyNotifier udNotifier;
+    QPropertyNotifier vdNotifier;
 
 public:
     std::shared_ptr<Transform> p_Transform;

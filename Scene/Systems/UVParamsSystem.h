@@ -14,6 +14,7 @@ public:
     UVParamsSystem(): ISystem<UVParams>(UV) { }
 
     const char* GetSystemName() override { return "UVParamsSystem"; }
+    std::unique_ptr<ComponentControl> PrepareUIForObject(unsigned int oid) override;
 };
 
 

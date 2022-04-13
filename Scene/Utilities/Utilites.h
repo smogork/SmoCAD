@@ -5,6 +5,6 @@
 #ifndef SMOCAD_UTILITES_H
 #define SMOCAD_UTILITES_H
 
-#define ASSIGN_PROPERTY_NOTIFIER(F)  std::bind(F, this)
+#define ASSIGN_NOTIFIER_FUNCTION(F)  std::bind(F, this)
 
 #endif //SMOCAD_UTILITES_H
