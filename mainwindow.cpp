@@ -2,14 +2,14 @@
 #include <QInputDialog>
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
-#include "Objects/PointObject.h"
 #include "Scene/Systems/SelectableSystem.h"
 #include "Scene/Entities/Point.h"
 #include "Scene/Entities/Torus.h"
-#include "Scene/Systems/SceneElementSystem.h"
 #include "Scene/Components/TransformCollection.h"
 #include "Scene/Systems/TransformCollectionSystem.h"
 #include "Scene/Entities/BezierC2.h"
+#include "Scene/Entities/Cube.h"
+#include "Scene/Entities/BezierC0.h"
 
 MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -49,23 +49,12 @@ void MainWindow::UpdateComponentUI(unsigned int oid)
     }
 }
 
-void MainWindow::AddNewObject(IRenderableObject* ro, const QString& name, bool positionless)
-{
-    /*if (model->GetCursorObject() || positionless)
-    {
-        if (model->AddObject(ro, positionless))
-        {
-            listObjects.push_back(std::make_unique<QListWidgetRenderableItem>(ui->listWidgetObjects, name, ro, model));
-            ui->sceneWidget->update();
-        }
-    }
-    else
-        delete ro;*/
-}
-
 void MainWindow::on_actionTorus_triggered()
 {
-    //AddNewObject(new TorusObject(QVector3D(), 5, 1, 36, 18), "Torus");
+    std::shared_ptr<Torus> t = std::make_shared<Torus>("NewTorus");
+    if (auto scene = SceneECS::Instance().lock())
+        scene->AddObject(t);
+    ui->sceneWidget->update();
 }
 
 void MainWindow::on_actionPoint_triggered()
@@ -75,6 +64,7 @@ void MainWindow::on_actionPoint_triggered()
     {
         scene->AddObject(p);
 
+        //Jeeli aktualnie wybrany obiekt jest kolekcja punktow - dodaj do niej
         if (auto select = scene->GetSystem<SelectableSystem>().lock())
         {
             if (auto obj = select->GetSelectedObject())
@@ -89,66 +79,31 @@ void MainWindow::on_actionPoint_triggered()
         }
     }
     ui->sceneWidget->update();
-
-
-
-    /*Torus* test = new Torus(QVector3D(1, 2, 3));
-
-
-    test->p_Transform->Rotation = QVector3D(90, 0, -90);
-    test->p_Transform->Scale = QVector3D(1, 1, 2);
-    UpdateComponentUI(test->GetObjectID());*/
-
-
-    //PointObject* pointObject = new PointObject(QVector3D());
-    //AddNewObject(pointObject, "Point");
-    /*BezierCurveC0* bezier = dynamic_cast<BezierCurveC0*>(model->GetSelectedObject());
-    if (bezier)
-        bezier->AddControlPoint(pointObject);*/
 }
 
 void MainWindow::on_actionCube_triggered()
 {
-    //AddNewObject(new CubeObject(QVector3D()), "Cube");
+    std::shared_ptr<Cube> c = std::make_shared<Cube>("NewCube");
+    if (auto scene = SceneECS::Instance().lock())
+        scene->AddObject(c);
+    ui->sceneWidget->update();
 }
 
 void MainWindow::on_actionBezierC0_triggered()
 {
-    /*BezierCurveC0* bezier =  new BezierCurveC0();
-    connect(this, &MainWindow::PointObjectChanged, bezier, &BezierCurveC0::onPointChanged);
-    AddNewObject(bezier, "VirtualBezierC0", true);*/
 
-    std::shared_ptr<BezierC2> bezier = std::make_shared<BezierC2>("NEwBezierC2");
+    std::shared_ptr<BezierC0> b0 = std::make_shared<BezierC0>("NewBezierC0");
     if (auto scene = SceneECS::Instance().lock())
-    {
-        scene->AddObject(bezier);
-    }
+        scene->AddObject(b0);
     ui->sceneWidget->update();
- }
+}
 
-void MainWindow::on_actionRename_triggered()
+void MainWindow::on_actionBezierC2_triggered()
 {
-    /*IRenderableObject* selected = model->GetSelectedObject();
-    if (selected)
-    {
-        bool ok;
-        //[TODO] stowrzyc strukture aby kazdy obiekt mial nazwe
-        QString newName = QInputDialog::getText(this, "Rename object", "Insert new name of object", QLineEdit::Normal, "", &ok);
-
-        if (!ok)
-            return;
-
-        auto found = std::find_if(listObjects.begin(), listObjects.end(),
-                [&](std::unique_ptr<QListWidgetRenderableItem> &item)
-                {
-                    return item->CompareInsideObject(selected);
-                }
-        );
-        if (found != listObjects.end())
-        {
-            (*found)->setText(newName);
-        }
-    }*/
+    std::shared_ptr<BezierC2> b2 = std::make_shared<BezierC2>("NewBezierC2");
+    if (auto scene = SceneECS::Instance().lock())
+        scene->AddObject(b2);
+    ui->sceneWidget->update();
 }
 
 void MainWindow::on_actionDelete_triggered()
@@ -197,29 +152,6 @@ void MainWindow::MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event)
         UpdateComponentUI(oid);
         ui->sceneWidget->update();
     }
-
-    /*if (model->SelectObjectByMouse(event->RaycastStart, event->RaycastDirection))
-    {
-        ui->groupBoxTransform->setEnabled(true);
-        ui->groupBoxUVParams->setEnabled(dynamic_cast<TorusObject*>(selectedTransform) != nullptr);
-        ui->groupBoxCursor->setEnabled(false);
-
-        model->DeleteCursor();
-    }
-    else
-    {
-        if (event->UnselectObjects)
-        {
-            ui->groupBoxTransform->setEnabled(false);
-            ui->groupBoxUVParams->setEnabled(false);
-            ui->groupBoxCursor->setEnabled(true);
-
-            model->UnselectObjects();
-        }
-        CreateCursorOnScene(event);
-    }
-
-    ui->sceneWidget->update();*/
 }
 
 void MainWindow::CreateCursorOnScene(std::shared_ptr<SceneMouseClickEvent> event)

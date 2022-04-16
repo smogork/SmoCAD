@@ -35,7 +35,8 @@ public:
     std::shared_ptr<Selectable> p_Selected;
     std::shared_ptr<SceneElement> p_SceneElement;
 
-    explicit Cube(const QString& name, QVector3D position);
+    explicit Cube(const QString& name);
+    Cube(const QString& name, QVector3D position);
 };
 
 

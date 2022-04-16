@@ -23,20 +23,12 @@ class MainWindow : public QMainWindow
 private:
     Ui::MainWindow *ui;
     std::list<std::unique_ptr<ComponentControl>> componentControls;
-    //std::list<std::unique_ptr<QListWidgetRenderableItem>> listObjects;
-    TransformableObject* selectedTransform = nullptr;
-    std::unique_ptr<TransformControl> transformTest;
-    std::unique_ptr<UVControl> UVTest;
-
-    void AddNewObject(IRenderableObject* ro, const QString& name, bool positionless = false);
-
 
     void CreateCursorOnScene(std::shared_ptr<SceneMouseClickEvent> event);
     void UpdateCursorUI(QVector3D wPos, QPoint vPos);
     void UpdateCursorWorldPosition();
     void UpdateCursorViewPosition();
     QPoint GetCursorViewPosition();
-
     void BlockCursorUISignals(bool b);
     void ResizeEvent(QSize size);
 
@@ -67,7 +59,6 @@ private slots:
     void on_spinCurViewPosX_valueChanged(int arg1);
     void on_spinCurViewPosY_valueChanged(int arg1);
 
-
     void on_actionTorus_triggered();
     void on_actionPoint_triggered();
     void on_actionDelete_triggered();
@@ -75,7 +66,7 @@ private slots:
 
     void on_actionShow_Bezier_polygon_toggled(bool arg1);
 
-    void on_actionRename_triggered();
     void on_actionBezierC0_triggered();
+    void on_actionBezierC2_triggered();
 };
 #endif // MAINWINDOW_H

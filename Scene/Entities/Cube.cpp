@@ -39,7 +39,6 @@ std::vector<int> Cube::GenerateTopologyIndices()
     };
 }
 
-
 Cube::Cube(const QString& name, QVector3D position): IEntity(CUBE_CLASS)
 {
     p_Transform = Transform::CreateRegisteredComponent(objectID, position);
@@ -56,6 +55,9 @@ Cube::Cube(const QString& name, QVector3D position): IEntity(CUBE_CLASS)
             m_color = QVector4D(0.8f, 0.8f, 0.8f, 1.0f);
     });
 }
+
+Cube::Cube(const QString &name) : Cube(name, QVector3D())
+{ }
 
 void Cube::InitializeDrawing()
 {
@@ -79,4 +81,3 @@ void Cube::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
     shader->SetUniform("u_MVP.Model", p_Transform->GetModelMatrix());
     shader->SetUniform("u_ObjectColor", m_color);
 }
-

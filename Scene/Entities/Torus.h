@@ -40,7 +40,8 @@ public:
     std::shared_ptr<Selectable> p_Selected;
     std::shared_ptr<SceneElement> p_SceneElement;
 
-    explicit Torus(const QString& name, QVector3D position);
+    explicit Torus(const QString& name);
+    Torus(const QString& name, QVector3D position);
 };
 
 

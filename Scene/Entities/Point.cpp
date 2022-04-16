@@ -4,6 +4,7 @@
 
 #include "Point.h"
 
+
 Point::Point(const QString& name, QVector3D pos): IEntity(POINT_CLASS)
 {
     p_Transform = Transform::CreateRegisteredComponent(objectID, pos);
@@ -22,6 +23,9 @@ Point::Point(const QString& name, QVector3D pos): IEntity(POINT_CLASS)
             m_color = QVector4D(0.8f, 0.8f, 0.8f, 1.0f);
     });
 }
+
+Point::Point(const QString &name) : Point(name, QVector3D(0, 0, 0))
+{ }
 
 Point::~Point()
 {
@@ -45,9 +49,7 @@ void Point::DrawingFunction(QOpenGLContext *context)
 }
 
 
-void Point::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
-{
+void Point::UniformFunction(std::shared_ptr<ShaderWrapper> shader) {
     shader->SetUniform("u_MVP.Model", p_Transform->GetModelMatrix());
     shader->SetUniform("u_ObjectColor", m_color);
 }
-

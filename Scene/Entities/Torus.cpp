@@ -28,6 +28,9 @@ Torus::Torus(const QString& name, QVector3D position): IEntity(TORUS_CLASS)
     vdNotifier = p_UV->VDensity.addNotifier(ASSIGN_NOTIFIER_FUNCTION(&Torus::UVChanged));
 }
 
+Torus::Torus(const QString &name) : Torus(name, QVector3D())
+{ }
+
 void Torus::UVChanged()
 {
     p_Drawing->SetVertexData(GenerateGeometryVertices());
@@ -115,7 +118,7 @@ std::vector<int> Torus::GenerateTopologyIndices()
 
 int Torus::GetIndexCount()
 {
-    return p_UV->UDensity * p_UV->UDensity * 4;
+    return p_UV->UDensity * p_UV->VDensity * 4;
 }
 
 

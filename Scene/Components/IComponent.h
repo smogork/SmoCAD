@@ -18,8 +18,9 @@ private:
 
 protected:
     explicit IComponent(unsigned int oid, unsigned sid);
-    virtual ~IComponent();
+
 public:
+    virtual ~IComponent();
     bool Enabled = true;
 
     unsigned int GetAttachedObjectID();

@@ -141,8 +141,8 @@ unsigned int SceneECS::MouseClicked(std::shared_ptr<SceneMouseClickEvent> event)
             return item->GetAttachedObjectID();
     }
 
-    /*if (auto select = GetSystem<SelectableSystem>().lock())
-        //select->Unselect();*/
+    //if (auto select = GetSystem<SelectableSystem>().lock())
+        //select->Unselect();
     UpdateCursorObject(event->ClickCenterPlainPoint);
 
 
@@ -159,6 +159,8 @@ void SceneECS::UpdateCursorObject(QVector3D cursorPos)
 
 void SceneECS::AddObject(std::shared_ptr<IEntity> obj)
 {
+    //sprawdz, czy posiada position => ustaw pozycje cursora
+
     objects.push_back(obj);
 }
 

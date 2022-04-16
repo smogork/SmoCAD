@@ -34,7 +34,8 @@ public:
     std::shared_ptr<CollectionAware> p_CollectionAware;
     std::shared_ptr<SceneElement> p_SceneElement;
 
-    explicit Point(const QString& name, QVector3D pos);
+    explicit Point(const QString& name);
+    Point(const QString& name, QVector3D pos);
     ~Point() override;
 };
 
