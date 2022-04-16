@@ -37,6 +37,7 @@ set(CONTROL_SOURCES
         Controls/uvcontrol.h Controls/uvcontrol.cpp Controls/uvcontrol.ui
         Controls/cursorcontrol.h Controls/cursorcontrol.cpp Controls/cursorcontrol.ui
         Controls/transformcollectioncontrol.h Controls/transformcollectioncontrol.cpp Controls/transformcollectioncontrol.ui
+        Controls/sceneelementslist.h Controls/sceneelementslist.cpp Controls/sceneelementslist.ui
     )
 
 set(PROJECT_SOURCES

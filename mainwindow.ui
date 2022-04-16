@@ -38,13 +38,20 @@
       <property name="focusPolicy">
        <enum>Qt::StrongFocus</enum>
       </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_2"/>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetDefaultConstraint</enum>
+       </property>
+      </layout>
      </widget>
     </item>
     <item>
      <layout class="QVBoxLayout" name="verticalLayout_3">
+      <property name="sizeConstraint">
+       <enum>QLayout::SetDefaultConstraint</enum>
+      </property>
       <item>
-       <widget class="CursorControl" name="widget" native="true"/>
+       <widget class="CursorControl" name="cursorPosWidget" native="true"/>
       </item>
       <item>
        <widget class="QScrollArea" name="scrollArea">
@@ -54,8 +61,14 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="sizeAdjustPolicy">
+         <enum>QAbstractScrollArea::AdjustToContents</enum>
+        </property>
         <property name="widgetResizable">
          <bool>true</bool>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTop|Qt::AlignTrailing</set>
         </property>
         <widget class="QWidget" name="scrollAreaWidgetContents">
          <property name="geometry">
@@ -63,7 +76,7 @@
            <x>0</x>
            <y>0</y>
            <width>68</width>
-           <height>424</height>
+           <height>723</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout"/>
@@ -71,29 +84,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QListWidget" name="listWidgetObjects">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>300</height>
-         </size>
-        </property>
-        <property name="alternatingRowColors">
-         <bool>true</bool>
-        </property>
-        <property name="selectionMode">
-         <enum>QAbstractItemView::ExtendedSelection</enum>
-        </property>
-        <property name="selectionRectVisible">
-         <bool>true</bool>
-        </property>
-       </widget>
+       <widget class="SceneElementsList" name="sceneElementsWIdget" native="true"/>
       </item>
      </layout>
     </item>
@@ -105,7 +96,7 @@
      <x>0</x>
      <y>0</y>
      <width>1200</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuObjects">
@@ -120,17 +111,17 @@
      <addaction name="actionPoint"/>
      <addaction name="actionCube"/>
      <addaction name="actionBezierC0"/>
+     <addaction name="actionBezierC2"/>
     </widget>
     <addaction name="menuAdd"/>
-    <addaction name="actionDelete"/>
     <addaction name="separator"/>
-    <addaction name="actionRename"/>
    </widget>
    <widget class="QMenu" name="menuOptions">
     <property name="title">
      <string>Options</string>
     </property>
     <addaction name="actionShow_Bezier_polygon"/>
+    <addaction name="actionShow_BSpline_polygon"/>
    </widget>
    <addaction name="menuObjects"/>
    <addaction name="menuOptions"/>
@@ -171,10 +162,23 @@
     <bool>true</bool>
    </property>
    <property name="checked">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>Show Bezier polygon</string>
+   </property>
+  </action>
+  <action name="actionBezierC2">
+   <property name="text">
+    <string>BezierC2</string>
+   </property>
+  </action>
+  <action name="actionShow_BSpline_polygon">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show BSpline polygon</string>
    </property>
   </action>
  </widget>
@@ -189,6 +193,12 @@
    <class>CursorControl</class>
    <extends>QWidget</extends>
    <header>Controls/cursorcontrol.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SceneElementsList</class>
+   <extends>QWidget</extends>
+   <header>Controls/sceneelementslist.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

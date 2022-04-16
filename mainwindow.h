@@ -29,7 +29,7 @@ private:
     std::unique_ptr<UVControl> UVTest;
 
     void AddNewObject(IRenderableObject* ro, const QString& name, bool positionless = false);
-    void UpdateComponentUI(unsigned int oid);
+
 
     void CreateCursorOnScene(std::shared_ptr<SceneMouseClickEvent> event);
     void UpdateCursorUI(QVector3D wPos, QPoint vPos);
@@ -43,9 +43,8 @@ private:
 protected slots:
     void MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event);
     void CameraUpdated(std::shared_ptr<CameraUpdateEvent> event);
-    //void SelectObjectChanged(std::shared_ptr<SelectedObjectChangedEvent> event);
+    void UpdateComponentUI(unsigned int oid);
 
-    void showObjectListContextMenu(const QPoint& pos);
     void AddPointToBezier();
     void CreateBezierFromPoints();
 
@@ -69,7 +68,6 @@ private slots:
     void on_spinCurViewPosY_valueChanged(int arg1);
 
 
-    void on_listWidgetObjects_itemClicked(QListWidgetItem *item);
     void on_actionTorus_triggered();
     void on_actionPoint_triggered();
     void on_actionDelete_triggered();

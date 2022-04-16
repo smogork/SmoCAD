@@ -15,24 +15,19 @@ MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    SceneECS::elementList = ui->listWidgetObjects;
-
-    ui->listWidgetObjects->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->listWidgetObjects, &QListWidget::customContextMenuRequested, this, &MainWindow::showObjectListContextMenu);
 
     QObject::connect(&Renderer::controller, &InputController::SceneMouseClicked,
                      this, &MainWindow::MouseRaycastSlot);
     QObject::connect(&Renderer::controller, &InputController::CameraUpdated,
                      this, &MainWindow::CameraUpdated);
-    //QObject::connect(this->model.get(), &SceneModelOld::SelectedObjectChanged,
-                     //this, &MainWindow::SelectObjectChanged);
     QObject::connect(ui->sceneWidget, &GLWidget::WidgetResized,
                      this, &MainWindow::ResizeEvent);
 
-
-
-    //for (auto ro : model->GetRenderableObjects())
-    //    listObjects.push_back(std::make_unique<QListWidgetRenderableItem>(ui->listWidgetObjects, "Start objects", ro, model));
+    //register signals to SceneListElements
+    QObject::connect(ui->sceneElementsWIdget, &SceneElementsList::RequestControlsUpdate,
+                     this, &MainWindow::UpdateComponentUI);
+    QObject::connect(ui->sceneElementsWIdget, &SceneElementsList::RequestRepaint,
+                     ui->sceneWidget, &GLWidget::RedrawScreen);
 }
 
 MainWindow::~MainWindow()
@@ -243,27 +238,6 @@ void MainWindow::CreateCursorOnScene(std::shared_ptr<SceneMouseClickEvent> event
     UpdateCursorUI(clickPoint, event->ViewClickPoint);
 }
 
-void MainWindow::on_listWidgetObjects_itemClicked(QListWidgetItem *item)
-{
-    auto rItem = (SceneElementSystem::QListWidgetSceneElement*)item;
-
-    if (ui->listWidgetObjects->selectedItems().size() == 1)
-    {
-        rItem->SelectItem();
-        UpdateComponentUI(rItem->GetAttachedObjectID());
-        ui->sceneWidget->update();
-    }
-
-
-    /*if (rItem->SelectOnScene(ui->listWidgetObjects->selectedItems().size() > 1))
-    {
-        //ui->groupBoxTransform->setEnabled(true);
-        //ui->groupBoxUVParams->setEnabled(dynamic_cast<TorusObject*>(rItem->obj) != nullptr);
-
-        ui->sceneWidget->update();
-    }*/
-}
-
 #pragma region CursorUiEvents
 void MainWindow::on_spinCurPosX_valueChanged(double arg1)
 {
@@ -371,31 +345,6 @@ void MainWindow::AddPointToBezier()
             ui->sceneWidget->update();
         }
     }*/
-}
-
-void MainWindow::showObjectListContextMenu(const QPoint &pos)
-{
-// Handle global position
-    QPoint globalPos = ui->listWidgetObjects->mapToGlobal(pos);
-
-    int selectedPoints = 0;
-    for (QListWidgetItem* i : ui->listWidgetObjects->selectedItems())
-        selectedPoints += dynamic_cast<SceneElementSystem::QListWidgetSceneElement*>(i) ? 1 : 0;
-
-    // Create menu and insert some actions
-    QMenu myMenu;
-    if (auto scene = SceneECS::Instance().lock())
-    {
-        /*myMenu.addAction("Remove", this, &MainWindow::on_actionDelete_triggered);
-        if (scene->GetSystem<TransformCollectionSystem>().lock()->GetComponent())
-            myMenu.addAction("Add to bezier", this, &MainWindow::AddPointToBezier);
-        if (selectedPoints > 1)
-            myMenu.addAction("Create bezier from points", this, &MainWindow::CreateBezierFromPoints);
-        //myMenu.addAction("Erase",  this, SLOT(eraseItem()));*/
-    }
-
-    // Show context menu at handling position
-    myMenu.exec(globalPos);
 }
 
 void MainWindow::CreateBezierFromPoints()
