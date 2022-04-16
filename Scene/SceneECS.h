@@ -33,7 +33,7 @@ public:
         assert(it != systems.end());
         return std::static_pointer_cast<S>(it->second);
     }
-
+/*  To na razie nie dziala
     template <typename S>
     std::weak_ptr<S> GetComponentOfSystem(unsigned int oid)
     {
@@ -41,7 +41,7 @@ public:
         assert(it != systems.end());
         auto system = std::static_pointer_cast<S>(it->second);
         return system->GetComponent(oid);
-    }
+    }*/
 
     unsigned int MouseClicked(std::shared_ptr<SceneMouseClickEvent> event);
     void AddObject(std::shared_ptr<IEntity> obj);

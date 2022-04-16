@@ -4,14 +4,14 @@
 
 #include "VirtualPoint.h"
 
-VirtualPoint::VirtualPoint(QVector3D pos): IEntity(POINT_CLASS)
+VirtualPoint::VirtualPoint(QVector3D pos): IEntity(VIRTUAL_POINT_CLASS)
 {
-    p_Transform = Transform::CreateRegisteredComponent(objectID, pos);
-    p_Drawing = StaticDrawing::CreateRegisteredComponent(objectID);
+    AddComponent(p_Transform = Transform::CreateRegisteredComponent(objectID, pos));
+    AddComponent(p_Drawing = StaticDrawing::CreateRegisteredComponent(objectID));
     InitializeDrawing();
-    p_Selectable = Selectable::CreateRegisteredComponent(objectID);
-    p_ScreenSelectable = ScreenSelectable::CreateRegisteredComponent(objectID, p_Transform, p_Selectable);
-    p_CollectionAware = CollectionAware::CreateRegisteredComponent(objectID, p_Transform);
+    AddComponent(p_Selectable = Selectable::CreateRegisteredComponent(objectID));
+    AddComponent(p_ScreenSelectable = ScreenSelectable::CreateRegisteredComponent(objectID, p_Transform, p_Selectable));
+    AddComponent(p_CollectionAware = CollectionAware::CreateRegisteredComponent(objectID, p_Transform));
 
     selectedNotifier = p_Selectable->Selected.addNotifier([this]() {
         if (p_Selectable->Selected)

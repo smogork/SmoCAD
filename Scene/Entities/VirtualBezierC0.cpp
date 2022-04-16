@@ -7,8 +7,8 @@
 
 VirtualBezierC0::VirtualBezierC0(): IEntity(BEZIERC0_CLASS)
 {
-    p_Drawing = DynamicDrawing::CreateRegisteredComponent(objectID);
-    p_Collection = TransformCollection::CreateRegisteredComponent(objectID);
+    AddComponent(p_Drawing = DynamicDrawing::CreateRegisteredComponent(objectID));
+    AddComponent(p_Collection = TransformCollection::CreateRegisteredComponent(objectID));
 
     InitializeDrawing();
     QObject::connect(p_Collection.get(), &TransformCollection::PointInCollectionModified,

@@ -45,7 +45,7 @@ void Composite::CompositeElement::UpdateDTransform()
 
 Composite::Composite(std::shared_ptr<CompositeAware> startObject): IEntity(COMPOSITE_CLASS)
 {
-    p_Transform = Transform::CreateRegisteredComponent(objectID, startObject->p_Transform->Position);
+    AddComponent(p_Transform = Transform::CreateRegisteredComponent(objectID, startObject->p_Transform->Position));
     m_center = std::make_unique<Cursor>(p_Transform->Position);
     m_center->p_Transform->Scale = QVector3D(0.25f, 0.25f, 0.25f);
     objects.push_back(std::make_unique<CompositeElement>(this, startObject->p_Transform, startObject->p_Drawing));

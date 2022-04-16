@@ -41,12 +41,12 @@ std::vector<int> Cube::GenerateTopologyIndices()
 
 Cube::Cube(const QString& name, QVector3D position): IEntity(CUBE_CLASS)
 {
-    p_Transform = Transform::CreateRegisteredComponent(objectID, position);
-    p_Drawing = StaticDrawing::CreateRegisteredComponent(objectID);
+    AddComponent(p_Transform = Transform::CreateRegisteredComponent(objectID, position));
+    AddComponent(p_Drawing = StaticDrawing::CreateRegisteredComponent(objectID));
     InitializeDrawing();
-    p_CompositeAware = CompositeAware::CreateRegisteredComponent(objectID, p_Transform, p_Drawing);
-    p_Selected = Selectable::CreateRegisteredComponent(objectID);
-    p_SceneElement = SceneElement::CreateRegisteredComponent(objectID, name, p_Selected);
+    AddComponent(p_CompositeAware = CompositeAware::CreateRegisteredComponent(objectID, p_Transform, p_Drawing));
+    AddComponent(p_Selected = Selectable::CreateRegisteredComponent(objectID));
+    AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(objectID, name, p_Selected));
 
     selectedNotifier = p_Selected->Selected.addNotifier([this]() {
         if (p_Selected->Selected)
