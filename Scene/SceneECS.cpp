@@ -23,7 +23,7 @@
 #include <list>
 
 std::shared_ptr<SceneECS> SceneECS::scene = nullptr;
-QListWidget* SceneECS::elementList = nullptr;
+QListWidget *SceneECS::elementList = nullptr;
 
 std::weak_ptr<SceneECS> SceneECS::Instance()
 {
@@ -44,11 +44,16 @@ SceneECS::SceneECS()
     systems.put<DrawingSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<DrawingSystem>()));
     systems.put<UVParamsSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<UVParamsSystem>()));
     systems.put<SelectableSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<SelectableSystem>()));
-    systems.put<ScreenSelectableSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<ScreenSelectableSystem>()));
-    systems.put<CompositeAwareSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<CompositeAwareSystem>()));
-    systems.put<CollectionAwareSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<CollectionAwareSystem>()));
-    systems.put<TransformCollectionSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<TransformCollectionSystem>()));
-    systems.put<SceneElementSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<SceneElementSystem>(elementList)));
+    systems.put<ScreenSelectableSystem>(
+            std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<ScreenSelectableSystem>()));
+    systems.put<CompositeAwareSystem>(
+            std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<CompositeAwareSystem>()));
+    systems.put<CollectionAwareSystem>(
+            std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<CollectionAwareSystem>()));
+    systems.put<TransformCollectionSystem>(
+            std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<TransformCollectionSystem>()));
+    systems.put<SceneElementSystem>(
+            std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<SceneElementSystem>(elementList)));
 }
 
 SceneECS::~SceneECS()
@@ -120,14 +125,14 @@ void SceneECS::RemoveObjectsFromScene()
 
 void SceneECS::ClearSystems()
 {
-    for (auto s : systems)
+    for (auto s: systems)
         s.second->ClearSystem();
 }
 
 QString SceneECS::DebugSystemReport()
 {
     QString result;
-    for (auto s : systems)
+    for (auto s: systems)
         result.append(QString("%1: %2  ").arg(s.second->GetSystemName()).arg(s.second->GetComponentCount()));
     return result;
 }
@@ -142,7 +147,7 @@ unsigned int SceneECS::MouseClicked(std::shared_ptr<SceneMouseClickEvent> event)
     }
 
     //if (auto select = GetSystem<SelectableSystem>().lock())
-        //select->Unselect();
+    //select->Unselect();
     UpdateCursorObject(event->ClickCenterPlainPoint);
 
 
@@ -159,7 +164,8 @@ void SceneECS::UpdateCursorObject(QVector3D cursorPos)
 
 void SceneECS::AddObject(std::shared_ptr<IEntity> obj)
 {
-    if (cursor) {
+    if (cursor)
+    {
         auto t = obj->GetComponent<Transform>().lock();
         if (t)
             t->Position = cursor->p_Transform->Position.value();
@@ -174,7 +180,7 @@ std::list<std::unique_ptr<ComponentControl>> SceneECS::CreateUIForObject(unsigne
     if (oid == NON_OBJECT_ID)
         return res;
 
-    for (auto s : systems)
+    for (auto s: systems)
     {
         std::unique_ptr<ComponentControl> elem = s.second->PrepareUIForObject(oid);
         if (elem)
@@ -182,5 +188,14 @@ std::list<std::unique_ptr<ComponentControl>> SceneECS::CreateUIForObject(unsigne
     }
 
     return res;
+}
+
+void SceneECS::RemoveObject(unsigned int oid)
+{
+    objects.remove_if([&](std::shared_ptr<IEntity> &item)
+                {
+                    return item->GetObjectID() == oid;
+                }
+            );
 }
 

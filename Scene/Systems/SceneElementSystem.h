@@ -23,7 +23,9 @@ public:
         QListWidgetSceneElement(QListWidget* parent, std::shared_ptr<SceneElement> element);
 
         void SelectItem();
+        void Rename(const QString& name);
         unsigned int GetAttachedObjectID();
+        const QString& GetName();
     };
 private:
     std::map<unsigned int, std::unique_ptr<QListWidgetSceneElement>> listItems;

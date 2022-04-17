@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QObject>
+#include <QSpacerItem>
 
 #include <Renderer/InputController/InputController.h>
 #include "Objects/IRenderableObject.h"
@@ -23,6 +24,7 @@ class MainWindow : public QMainWindow
 private:
     Ui::MainWindow *ui;
     std::list<std::unique_ptr<ComponentControl>> componentControls;
+    std::unique_ptr<QSpacerItem> componentSpacer;
 
     void CreateCursorOnScene(std::shared_ptr<SceneMouseClickEvent> event);
     void UpdateCursorUI(QVector3D wPos, QPoint vPos);

@@ -16,7 +16,7 @@
 #include "Scene/Entities/Cursor.h"
 #include "Scene/Entities/Composite.h"
 
-class SceneECS: QObject
+class SceneECS: public QObject
 {
     Q_OBJECT
 public:
@@ -45,6 +45,7 @@ public:
 
     unsigned int MouseClicked(std::shared_ptr<SceneMouseClickEvent> event);
     void AddObject(std::shared_ptr<IEntity> obj);
+    void RemoveObject(unsigned int oid);
     std::list<std::unique_ptr<ComponentControl>> CreateUIForObject(unsigned int oid);
 
     void RemoveObjectsFromScene();

@@ -25,6 +25,10 @@ private slots:
 
     void on_listSceneElements_itemClicked(QListWidgetItem *item);
 
+    //contex menu slots
+    void onRemoveSceneElement();
+    void onRenameSceneElement();
+
 private:
     Ui::SceneElementsList *ui;
 };

@@ -1,7 +1,6 @@
-#include <QListWidget>
-#include <QInputDialog>
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
+
 #include "Scene/Systems/SelectableSystem.h"
 #include "Scene/Entities/Point.h"
 #include "Scene/Entities/Torus.h"
@@ -28,6 +27,10 @@ MainWindow::MainWindow(QWidget *parent)
                      this, &MainWindow::UpdateComponentUI);
     QObject::connect(ui->sceneElementsWIdget, &SceneElementsList::RequestRepaint,
                      ui->sceneWidget, &GLWidget::RedrawScreen);
+
+    componentSpacer.reset();
+    componentSpacer = std::make_unique<QSpacerItem>(40, 20, QSizePolicy::Minimum, QSizePolicy::Expanding);
+    ui->verticalLayout->addSpacerItem(componentSpacer.get());
 }
 
 MainWindow::~MainWindow()
@@ -37,11 +40,13 @@ MainWindow::~MainWindow()
 
 void MainWindow::UpdateComponentUI(unsigned int oid)
 {
+
     if (auto scene = SceneECS::Instance().lock())
     {
         componentControls = scene->CreateUIForObject(oid);
-        for (const std::unique_ptr<ComponentControl> &widget: componentControls)
-        {
+
+
+        for (const std::unique_ptr<ComponentControl> &widget: componentControls) {
             ui->verticalLayout->addWidget(widget.get());
             QObject::connect(widget.get(), &ComponentControl::RequestRepaint,
                              ui->sceneWidget, &GLWidget::RedrawScreen);
