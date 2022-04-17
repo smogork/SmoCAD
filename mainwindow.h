@@ -63,13 +63,10 @@ private slots:
 
     void on_actionTorus_triggered();
     void on_actionPoint_triggered();
-    void on_actionDelete_triggered();
     void on_actionCube_triggered();
     void on_actionBezierC0_triggered();
     void on_actionBezierC2_triggered();
 
     void on_actionShow_Bezier_polygon_toggled(bool arg1);
-
-
 };
 #endif // MAINWINDOW_H

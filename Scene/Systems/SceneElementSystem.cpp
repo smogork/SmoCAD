@@ -39,10 +39,11 @@ void SceneElementSystem::QListWidgetSceneElement::Rename(const QString &name)
         elem->Name = name;
 }
 
-const QString &SceneElementSystem::QListWidgetSceneElement::GetName()
+const QString SceneElementSystem::QListWidgetSceneElement::GetName()
 {
     if (auto elem = element.lock())
         return elem->Name;
+    return "";
 }
 
 #pragma endregion

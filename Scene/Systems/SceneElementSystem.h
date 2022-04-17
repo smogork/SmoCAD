@@ -25,7 +25,7 @@ public:
         void SelectItem();
         void Rename(const QString& name);
         unsigned int GetAttachedObjectID();
-        const QString& GetName();
+        const QString GetName();
     };
 private:
     std::map<unsigned int, std::unique_ptr<QListWidgetSceneElement>> listItems;

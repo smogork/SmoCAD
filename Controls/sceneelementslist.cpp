@@ -35,11 +35,6 @@ void SceneElementsList::showObjectListContextMenu(const QPoint &pos) {
     {
         myMenu.addAction("Rename", this, &SceneElementsList::onRenameSceneElement);
         myMenu.addAction("Remove", this, &SceneElementsList::onRemoveSceneElement);
-        //if (scene->GetSystem<TransformCollectionSystem>().lock()->GetComponent())
-        //    myMenu.addAction("Add to bezier", this, &MainWindow::AddPointToBezier);
-        //if (selectedPoints > 1)
-            //myMenu.addAction("Create bezier from points", this, &MainWindow::CreateBezierFromPoints);
-        //myMenu.addAction("Erase",  this, SLOT(eraseItem()));
     }
 
     // Show context menu at handling position
