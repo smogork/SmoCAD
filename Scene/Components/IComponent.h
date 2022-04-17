@@ -9,15 +9,18 @@
 #include <QObject>
 #include <memory>
 
-class IComponent: public QObject
+class IComponent : public QObject
 {
-    Q_OBJECT
+Q_OBJECT
 private:
     unsigned int attachedObjectId;
     unsigned int attachedSystemId;
 
 protected:
     explicit IComponent(unsigned int oid, unsigned sid);
+
+signals:
+    void ComponentDeleted();
 
 public:
     virtual ~IComponent();

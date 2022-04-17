@@ -41,6 +41,9 @@ protected:
         m_components.put<C>(std::static_pointer_cast<IComponent>(component));
     }
 
+signals:
+    void EntityDeleted();
+
 public:
 
     explicit IEntity(unsigned int cid);

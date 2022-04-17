@@ -44,8 +44,6 @@ void MainWindow::UpdateComponentUI(unsigned int oid)
     if (auto scene = SceneECS::Instance().lock())
     {
         componentControls = scene->CreateUIForObject(oid);
-
-
         for (const std::unique_ptr<ComponentControl> &widget: componentControls) {
             ui->verticalLayout->addWidget(widget.get());
             QObject::connect(widget.get(), &ComponentControl::RequestRepaint,
@@ -108,44 +106,6 @@ void MainWindow::on_actionBezierC2_triggered()
     std::shared_ptr<BezierC2> b2 = std::make_shared<BezierC2>("NewBezierC2");
     if (auto scene = SceneECS::Instance().lock())
         scene->AddObject(b2);
-    ui->sceneWidget->update();
-}
-
-void MainWindow::on_actionDelete_triggered()
-{
-
-    /*if (model->GetSelectedObject())
-    {
-        listObjects.remove_if(
-                [&](std::unique_ptr<QListWidgetRenderableItem> &item)
-                {
-                    return item->CompareInsideObject(model->GetSelectedObject());
-                }
-        );
-
-        PointObject* point = dynamic_cast<PointObject*>(model->GetSelectedObject());
-        if (point)
-        {
-            std::shared_ptr<PointObjectChangedEvent> event = std::make_shared<PointObjectChangedEvent>(point, true);
-            emit PointObjectChanged(event);
-        }
-        model->RemoveObject(model->GetSelectedObject());
-    }
-    else if (model->GetCompositeObject())
-    {
-        for (CompositeObject::CompositeTransform& o: model->GetCompositeObject()->GetObjects())
-        {
-            listObjects.remove_if(
-                    [&](std::unique_ptr<QListWidgetRenderableItem> &item)
-                    {
-                        return item->CompareInsideObject(o.Object);
-                    }
-            );
-        }
-        model->RemoveComposite();
-    }
-
-    selectedTransform = nullptr;*/
     ui->sceneWidget->update();
 }
 
