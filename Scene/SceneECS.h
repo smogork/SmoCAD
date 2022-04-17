@@ -15,6 +15,8 @@
 #include "Scene/Entities/Grid.h"
 #include "Scene/Entities/Cursor.h"
 #include "Scene/Entities/Composite.h"
+#include "Scene/Systems/SceneElementSystem.h"
+#include "Controls/ListElements/QListWidgetSceneElement.h"
 
 class SceneECS: public QObject
 {
@@ -33,20 +35,31 @@ public:
         assert(it != systems.end());
         return std::static_pointer_cast<S>(it->second);
     }
-/*  To na razie nie dziala
+
     template <typename S>
-    std::weak_ptr<S> GetComponentOfSystem(unsigned int oid)
+    bool IsObjectInSystem(unsigned int oid)
+    {
+        auto it = systems.find<S>();
+        assert(it != systems.end());
+        auto system = std::static_pointer_cast<S>(it->second);
+        return system->IsObjectInSystem(oid);
+    }
+
+    //[TODO] trzeba przerobic aby przekazywac tylko system/component
+    template <typename S, typename C>
+    std::weak_ptr<C> GetComponentOfSystem(unsigned int oid)
     {
         auto it = systems.find<S>();
         assert(it != systems.end());
         auto system = std::static_pointer_cast<S>(it->second);
         return system->GetComponent(oid);
-    }*/
+    }
 
     unsigned int MouseClicked(std::shared_ptr<SceneMouseClickEvent> event);
     void AddObject(std::shared_ptr<IEntity> obj);
     void RemoveObject(unsigned int oid);
     std::list<std::unique_ptr<ComponentControl>> CreateUIForObject(unsigned int oid);
+    std::list<std::pair<QString, std::function<void(QListWidgetSceneElement* item)> > > CreateContextMenuForSceneElement(unsigned int oid);
 
     void RemoveObjectsFromScene();
     void RemoveUniqueObjects();

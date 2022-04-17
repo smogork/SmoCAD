@@ -5,6 +5,7 @@
 #include "CollectionAware.h"
 #include "Scene/SceneECS.h"
 #include "Scene/Systems/CollectionAwareSystem.h"
+#include "Scene/Utilities/Utilites.h"
 
 std::shared_ptr<CollectionAware>
 CollectionAware::CreateRegisteredComponent(unsigned int oid, std::shared_ptr<Transform> t)

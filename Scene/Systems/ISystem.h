@@ -44,6 +44,13 @@ public:
         return std::shared_ptr<C>(nullptr);
     }
 
+    bool IsObjectInSystem(unsigned int oid)
+    {
+        if (components.contains(oid))
+            return true;
+        return false;
+    }
+
     std::vector<std::weak_ptr<C>> GetComponents()
     {
         std::vector<std::weak_ptr<C>> res;

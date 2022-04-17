@@ -9,24 +9,10 @@
 #include <QListWidgetItem>
 #include "ISystem.h"
 #include "Scene/Components/SceneElement.h"
+#include "Controls/ListElements/QListWidgetSceneElement.h"
 
 class SceneElementSystem: public ISystem<SceneElement>
 {
-public:
-    class QListWidgetSceneElement: public QListWidgetItem
-    {
-    private:
-        std::weak_ptr<SceneElement> element;
-        QPropertyNotifier nameNotifier;
-
-    public:
-        QListWidgetSceneElement(QListWidget* parent, std::shared_ptr<SceneElement> element);
-
-        void SelectItem();
-        void Rename(const QString& name);
-        unsigned int GetAttachedObjectID();
-        const QString GetName();
-    };
 private:
     std::map<unsigned int, std::unique_ptr<QListWidgetSceneElement>> listItems;
     QListWidget* sceneElementList;

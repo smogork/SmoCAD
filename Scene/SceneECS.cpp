@@ -19,7 +19,6 @@
 #include "Scene/Entities/BezierC2.h"
 #include "Controls/ComponentControl.h"
 #include "Scene/Systems/ScreenSelectableSystem.h"
-#include "Scene/Systems/SceneElementSystem.h"
 #include <list>
 
 std::shared_ptr<SceneECS> SceneECS::scene = nullptr;
@@ -193,9 +192,33 @@ std::list<std::unique_ptr<ComponentControl>> SceneECS::CreateUIForObject(unsigne
 void SceneECS::RemoveObject(unsigned int oid)
 {
     objects.remove_if([&](std::shared_ptr<IEntity> &item)
-                {
-                    return item->GetObjectID() == oid;
-                }
-            );
+                      {
+                          return item->GetObjectID() == oid;
+                      }
+                     );
+}
+
+std::list<std::pair<QString, std::function<void(QListWidgetSceneElement* item)> > >
+SceneECS::CreateContextMenuForSceneElement(unsigned int oid)
+{
+    std::list<std::pair<QString, std::function<void(QListWidgetSceneElement* item)> > > res;
+
+    if (oid == NON_OBJECT_ID)
+        return res;
+
+    auto selectedSystem = GetSystem<SelectableSystem>().lock();
+    auto selectedObj = selectedSystem->GetSelectedObject();
+    if (selectedObj == nullptr)
+        return res;
+
+    for (auto s: systems)
+    {
+        std::list<std::pair<QString, std::function<void(QListWidgetSceneElement* item)> > > inner = s.second->CreateContextMenuForSceneElement(
+                oid, selectedObj->GetAttachedObjectID());
+        for (auto item: inner)
+            res.push_back(item);
+    }
+
+    return res;
 }
 

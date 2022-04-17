@@ -15,6 +15,8 @@ public:
     CompositeAwareSystem(): ISystem(SYSTEM_ID::COMPOSITE_AWARE)
     { }
     const char* GetSystemName() override { return "CompositeAwareSystem"; }
+
+
 };
 
 

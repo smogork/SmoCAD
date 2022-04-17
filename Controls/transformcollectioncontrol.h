@@ -7,23 +7,12 @@
 #include "ComponentControl.h"
 #include "Scene/Components/TransformCollection.h"
 #include "Scene/Components/SceneElement.h"
+#include "Controls/ListElements/QListWidgetCollectionElement.h"
 
 namespace Ui
 {
     class TransformCollectionControl;
 }
-
-class QListWidgetCollectionElement : public QListWidgetItem
-{
-private:
-    std::weak_ptr<SceneElement> element;
-    QPropertyNotifier nameNotifier;
-
-public:
-    QListWidgetCollectionElement(QListWidget *parent, std::shared_ptr<SceneElement> element);
-
-    unsigned int GetAttachedObjectID();
-};
 
 class TransformCollectionControl : public ComponentControl
 {

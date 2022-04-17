@@ -9,18 +9,30 @@
 #include <string>
 #include <memory>
 #include <QWidget>
+#include "Controls/ListElements/QListWidgetSceneElement.h"
 #include "Controls/ComponentControl.h"
 
 class IAbstractSystem
 {
 protected:
-    IAbstractSystem() {};
+    IAbstractSystem()
+    {};
 
 public:
     virtual int GetComponentCount() = 0;
-    virtual const char* GetSystemName() = 0;
-    virtual void ClearSystem() { };
-    virtual std::unique_ptr<ComponentControl> PrepareUIForObject(unsigned int oid) { return nullptr; }
+    virtual const char *GetSystemName() = 0;
+
+    virtual void ClearSystem()
+    {};
+
+    virtual std::unique_ptr<ComponentControl> PrepareUIForObject(unsigned int oid)
+    { return nullptr; }
+
+    virtual std::list<std::pair<QString, std::function<void(QListWidgetSceneElement *item)> > >
+    CreateContextMenuForSceneElement(unsigned int contextOid, unsigned int selectedOid)
+    {
+        return {};
+    }
 };
 
 
