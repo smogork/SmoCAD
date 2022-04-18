@@ -23,6 +23,7 @@ private:
 
 private slots:
     void CollectionElementTransformChanged(QVector3D val);
+    void PointFromCollectionHasBeenDeleted(unsigned int deletedOid);
 
 public:
     static std::shared_ptr<TransformCollection> CreateRegisteredComponent(unsigned int oid);

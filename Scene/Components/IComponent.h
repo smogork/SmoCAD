@@ -20,7 +20,7 @@ protected:
     explicit IComponent(unsigned int oid, unsigned sid);
 
 signals:
-    void ComponentDeleted();
+    void ComponentDeleted(unsigned int oid);
 
 public:
     virtual ~IComponent();

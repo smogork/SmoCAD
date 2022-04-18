@@ -6,7 +6,7 @@
 #include "Scene/SceneECS.h"
 #include "Scene/Systems/TransformCollectionSystem.h"
 
-std::shared_ptr <TransformCollection> TransformCollection::CreateRegisteredComponent(unsigned int oid)
+std::shared_ptr<TransformCollection> TransformCollection::CreateRegisteredComponent(unsigned int oid)
 {
     if (auto scene = SceneECS::Instance().lock())
     {
@@ -36,7 +36,7 @@ TransformCollection::~TransformCollection()
     UnregisterComponent();
 }
 
-void TransformCollection::AddPoint(std::shared_ptr <CollectionAware> newObject)
+void TransformCollection::AddPoint(std::shared_ptr<CollectionAware> newObject)
 {
     //[TODO] zastanowic sie nad wielokrotnymi punktami
     //std::list<std::weak_ptr<Transform>> toRemove;
@@ -57,7 +57,7 @@ void TransformCollection::AddPoint(std::shared_ptr <CollectionAware> newObject)
 }
 
 //Podlacz sygnal zmiany polozenia do kolekcji
-void TransformCollection::ConnectSignals(std::shared_ptr <Transform> p)
+void TransformCollection::ConnectSignals(std::shared_ptr<Transform> p)
 {
     if (pointNotifiers.contains(p->GetAttachedObjectID()))
         return;
@@ -72,12 +72,15 @@ void TransformCollection::ConnectSignals(std::shared_ptr <Transform> p)
                                                                                                            p->GetAttachedObjectID());
                                                                                                }
                                                                                            })));
+
+    connect(p.get(), &IComponent::ComponentDeleted, this, &TransformCollection::PointFromCollectionHasBeenDeleted);
 }
 
 void TransformCollection::Clear()
 {
     pointNotifiers.clear();
     points.clear();
+    //disconnect(nullptr, &IComponent::ComponentDeleted, this, &TransformCollection::PointFromCollectionHasBeenDeleted);
     emit PointInCollectionModified();
 }
 
@@ -86,7 +89,7 @@ void TransformCollection::CollectionElementTransformChanged(QVector3D val)
     emit PointInCollectionModified();
 }
 
-const std::list <std::weak_ptr<Transform>> &TransformCollection::GetPoints()
+const std::list<std::weak_ptr<Transform>> &TransformCollection::GetPoints()
 {
     //[TODO] wyeliminuj przy pobieraniu punktów te Transformy, które już straciły kontekst
 
@@ -107,8 +110,9 @@ TransformCollection &TransformCollection::operator=(const TransformCollection &o
 {
     pointNotifiers.clear();
     points.clear();
+    //disconnect(nullptr, &IComponent::ComponentDeleted, this, &TransformCollection::PointFromCollectionHasBeenDeleted);
 
-    for (const std::weak_ptr <Transform> &el_weak: other.points)
+    for (const std::weak_ptr<Transform> &el_weak: other.points)
     {
         if (auto el = el_weak.lock())
         {
@@ -123,11 +127,46 @@ TransformCollection &TransformCollection::operator=(const TransformCollection &o
 
 void TransformCollection::RemovePoint(unsigned int oid)
 {
+    auto weak_item = std::find_if(points.begin(), points.end(),[oid](std::weak_ptr<Transform> wp)
+    {
+        if (auto p = wp.lock())
+            return p->GetAttachedObjectID() == oid;
+        return false;
+    });
+    if (auto item = (*weak_item).lock())
+        disconnect(item.get(), &IComponent::ComponentDeleted, this, &TransformCollection::PointFromCollectionHasBeenDeleted);
+
     points.remove_if([oid](std::weak_ptr<Transform> wp)
                      {
-                        if (auto p = wp.lock())
-                            return p->GetAttachedObjectID() == oid;
-                        return true;
+                         if (auto p = wp.lock())
+                             return p->GetAttachedObjectID() == oid;
+                         return true;
                      });
     pointNotifiers.erase(oid);
+
+    emit PointInCollectionModified();
+}
+
+void TransformCollection::PointFromCollectionHasBeenDeleted(unsigned int deletedOid)
+{
+    auto oid = deletedOid;
+    //RemovePoint(deletedOid);
+    //emit PointInCollectionModified();
+    /*auto weak_item = std::find_if(points.begin(), points.end(),[oid](std::weak_ptr<Transform> wp)
+    {
+        if (auto p = wp.lock())
+            return p->GetAttachedObjectID() == oid;
+        return false;
+    });*/
+    /*if (auto item = (*weak_item).lock())
+        disconnect(item.get(), &IComponent::ComponentDeleted, this, &TransformCollection::PointFromCollectionHasBeenDeleted);*/
+
+    points.remove_if([oid](std::weak_ptr<Transform> wp)
+                     {
+                         if (auto p = wp.lock())
+                             return p->GetAttachedObjectID() == oid;
+                         return true;
+                     });
+    pointNotifiers.erase(oid);
+    emit PointInCollectionModified();
 }

@@ -42,7 +42,7 @@ protected:
     }
 
 signals:
-    void EntityDeleted();
+    void EntityDeleted(unsigned int oid);
 
 public:
 

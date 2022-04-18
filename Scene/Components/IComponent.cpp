@@ -9,7 +9,7 @@ IComponent::IComponent(unsigned int oid, unsigned sid) : attachedObjectId(oid), 
 
 IComponent::~IComponent()
 {
-    emit ComponentDeleted();
+    emit ComponentDeleted(GetAttachedObjectID());
 }
 
 unsigned int IComponent::GetAttachedObjectID()
