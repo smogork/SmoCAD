@@ -163,13 +163,18 @@ void SceneECS::UpdateCursorObject(QVector3D cursorPos)
 
 void SceneECS::AddObject(std::shared_ptr<IEntity> obj)
 {
-    if (cursor)
-    {
+
         auto t = obj->GetComponent<Transform>().lock();
         if (t)
-            t->Position = cursor->p_Transform->Position.value();
-        objects.push_back(obj);
-    }
+        {
+            if (cursor)
+            {
+                t->Position = cursor->p_Transform->Position.value();
+                objects.push_back(obj);
+            }
+        }
+        else
+            objects.push_back(obj);
 }
 
 std::list<std::unique_ptr<ComponentControl>> SceneECS::CreateUIForObject(unsigned int oid)

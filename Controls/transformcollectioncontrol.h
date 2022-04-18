@@ -27,8 +27,12 @@ private:
     std::weak_ptr<TransformCollection> m_collection;
     std::list<std::unique_ptr<QListWidgetCollectionElement>> m_elements;
 
+    void RemovePointFromCollection(unsigned int oid);
+
 private slots:
     void UpdateElementsList();
+
+    void showObjectListContextMenu(const QPoint& pos);
 };
 
 #endif // TRANSFORMCOLLECTIONCONTROL_H

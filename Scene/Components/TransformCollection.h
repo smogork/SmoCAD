@@ -17,7 +17,7 @@ class TransformCollection: public IComponent
     Q_OBJECT
 private:
     std::list<std::weak_ptr<Transform>> points;
-    std::list<QPropertyNotifier> pointNotifiers;
+    std::map<unsigned int, QPropertyNotifier> pointNotifiers;
 
     void ConnectSignals(std::shared_ptr<Transform> p);
 
@@ -33,6 +33,7 @@ public:
 
     const std::list<std::weak_ptr<Transform>>& GetPoints();
     void AddPoint(std::shared_ptr<CollectionAware> newObject);
+    void RemovePoint(unsigned int oid);
     void Clear();
     int Size();
 
