@@ -30,11 +30,14 @@ MainWindow::MainWindow(QWidget *parent)
 
     componentSpacer.reset();
     componentSpacer = std::make_unique<QSpacerItem>(40, 20, QSizePolicy::Minimum, QSizePolicy::Expanding);
-    ui->verticalLayout->addSpacerItem(componentSpacer.get());
+    ui->verticalLayout->insertSpacerItem(0, componentSpacer.get());
 }
 
 MainWindow::~MainWindow()
 {
+    ui->verticalLayout->takeAt(0);
+    componentSpacer.reset();
+    componentControls.clear();
     delete ui;
 }
 
@@ -45,6 +48,8 @@ void MainWindow::UpdateComponentUI(unsigned int oid)
     {
         componentControls = scene->CreateUIForObject(oid);
         for (const std::unique_ptr<ComponentControl> &widget: componentControls) {
+        //for (const std::unique_ptr<ComponentControl> &widget: scene->CreateUIForObject(oid)) {
+            widget->setParent(ui->scrollAreaWidgetContents);
             ui->verticalLayout->addWidget(widget.get());
             QObject::connect(widget.get(), &ComponentControl::RequestRepaint,
                              ui->sceneWidget, &GLWidget::RedrawScreen);

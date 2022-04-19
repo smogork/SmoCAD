@@ -32,7 +32,8 @@ TransformCollection::TransformCollection(unsigned int oid) : IComponent(oid, TRA
 
 TransformCollection::~TransformCollection()
 {
-    Clear();
+    pointNotifiers.clear();
+    points.clear();
     UnregisterComponent();
 }
 
