@@ -26,6 +26,7 @@ BezierC2::BezierC2(const QString& name): IEntity(BEZIERC2_CLASS)
 
     m_bezier.PolylineColor = Qt::red;
     m_deBoorPolyline.DrawingColor = Qt::blue;
+    m_deBoorPolyline.p_Drawing->Enabled = Options::DrawDeBoorPolygon;
 
     QObject::connect(p_Collection.get(), &TransformCollection::PointInCollectionModified,
                      this, &BezierC2::OnDeBoorModified);
