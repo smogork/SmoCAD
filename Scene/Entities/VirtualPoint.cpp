@@ -4,16 +4,23 @@
 
 #include "VirtualPoint.h"
 
-VirtualPoint::VirtualPoint(QVector3D pos): IEntity(POINT_CLASS)
+VirtualPoint::VirtualPoint(QVector3D pos): IEntity(VIRTUAL_POINT_CLASS)
 {
-    p_Transform = Transform::CreateRegisteredComponent(objectID, pos);
-    p_Drawing = StaticDrawing::CreateRegisteredComponent(objectID);
+    AddComponent(p_Transform = Transform::CreateRegisteredComponent(objectID, pos));
+    AddComponent(p_Drawing = StaticDrawing::CreateRegisteredComponent(objectID));
     InitializeDrawing();
-    p_Selectable = Selectable::CreateRegisteredComponent(objectID, p_Transform);
-    p_CollectionAware = CollectionAware::CreateRegisteredComponent(objectID, p_Transform);
+    AddComponent(p_Selectable = Selectable::CreateRegisteredComponent(objectID));
+    AddComponent(p_ScreenSelectable = ScreenSelectable::CreateRegisteredComponent(objectID, p_Transform, p_Selectable));
+    AddComponent(p_CollectionAware = CollectionAware::CreateRegisteredComponent(objectID, p_Transform));
 
-    QObject::connect(p_Selectable.get(), &Selectable::SelectedChanged, this, &VirtualPoint::SelectedChanged);
+    selectedNotifier = p_Selectable->Selected.addNotifier([this]() {
+        if (p_Selectable->Selected)
+            m_color = QVector4D(1.0f, 0.5f, 0.2f, 1.0f);
+        else
+            m_color = QVector4D(0.8f, 0.8f, 0.8f, 1.0f);
+    });
 }
+
 
 void VirtualPoint::InitializeDrawing()
 {
@@ -37,12 +44,4 @@ void VirtualPoint::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
 {
     shader->SetUniform("u_MVP.Model", p_Transform->GetModelMatrix());
     shader->SetUniform("u_ObjectColor", m_color);
-}
-
-void VirtualPoint::SelectedChanged(std::shared_ptr<SelectionChanged> e)
-{
-    if (e->Selected)
-        m_color = QVector4D(1.0f, 0.5f, 0.2f, 1.0f);
-    else
-        m_color = QVector4D(0.8f, 0.8f, 0.8f, 1.0f);
 }

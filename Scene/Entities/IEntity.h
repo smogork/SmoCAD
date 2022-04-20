@@ -6,6 +6,8 @@
 #define SMOCAD_IENTITY_H
 
 #include <QObject>
+#include "Scene/Utilities/TypeMap.h"
+#include "Scene/Components/IComponent.h"
 
 enum ENTITY_CLASS
 {
@@ -26,9 +28,21 @@ enum ENTITY_CLASS
 class IEntity: public QObject
 {
     Q_OBJECT
+private:
+    TypeMap<std::shared_ptr<IComponent>> m_components;
+
 protected:
     unsigned int objectID;
     unsigned int classID;
+
+    template <typename C>
+    void AddComponent(std::shared_ptr<C> component)
+    {
+        m_components.put<C>(std::static_pointer_cast<IComponent>(component));
+    }
+
+signals:
+    void EntityDeleted(unsigned int oid);
 
 public:
 
@@ -37,6 +51,16 @@ public:
 
     unsigned int GetObjectID();
     unsigned int GetClassID();
+
+    template <typename C>
+    std::weak_ptr<C> GetComponent()
+    {
+        auto it = m_components.find<C>();
+
+        if (it == m_components.end())
+            return std::shared_ptr<C>();
+        return std::static_pointer_cast<C>(it->second);
+    }
 };
 
 

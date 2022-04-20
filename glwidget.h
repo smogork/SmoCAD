@@ -31,6 +31,7 @@ signals:
 public slots:
 
     void UpdateCameraSlot(std::shared_ptr<CameraUpdateEvent> event);
+    void RedrawScreen();
 
 #pragma region QOpenGLWidget overrides
     void paintGL() Q_DECL_OVERRIDE;

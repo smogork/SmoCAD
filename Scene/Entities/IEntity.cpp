@@ -28,5 +28,5 @@ unsigned int IEntity::GetClassID()
 
 IEntity::~IEntity()
 {
-
+    emit EntityDeleted(objectID);
 }

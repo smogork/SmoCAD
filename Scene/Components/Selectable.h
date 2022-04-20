@@ -16,23 +16,14 @@ class Selectable: public IComponent
 {
     Q_OBJECT
 private:
-    std::shared_ptr<Transform> m_transform = nullptr;
-    //[TODO] przerobic na QProperty
-    bool m_selected = false;
-
-signals:
-    void SelectedChanged(std::shared_ptr<SelectionChanged> e);
-
 public:
-    static std::shared_ptr<Selectable> CreateRegisteredComponent(unsigned int oid, std::shared_ptr<Transform> transform);
+    QProperty<bool> Selected;
+
+    static std::shared_ptr<Selectable> CreateRegisteredComponent(unsigned int oid);
     void UnregisterComponent();
 
     explicit Selectable(unsigned int oid);
     ~Selectable() override;
-
-    float TestAgainstRaycast(QVector4D raycastStart, QVector4D raycastDirection, float cameraPivotLength);
-    void SetSelection(bool val);
-    bool Selected();
 };
 
 

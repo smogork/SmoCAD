@@ -39,14 +39,25 @@ std::vector<int> Cube::GenerateTopologyIndices()
     };
 }
 
-
-Cube::Cube(QVector3D position): IEntity(CUBE_CLASS)
+Cube::Cube(const QString& name, QVector3D position): IEntity(CUBE_CLASS)
 {
-    p_Transform = Transform::CreateRegisteredComponent(objectID, position);
-    p_Drawing = StaticDrawing::CreateRegisteredComponent(objectID);
+    AddComponent(p_Transform = Transform::CreateRegisteredComponent(objectID, position));
+    AddComponent(p_Drawing = StaticDrawing::CreateRegisteredComponent(objectID));
     InitializeDrawing();
-    p_CompositeAware = CompositeAware::CreateRegisteredComponent(objectID, p_Transform, p_Drawing);
+    AddComponent(p_CompositeAware = CompositeAware::CreateRegisteredComponent(objectID, p_Transform, p_Drawing));
+    AddComponent(p_Selected = Selectable::CreateRegisteredComponent(objectID));
+    AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(objectID, name, p_Selected));
+
+    selectedNotifier = p_Selected->Selected.addNotifier([this]() {
+        if (p_Selected->Selected)
+            m_color = QVector4D(1.0f, 0.5f, 0.2f, 1.0f);
+        else
+            m_color = QVector4D(0.8f, 0.8f, 0.8f, 1.0f);
+    });
 }
+
+Cube::Cube(const QString &name) : Cube(name, QVector3D())
+{ }
 
 void Cube::InitializeDrawing()
 {
@@ -68,6 +79,5 @@ void Cube::DrawingFunction(QOpenGLContext *context)
 void Cube::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
 {
     shader->SetUniform("u_MVP.Model", p_Transform->GetModelMatrix());
-    shader->SetUniform("u_ObjectColor", QVector4D(0.8f, 0.8f, 0.8f, 1.0f));
+    shader->SetUniform("u_ObjectColor", m_color);
 }
-

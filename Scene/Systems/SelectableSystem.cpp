@@ -5,34 +5,65 @@
 #include <cfloat>
 #include "SelectableSystem.h"
 
-std::shared_ptr<Selectable> SelectableSystem::SelectObject(std::shared_ptr<SceneMouseClickEvent> event)
-{
-    float t_min = FLT_MAX;
-    std::shared_ptr<Selectable> closest = nullptr;
-    for (const std::pair<unsigned int, std::weak_ptr<Selectable>> &s : components)
-        if (auto obj = s.second.lock())
-        {
-            float t = obj->TestAgainstRaycast(event->RaycastStart, event->RaycastDirection, event->PivotLength);
-            if (t != NAN && t < t_min)
-            {
-                t_min = t;
-                closest = obj;
-            }
-        }
-
-    if (closest)
-    {
-        if (selectedObject)
-            selectedObject->SetSelection(false);
-        selectedObject = closest;
-        selectedObject->SetSelection(true);//?
-        return selectedObject;
-    }
-
-    return nullptr;
-}
-
 void SelectableSystem::ClearSystem()
 {
     selectedObject = nullptr;
+
+}
+
+std::shared_ptr<Selectable> SelectableSystem::CreateRegistered(unsigned int oid)
+{
+    auto item = ISystem::CreateRegistered(oid);
+
+    std::weak_ptr<Selectable> weakItem = item;
+    auto notifier = item->Selected.addNotifier([this,weakItem](){
+        if (auto s = weakItem.lock())
+        {
+            if (s->Selected)
+            {
+                if (this->selectedObject)
+                    this->selectedObject->Selected = false;
+                selectedObject = s;
+            }
+        }
+    });
+    notifiers.insert(std::make_pair(item->GetAttachedObjectID(), std::move(notifier)));
+
+    return item;
+}
+
+bool SelectableSystem::Unregister(unsigned int oid)
+{
+    notifiers.erase(oid);
+    return ISystem::Unregister(oid);
+}
+
+bool SelectableSystem::RegisterComponent(std::shared_ptr<Selectable> component)
+{
+    bool res = ISystem::RegisterComponent(component);
+    if (res)
+    {
+        std::weak_ptr<Selectable> weakItem = component;
+        auto notifier = component->Selected.addNotifier([this,weakItem](){
+            if (auto s = weakItem.lock())
+            {
+                if (s->Selected)
+                {
+                    if (this->selectedObject)
+                        this->selectedObject->Selected = false;
+                    selectedObject = s;
+                }
+            }
+        });
+    }
+    return res;
+}
+
+void SelectableSystem::Unselect()
+{
+    if (selectedObject)
+    {
+        this->selectedObject->Selected = false;
+        this->selectedObject.reset();
+    }
 }

@@ -14,6 +14,8 @@ public:
     TransformCollectionSystem(): ISystem(SYSTEM_ID::TRANSFORM_COLLECTION)
     { }
     const char* GetSystemName() override { return "TransformCollectionSystem"; }
+
+    std::unique_ptr<ComponentControl> PrepareUIForObject(unsigned int oid) override;
 };
 
 

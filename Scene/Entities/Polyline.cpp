@@ -6,12 +6,14 @@
 
 Polyline::Polyline(): IEntity(POLYLINE_CLASS)
 {
-    p_Drawing = DynamicDrawing::CreateRegisteredComponent(objectID);
-    p_Collection = TransformCollection::CreateRegisteredComponent(objectID);
+    AddComponent(p_Drawing = DynamicDrawing::CreateRegisteredComponent(objectID));
+    AddComponent(p_Collection = TransformCollection::CreateRegisteredComponent(objectID));
 
     InitializeDrawing();
     QObject::connect(p_Collection.get(), &TransformCollection::PointInCollectionModified,
                      this, &Polyline::OnCollectionModified);
+    QObject::connect(p_Collection.get(), &TransformCollection::SinglePointChanged,
+                     this, &Polyline::OnSinglePointModified);
 }
 
 std::vector<float> Polyline::GenerateGeometryVertices()
@@ -45,6 +47,7 @@ void Polyline::InitializeDrawing()
 
     p_Drawing->p_renderingFunction = ASSIGN_DRAWING_FUNCTION(&Polyline::DrawingFunction);
     p_Drawing->p_uniformFunction = ASSIGN_UNIFORM_FUNCTION(&Polyline::UniformFunction);
+    p_Drawing->Enabled = false;
 }
 
 void Polyline::DrawingFunction(QOpenGLContext *context)
@@ -62,6 +65,11 @@ void Polyline::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
 }
 
 void Polyline::OnCollectionModified()
+{
+    p_Drawing->SetVertexData(GenerateGeometryVertices());
+}
+
+void Polyline::OnSinglePointModified(QVector3D pos, unsigned int changedOID)
 {
     p_Drawing->SetVertexData(GenerateGeometryVertices());
 }

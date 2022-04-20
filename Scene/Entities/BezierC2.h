@@ -9,18 +9,21 @@
 #include "IEntity.h"
 #include "Scene/Components/Drawing/DynamicDrawing.h"
 #include "Polyline.h"
-#include "BezierC0.h"
+#include "VirtualBezierC0.h"
 #include "VirtualPoint.h"
+#include "Scene/Components/SceneElement.h"
 
 class BezierC2: public IEntity
 {
 Q_OBJECT
 private slots:
     void OnDeBoorModified();
+    void OnSingleBezierPointModified(QVector3D pos, unsigned int changedOID);
 
 private:
-    //[TODO] dodać entity klasy VirtualBezierC0 - nie będzie elementem sceny
-    BezierC0 m_bezier;
+    QPropertyNotifier selectedNotifier;
+    QPropertyNotifier deBoorPolylineDrawing;
+    VirtualBezierC0 m_bezier;
     Polyline m_deBoorPolyline;
     std::list<std::unique_ptr<VirtualPoint>> bezierPoints;
 
@@ -28,8 +31,10 @@ private:
 
 public:
     std::shared_ptr<TransformCollection> p_Collection;
+    std::shared_ptr<Selectable> p_Selected;
+    std::shared_ptr<SceneElement> p_SceneElement;
 
-    BezierC2();
+    explicit BezierC2(const QString& name);
 };
 
 

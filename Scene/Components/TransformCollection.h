@@ -17,12 +17,13 @@ class TransformCollection: public IComponent
     Q_OBJECT
 private:
     std::list<std::weak_ptr<Transform>> points;
-    std::list<QPropertyNotifier> pointNotifiers;
+    std::map<unsigned int, QPropertyNotifier> pointNotifiers;
 
     void ConnectSignals(std::shared_ptr<Transform> p);
 
 private slots:
     void CollectionElementTransformChanged(QVector3D val);
+    void PointFromCollectionHasBeenDeleted(unsigned int deletedOid);
 
 public:
     static std::shared_ptr<TransformCollection> CreateRegisteredComponent(unsigned int oid);
@@ -33,6 +34,7 @@ public:
 
     const std::list<std::weak_ptr<Transform>>& GetPoints();
     void AddPoint(std::shared_ptr<CollectionAware> newObject);
+    void RemovePoint(unsigned int oid);
     void Clear();
     int Size();
 
@@ -42,6 +44,7 @@ public:
 signals:
     //Sygnal informuje o zmianie polozenia pewnego punktu w kolekcji
     void PointInCollectionModified();
+    void SinglePointChanged(QVector3D position, unsigned int changedOID);
 };
 
 

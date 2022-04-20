@@ -9,7 +9,7 @@ std::vector<int> Grid::gridIndices = GenerateGridIndices();
 
 Grid::Grid() : IEntity(GRID_CLASS)
 {
-    p_Drawing = StaticDrawing::CreateRegisteredComponent(objectID);
+    AddComponent(p_Drawing = StaticDrawing::CreateRegisteredComponent(objectID));
 
     InitializeDrawing();
 }

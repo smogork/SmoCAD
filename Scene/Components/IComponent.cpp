@@ -4,12 +4,12 @@
 
 #include "IComponent.h"
 
-IComponent::IComponent(unsigned int oid, unsigned sid): attachedObjectId(oid), attachedSystemId(sid)
-{
-}
+IComponent::IComponent(unsigned int oid, unsigned sid) : attachedObjectId(oid), attachedSystemId(sid)
+{ }
 
 IComponent::~IComponent()
 {
+    emit ComponentDeleted(GetAttachedObjectID());
 }
 
 unsigned int IComponent::GetAttachedObjectID()
