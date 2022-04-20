@@ -29,7 +29,7 @@ public:
     { return nullptr; }
 
     virtual std::list<std::pair<QString, std::function<void(QListWidgetSceneElement *item)> > >
-    CreateContextMenuForSceneElement(unsigned int contextOid, unsigned int selectedOid)
+    CreateContextMenuForSceneElement(unsigned int contextOid, unsigned int selectedOid, int selectionCount)
     {
         return {};
     }

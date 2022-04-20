@@ -9,12 +9,17 @@
 #include "Scene/Utilities/Utilites.h"
 
 std::list<std::pair<QString, std::function<void(QListWidgetSceneElement *item)> > >
-CollectionAwareSystem::CreateContextMenuForSceneElement(unsigned int contextOid, unsigned int selectedOid)
+CollectionAwareSystem::CreateContextMenuForSceneElement(unsigned int contextOid, unsigned int selectedOid, int selectionCount)
 {
     std::list<std::pair<QString, std::function<void(QListWidgetSceneElement *item)> > > res;
 
     auto aware = GetComponent(contextOid).lock();
     if (!aware)
+        return res;
+
+    //Tymczasowe zabezpieczenie przed dodawaniem wielu punktów jednoczesnie
+    //Wymaga przebudowania przekazywanych obiektów do tej funkcji aby zaimplementowane prawidlowo
+    if (selectionCount != 1)
         return res;
 
     if (auto scene = SceneECS::Instance().lock())

@@ -145,10 +145,12 @@ unsigned int SceneECS::MouseClicked(std::shared_ptr<SceneMouseClickEvent> event)
             return item->GetAttachedObjectID();
     }
 
-    //if (auto select = GetSystem<SelectableSystem>().lock())
-    //select->Unselect();
     UpdateCursorObject(event->ClickCenterPlainPoint);
-
+    if (auto select = GetSystem<SelectableSystem>().lock())
+    {
+        //select->Unselect();
+        return select->GetSelectedObject()->GetAttachedObjectID();
+    }
 
     return NON_OBJECT_ID;
 }
@@ -164,17 +166,16 @@ void SceneECS::UpdateCursorObject(QVector3D cursorPos)
 void SceneECS::AddObject(std::shared_ptr<IEntity> obj)
 {
 
-        auto t = obj->GetComponent<Transform>().lock();
-        if (t)
+    auto t = obj->GetComponent<Transform>().lock();
+    if (t)
+    {
+        if (cursor)
         {
-            if (cursor)
-            {
-                t->Position = cursor->p_Transform->Position.value();
-                objects.push_back(obj);
-            }
-        }
-        else
+            t->Position = cursor->p_Transform->Position.value();
             objects.push_back(obj);
+        }
+    } else
+        objects.push_back(obj);
 }
 
 std::list<std::unique_ptr<ComponentControl>> SceneECS::CreateUIForObject(unsigned int oid)
@@ -200,13 +201,13 @@ void SceneECS::RemoveObject(unsigned int oid)
                       {
                           return item->GetObjectID() == oid;
                       }
-                     );
+    );
 }
 
-std::list<std::pair<QString, std::function<void(QListWidgetSceneElement* item)> > >
-SceneECS::CreateContextMenuForSceneElement(unsigned int oid)
+std::list<std::pair<QString, std::function<void(QListWidgetSceneElement *item)> > >
+SceneECS::CreateContextMenuForSceneElement(unsigned int oid, int selectionCount)
 {
-    std::list<std::pair<QString, std::function<void(QListWidgetSceneElement* item)> > > res;
+    std::list<std::pair<QString, std::function<void(QListWidgetSceneElement *item)> > > res;
 
     if (oid == NON_OBJECT_ID)
         return res;
@@ -218,8 +219,9 @@ SceneECS::CreateContextMenuForSceneElement(unsigned int oid)
 
     for (auto s: systems)
     {
-        std::list<std::pair<QString, std::function<void(QListWidgetSceneElement* item)> > > inner = s.second->CreateContextMenuForSceneElement(
-                oid, selectedObj->GetAttachedObjectID());
+        std::list<std::pair<QString, std::function<void(QListWidgetSceneElement *item)> > > inner = s.second
+                ->CreateContextMenuForSceneElement(
+                        oid, selectedObj->GetAttachedObjectID(), selectionCount);
         for (auto item: inner)
             res.push_back(item);
     }

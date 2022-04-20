@@ -18,17 +18,20 @@
 #include "Scene/Systems/SceneElementSystem.h"
 #include "Controls/ListElements/QListWidgetSceneElement.h"
 
-class SceneECS: public QObject
+class SceneECS : public QObject
 {
-    Q_OBJECT
+Q_OBJECT
 public:
     static std::weak_ptr<SceneECS> Instance();
+
     static const unsigned int NON_OBJECT_ID = 0;
-    static QListWidget* elementList;
+    static QListWidget *elementList;
+
     ~SceneECS() override;
+
     unsigned int GetNewObjectID();
 
-    template <typename S>
+    template<typename S>
     std::weak_ptr<S> GetSystem()
     {
         auto it = systems.find<S>();
@@ -36,7 +39,7 @@ public:
         return std::static_pointer_cast<S>(it->second);
     }
 
-    template <typename S>
+    template<typename S>
     bool IsObjectInSystem(unsigned int oid)
     {
         auto it = systems.find<S>();
@@ -46,7 +49,7 @@ public:
     }
 
     //[TODO] trzeba przerobic aby przekazywac tylko system/component
-    template <typename S, typename C>
+    template<typename S, typename C>
     std::weak_ptr<C> GetComponentOfSystem(unsigned int oid)
     {
         auto it = systems.find<S>();
@@ -56,14 +59,22 @@ public:
     }
 
     unsigned int MouseClicked(std::shared_ptr<SceneMouseClickEvent> event);
+
     void AddObject(std::shared_ptr<IEntity> obj);
+
     void RemoveObject(unsigned int oid);
+
     std::list<std::unique_ptr<ComponentControl>> CreateUIForObject(unsigned int oid);
-    std::list<std::pair<QString, std::function<void(QListWidgetSceneElement* item)> > > CreateContextMenuForSceneElement(unsigned int oid);
+
+    std::list<std::pair<QString, std::function<void(QListWidgetSceneElement *item)> > >
+    CreateContextMenuForSceneElement(unsigned int oid, int selectionCount);
 
     void RemoveObjectsFromScene();
+
     void RemoveUniqueObjects();
+
     void ClearSystems();
+
     QString DebugSystemReport();
 
 private:
@@ -77,7 +88,9 @@ private:
     std::unique_ptr<Composite> composite = nullptr;
 
     SceneECS();
+
     void InitUniqueObjects();
+
     void InitSceneObjects();
 
     void UpdateCursorObject(QVector3D cursorPos);

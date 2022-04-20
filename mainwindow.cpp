@@ -47,8 +47,9 @@ void MainWindow::UpdateComponentUI(unsigned int oid)
     if (auto scene = SceneECS::Instance().lock())
     {
         componentControls = scene->CreateUIForObject(oid);
-        for (const std::unique_ptr<ComponentControl> &widget: componentControls) {
-        //for (const std::unique_ptr<ComponentControl> &widget: scene->CreateUIForObject(oid)) {
+        for (const std::unique_ptr<ComponentControl> &widget: componentControls)
+        {
+            //for (const std::unique_ptr<ComponentControl> &widget: scene->CreateUIForObject(oid)) {
             widget->setParent(ui->scrollAreaWidgetContents);
             ui->verticalLayout->addWidget(widget.get());
             QObject::connect(widget.get(), &ComponentControl::RequestRepaint,
@@ -57,6 +58,7 @@ void MainWindow::UpdateComponentUI(unsigned int oid)
     }
 }
 
+#pragma region Creating new objects
 void MainWindow::on_actionTorus_triggered()
 {
     std::shared_ptr<Torus> t = std::make_shared<Torus>("NewTorus");
@@ -67,19 +69,19 @@ void MainWindow::on_actionTorus_triggered()
 
 void MainWindow::on_actionPoint_triggered()
 {
-    std::shared_ptr<Point> p = std::make_shared<Point>("NewPoint", QVector3D(0,0,0));
+    std::shared_ptr<Point> p = std::make_shared<Point>("NewPoint", QVector3D(0, 0, 0));
     if (auto scene = SceneECS::Instance().lock())
     {
         scene->AddObject(p);
 
-        //Jeeli aktualnie wybrany obiekt jest kolekcja punktow - dodaj do niej
+        //Jezeli aktualnie wybrany obiekt jest kolekcja punktow - dodaj do niej
         if (auto select = scene->GetSystem<SelectableSystem>().lock())
         {
             if (auto obj = select->GetSelectedObject())
             {
                 auto oid = obj->GetAttachedObjectID();
-                auto col = scene->GetSystem<TransformCollectionSystem>().lock();
-                if (auto colection = col->GetComponent(oid).lock())
+                if (auto colection = scene->GetComponentOfSystem<TransformCollectionSystem, TransformCollection>(oid)
+                        .lock())
                 {
                     colection->AddPoint(p->p_CollectionAware);
                 }
@@ -123,6 +125,7 @@ void MainWindow::MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event)
         ui->sceneWidget->update();
     }
 }
+#pragma endregion
 
 void MainWindow::CreateCursorOnScene(std::shared_ptr<SceneMouseClickEvent> event)
 {
@@ -141,6 +144,7 @@ void MainWindow::CreateCursorOnScene(std::shared_ptr<SceneMouseClickEvent> event
 }
 
 #pragma region CursorUiEvents
+
 void MainWindow::on_spinCurPosX_valueChanged(double arg1)
 {
     UpdateCursorWorldPosition();
@@ -231,6 +235,7 @@ void MainWindow::ResizeEvent(QSize size)
     /*ui->spinCurViewPosX->setMaximum(size.width());
     ui->spinCurViewPosY->setMaximum(size.height());*/
 }
+
 #pragma endregion
 
 void MainWindow::AddPointToBezier()

@@ -28,6 +28,8 @@ private slots:
     //contex menu slots
     void onRemoveSceneElement();
     void onRenameSceneElement();
+    void CreateBezierC0();
+    void CreateBezierC2();
 
 private:
     Ui::SceneElementsList *ui;

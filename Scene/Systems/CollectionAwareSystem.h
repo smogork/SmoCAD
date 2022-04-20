@@ -16,7 +16,7 @@ public:
     const char* GetSystemName() override { return "CollectionAwareSystem"; }
 
     std::list<std::pair<QString, std::function<void(QListWidgetSceneElement* item)> > >
-    CreateContextMenuForSceneElement(unsigned int contextOid, unsigned int selectedOid) override;
+    CreateContextMenuForSceneElement(unsigned int contextOid, unsigned int selectedOid, int selectionCount) override;
 
 protected:
     void AddObjectToCollection(QListWidgetSceneElement * elem);
