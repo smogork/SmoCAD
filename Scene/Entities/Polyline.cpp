@@ -47,6 +47,7 @@ void Polyline::InitializeDrawing()
 
     p_Drawing->p_renderingFunction = ASSIGN_DRAWING_FUNCTION(&Polyline::DrawingFunction);
     p_Drawing->p_uniformFunction = ASSIGN_UNIFORM_FUNCTION(&Polyline::UniformFunction);
+    p_Drawing->Enabled = false;
 }
 
 void Polyline::DrawingFunction(QOpenGLContext *context)

@@ -34,16 +34,8 @@ private:
     void BlockCursorUISignals(bool b);
     void ResizeEvent(QSize size);
 
-protected slots:
-    void MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event);
-    void CameraUpdated(std::shared_ptr<CameraUpdateEvent> event);
-    void UpdateComponentUI(unsigned int oid);
-
-    void AddPointToBezier();
-    void CreateBezierFromPoints();
-
 protected:
-    void keyPressEvent(QKeyEvent* event) Q_DECL_OVERRIDE { Renderer::controller.keyPressSlot(event);}
+    void keyPressEvent(QKeyEvent* event) Q_DECL_OVERRIDE { Renderer::controller.keyPressSlot(event); }
     void keyReleaseEvent(QKeyEvent* event) Q_DECL_OVERRIDE { Renderer::controller.keyReleaseSlot(event);}
 
 public:
@@ -54,6 +46,9 @@ signals:
     void PointObjectChanged(std::shared_ptr<PointObjectChangedEvent> event);
 
 private slots:
+    void MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event);
+    void CameraUpdated(std::shared_ptr<CameraUpdateEvent> event);
+    void UpdateComponentUI(unsigned int oid);
 
     void on_spinCurPosX_valueChanged(double arg1);
     void on_spinCurPosY_valueChanged(double arg1);
@@ -68,5 +63,6 @@ private slots:
     void on_actionBezierC2_triggered();
 
     void on_actionShow_Bezier_polygon_toggled(bool arg1);
+    void on_actionShow_BSpline_polygon_toggled(bool arg1);
 };
 #endif // MAINWINDOW_H

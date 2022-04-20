@@ -10,6 +10,8 @@
 #include "Scene/Entities/Cube.h"
 #include "Scene/Entities/BezierC0.h"
 
+#include "Renderer/Options.h"
+
 MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -238,44 +240,15 @@ void MainWindow::ResizeEvent(QSize size)
 
 #pragma endregion
 
-void MainWindow::AddPointToBezier()
-{
-    /*BezierCurveC0* bezier = dynamic_cast<BezierCurveC0*>(model->GetSelectedObject());
-
-    for (QListWidgetItem* i : ui->listWidgetObjects->selectedItems())
-    {
-        auto item = dynamic_cast<QListWidgetRenderableItem*>(i);
-
-        if (item)
-        {
-            bezier->AddControlPoint(dynamic_cast<PointObject*>(item->obj));
-            ui->sceneWidget->update();
-        }
-    }*/
-}
-
-void MainWindow::CreateBezierFromPoints()
-{
-    /*BezierCurveC0* bezier =  new BezierCurveC0();
-    connect(this, &MainWindow::PointObjectChanged, bezier, &BezierCurveC0::onPointChanged);
-    AddNewObject(bezier, "BezierC0", true);*/
-
-    /*for (QListWidgetItem* i : ui->listWidgetObjects->selectedItems())
-    {
-        auto item = dynamic_cast<QListWidgetRenderableItem*>(i);
-
-        if (item)
-            bezier->AddControlPoint(dynamic_cast<PointObject*>(item->obj));
-    }*/
-
-    ui->sceneWidget->update();
-}
-
 void MainWindow::on_actionShow_Bezier_polygon_toggled(bool arg1)
 {
-    //model->ShowBezeierPolygon = arg1;
+    Options::DrawBezierPolygon = arg1;
     ui->sceneWidget->update();
 }
 
-
+void MainWindow::on_actionShow_BSpline_polygon_toggled(bool arg1)
+{
+    Options::DrawDeBoorPolygon = arg1;
+    ui->sceneWidget->update();
+}
 

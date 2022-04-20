@@ -5,6 +5,8 @@
 #include <cfloat>
 #include "VirtualBezierC0.h"
 
+#include "Renderer/Options.h"
+
 VirtualBezierC0::VirtualBezierC0(): IEntity(BEZIERC0_CLASS)
 {
     AddComponent(p_Drawing = DynamicDrawing::CreateRegisteredComponent(objectID));
@@ -22,6 +24,11 @@ VirtualBezierC0::VirtualBezierC0(): IEntity(BEZIERC0_CLASS)
         this->m_color = CurveColor;
     });
     CurveColor = QColor::fromRgbF(0.8f, 0.8f, 0.8f, 1.0f);
+
+    bezierPolylineDrawing = Options::DrawBezierPolygon.addNotifier([this]()
+       {
+        this->m_bezierPolyline.p_Drawing->Enabled = Options::DrawBezierPolygon;
+       });
 }
 
 void VirtualBezierC0::UniformFunction(std::shared_ptr<ShaderWrapper> shader)

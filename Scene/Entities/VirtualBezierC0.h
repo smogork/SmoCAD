@@ -23,6 +23,7 @@ private:
     QColor m_color;
     QPropertyNotifier polylineColorNotify;
     QPropertyNotifier curveColorNotify;
+    QPropertyNotifier bezierPolylineDrawing;
 
     std::vector<float> GenerateGeometryVertices();
     std::vector<int> GenerateTopologyIndices();

@@ -5,6 +5,8 @@
 #include <cfloat>
 #include "BezierC2.h"
 
+#include "Renderer/Options.h"
+
 BezierC2::BezierC2(const QString& name): IEntity(BEZIERC2_CLASS)
 {
     AddComponent(p_Collection = TransformCollection::CreateRegisteredComponent(objectID));
@@ -17,6 +19,10 @@ BezierC2::BezierC2(const QString& name): IEntity(BEZIERC2_CLASS)
         else
             m_bezier.CurveColor = QColor::fromRgbF(0.8f, 0.8f, 0.8f, 1.0f);
     });
+    deBoorPolylineDrawing = Options::DrawDeBoorPolygon.addNotifier([this]()
+       {
+           this->m_deBoorPolyline.p_Drawing->Enabled = Options::DrawDeBoorPolygon;
+       });
 
     m_bezier.PolylineColor = Qt::red;
     m_deBoorPolyline.DrawingColor = Qt::blue;

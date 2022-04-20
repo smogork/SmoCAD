@@ -22,6 +22,7 @@ private slots:
 
 private:
     QPropertyNotifier selectedNotifier;
+    QPropertyNotifier deBoorPolylineDrawing;
     VirtualBezierC0 m_bezier;
     Polyline m_deBoorPolyline;
     std::list<std::unique_ptr<VirtualPoint>> bezierPoints;
@@ -33,7 +34,7 @@ public:
     std::shared_ptr<Selectable> p_Selected;
     std::shared_ptr<SceneElement> p_SceneElement;
 
-    BezierC2(const QString& name);
+    explicit BezierC2(const QString& name);
 };
 
 
