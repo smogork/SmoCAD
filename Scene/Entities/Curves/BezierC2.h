@@ -6,11 +6,11 @@
 #define SMOCAD_BEZIERC2_H
 
 
-#include "IEntity.h"
+#include "Scene/Entities/IEntity.h"
 #include "Scene/Components/Drawing/DynamicDrawing.h"
-#include "Polyline.h"
+#include "Scene/Entities/Polyline.h"
 #include "VirtualBezierC0.h"
-#include "VirtualPoint.h"
+#include "Scene/Entities/VirtualPoint.h"
 #include "Scene/Components/SceneElement.h"
 
 class BezierC2: public IEntity

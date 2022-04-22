@@ -15,8 +15,8 @@
 #include "Scene/Systems/CollectionAwareSystem.h"
 #include "Scene/Systems/TransformCollectionSystem.h"
 #include "Scene/Entities/Polyline.h"
-#include "Scene/Entities/VirtualBezierC0.h"
-#include "Scene/Entities/BezierC2.h"
+#include "Scene/Entities/Curves/VirtualBezierC0.h"
+#include "Scene/Entities/Curves/BezierC2.h"
 #include "Controls/ComponentControl.h"
 #include "Scene/Systems/ScreenSelectableSystem.h"
 #include <list>

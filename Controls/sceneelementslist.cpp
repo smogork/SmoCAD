@@ -2,9 +2,9 @@
 #include "ui_sceneelementslist.h"
 #include "Scene/SceneECS.h"
 #include "Scene/Systems/SceneElementSystem.h"
-#include "Scene/Entities/BezierC0.h"
+#include "Scene/Entities/Curves/BezierC0.h"
 #include "Scene/Systems/CollectionAwareSystem.h"
-#include "Scene/Entities/BezierC2.h"
+#include "Scene/Entities/Curves/BezierC2.h"
 
 #include <QMenu>
 #include <QInputDialog>

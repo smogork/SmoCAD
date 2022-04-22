@@ -97,9 +97,9 @@ set(PROJECT_SOURCES
         Scene/Systems/TransformCollectionSystem.cpp Scene/Systems/TransformCollectionSystem.h
         Scene/Systems/CollectionAwareSystem.cpp Scene/Systems/CollectionAwareSystem.h
         Scene/Utilities/Utilites.cpp Scene/Utilities/Utilites.h
-        Scene/Entities/VirtualBezierC0.cpp Scene/Entities/VirtualBezierC0.h
-        Scene/Entities/BezierC2.cpp Scene/Entities/BezierC2.h
-        Scene/Entities/VirtualPoint.cpp Scene/Entities/VirtualPoint.h Controls/ComponentControl.cpp Controls/ComponentControl.h Scene/Components/SceneElement.cpp Scene/Components/SceneElement.h Scene/Components/ScreenSelectable.cpp Scene/Components/ScreenSelectable.h Scene/Systems/ScreenSelectableSystem.cpp Scene/Systems/ScreenSelectableSystem.h Scene/Systems/SceneElementSystem.cpp Scene/Systems/SceneElementSystem.h Scene/Entities/BezierC0.cpp Scene/Entities/BezierC0.h Controls/ListElements/QListWidgetSceneElement.cpp Controls/ListElements/QListWidgetSceneElement.h Controls/ListElements/QListWidgetCollectionElement.cpp Controls/ListElements/QListWidgetCollectionElement.h Renderer/Options.cpp Renderer/Options.h)
+        Scene/Entities/Curves/VirtualBezierC0.cpp Scene/Entities/Curves/VirtualBezierC0.h
+        Scene/Entities/Curves/BezierC2.cpp Scene/Entities/Curves/BezierC2.h
+        Scene/Entities/VirtualPoint.cpp Scene/Entities/VirtualPoint.h Controls/ComponentControl.cpp Controls/ComponentControl.h Scene/Components/SceneElement.cpp Scene/Components/SceneElement.h Scene/Components/ScreenSelectable.cpp Scene/Components/ScreenSelectable.h Scene/Systems/ScreenSelectableSystem.cpp Scene/Systems/ScreenSelectableSystem.h Scene/Systems/SceneElementSystem.cpp Scene/Systems/SceneElementSystem.h Scene/Entities/Curves/BezierC0.cpp Scene/Entities/Curves/BezierC0.h Controls/ListElements/QListWidgetSceneElement.cpp Controls/ListElements/QListWidgetSceneElement.h Controls/ListElements/QListWidgetCollectionElement.cpp Controls/ListElements/QListWidgetCollectionElement.h Renderer/Options.cpp Renderer/Options.h Scene/Entities/Curves/BernsteinCurve.cpp Scene/Entities/Curves/BernsteinCurve.h Scene/Entities/Curves/InterpolationC2.cpp Scene/Entities/Curves/InterpolationC2.h)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(SmoCAD

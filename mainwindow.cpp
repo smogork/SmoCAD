@@ -6,9 +6,9 @@
 #include "Scene/Entities/Torus.h"
 #include "Scene/Components/TransformCollection.h"
 #include "Scene/Systems/TransformCollectionSystem.h"
-#include "Scene/Entities/BezierC2.h"
+#include "Scene/Entities/Curves/BezierC2.h"
 #include "Scene/Entities/Cube.h"
-#include "Scene/Entities/BezierC0.h"
+#include "Scene/Entities/Curves/BezierC0.h"
 
 #include "Renderer/Options.h"
 
