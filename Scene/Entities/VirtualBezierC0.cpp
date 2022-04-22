@@ -29,6 +29,7 @@ VirtualBezierC0::VirtualBezierC0(): IEntity(BEZIERC0_CLASS)
        {
         this->m_bezierPolyline.p_Drawing->Enabled = Options::DrawBezierPolygon;
        });
+    m_bezierPolyline.p_Drawing->Enabled = Options::DrawBezierPolygon;
 }
 
 void VirtualBezierC0::UniformFunction(std::shared_ptr<ShaderWrapper> shader)

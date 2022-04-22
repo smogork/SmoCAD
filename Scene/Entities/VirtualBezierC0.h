@@ -19,7 +19,7 @@ private slots:
     void OnSinglePointModified(QVector3D pos, unsigned int changedOID);
 
 private:
-    Polyline m_bezierPolyline;
+    class Polyline m_bezierPolyline;
     QColor m_color;
     QPropertyNotifier polylineColorNotify;
     QPropertyNotifier curveColorNotify;

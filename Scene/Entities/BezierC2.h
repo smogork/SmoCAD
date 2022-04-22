@@ -24,7 +24,7 @@ private:
     QPropertyNotifier selectedNotifier;
     QPropertyNotifier deBoorPolylineDrawing;
     VirtualBezierC0 m_bezier;
-    Polyline m_deBoorPolyline;
+    class Polyline m_deBoorPolyline;
     std::list<std::unique_ptr<VirtualPoint>> bezierPoints;
 
     void CalculateBezierPoints();

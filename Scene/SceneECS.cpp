@@ -149,7 +149,8 @@ unsigned int SceneECS::MouseClicked(std::shared_ptr<SceneMouseClickEvent> event)
     if (auto select = GetSystem<SelectableSystem>().lock())
     {
         //select->Unselect();
-        return select->GetSelectedObject()->GetAttachedObjectID();
+        if (auto sObj = select->GetSelectedObject())
+            return sObj->GetAttachedObjectID();
     }
 
     return NON_OBJECT_ID;

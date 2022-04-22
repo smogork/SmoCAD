@@ -2,23 +2,42 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en_GB">
 <context>
-    <name>Controls</name>
+    <name>CursorControl</name>
     <message>
-        <location filename="Controls/controls.ui" line="14"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_controls.h" line="58"/>
+        <location filename="Controls/cursorcontrol.ui" line="14"/>
         <source>Form</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Controls/controls.ui" line="29"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_controls.h" line="59"/>
-        <source>Test</source>
+        <location filename="Controls/cursorcontrol.ui" line="23"/>
+        <source>Cursor</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Controls/controls.ui" line="36"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_controls.h" line="60"/>
-        <source>PushButton</source>
+        <location filename="Controls/cursorcontrol.ui" line="31"/>
+        <location filename="Controls/cursorcontrol.ui" line="98"/>
+        <source>Y </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Controls/cursorcontrol.ui" line="47"/>
+        <location filename="Controls/cursorcontrol.ui" line="82"/>
+        <source>X </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Controls/cursorcontrol.ui" line="66"/>
+        <source>Z </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Controls/cursorcontrol.ui" line="114"/>
+        <source>Position</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Controls/cursorcontrol.ui" line="124"/>
+        <source>Screen</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -26,142 +45,166 @@
     <name>MainWindow</name>
     <message>
         <location filename="mainwindow.ui" line="23"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="416"/>
         <source>MainWindow</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="49"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="420"/>
-        <source>Cursor</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.ui" line="57"/>
-        <location filename="mainwindow.ui" line="118"/>
-        <location filename="mainwindow.ui" line="233"/>
-        <location filename="mainwindow.ui" line="290"/>
-        <location filename="mainwindow.ui" line="306"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="421"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="426"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="433"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="436"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="437"/>
-        <source>Y </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.ui" line="86"/>
-        <location filename="mainwindow.ui" line="195"/>
-        <location filename="mainwindow.ui" line="211"/>
-        <location filename="mainwindow.ui" line="328"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="424"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="431"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="432"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="439"/>
-        <source>Z </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.ui" line="134"/>
-        <location filename="mainwindow.ui" line="347"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="427"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="440"/>
-        <source>Position</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.ui" line="70"/>
-        <location filename="mainwindow.ui" line="102"/>
-        <location filename="mainwindow.ui" line="167"/>
-        <location filename="mainwindow.ui" line="255"/>
-        <location filename="mainwindow.ui" line="271"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="423"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="425"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="430"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="434"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="435"/>
-        <source>X </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.ui" line="382"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="443"/>
-        <source>UV Parameters</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.ui" line="406"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="444"/>
-        <source>V</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.ui" line="439"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="445"/>
-        <source>U</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.ui" line="462"/>
-        <location filename="mainwindow.ui" line="472"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="446"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="447"/>
-        <source>Density</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.ui" line="144"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="428"/>
-        <source>Screen</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.ui" line="159"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="429"/>
-        <source>Transform</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.ui" line="357"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="441"/>
-        <source>Rotation</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.ui" line="367"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="442"/>
-        <source>Scale</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="mainwindow.ui" line="537"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="448"/>
+        <location filename="mainwindow.ui" line="107"/>
         <source>Objects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="541"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="449"/>
+        <location filename="mainwindow.ui" line="111"/>
         <source>Add</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="554"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="417"/>
+        <location filename="mainwindow.ui" line="124"/>
+        <source>Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="135"/>
         <source>Torus</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="559"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="418"/>
+        <location filename="mainwindow.ui" line="140"/>
         <source>Point</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="mainwindow.ui" line="564"/>
-        <location filename="cmake-build-debug/SmoCAD_autogen/include/ui_mainwindow.h" line="419"/>
+        <location filename="mainwindow.ui" line="145"/>
         <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="150"/>
+        <source>Cube</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="155"/>
+        <source>Rename</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="160"/>
+        <source>BezierC0</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="171"/>
+        <source>Show Bezier polygon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="176"/>
+        <source>BezierC2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="mainwindow.ui" line="184"/>
+        <source>Show BSpline polygon</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SceneElementsList</name>
+    <message>
+        <location filename="Controls/sceneelementslist.ui" line="14"/>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TransformCollectionControl</name>
+    <message>
+        <location filename="Controls/transformcollectioncontrol.ui" line="14"/>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Controls/transformcollectioncontrol.ui" line="26"/>
+        <source>PointCollection</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TransformControl</name>
+    <message>
+        <location filename="Controls/transformcontrol.ui" line="14"/>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Controls/transformcontrol.ui" line="23"/>
+        <source>Transform</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Controls/transformcontrol.ui" line="31"/>
+        <location filename="Controls/transformcontrol.ui" line="119"/>
+        <location filename="Controls/transformcontrol.ui" line="135"/>
+        <source>X </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Controls/transformcontrol.ui" line="59"/>
+        <location filename="Controls/transformcontrol.ui" line="75"/>
+        <location filename="Controls/transformcontrol.ui" line="192"/>
+        <source>Z </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Controls/transformcontrol.ui" line="97"/>
+        <location filename="Controls/transformcontrol.ui" line="154"/>
+        <location filename="Controls/transformcontrol.ui" line="170"/>
+        <source>Y </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Controls/transformcontrol.ui" line="211"/>
+        <source>Position</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Controls/transformcontrol.ui" line="221"/>
+        <source>Rotation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Controls/transformcontrol.ui" line="231"/>
+        <source>Scale</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>UVControl</name>
+    <message>
+        <location filename="Controls/uvcontrol.ui" line="14"/>
+        <source>Form</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Controls/uvcontrol.ui" line="23"/>
+        <source>UV Parameters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Controls/uvcontrol.ui" line="47"/>
+        <source>V</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Controls/uvcontrol.ui" line="80"/>
+        <source>U</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Controls/uvcontrol.ui" line="103"/>
+        <location filename="Controls/uvcontrol.ui" line="113"/>
+        <source>Density</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
