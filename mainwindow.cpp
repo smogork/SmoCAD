@@ -2,7 +2,7 @@
 #include "./ui_mainwindow.h"
 
 #include "Scene/Systems/SelectableSystem.h"
-#include "Scene/Entities/Point.h"
+#include "Scene/Entities/Points/Point.h"
 #include "Scene/Entities/Torus.h"
 #include "Scene/Components/TransformCollection.h"
 #include "Scene/Systems/TransformCollectionSystem.h"

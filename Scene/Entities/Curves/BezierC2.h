@@ -10,7 +10,7 @@
 #include "Scene/Components/Drawing/DynamicDrawing.h"
 #include "Scene/Entities/Polyline.h"
 #include "VirtualBezierC0.h"
-#include "Scene/Entities/VirtualPoint.h"
+#include "Scene/Entities/Points/VirtualPoint.h"
 #include "Scene/Components/SceneElement.h"
 
 class BezierC2: public IEntity

@@ -171,3 +171,17 @@ void TransformCollection::PointFromCollectionHasBeenDeleted(unsigned int deleted
     pointNotifiers.erase(oid);
     emit PointInCollectionModified();
 }
+
+void TransformCollection::SetPoints(std::vector<std::shared_ptr<CollectionAware>> newPoints)
+{
+    pointNotifiers.clear();
+    points.clear();
+
+    for (const std::shared_ptr<CollectionAware> &el: newPoints)
+    {
+        points.push_back(el->p_Transform);
+        ConnectSignals(el->p_Transform);
+    }
+
+    emit PointInCollectionModified();
+}

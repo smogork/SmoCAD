@@ -5,7 +5,7 @@
 #include <QLocale>
 #include <QTranslator>
 
-#include "Scene/Entities/Point.h"
+#include "Scene/Entities/Points/Point.h"
 #include "Scene/SceneECS.h"
 #include "Scene/Systems/DrawingSystem.h"
 #include "Scene/Systems/TransformSystem.h"

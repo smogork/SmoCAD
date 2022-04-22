@@ -5,7 +5,7 @@
 #include "SceneECS.h"
 #include "Scene/Systems/DrawingSystem.h"
 #include "Scene/Systems/TransformSystem.h"
-#include "Scene/Entities/Point.h"
+#include "Scene/Entities/Points/Point.h"
 #include "Scene/Entities/Cube.h"
 #include "Scene/Systems/UVParamsSystem.h"
 #include "Scene/Entities/Torus.h"

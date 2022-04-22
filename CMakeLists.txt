@@ -65,7 +65,7 @@ set(PROJECT_SOURCES
         Scene/Systems/ISystem.cpp Scene/Systems/ISystem.h
         Scene/Entities/IEntity.cpp Scene/Entities/IEntity.h
         Scene/Components/IComponent.cpp Scene/Components/IComponent.h
-        Scene/Entities/Point.cpp Scene/Entities/Point.h
+        Scene/Entities/Points/Point.cpp Scene/Entities/Points/Point.h
         Scene/Components/Transform.cpp Scene/Components/Transform.h
         Scene/SceneECS.cpp Scene/SceneECS.h
         Scene/Systems/TransformSystem.cpp Scene/Systems/TransformSystem.h
@@ -99,7 +99,7 @@ set(PROJECT_SOURCES
         Scene/Utilities/Utilites.cpp Scene/Utilities/Utilites.h
         Scene/Entities/Curves/VirtualBezierC0.cpp Scene/Entities/Curves/VirtualBezierC0.h
         Scene/Entities/Curves/BezierC2.cpp Scene/Entities/Curves/BezierC2.h
-        Scene/Entities/VirtualPoint.cpp Scene/Entities/VirtualPoint.h Controls/ComponentControl.cpp Controls/ComponentControl.h Scene/Components/SceneElement.cpp Scene/Components/SceneElement.h Scene/Components/ScreenSelectable.cpp Scene/Components/ScreenSelectable.h Scene/Systems/ScreenSelectableSystem.cpp Scene/Systems/ScreenSelectableSystem.h Scene/Systems/SceneElementSystem.cpp Scene/Systems/SceneElementSystem.h Scene/Entities/Curves/BezierC0.cpp Scene/Entities/Curves/BezierC0.h Controls/ListElements/QListWidgetSceneElement.cpp Controls/ListElements/QListWidgetSceneElement.h Controls/ListElements/QListWidgetCollectionElement.cpp Controls/ListElements/QListWidgetCollectionElement.h Renderer/Options.cpp Renderer/Options.h Scene/Entities/Curves/BernsteinCurve.cpp Scene/Entities/Curves/BernsteinCurve.h Scene/Entities/Curves/InterpolationC2.cpp Scene/Entities/Curves/InterpolationC2.h)
+        Scene/Entities/Points/VirtualPoint.cpp Scene/Entities/Points/VirtualPoint.h Controls/ComponentControl.cpp Controls/ComponentControl.h Scene/Components/SceneElement.cpp Scene/Components/SceneElement.h Scene/Components/ScreenSelectable.cpp Scene/Components/ScreenSelectable.h Scene/Systems/ScreenSelectableSystem.cpp Scene/Systems/ScreenSelectableSystem.h Scene/Systems/SceneElementSystem.cpp Scene/Systems/SceneElementSystem.h Scene/Entities/Curves/BezierC0.cpp Scene/Entities/Curves/BezierC0.h Controls/ListElements/QListWidgetSceneElement.cpp Controls/ListElements/QListWidgetSceneElement.h Controls/ListElements/QListWidgetCollectionElement.cpp Controls/ListElements/QListWidgetCollectionElement.h Renderer/Options.cpp Renderer/Options.h Scene/Entities/Curves/BernsteinCurve.cpp Scene/Entities/Curves/BernsteinCurve.h Scene/Entities/Curves/InterpolationC2.cpp Scene/Entities/Curves/InterpolationC2.h Scene/Entities/Points/InvisiblePoint.cpp Scene/Entities/Points/InvisiblePoint.h Mathematics/Interpolation.cpp Mathematics/Interpolation.h)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(SmoCAD
