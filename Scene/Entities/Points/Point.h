@@ -6,7 +6,7 @@
 #define SMOCAD_POINT_H
 
 
-#include "IEntity.h"
+#include "Scene/Entities/IEntity.h"
 #include "Scene/Components/Transform.h"
 #include "Scene/Components/Drawing/Drawing.h"
 #include "Scene/Components/Drawing/StaticDrawing.h"

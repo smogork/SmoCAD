@@ -5,7 +5,7 @@
 #ifndef SMOCAD_VIRTUALPOINT_H
 #define SMOCAD_VIRTUALPOINT_H
 
-#include "IEntity.h"
+#include "Scene/Entities/IEntity.h"
 #include "Scene/Components/Transform.h"
 #include "Scene/Components/Drawing/StaticDrawing.h"
 #include "Scene/Components/CollectionAware.h"

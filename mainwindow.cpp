@@ -2,15 +2,16 @@
 #include "./ui_mainwindow.h"
 
 #include "Scene/Systems/SelectableSystem.h"
-#include "Scene/Entities/Point.h"
+#include "Scene/Entities/Points/Point.h"
 #include "Scene/Entities/Torus.h"
 #include "Scene/Components/TransformCollection.h"
 #include "Scene/Systems/TransformCollectionSystem.h"
-#include "Scene/Entities/BezierC2.h"
+#include "Scene/Entities/Curves/BezierC2.h"
 #include "Scene/Entities/Cube.h"
-#include "Scene/Entities/BezierC0.h"
+#include "Scene/Entities/Curves/BezierC0.h"
 
 #include "Renderer/Options.h"
+#include "Scene/Entities/Curves/InterpolationC2.h"
 
 MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -115,6 +116,14 @@ void MainWindow::on_actionBezierC2_triggered()
     std::shared_ptr<BezierC2> b2 = std::make_shared<BezierC2>("NewBezierC2");
     if (auto scene = SceneECS::Instance().lock())
         scene->AddObject(b2);
+    ui->sceneWidget->update();
+}
+
+void MainWindow::on_actionInterpolationC2_triggered()
+{
+    std::shared_ptr<InterpolationC2> i2 = std::make_shared<InterpolationC2>("NewInterpolationC2");
+    if (auto scene = SceneECS::Instance().lock())
+        scene->AddObject(i2);
     ui->sceneWidget->update();
 }
 

@@ -6,10 +6,10 @@
 #define SMOCAD_VIRTUALBEZIERC0_H
 
 
-#include "IEntity.h"
+#include "Scene/Entities/IEntity.h"
 #include "Scene/Components/Drawing/DynamicDrawing.h"
 #include "Scene/Components/TransformCollection.h"
-#include "Polyline.h"
+#include "Scene/Entities/Polyline.h"
 
 class VirtualBezierC0: public IEntity
 {
