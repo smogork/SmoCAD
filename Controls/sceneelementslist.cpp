@@ -5,6 +5,7 @@
 #include "Scene/Entities/Curves/BezierC0.h"
 #include "Scene/Systems/CollectionAwareSystem.h"
 #include "Scene/Entities/Curves/BezierC2.h"
+#include "Scene/Entities/Curves/InterpolationC2.h"
 
 #include <QMenu>
 #include <QInputDialog>
@@ -47,8 +48,10 @@ void SceneElementsList::showObjectListContextMenu(const QPoint &pos)
         }
         else if (ui->listSceneElements->selectedItems().size() > 1)
         {
+            //[TODO] wyprowadzic to do systemu z kolekcjami - wymag aprzebudowania sposobu przekazywania zaznaczonych obiektów
             myMenu.addAction("Create BezierC0 from points", this, &SceneElementsList::CreateBezierC0);
             myMenu.addAction("Create BezierC2 from points", this, &SceneElementsList::CreateBezierC2);
+            myMenu.addAction("Create InterpolationC2 from points", this, &SceneElementsList::CreateInterpolationC2);
         }
 
         auto menu_items = scene->CreateContextMenuForSceneElement(oid, ui->listSceneElements->selectedItems().size());
@@ -165,6 +168,36 @@ void SceneElementsList::CreateBezierC2()
 
             b2->p_Selected->Selected = true;
             emit RequestControlsUpdate(b2->GetObjectID());
+            emit RequestRepaint();
+        }
+    }
+
+}
+
+void SceneElementsList::CreateInterpolationC2()
+{
+    if (auto scene = SceneECS::Instance().lock())
+    {
+        std::shared_ptr<InterpolationC2> i2 = std::make_shared<InterpolationC2>("NewInterpolationC2");
+
+        int itemsAdded = 0;
+        for (QListWidgetItem *gElem: ui->listSceneElements->selectedItems())
+        {
+            auto item = (QListWidgetSceneElement *) gElem;
+            if (auto colElem = scene
+                    ->GetComponentOfSystem<CollectionAwareSystem, CollectionAware>(item->GetAttachedObjectID()).lock())
+            {
+                i2->p_Collection->AddPoint(colElem);
+                itemsAdded++;
+            }
+        }
+
+        if (itemsAdded)
+        {
+            scene->AddObject(i2);
+
+            i2->p_Selected->Selected = true;
+            emit RequestControlsUpdate(i2->GetObjectID());
             emit RequestRepaint();
         }
     }

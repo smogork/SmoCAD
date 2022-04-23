@@ -30,6 +30,7 @@ private slots:
     void onRenameSceneElement();
     void CreateBezierC0();
     void CreateBezierC2();
+    void CreateInterpolationC2();
 
 private:
     Ui::SceneElementsList *ui;
