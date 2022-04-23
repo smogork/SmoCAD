@@ -36,6 +36,7 @@ private:
 protected:
     unsigned int objectID;
     unsigned int classID;
+    static const QColor DefaultColor;
 
     template <typename C>
     void AddComponent(std::shared_ptr<C> component)

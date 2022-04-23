@@ -12,7 +12,7 @@
 class CompositeAwareSystem: public ISystem<CompositeAware>
 {
 private:
-    std::shared_ptr<Composite> currentComposite;
+    std::shared_ptr<Composite> composite;
     QPropertyNotifier compositeOutOfContextNotifier;
 
 public:

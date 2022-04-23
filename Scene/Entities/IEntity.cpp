@@ -6,6 +6,8 @@
 #include "Scene/SceneECS.h"
 #include <QString>
 
+const QColor IEntity::DefaultColor = QColor::fromRgbF(0.8f, 0.8f, 0.8f, 1.0f);
+
 IEntity::IEntity(unsigned int cid)
 {
     if (cid >= ENTITY_CLASS::CLASS_COUNT)

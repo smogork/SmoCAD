@@ -6,6 +6,8 @@
 #include "Scene/SceneECS.h"
 #include "Scene/Systems/CompositeAwareSystem.h"
 
+const QColor CompositeAware::CompositeColor = Qt::cyan;
+
 std::shared_ptr<CompositeAware>
 CompositeAware::CreateRegisteredComponent(unsigned int oid, std::shared_ptr<Transform> t, std::shared_ptr<Drawing> d)
 {

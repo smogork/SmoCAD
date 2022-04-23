@@ -5,37 +5,39 @@
 #include "Composite.h"
 
 #pragma region CompositeElement
-Composite::CompositeElement::CompositeElement(Composite *composite, std::shared_ptr<Transform> objTransform): IEntity(COMPOSITE_ELEM_CLASS)
+Composite::CompositeElement::CompositeElement(Composite *composite, std::shared_ptr<CompositeAware> el): IEntity(COMPOSITE_ELEM_CLASS)
 {
-    servingObjectID = objTransform->GetAttachedObjectID();
-    this->objTransform = objTransform;
+    servingObjectID = el->GetAttachedObjectID();
+    element = el;
     compositeTransform = composite->p_Transform;
 
-    dTransform = Transform::CreateRegisteredComponent(objectID, objTransform->Position - compositeTransform->Position);
-    dTransform->Rotation = *objTransform->Rotation;
-    dTransform->Scale = *objTransform->Scale;
+    el->InsideComposite = true;
+    dTransform = Transform::CreateRegisteredComponent(objectID, el->p_Transform->Position - compositeTransform->Position);
+    dTransform->Rotation = *el->p_Transform->Rotation;
+    dTransform->Scale = *el->p_Transform->Scale;
 }
 
 Composite::CompositeElement::~CompositeElement()
 {
-
+    if (auto ca = element.lock())
+        ca->InsideComposite = false;
 }
 
 void Composite::CompositeElement::UpdateDTransform()
 {
-    if (auto ot = objTransform.lock())
+    if (auto ot = element.lock())
     {
-        dTransform->Position = ot->Position - compositeTransform->Position;
-        dTransform->Rotation = *ot->Rotation;
-        dTransform->Scale = *ot->Scale;
+        dTransform->Position = ot->p_Transform->Position - compositeTransform->Position;
+        dTransform->Rotation = *ot->p_Transform->Rotation;
+        dTransform->Scale = *ot->p_Transform->Scale;
     }
 }
 
 void Composite::CompositeElement::UpdateServingObject()
 {
-    if (auto ot = objTransform.lock())
+    if (auto ot = element.lock())
     {
-        ot->DecomposeTransformations(compositeTransform->GetModelMatrix() * dTransform->GetModelMatrix());
+        ot->p_Transform->DecomposeTransformations(compositeTransform->GetModelMatrix() * dTransform->GetModelMatrix());
     }
 }
 #pragma endregion
@@ -46,7 +48,7 @@ Composite::Composite(std::shared_ptr<CompositeAware> startObject): IEntity(COMPO
     AddComponent(p_Selectable = Selectable::CreateRegisteredComponent(objectID));
     m_center = std::make_unique<Cursor>(p_Transform->Position);
     m_center->p_Transform->Scale = QVector3D(0.33f, 0.33f, 0.33f);
-    objects.push_back(std::make_unique<CompositeElement>(this, startObject->p_Transform));
+    objects.push_back(std::make_unique<CompositeElement>(this, startObject));
 
     compositePositionNotifier = p_Transform->Position.addNotifier([this]()
         {
@@ -73,12 +75,10 @@ void Composite::AddObject(std::shared_ptr<CompositeAware> newObject)
         if (el->servingObjectID == newObject->GetAttachedObjectID())
             return;
 
-    newObje
-
     p_Transform->Position.setValueBypassingBindings((objects.size() * p_Transform->Position + newObject->p_Transform->Position) / (objects.size() + 1));
     m_center->p_Transform->Position = p_Transform->Position.value();
 
-    objects.push_back(std::make_unique<CompositeElement>(this, newObject->p_Transform));
+    objects.push_back(std::make_unique<CompositeElement>(this, newObject));
 
     for (const std::unique_ptr<CompositeElement>& el : objects)
         el->UpdateDTransform();

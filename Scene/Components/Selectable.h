@@ -17,6 +17,7 @@ class Selectable: public IComponent
     Q_OBJECT
 private:
 public:
+    static const QColor SelectedColor;
     QProperty<bool> Selected;
 
     static std::shared_ptr<Selectable> CreateRegisteredComponent(unsigned int oid);

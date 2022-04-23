@@ -21,9 +21,11 @@ private:
     static std::vector<float> vertices;
     static std::vector<int> indices;
 
-    QVector4D m_color = QVector4D(0.8f, 0.8f, 0.8f, 1.0f);
+    QColor m_color = DefaultColor;
     QPropertyNotifier selectedNotifier;
+    QPropertyNotifier compositeNotifier;
 
+    void HandleColors();
     void InitializeDrawing();
     void DrawingFunction(QOpenGLContext* context);
     void UniformFunction(std::shared_ptr<ShaderWrapper> shader);

@@ -15,10 +15,10 @@ Torus::Torus(const QString& name, QVector3D position): IEntity(TORUS_CLASS)
     AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(objectID, name, p_Selected));
 
     selectedNotifier = p_Selected->Selected.addNotifier([this]() {
-        if (p_Selected->Selected)
-            m_color = QVector4D(1.0f, 0.5f, 0.2f, 1.0f);
-        else
-            m_color = QVector4D(0.8f, 0.8f, 0.8f, 1.0f);
+        HandleColors();
+    });
+    compositeNotifier = p_CompositeAware->InsideComposite.addNotifier([this]() {
+        HandleColors();
     });
 
     InitializeDrawing();
@@ -57,7 +57,7 @@ void Torus::DrawingFunction(QOpenGLContext *context)
 void Torus::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
 {
     shader->SetUniform("u_MVP.Model", p_Transform->GetModelMatrix());
-    shader->SetUniform("u_ObjectColor", m_color);
+    shader->SetUniform("u_ObjectColor", ColorToVector4D(m_color));
 }
 
 std::vector<float> Torus::GenerateGeometryVertices()
@@ -119,6 +119,16 @@ std::vector<int> Torus::GenerateTopologyIndices()
 int Torus::GetIndexCount()
 {
     return p_UV->UDensity * p_UV->VDensity * 4;
+}
+
+void Torus::HandleColors()
+{
+    if (p_Selected->Selected)
+        m_color = Selectable::SelectedColor;
+    else if (p_CompositeAware->InsideComposite)
+        m_color = CompositeAware::CompositeColor;
+    else
+        m_color = DefaultColor;
 }
 
 

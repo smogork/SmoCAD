@@ -16,9 +16,11 @@
 class Torus: public IEntity
 {
 private:
-    QVector4D m_color = QVector4D(0.8f, 0.8f, 0.8f, 1.0f);
+    QColor m_color = DefaultColor;
     QPropertyNotifier selectedNotifier;
+    QPropertyNotifier compositeNotifier;
 
+    void HandleColors();
     int GetIndexCount();
     void InitializeDrawing();
     void DrawingFunction(QOpenGLContext* context);

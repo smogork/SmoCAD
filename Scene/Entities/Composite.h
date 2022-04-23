@@ -19,11 +19,11 @@ class Composite: public IEntity
     {
     public:
         unsigned int servingObjectID;
-        std::weak_ptr<Transform> objTransform;
+        std::weak_ptr<CompositeAware> element;
         std::shared_ptr<Transform> dTransform;
         std::shared_ptr<Transform> compositeTransform;
 
-        CompositeElement(Composite* composite, std::shared_ptr<Transform> objTransform);
+        CompositeElement(Composite* composite, std::shared_ptr<CompositeAware> el);
         ~CompositeElement() override;
 
         void UpdateDTransform();

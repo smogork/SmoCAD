@@ -8,8 +8,9 @@
 
 unsigned int CompositeAwareSystem::SelectMultipleObjects(std::list<unsigned int> objectIds)
 {
-    std::list<CompositeAware> elements;
-    std::shared_ptr<Composite> composite;
+    if (composite)
+        composite.reset();
+
     for (unsigned int oid : objectIds)
     {
         if (auto ca = GetComponent(oid).lock())
@@ -23,13 +24,12 @@ unsigned int CompositeAwareSystem::SelectMultipleObjects(std::list<unsigned int>
 
     if (composite)
     {
-
         compositeOutOfContextNotifier = composite->p_Selectable->Selected.addNotifier([this]()
             {
-                if (!currentComposite->p_Selectable->Selected)
-                    currentComposite.reset();
+                if (!composite->p_Selectable->Selected)
+                    composite.reset();
             });
-        currentComposite = composite;
+
         //podlaczenie kompozytu jako aktualnie wybrany obiekt
         composite->p_Selectable->Selected = true;
         return composite->GetObjectID();
@@ -39,5 +39,5 @@ unsigned int CompositeAwareSystem::SelectMultipleObjects(std::list<unsigned int>
 
 void CompositeAwareSystem::ClearSystem()
 {
-    currentComposite.reset();
+    composite.reset();
 }

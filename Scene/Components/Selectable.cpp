@@ -6,6 +6,8 @@
 #include "Scene/Systems/SelectableSystem.h"
 #include "Scene/SceneECS.h"
 
+const QColor Selectable::SelectedColor = QColor::fromRgbF(1.0f, 0.5f, 0.2f, 1.0f);
+
 std::shared_ptr<Selectable> Selectable::CreateRegisteredComponent(unsigned int oid)
 {
     if (auto scene = SceneECS::Instance().lock())
