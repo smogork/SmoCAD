@@ -82,9 +82,7 @@ Interpolation::SolveInterpolationEquation(std::vector<QVector3D> &knots, std::ve
     if (N == 1)
     {
         if (qFuzzyIsNull(distance[0]) || qFuzzyIsNull(distance[1]))
-            return {{},
-                    {},
-                    {}};
+            return {{},{},{}};
         return {
                 {0, 0, 0},
                 1.5f * ((knots[2] - knots[1]) / distance[1]) -
@@ -138,7 +136,7 @@ Interpolation::SolveInterpolationEquation(std::vector<QVector3D> &knots, std::ve
 
     for (int i = 0; i < N; ++i)
     {
-        if (qFuzzyIsNull(distance[i]) || qFuzzyIsNull(distance[i + 1]))
+        if (qFuzzyIsNull(distance[i + 1]) || qFuzzyIsNull(distance[i]))
             B[i] = B[N + i] = B[2 * N + i] = 0;
             //B[3 * i] = B[3 * i + 1] = B[3 * i + 2] = 0;
         else

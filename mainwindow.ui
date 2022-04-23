@@ -113,8 +113,10 @@
      <addaction name="actionTorus"/>
      <addaction name="actionPoint"/>
      <addaction name="actionCube"/>
+     <addaction name="separator"/>
      <addaction name="actionBezierC0"/>
      <addaction name="actionBezierC2"/>
+     <addaction name="actionInterpolationC2"/>
     </widget>
     <addaction name="menuAdd"/>
     <addaction name="separator"/>
@@ -182,6 +184,11 @@
    </property>
    <property name="text">
     <string>Show BSpline polygon</string>
+   </property>
+  </action>
+  <action name="actionInterpolationC2">
+   <property name="text">
+    <string>InterpolationC2</string>
    </property>
   </action>
  </widget>

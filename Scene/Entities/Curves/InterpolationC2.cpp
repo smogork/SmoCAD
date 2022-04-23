@@ -10,10 +10,18 @@ InterpolationC2::InterpolationC2(const QString& name): BernsteinCurve(INTERPOLAT
     AddComponent(p_Selected = Selectable::CreateRegisteredComponent(objectID));
     AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(objectID, name, p_Selected));
 
+    PolylineColor = Qt::red;
     QObject::connect(p_Collection.get(), &TransformCollection::PointInCollectionModified,
                      this, &InterpolationC2::OnCollectionModified);
     QObject::connect(p_Collection.get(), &TransformCollection::SinglePointChanged,
                      this, &InterpolationC2::OnSinglePointModified);
+    selectedNotifier = p_Selected->Selected.addNotifier([this]()
+        {
+            if (p_Selected->Selected)
+                CurveColor = QColor::fromRgbF(1.0f, 0.5f, 0.2f, 1.0f);
+            else
+                CurveColor = QColor::fromRgbF(0.8f, 0.8f, 0.8f, 1.0f);
+        });
 }
 
 std::vector<float> InterpolationC2::GenerateGeometryVertices()

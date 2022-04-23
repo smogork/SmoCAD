@@ -103,7 +103,11 @@ TEST_F(InterpolationC2Test, DistinctPoints)
             {1, 1, 0},
             {2, 0, 0},
             {3, -1, 0},
-            {4, 0, 0}
+            {4, 0, 0},
+            {5, 1, 0},
+            {6, 0, 0},
+            {7, -1, 0},
+            {8, 0, 0},
     };
     std::vector<double> d = CountDistance(knots);
 
@@ -118,10 +122,11 @@ TEST_F(InterpolationC2Test, RepeatedPointC1)
 {
     std::vector<QVector3D> knots = {
             {0, 0, 0},
-            {1, 0, 0},
-            {1, 0, 0},
             {1, 1, 0},
-            {2, 1, 0},
+            {1, 1, 0},
+            {2, 0, 0},
+            {3, -1, 0},
+            {4, 0, 0}
     };
     auto d = CountDistance(knots);
 
@@ -246,6 +251,11 @@ TEST_F(InterpolationC2Test, CollinearDistinctPointsXYZ)
             {1, 1, 1},
             {2, 2, 2},
             {3, 3, 3},
+            {4, 4, 4},
+            {5, 5, 5},
+            {6, 6, 6},
+            {7, 7, 7},
+            {8, 8, 8},
     };
     auto d = CountDistance(knots);
 

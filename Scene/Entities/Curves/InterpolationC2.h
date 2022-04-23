@@ -14,6 +14,7 @@ class InterpolationC2: public BernsteinCurve
     Q_OBJECT
 protected:
     std::list<std::unique_ptr<InvisiblePoint>> m_bernsteinPoints;
+    QPropertyNotifier selectedNotifier;
 
     std::vector<float> GenerateGeometryVertices() override;
     std::vector<int> GenerateTopologyIndices() override;
