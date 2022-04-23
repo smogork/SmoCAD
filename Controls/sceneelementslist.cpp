@@ -29,6 +29,9 @@ SceneElementsList::~SceneElementsList()
 void SceneElementsList::showObjectListContextMenu(const QPoint &pos)
 {
     QPoint globalPos = ui->listSceneElements->mapToGlobal(pos);
+    if (ui->listSceneElements->selectedItems().size() == 0)
+        return;
+
     auto item = (QListWidgetSceneElement *) (*ui->listSceneElements->selectedItems().begin());
     unsigned int oid = item->GetAttachedObjectID();
 
@@ -59,7 +62,7 @@ void SceneElementsList::showObjectListContextMenu(const QPoint &pos)
                 if (func)
                     func(item);
 
-                emit RequestControlsUpdate(item->GetAttachedObjectID());
+                //emit RequestControlsUpdate(item->GetAttachedObjectID());
                 emit RequestRepaint();
             });
         }
@@ -167,4 +170,3 @@ void SceneElementsList::CreateBezierC2()
     }
 
 }
-
