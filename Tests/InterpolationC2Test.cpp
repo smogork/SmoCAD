@@ -65,13 +65,45 @@ std::vector<double> InterpolationC2Test::CountDistance(std::vector<QVector3D> &k
     return std::move(distance);
 }
 
+TEST_F(InterpolationC2Test, ZeroKnots)
+{
+    std::vector<QVector3D> knots = {};
+
+    auto res = Interpolation::C2Interpolation(knots);
+
+    EXPECT_EQ(res.size(), 0);
+}
+
+TEST_F(InterpolationC2Test, SingleKnot)
+{
+    std::vector<QVector3D> knots = {{1, 2, 3}};
+    std::vector<double> d = CountDistance(knots);
+
+    auto res = Interpolation::C2Interpolation(knots);
+
+    EXPECT_EQ(res.size(), 0);
+}
+
+TEST_F(InterpolationC2Test, TwoKnotsLine)
+{
+    std::vector<QVector3D> knots = { {1, 2, 3}, {2, 3, 4} };
+    std::vector<double> d = CountDistance(knots);
+
+    auto res = Interpolation::C2Interpolation(knots);
+
+    EXPECT_TRUE(TestInterpolationResultC0(knots, res));
+    EXPECT_TRUE(QVector3DAlmostEquals({1.333333, 2.3333333, 3.333333}, res[1]));
+    EXPECT_TRUE(QVector3DAlmostEquals({1.666666, 2.666666, 3.666666}, res[2]));
+}
+
 TEST_F(InterpolationC2Test, DistinctPoints)
 {
     std::vector<QVector3D> knots = {
             {0, 0, 0},
-            {1, 0, 0},
             {1, 1, 0},
-            {2, 1, 0},
+            {2, 0, 0},
+            {3, -1, 0},
+            {4, 0, 0}
     };
     std::vector<double> d = CountDistance(knots);
 

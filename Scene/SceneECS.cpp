@@ -19,6 +19,7 @@
 #include "Scene/Entities/Curves/BezierC2.h"
 #include "Controls/ComponentControl.h"
 #include "Scene/Systems/ScreenSelectableSystem.h"
+#include "Scene/Entities/Curves/InterpolationC2.h"
 #include <list>
 
 std::shared_ptr<SceneECS> SceneECS::scene = nullptr;
@@ -74,11 +75,11 @@ void SceneECS::InitUniqueObjects()
 
 void SceneECS::InitSceneObjects()
 {
-    auto p1 = std::make_shared<Point>("P1", QVector3D(0, 0, 1));
-    auto p2 = std::make_shared<Point>("P2", QVector3D(2, 0, 0));
-    auto p3 = std::make_shared<Point>("P3", QVector3D(2, 1, 1));
-    auto p4 = std::make_shared<Point>("P4", QVector3D(1, -1, 3));
-    auto p5 = std::make_shared<Point>("P5", QVector3D(0, 0, 0));
+    auto p1 = std::make_shared<Point>("P1", QVector3D(0, 0, 0));
+    auto p2 = std::make_shared<Point>("P2", QVector3D(1, 1, 0));
+    auto p3 = std::make_shared<Point>("P3", QVector3D(2, 0, 0));
+    auto p4 = std::make_shared<Point>("P4", QVector3D(3, -1, 0));
+    auto p5 = std::make_shared<Point>("P5", QVector3D(4, 0, 0));
     auto p6 = std::make_shared<Point>("P6", QVector3D(-2, 0, 0));
     objects.push_back(p1);
     objects.push_back(p2);
@@ -92,7 +93,7 @@ void SceneECS::InitSceneObjects()
     objects.push_back(std::make_shared<Torus>("Torus1", QVector3D(10, 1, 10)));
 
 
-    auto polyline = std::make_shared<BezierC2>("BezierC2Test");
+    auto polyline = std::make_shared<InterpolationC2>("InterpolationC2Test");
     polyline->p_Collection->AddPoint(p1->p_CollectionAware);
     polyline->p_Collection->AddPoint(p2->p_CollectionAware);
     polyline->p_Collection->AddPoint(p3->p_CollectionAware);
@@ -101,7 +102,7 @@ void SceneECS::InitSceneObjects()
     //polyline->p_Collection->AddPoint(p6->p_CollectionAware);
     objects.push_back(polyline);
 
-    p5->p_Transform->Position = QVector3D(-3, -3, 0);
+    //p5->p_Transform->Position = QVector3D(-3, -3, 0);
 
 
     //composite = std::make_unique<Composite>(p1->p_CompositeAware);

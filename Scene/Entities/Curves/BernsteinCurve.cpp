@@ -13,6 +13,7 @@ BernsteinCurve::BernsteinCurve(unsigned int cid) : IEntity(cid)
 
     InitializeDrawing();
 
+    CurveColor = QColor::fromRgbF(0.8f, 0.8f, 0.8f, 1.0f);
     PolylineColor.setBinding([this](){
         return this->m_bezierPolyline.DrawingColor;
     });
