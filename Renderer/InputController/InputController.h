@@ -4,6 +4,7 @@
 #include "Renderer/InputController/InputEvents/CameraUpdateEvent.h"
 #include "Renderer/InputController/InputEvents/SceneMouseClickEvent.h"
 #include "Renderer/Camera/Viewport.h"
+#include "Renderer/InputController/InputEvents/ObjectMoveEvent.h"
 
 #include <QKeyEvent>
 #include <QObject>
@@ -40,7 +41,7 @@ public:
     std::shared_ptr<Viewport> viewport = nullptr;
 
     bool IsKeyPressed(Qt::Key key);
-    void EmitSceneMouseClickedEvent(QPoint screenPoint, bool unselect);
+    void EmitSceneMouseClickedEvent(QPoint screenPoint);
 
 public:
     virtual void keyPressSlot(QKeyEvent *event);
@@ -53,6 +54,7 @@ public:
 signals:
     void CameraUpdated(std::shared_ptr<CameraUpdateEvent> event);
     void SceneMouseClicked(std::shared_ptr<SceneMouseClickEvent> event);
+    void MoveObjectRequested(std::shared_ptr<ObjectMoveEvent> event);
 
 private:
     enum KeyState {

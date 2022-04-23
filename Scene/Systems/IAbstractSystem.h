@@ -12,8 +12,9 @@
 #include "Controls/ListElements/QListWidgetSceneElement.h"
 #include "Controls/ComponentControl.h"
 
-class IAbstractSystem
+class IAbstractSystem: public QObject
 {
+    Q_OBJECT
 protected:
     IAbstractSystem()
     {};

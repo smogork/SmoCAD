@@ -4,11 +4,19 @@
 
 #include <cfloat>
 #include "SelectableSystem.h"
+#include "Scene/SceneECS.h"
+#include "TransformSystem.h"
+
+SelectableSystem::SelectableSystem(): ISystem(SYSTEM_ID::SELECTABLE)
+{
+    QObject::connect(&Renderer::controller, &InputController::MoveObjectRequested,
+                     this, &SelectableSystem::OnSelectedMoveRequest);
+}
+
 
 void SelectableSystem::ClearSystem()
 {
     selectedObject = nullptr;
-
 }
 
 std::shared_ptr<Selectable> SelectableSystem::CreateRegistered(unsigned int oid)
@@ -67,3 +75,27 @@ void SelectableSystem::Unselect()
         this->selectedObject.reset();
     }
 }
+
+void SelectableSystem::OnSelectedMoveRequest(std::shared_ptr<ObjectMoveEvent> event)
+{
+    //Czy aktualnie zaznaczony obiekt posiada Transform?
+    if (!selectedObject)
+        return;
+
+    if (auto scene = SceneECS::Instance().lock())
+    {
+        if (auto selectedTransform = scene->GetComponentOfSystem<TransformSystem, Transform>(selectedObject->GetAttachedObjectID()).lock())
+        {
+            //Wylicz płaszczyzne równoległą do ekranu przechodzącą przez poruszany obiekt
+            QVector4D objPlain = event->CameraBackVersor.toVector4D();
+            objPlain.setW(QVector3D::dotProduct(event->CameraBackVersor, -selectedTransform->Position));
+
+            //Rowiąż równanie raycastingu do prostej wysłanej z ekranu aby wyznaczyć nowe położenie obiektu
+            float t = -QVector4D::dotProduct(objPlain, event->RaycastStart) /
+                      QVector4D::dotProduct(objPlain, event->RaycastDirection);
+            selectedTransform->Position = (event->RaycastDirection * t + event->RaycastStart).toVector3D();
+        }
+    }
+}
+
+

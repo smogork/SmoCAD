@@ -21,23 +21,34 @@ TransformControl::TransformControl(std::shared_ptr<Transform> t, QWidget *parent
     m_positionNotifier = m_transform->Position.addNotifier([this]()
             {
                 if (this->ignoreNotifier) return;
+                ignoreValueChanged = true;
                 this->ui->spinPosX->setValue(m_transform->Position.value().x());
                 this->ui->spinPosY->setValue(m_transform->Position.value().y());
                 this->ui->spinPosZ->setValue(m_transform->Position.value().z());
+                ignoreValueChanged = false;
+                emit RequestRepaint();
             });
     m_rotationNotifier = m_transform->Rotation.addNotifier([this]()
            {
                if (this->ignoreNotifier) return;
+               ignoreValueChanged = true;
                this->ui->spinRotX->setValue(m_transform->Rotation.value().x());
                this->ui->spinRotY->setValue(m_transform->Rotation.value().y());
                this->ui->spinRotZ->setValue(m_transform->Rotation.value().z());
+               ignoreValueChanged = false;
+               emit RequestRepaint();
+
            });
     m_scaleNotifier = m_transform->Scale.addNotifier([this]()
            {
                if (this->ignoreNotifier) return;
+
+               ignoreValueChanged = true;
                this->ui->spinScaleX->setValue(m_transform->Scale.value().x());
                this->ui->spinScaleY->setValue(m_transform->Scale.value().y());
                this->ui->spinScaleZ->setValue(m_transform->Scale.value().z());
+               ignoreValueChanged = false;
+               emit RequestRepaint();
            });
 }
 
