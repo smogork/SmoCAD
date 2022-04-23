@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.12)
 
 project(SmoCAD VERSION 0.5 LANGUAGES CXX)
 
@@ -12,6 +12,8 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_compile_definitions(Q_ENABLE_OPENGL_FUNCTIONS_DEBUG)
+
+find_package(LAPACK REQUIRED)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools REQUIRED)
@@ -30,20 +32,30 @@ set(SHADER_FILES
         Shaders/bezier.frag
         )
 
+set(MATH_FILES
+        Mathematics/Interpolation.cpp Mathematics/Interpolation.h
+        Mathematics/clapack.h
+        Mathematics/f2c.h
+        )
+
 set(CONTROL_SOURCES
         mainwindow.cpp mainwindow.h mainwindow.ui
         glwidget.cpp glwidget.h
+        Controls/ComponentControl.cpp Controls/ComponentControl.h
         Controls/transformcontrol.h Controls/transformcontrol.cpp Controls/transformcontrol.ui
         Controls/uvcontrol.h Controls/uvcontrol.cpp Controls/uvcontrol.ui
         Controls/cursorcontrol.h Controls/cursorcontrol.cpp Controls/cursorcontrol.ui
         Controls/transformcollectioncontrol.h Controls/transformcollectioncontrol.cpp Controls/transformcollectioncontrol.ui
         Controls/sceneelementslist.h Controls/sceneelementslist.cpp Controls/sceneelementslist.ui
+        Controls/ListElements/QListWidgetSceneElement.cpp Controls/ListElements/QListWidgetSceneElement.h
+        Controls/ListElements/QListWidgetCollectionElement.cpp Controls/ListElements/QListWidgetCollectionElement.h
     )
 
 set(PROJECT_SOURCES
         main.cpp
         ${CONTROL_SOURCES}
         ${TS_FILES}
+        ${MATH_FILES}
         Objects/TransformableObject.cpp Objects/TransformableObject.h
         Renderer/Camera/OrbitalCamera.cpp Renderer/Camera/OrbitalCamera.h
         Objects/TorusObject.cpp Objects/TorusObject.h
@@ -99,7 +111,19 @@ set(PROJECT_SOURCES
         Scene/Utilities/Utilites.cpp Scene/Utilities/Utilites.h
         Scene/Entities/Curves/VirtualBezierC0.cpp Scene/Entities/Curves/VirtualBezierC0.h
         Scene/Entities/Curves/BezierC2.cpp Scene/Entities/Curves/BezierC2.h
-        Scene/Entities/Points/VirtualPoint.cpp Scene/Entities/Points/VirtualPoint.h Controls/ComponentControl.cpp Controls/ComponentControl.h Scene/Components/SceneElement.cpp Scene/Components/SceneElement.h Scene/Components/ScreenSelectable.cpp Scene/Components/ScreenSelectable.h Scene/Systems/ScreenSelectableSystem.cpp Scene/Systems/ScreenSelectableSystem.h Scene/Systems/SceneElementSystem.cpp Scene/Systems/SceneElementSystem.h Scene/Entities/Curves/BezierC0.cpp Scene/Entities/Curves/BezierC0.h Controls/ListElements/QListWidgetSceneElement.cpp Controls/ListElements/QListWidgetSceneElement.h Controls/ListElements/QListWidgetCollectionElement.cpp Controls/ListElements/QListWidgetCollectionElement.h Renderer/Options.cpp Renderer/Options.h Scene/Entities/Curves/BernsteinCurve.cpp Scene/Entities/Curves/BernsteinCurve.h Scene/Entities/Curves/InterpolationC2.cpp Scene/Entities/Curves/InterpolationC2.h Scene/Entities/Points/InvisiblePoint.cpp Scene/Entities/Points/InvisiblePoint.h Mathematics/Interpolation.cpp Mathematics/Interpolation.h)
+        Scene/Entities/Points/VirtualPoint.cpp Scene/Entities/Points/VirtualPoint.h
+        Scene/Components/SceneElement.cpp Scene/Components/SceneElement.h
+        Scene/Components/ScreenSelectable.cpp Scene/Components/ScreenSelectable.h
+        Scene/Systems/ScreenSelectableSystem.cpp Scene/Systems/ScreenSelectableSystem.h
+        Scene/Systems/SceneElementSystem.cpp Scene/Systems/SceneElementSystem.h
+        Scene/Entities/Curves/BezierC0.cpp Scene/Entities/Curves/BezierC0.h
+        Renderer/Options.cpp Renderer/Options.h
+        Scene/Entities/Curves/BernsteinCurve.cpp Scene/Entities/Curves/BernsteinCurve.h
+        Scene/Entities/Curves/InterpolationC2.cpp Scene/Entities/Curves/InterpolationC2.h
+        Scene/Entities/Points/InvisiblePoint.cpp Scene/Entities/Points/InvisiblePoint.h
+        )
+
+add_subdirectory(Tests)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(SmoCAD
@@ -133,6 +157,9 @@ target_link_libraries(SmoCAD PRIVATE Qt${QT_VERSION_MAJOR}::OpenGLWidgets)
 target_link_libraries(SmoCAD PRIVATE Qt${QT_VERSION_MAJOR}::Gui)
 target_link_libraries(SmoCAD PRIVATE Qt${QT_VERSION_MAJOR}::3DCore)
 target_link_libraries(SmoCAD PRIVATE Qt${QT_VERSION_MAJOR}::Core)
+
+target_link_libraries(SmoCAD PRIVATE lapack blas)
+target_link_libraries(SmoCAD PRIVATE m)
 
 set_target_properties(SmoCAD PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
