@@ -15,6 +15,8 @@ class CompositeAware: public IComponent
 public:
     std::shared_ptr<Transform> p_Transform;
     std::shared_ptr<Drawing> p_Drawing;
+    QProperty<bool> InsideComposite;
+    const QColor CompositeColor = Qt::cyan;
 
     static std::shared_ptr<CompositeAware> CreateRegisteredComponent(unsigned int oid, std::shared_ptr<Transform> t, std::shared_ptr<Drawing> d);
     void UnregisterComponent();

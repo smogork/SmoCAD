@@ -9,6 +9,7 @@
 #include "Scene/Entities/IEntity.h"
 #include "Scene/Entities/Cursor.h"
 #include "Scene/Components/CompositeAware.h"
+#include "Scene/Components/Selectable.h"
 
 class Composite: public IEntity
 {
@@ -16,30 +17,29 @@ class Composite: public IEntity
 
     class CompositeElement: IEntity
     {
-    private:
-        void DecoratingUniformFunction(std::shared_ptr<ShaderWrapper> shader);
-
     public:
         unsigned int servingObjectID;
-        std::shared_ptr<Drawing> objDrawing;
-        std::shared_ptr<Transform> objTransform;
+        std::weak_ptr<Transform> objTransform;
         std::shared_ptr<Transform> dTransform;
         std::shared_ptr<Transform> compositeTransform;
-        std::function<void(std::shared_ptr<ShaderWrapper> shader)> originalUniform;
 
-        CompositeElement(Composite* composite, std::shared_ptr<Transform> objTransform, std::shared_ptr<Drawing> objDrawing);
-        ~CompositeElement();
+        CompositeElement(Composite* composite, std::shared_ptr<Transform> objTransform);
+        ~CompositeElement() override;
 
         void UpdateDTransform();
+        void UpdateServingObject();
     };
 private:
     std::unique_ptr<Cursor> m_center;
     std::list<std::unique_ptr<CompositeElement>> objects;
+    QPropertyNotifier compositePositionNotifier;
+    QPropertyNotifier compositeRotationNotifier;
+    QPropertyNotifier compositeScaleNotifier;
 
-    void SetPosition(QVector3D pos);
-
+    void UpdateCompositeElements();
 public:
     std::shared_ptr<Transform> p_Transform;
+    std::shared_ptr<Selectable> p_Selectable;
 
     explicit Composite(std::shared_ptr<CompositeAware> startObject);
     ~Composite() override;

@@ -9,6 +9,7 @@
 #include "Scene/Components/Selectable.h"
 #include "Renderer/InputController/InputEvents/SceneMouseClickEvent.h"
 #include "Renderer/InputController/InputEvents/ObjectMoveEvent.h"
+#include "Scene/Entities/Composite.h"
 
 class SelectableSystem: public ISystem<Selectable>
 {
@@ -32,6 +33,7 @@ public:
     void ClearSystem() override;
 
     void Unselect();
+    //void AssignComposite(std::unique_ptr<Composite> composite);
 };
 
 

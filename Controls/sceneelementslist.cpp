@@ -6,6 +6,7 @@
 #include "Scene/Systems/CollectionAwareSystem.h"
 #include "Scene/Entities/Curves/BezierC2.h"
 #include "Scene/Entities/Curves/InterpolationC2.h"
+#include "Scene/Systems/CompositeAwareSystem.h"
 
 #include <QMenu>
 #include <QInputDialog>
@@ -84,6 +85,24 @@ void SceneElementsList::on_listSceneElements_itemClicked(QListWidgetItem *item)
         rItem->SelectItem();
         emit RequestControlsUpdate(rItem->GetAttachedObjectID());
         emit RequestRepaint();
+    }
+    else
+    {
+        if (auto scene = SceneECS::Instance().lock())
+        {
+            if (auto cas = scene->GetSystem<CompositeAwareSystem>().lock())
+            {
+                std::list<unsigned int> objs;
+                for (QListWidgetItem *gElem: ui->listSceneElements->selectedItems())
+                {
+                    auto item = (QListWidgetSceneElement *) gElem;
+                    objs.emplace_back(item->GetAttachedObjectID());
+                }
+
+                emit RequestControlsUpdate(cas->SelectMultipleObjects(objs));
+                emit RequestRepaint();
+            }
+        }
     }
 }
 
