@@ -7,22 +7,22 @@
 std::map<int, std::shared_ptr<ShaderWrapper>> Renderer::shaders;
 InputController Renderer::controller(std::make_shared<Viewport>(QSize(), 60));
 
-void Renderer::DrawTriangles(QOpenGLFunctions* functions, unsigned int count)
+void Renderer::DrawTriangles(QOpenGLFunctions *functions, unsigned int count)
 {
     functions->glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0);
 }
 
-void Renderer::DrawLines(QOpenGLFunctions* functions, unsigned int count)
+void Renderer::DrawLines(QOpenGLFunctions *functions, unsigned int count)
 {
     functions->glDrawElements(GL_LINES, count, GL_UNSIGNED_INT, 0);
 }
 
-void Renderer::DrawPatches(QOpenGLFunctions* functions, unsigned int count)
+void Renderer::DrawPatches(QOpenGLFunctions *functions, unsigned int count)
 {
     functions->glDrawElements(GL_PATCHES, count, GL_UNSIGNED_INT, 0);
 }
 
-void Renderer::DrawLineStrip(QOpenGLFunctions* functions, unsigned int count)
+void Renderer::DrawLineStrip(QOpenGLFunctions *functions, unsigned int count)
 {
     functions->glDrawArrays(GL_LINE_STRIP, 0, count);
 }
@@ -52,11 +52,18 @@ void Renderer::DeleteShaders()
 
 void Renderer::UpdateShaders()
 {
-    for (auto sh : shaders)
+    for (auto sh: shaders)
     {
         std::shared_ptr<ShaderWrapper> shader = sh.second;
         shader->SetUniform("u_MVP.View", controller.Camera->GetViewMatrix());
         shader->SetUniform("u_MVP.Projection", controller.viewport->GetProjectionMatrix());
+
+        if (sh.first == BEZIER_SHADER)
+        {
+            shader->SetUniform("u_viewportSize", controller.viewport->GetViewportSize());
+            //shader->SetUniform("u_viewportSize", QVector2D(controller.viewport->GetViewportSize().width(),
+            //                                               controller.viewport->GetViewportSize().height()));
+        }
 
         //qDebug() << "Camera space (0,0,0) " << controls->Camera->GetViewMatrix() * QVector4D(0, 0, 0, 1);
         //qDebug() << "NDC space (0,0,0) " << controls->viewport->GetProjectionMatrix() * controls->Camera->GetViewMatrix() * QVector4D(0, 0, 0, 1);

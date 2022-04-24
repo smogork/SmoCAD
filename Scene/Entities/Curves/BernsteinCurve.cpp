@@ -13,7 +13,7 @@ BernsteinCurve::BernsteinCurve(unsigned int cid) : IEntity(cid)
 
     InitializeDrawing();
 
-    CurveColor = QColor::fromRgbF(0.8f, 0.8f, 0.8f, 1.0f);
+    CurveColor = DefaultColor;
     PolylineColor.setBinding([this](){
         return this->m_bezierPolyline.DrawingColor;
     });
@@ -42,7 +42,6 @@ void BernsteinCurve::DrawingFunction(QOpenGLContext *context)
 
 void BernsteinCurve::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
 {
-    shader->SetUniform("m_Chunks", 64);//[TODO] to powinno byc liczone na shaderze
     shader->SetUniform("u_ObjectColor", ColorToVector4D(CurveColor));
     shader->SetUniform("u_MVP.Model", QMatrix4x4());
 }
