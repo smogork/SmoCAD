@@ -11,10 +11,8 @@
 #include <QWheelEvent>
 #include <QKeyEvent>
 
-#include <Renderer/InputController/InputController.h>
+#include "Renderer/InputController/InputController.h"
 #include "Renderer/InputController/InputEvents/CameraUpdateEvent.h"
-#include "Objects/IRenderableObject.h"
-#include "Objects/BezierCurveC0.h"
 #include "Renderer/Renderer.h"
 
 class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions
@@ -42,12 +40,6 @@ public slots:
 #pragma endregion
 
     void LoadShaders();
-    //void UpdateUniforms();
-
-    void DrawRenderableObject(IRenderableObject *ro, std::shared_ptr<ShaderWrapper> shader,
-                              const std::function<void(ShaderWrapper *)> &uniformOverrides = {});
-
-    void DrawBezier(BezierCurveC0 *bezier, const std::function<void(ShaderWrapper *)> &uniformOverrides = {});
 
 #pragma region Mouse Handlers
     void mousePressEvent(QMouseEvent *event) Q_DECL_OVERRIDE { Renderer::controller.mousePressSlot(event); }

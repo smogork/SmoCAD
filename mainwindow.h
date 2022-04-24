@@ -6,10 +6,6 @@
 #include <QSpacerItem>
 
 #include <Renderer/InputController/InputController.h>
-#include "Objects/IRenderableObject.h"
-#include "Objects/CursorObject.h"
-#include "Scene/SceneModelOld.h"
-#include "Objects/TorusObject.h"
 #include "Scene/SceneECS.h"
 #include "Controls/transformcontrol.h"
 #include "Controls/uvcontrol.h"
@@ -26,14 +22,6 @@ private:
     std::list<std::unique_ptr<ComponentControl>> componentControls;
     std::unique_ptr<QSpacerItem> componentSpacer;
 
-    void CreateCursorOnScene(std::shared_ptr<SceneMouseClickEvent> event);
-
-    void UpdateCursorWorldPosition();
-    void UpdateCursorViewPosition();
-    QPoint GetCursorViewPosition();
-    void BlockCursorUISignals(bool b);
-    void ResizeEvent(QSize size);
-
 protected:
     void keyPressEvent(QKeyEvent* event) Q_DECL_OVERRIDE { Renderer::controller.keyPressSlot(event); }
     void keyReleaseEvent(QKeyEvent* event) Q_DECL_OVERRIDE { Renderer::controller.keyReleaseSlot(event);}
@@ -42,12 +30,8 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-signals:
-    void PointObjectChanged(std::shared_ptr<PointObjectChangedEvent> event);
-
 private slots:
     void MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event);
-    void CameraUpdated(std::shared_ptr<CameraUpdateEvent> event);
     void UpdateComponentUI(unsigned int oid);
 
     void on_actionTorus_triggered();

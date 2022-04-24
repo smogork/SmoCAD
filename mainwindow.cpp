@@ -20,10 +20,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     QObject::connect(&Renderer::controller, &InputController::SceneMouseClicked,
                      this, &MainWindow::MouseRaycastSlot);
-    QObject::connect(&Renderer::controller, &InputController::CameraUpdated,
-                     this, &MainWindow::CameraUpdated);
-    QObject::connect(ui->sceneWidget, &GLWidget::WidgetResized,
-                     this, &MainWindow::ResizeEvent);
 
     //register signals to cursorControl
     QObject::connect(ui->sceneWidget, &GLWidget::WidgetResized,
@@ -142,117 +138,6 @@ void MainWindow::MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event)
         ui->sceneWidget->update();
     }
 }
-#pragma endregion
-
-void MainWindow::CreateCursorOnScene(std::shared_ptr<SceneMouseClickEvent> event)
-{
-    QVector4D plain = Renderer::controller.Camera->GetCenterViewPlain();
-
-    float t = -QVector4D::dotProduct(plain, event->RaycastStart) /
-              QVector4D::dotProduct(plain, event->RaycastDirection);
-
-    QVector3D clickPoint = (event->RaycastDirection * t + event->RaycastStart).toVector3D();
-
-    /*qDebug() << "CenterViewPlain:" << plain;
-    qDebug() << "ClickPoint:" << clickPoint;*/
-
-    //model->UpdateCursor(clickPoint);
-    //UpdateCursorUI(clickPoint, event->ViewClickPoint);
-}
-
-#pragma region CursorUiEvents
-
-/*void MainWindow::on_spinCurPosX_valueChanged(double arg1)
-{
-    UpdateCursorWorldPosition();
-}
-
-
-void MainWindow::on_spinCurPosY_valueChanged(double arg1)
-{
-    UpdateCursorWorldPosition();
-}
-
-
-void MainWindow::on_spinCurPosZ_valueChanged(double arg1)
-{
-    UpdateCursorWorldPosition();
-}
-
-
-void MainWindow::on_spinCurViewPosX_valueChanged(int arg1)
-{
-    UpdateCursorViewPosition();
-}
-
-
-void MainWindow::on_spinCurViewPosY_valueChanged(int arg1)
-{
-    UpdateCursorViewPosition();
-}*/
-
-/*void MainWindow::UpdateCursorUI(QVector3D wPos, QPoint vPos)
-{
-    BlockCursorUISignals(true);
-    /*ui->spinCurPosX->setValue(wPos.x());
-    ui->spinCurPosY->setValue(wPos.y());
-    ui->spinCurPosZ->setValue(wPos.z());
-    ui->spinCurViewPosX->setValue(vPos.x());
-    ui->spinCurViewPosY->setValue(vPos.y());
-    BlockCursorUISignals(false);
-}*/
-
-void MainWindow::BlockCursorUISignals(bool b)
-{
-    /*ui->spinCurPosX->blockSignals(b);
-    ui->spinCurPosY->blockSignals(b);
-    ui->spinCurPosZ->blockSignals(b);
-    ui->spinCurViewPosX->blockSignals(b);
-    ui->spinCurViewPosY->blockSignals(b);*/
-}
-
-void MainWindow::UpdateCursorWorldPosition()
-{
-    //model->UpdateCursor(QVector3D(ui->spinCurPosX->value(), ui->spinCurPosY->value(), ui->spinCurPosZ->value()));
-    CameraUpdated(nullptr);
-}
-
-void MainWindow::UpdateCursorViewPosition()
-{
-    //Renderer::controller.EmitSceneMouseClickedEvent(QPoint(ui->spinCurViewPosX->value(), ui->spinCurViewPosY->value()), false);
-    ui->sceneWidget->update();
-}
-
-QPoint MainWindow::GetCursorViewPosition()
-{
-    /*QVector3D pos = model->GetCursorObject()->Position;
-    QVector3D vPoint = pos.project(
-            controls->Camera->GetViewMatrix(),
-            viewport->GetProjectionMatrix(),
-            QRect(QPoint(0.0f, 0.0f), viewport->GetViewportSize()));
-    return QPoint(vPoint.x(), viewport->GetViewportSize().height() - vPoint.y());*/
-    return {};
-}
-
-void MainWindow::CameraUpdated(std::shared_ptr<CameraUpdateEvent> event)
-{
-    /*if (model->GetCursorObject())
-    {
-        QPoint vPos = GetCursorViewPosition();
-        BlockCursorUISignals(true);
-        ui->spinCurViewPosX->setValue(vPos.x());
-        ui->spinCurViewPosY->setValue(vPos.y());
-        BlockCursorUISignals(false);
-        ui->sceneWidget->update();
-    }*/
-}
-
-void MainWindow::ResizeEvent(QSize size)
-{
-    /*ui->spinCurViewPosX->setMaximum(size.width());
-    ui->spinCurViewPosY->setMaximum(size.height());*/
-}
-
 #pragma endregion
 
 void MainWindow::on_actionShow_Bezier_polygon_toggled(bool arg1)
