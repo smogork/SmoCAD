@@ -41,8 +41,8 @@ public:
     std::shared_ptr<Viewport> viewport = nullptr;
 
     bool IsKeyPressed(Qt::Key key);
-    void EmitSceneMouseClickedEvent(QPoint screenPoint);
 
+    void EmitCursorFromScreenEvent(QPoint screenPoint);
 public:
     virtual void keyPressSlot(QKeyEvent *event);
     virtual void keyReleaseSlot(QKeyEvent *event);
@@ -73,6 +73,7 @@ protected:
     int translateMouseButton(Qt::MouseButton button);
 
     void EmitCameraUpdateEvent();
+    void EmitSceneMouseClickedEvent(QPoint screenPoint);
 };
 
 #endif // KeyboardMouseHandlerH

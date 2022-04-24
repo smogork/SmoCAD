@@ -23,15 +23,12 @@
 #include <list>
 
 std::shared_ptr<SceneECS> SceneECS::scene = nullptr;
-QListWidget *SceneECS::elementList = nullptr;
 
 std::weak_ptr<SceneECS> SceneECS::Instance()
 {
     if (!SceneECS::scene)
     {
         SceneECS::scene.reset(new SceneECS());
-        scene->InitUniqueObjects();
-        scene->InitSceneObjects();
     }
     return SceneECS::scene;
 }
@@ -53,7 +50,7 @@ SceneECS::SceneECS()
     systems.put<TransformCollectionSystem>(
             std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<TransformCollectionSystem>()));
     systems.put<SceneElementSystem>(
-            std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<SceneElementSystem>(elementList)));
+            std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<SceneElementSystem>()));
 }
 
 SceneECS::~SceneECS()
@@ -131,8 +128,9 @@ void SceneECS::InitSceneObjects()
 void SceneECS::RemoveUniqueObjects()
 {
     grid.reset();
-    cursor.reset();
     composite.reset();
+    cursor.reset();
+    emit CursorChange(nullptr);
 }
 
 void SceneECS::RemoveObjectsFromScene()
@@ -156,11 +154,14 @@ QString SceneECS::DebugSystemReport()
 
 unsigned int SceneECS::MouseClicked(std::shared_ptr<SceneMouseClickEvent> event)
 {
-    if (auto screenSelect = GetSystem<ScreenSelectableSystem>().lock())
+    if (event->SelectObjects)
     {
-        auto item = screenSelect->SelectObject(event);
-        if (item)
-            return item->GetAttachedObjectID();
+        if (auto screenSelect = GetSystem<ScreenSelectableSystem>().lock())
+        {
+            auto item = screenSelect->SelectObject(event);
+            if (item)
+                return item->GetAttachedObjectID();
+        }
     }
 
     UpdateCursorObject(event->ClickCenterPlainPoint);
@@ -179,12 +180,14 @@ void SceneECS::UpdateCursorObject(QVector3D cursorPos)
     if (cursor)
         cursor->p_Transform->Position = cursorPos;
     else
+    {
         cursor = std::make_unique<Cursor>(cursorPos);
+        emit CursorChange(cursor);
+    }
 }
 
 void SceneECS::AddObject(std::shared_ptr<IEntity> obj)
 {
-
     auto t = obj->GetComponent<Transform>().lock();
     if (t)
     {
@@ -246,5 +249,11 @@ SceneECS::CreateContextMenuForSceneElement(unsigned int oid, int selectionCount)
     }
 
     return res;
+}
+
+void SceneECS::InitializeScene()
+{
+    InitUniqueObjects();
+    InitSceneObjects();
 }
 

@@ -16,7 +16,10 @@ SceneElementsList::SceneElementsList(QWidget *parent) :
         ui(new Ui::SceneElementsList)
 {
     ui->setupUi(this);
-    SceneECS::elementList = ui->listSceneElements;
+    if (auto scene = SceneECS::Instance().lock())
+        if (auto sas = scene->GetSystem<SceneElementSystem>().lock())
+            sas->AttachItemList(ui->listSceneElements);
+
 
     ui->listSceneElements->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->listSceneElements, &QListWidget::customContextMenuRequested, this,

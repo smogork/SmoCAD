@@ -11,6 +11,7 @@
 class SceneMouseClickEvent: public QEvent
 {
 public:
+    bool SelectObjects;
     QPoint ViewClickPoint;
     QVector3D ClickViewPointNear;
     QVector3D ClickCenterPlainPoint;
@@ -19,7 +20,7 @@ public:
     QVector4D RaycastStart;
     float PivotLength;
 
-    explicit SceneMouseClickEvent(QPoint vPos);
+    explicit SceneMouseClickEvent(QPoint vPos, bool select = true);
 };
 
 

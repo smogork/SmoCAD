@@ -5,11 +5,19 @@
 #ifndef SMOCAD_COMPONENTCONTROL_H
 #define SMOCAD_COMPONENTCONTROL_H
 
-#define UPDATE_VALUE_IGNORING_NOTIFIER(F)   if (ignoreValueChanged) return;\
-                                            ignoreNotifier = true;\
+
+
+#define UPDATE_VALUE_IGNORING_NOTIFIER_NOREPAINT(F)   if (ignoreValueChanged) return;\
+                                                      ignoreNotifier = true;\
+                                                      F;\
+                                                      ignoreNotifier = false
+
+#define UPDATE_VALUE_IGNORING_NOTIFIER(F)   UPDATE_VALUE_IGNORING_NOTIFIER_NOREPAINT(F); emit RequestRepaint()                                                                    \
+
+
+#define UPDATE_UI_IGNORING_VALUE_CHANGED(F) ignoreValueChanged = true;\
                                             F;\
-                                            ignoreNotifier = false;\
-                                            emit RequestRepaint()
+                                            ignoreValueChanged = false
 
 #include <QWidget>
 

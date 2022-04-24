@@ -18,8 +18,7 @@ private:
     QListWidget* sceneElementList;
 
 public:
-    SceneElementSystem(QListWidget* list): ISystem(SYSTEM_ID::SCENE_ELEMENT), sceneElementList(list)
-    { }
+    SceneElementSystem(): ISystem(SYSTEM_ID::SCENE_ELEMENT), sceneElementList(nullptr) { }
 
     const char* GetSystemName() override { return "SceneElementSystem"; }
     std::shared_ptr<SceneElement> CreateRegistered(unsigned int oid) override;

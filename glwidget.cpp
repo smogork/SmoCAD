@@ -30,7 +30,10 @@ void GLWidget::initializeGL()
     Renderer::UpdateShaders();
 
     if (auto scene = SceneECS::Instance().lock())
+    {
+        scene->InitializeScene();
         qDebug() << scene->DebugSystemReport();
+    }
 }
 
 void GLWidget::resizeGL(int w, int h)

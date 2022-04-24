@@ -25,7 +25,6 @@ public:
     static std::weak_ptr<SceneECS> Instance();
 
     static const unsigned int NON_OBJECT_ID = 0;
-    static QListWidget *elementList;
 
     ~SceneECS() override;
 
@@ -77,6 +76,11 @@ public:
 
     QString DebugSystemReport();
 
+    void InitializeScene();
+
+signals:
+    void CursorChange(std::shared_ptr<Cursor> cur);
+
 private:
     static std::shared_ptr<SceneECS> scene;
     unsigned int objectCounter;
@@ -84,7 +88,7 @@ private:
     std::list<std::shared_ptr<IEntity>> objects;
 
     std::unique_ptr<Grid> grid = nullptr;
-    std::unique_ptr<Cursor> cursor = nullptr;
+    std::shared_ptr<Cursor> cursor = nullptr;
     std::unique_ptr<Composite> composite = nullptr;
 
     SceneECS();

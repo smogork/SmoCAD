@@ -25,6 +25,12 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(ui->sceneWidget, &GLWidget::WidgetResized,
                      this, &MainWindow::ResizeEvent);
 
+    //register signals to cursorControl
+    QObject::connect(ui->sceneWidget, &GLWidget::WidgetResized,
+                     ui->cursorPosWidget, &CursorControl::ViewportResized);
+    QObject::connect(ui->cursorPosWidget, &CursorControl::RequestRepaint,
+                     ui->sceneWidget, &GLWidget::RedrawScreen);
+
     //register signals to SceneListElements
     QObject::connect(ui->sceneElementsWIdget, &SceneElementsList::RequestControlsUpdate,
                      this, &MainWindow::UpdateComponentUI);
@@ -151,12 +157,12 @@ void MainWindow::CreateCursorOnScene(std::shared_ptr<SceneMouseClickEvent> event
     qDebug() << "ClickPoint:" << clickPoint;*/
 
     //model->UpdateCursor(clickPoint);
-    UpdateCursorUI(clickPoint, event->ViewClickPoint);
+    //UpdateCursorUI(clickPoint, event->ViewClickPoint);
 }
 
 #pragma region CursorUiEvents
 
-void MainWindow::on_spinCurPosX_valueChanged(double arg1)
+/*void MainWindow::on_spinCurPosX_valueChanged(double arg1)
 {
     UpdateCursorWorldPosition();
 }
@@ -183,18 +189,18 @@ void MainWindow::on_spinCurViewPosX_valueChanged(int arg1)
 void MainWindow::on_spinCurViewPosY_valueChanged(int arg1)
 {
     UpdateCursorViewPosition();
-}
+}*/
 
-void MainWindow::UpdateCursorUI(QVector3D wPos, QPoint vPos)
+/*void MainWindow::UpdateCursorUI(QVector3D wPos, QPoint vPos)
 {
     BlockCursorUISignals(true);
     /*ui->spinCurPosX->setValue(wPos.x());
     ui->spinCurPosY->setValue(wPos.y());
     ui->spinCurPosZ->setValue(wPos.z());
     ui->spinCurViewPosX->setValue(vPos.x());
-    ui->spinCurViewPosY->setValue(vPos.y());*/
+    ui->spinCurViewPosY->setValue(vPos.y());
     BlockCursorUISignals(false);
-}
+}*/
 
 void MainWindow::BlockCursorUISignals(bool b)
 {

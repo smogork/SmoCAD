@@ -27,7 +27,7 @@ private:
     std::unique_ptr<QSpacerItem> componentSpacer;
 
     void CreateCursorOnScene(std::shared_ptr<SceneMouseClickEvent> event);
-    void UpdateCursorUI(QVector3D wPos, QPoint vPos);
+
     void UpdateCursorWorldPosition();
     void UpdateCursorViewPosition();
     QPoint GetCursorViewPosition();
@@ -49,12 +49,6 @@ private slots:
     void MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event);
     void CameraUpdated(std::shared_ptr<CameraUpdateEvent> event);
     void UpdateComponentUI(unsigned int oid);
-
-    void on_spinCurPosX_valueChanged(double arg1);
-    void on_spinCurPosY_valueChanged(double arg1);
-    void on_spinCurPosZ_valueChanged(double arg1);
-    void on_spinCurViewPosX_valueChanged(int arg1);
-    void on_spinCurViewPosY_valueChanged(int arg1);
 
     void on_actionTorus_triggered();
     void on_actionPoint_triggered();

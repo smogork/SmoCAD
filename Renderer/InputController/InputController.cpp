@@ -192,5 +192,9 @@ bool InputController::IsKeyPressed(Qt::Key key)
     return keyStates[key] == KeyState::Pressed;
 }
 
+void InputController::EmitCursorFromScreenEvent(QPoint screenPoint)
+{
+    emit SceneMouseClicked(std::make_shared<SceneMouseClickEvent>(screenPoint, false));
+}
 
 #pragma endregion

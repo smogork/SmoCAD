@@ -6,7 +6,7 @@
 
 #include "Renderer/Renderer.h"
 
-SceneMouseClickEvent::SceneMouseClickEvent(QPoint vPos): QEvent(User)
+SceneMouseClickEvent::SceneMouseClickEvent(QPoint vPos, bool select): QEvent(User), SelectObjects(select)
 {
     ViewClickPoint = vPos;
     QVector3D viewNear(ViewClickPoint.x(), Renderer::controller.viewport->GetViewportSize().height() - ViewClickPoint.y(),
