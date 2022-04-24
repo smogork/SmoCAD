@@ -21,6 +21,10 @@ BernsteinCurve::BernsteinCurve(unsigned int cid) : IEntity(cid)
     {
         this->m_bezierPolyline.p_Drawing->Enabled = Options::DrawBezierPolygon;
     });
+    bezierPolylineColor = PolylineColor.addNotifier([this]()
+    {
+       this->m_bezierPolyline.DrawingColor = PolylineColor;
+    });
 }
 
 void BernsteinCurve::InitializeDrawing()
