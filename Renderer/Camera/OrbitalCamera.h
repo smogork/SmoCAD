@@ -19,7 +19,7 @@ private:
     QVector3D topVec;
 
     void UpdateFrontAndRight();
-    QVector3D GetPivotVector();
+
 
 public:
     QVector3D CenterPoint;
@@ -44,7 +44,7 @@ public:
 
     void MoveUp(float moveValue);
     void MoveRight(float moveValue);
-
+    QVector3D GetPivotVector();
 };
 
 

@@ -56,24 +56,13 @@ set(PROJECT_SOURCES
         ${CONTROL_SOURCES}
         ${TS_FILES}
         ${MATH_FILES}
-        Objects/TransformableObject.cpp Objects/TransformableObject.h
         Renderer/Camera/OrbitalCamera.cpp Renderer/Camera/OrbitalCamera.h
-        Objects/TorusObject.cpp Objects/TorusObject.h
-        Objects/IRenderableObject.cpp Objects/IRenderableObject.h
-        Objects/CubeObject.cpp Objects/CubeObject.h
         Renderer/ShaderWrapper.cpp Renderer/ShaderWrapper.h
         Renderer/InputController/InputController.cpp Renderer/InputController/InputController.h
         Renderer/InputController/InputEvents/CameraUpdateEvent.cpp Renderer/InputController/InputEvents/CameraUpdateEvent.h
-        Objects/CursorObject.cpp Objects/CursorObject.h
         Renderer/InputController/InputEvents/SceneMouseClickEvent.cpp Renderer/InputController/InputEvents/SceneMouseClickEvent.h
         Renderer/Camera/Viewport.cpp Renderer/Camera/Viewport.h
-        Objects/PointObject.cpp Objects/PointObject.h
-        Scene/SceneModelOld.cpp Scene/SceneModelOld.h
         Scene/Events/CursorChangedEvent.cpp Scene/Events/CursorChangedEvent.h
-        Scene/Events/SelectedObjectChangedEvent.cpp Scene/Events/SelectedObjectChangedEvent.h
-        Objects/CompositeObject.cpp Objects/CompositeObject.h
-        Objects/BezierCurveC0.cpp Objects/BezierCurveC0.h
-        Scene/Events/PointObjectChangedEvent.cpp Scene/Events/PointObjectChangedEvent.h
         Scene/Systems/ISystem.cpp Scene/Systems/ISystem.h
         Scene/Entities/IEntity.cpp Scene/Entities/IEntity.h
         Scene/Components/IComponent.cpp Scene/Components/IComponent.h
@@ -121,6 +110,8 @@ set(PROJECT_SOURCES
         Scene/Entities/Curves/BernsteinCurve.cpp Scene/Entities/Curves/BernsteinCurve.h
         Scene/Entities/Curves/InterpolationC2.cpp Scene/Entities/Curves/InterpolationC2.h
         Scene/Entities/Points/InvisiblePoint.cpp Scene/Entities/Points/InvisiblePoint.h
+        Renderer/InputController/InputEvents/ObjectMoveEvent.cpp Renderer/InputController/InputEvents/ObjectMoveEvent.h
+        Controls/CustomQListWidget.cpp Controls/CustomQListWidget.h
         )
 
 add_subdirectory(Tests)

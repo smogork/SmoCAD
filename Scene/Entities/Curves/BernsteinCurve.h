@@ -19,6 +19,7 @@ class BernsteinCurve: public IEntity
 protected:
     class Polyline m_bezierPolyline;
     QPropertyNotifier bezierPolylineDrawing;
+    QPropertyNotifier bezierPolylineColor;
 
     virtual std::vector<float> GenerateGeometryVertices() = 0;
     virtual std::vector<int> GenerateTopologyIndices() = 0;

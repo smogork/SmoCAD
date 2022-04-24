@@ -3,6 +3,7 @@
 //
 
 #include "Cube.h"
+#include "Scene/Utilities/Utilites.h"
 
 std::vector<float> Cube::vertices = GenerateGeometryVertices();
 std::vector<int> Cube::indices = GenerateTopologyIndices();
@@ -49,10 +50,10 @@ Cube::Cube(const QString& name, QVector3D position): IEntity(CUBE_CLASS)
     AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(objectID, name, p_Selected));
 
     selectedNotifier = p_Selected->Selected.addNotifier([this]() {
-        if (p_Selected->Selected)
-            m_color = QVector4D(1.0f, 0.5f, 0.2f, 1.0f);
-        else
-            m_color = QVector4D(0.8f, 0.8f, 0.8f, 1.0f);
+        HandleColors();
+    });
+    compositeNotifier = p_CompositeAware->InsideComposite.addNotifier([this]() {
+        HandleColors();
     });
 }
 
@@ -79,5 +80,15 @@ void Cube::DrawingFunction(QOpenGLContext *context)
 void Cube::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
 {
     shader->SetUniform("u_MVP.Model", p_Transform->GetModelMatrix());
-    shader->SetUniform("u_ObjectColor", m_color);
+    shader->SetUniform("u_ObjectColor", ColorToVector4D(m_color));
+}
+
+void Cube::HandleColors()
+{
+    if (p_CompositeAware->InsideComposite)
+        m_color = CompositeAware::CompositeColor;
+    else if (p_Selected->Selected)
+        m_color = Selectable::SelectedColor;
+    else
+        m_color = DefaultColor;
 }

@@ -5,50 +5,63 @@
 #include "Composite.h"
 
 #pragma region CompositeElement
-Composite::CompositeElement::CompositeElement(Composite *composite, std::shared_ptr<Transform> objTransform,
-                                              std::shared_ptr<Drawing> objDrawing): IEntity(COMPOSITE_ELEM_CLASS)
+Composite::CompositeElement::CompositeElement(Composite *composite, std::shared_ptr<CompositeAware> el): IEntity(COMPOSITE_ELEM_CLASS)
 {
-    servingObjectID = objTransform->GetAttachedObjectID();
-    this->objDrawing = objDrawing;
-    this->objTransform = objTransform;
-    originalUniform = objDrawing->p_uniformFunction;
-    this->objDrawing->p_uniformFunction = ASSIGN_UNIFORM_FUNCTION(&CompositeElement::DecoratingUniformFunction);
+    servingObjectID = el->GetAttachedObjectID();
+    element = el;
     compositeTransform = composite->p_Transform;
 
-    dTransform = Transform::CreateRegisteredComponent(objectID, objTransform->Position - compositeTransform->Position);
-    dTransform->Rotation = *objTransform->Rotation;
-    dTransform->Scale = *objTransform->Scale;
+    el->InsideComposite = true;
+    dTransform = Transform::CreateRegisteredComponent(objectID, el->p_Transform->Position - compositeTransform->Position);
+    dTransform->Rotation = *el->p_Transform->Rotation;
+    dTransform->Scale = *el->p_Transform->Scale;
 }
 
 Composite::CompositeElement::~CompositeElement()
 {
-    objTransform->DecomposeTransformations(compositeTransform->GetModelMatrix() * dTransform->GetModelMatrix());
-    objDrawing->p_uniformFunction = originalUniform;
-}
-
-void Composite::CompositeElement::DecoratingUniformFunction(std::shared_ptr<ShaderWrapper> shader)
-{
-    if (originalUniform)
-        originalUniform(shader);
-
-    shader->SetUniform("u_MVP.Model", compositeTransform->GetModelMatrix() * dTransform->GetModelMatrix() );
+    if (auto ca = element.lock())
+        ca->InsideComposite = false;
 }
 
 void Composite::CompositeElement::UpdateDTransform()
 {
-    dTransform->Position = objTransform->Position - compositeTransform->Position;
-    dTransform->Rotation = *objTransform->Rotation;
-    dTransform->Scale = *objTransform->Scale;
+    if (auto ot = element.lock())
+    {
+        dTransform->Position = ot->p_Transform->Position - compositeTransform->Position;
+        dTransform->Rotation = *ot->p_Transform->Rotation;
+        dTransform->Scale = *ot->p_Transform->Scale;
+    }
 }
 
+void Composite::CompositeElement::UpdateServingObject()
+{
+    if (auto ot = element.lock())
+    {
+        ot->p_Transform->DecomposeTransformations(compositeTransform->GetModelMatrix() * dTransform->GetModelMatrix());
+    }
+}
 #pragma endregion
 
 Composite::Composite(std::shared_ptr<CompositeAware> startObject): IEntity(COMPOSITE_CLASS)
 {
     AddComponent(p_Transform = Transform::CreateRegisteredComponent(objectID, startObject->p_Transform->Position));
+    AddComponent(p_Selectable = Selectable::CreateRegisteredComponent(objectID));
     m_center = std::make_unique<Cursor>(p_Transform->Position);
-    m_center->p_Transform->Scale = QVector3D(0.25f, 0.25f, 0.25f);
-    objects.push_back(std::make_unique<CompositeElement>(this, startObject->p_Transform, startObject->p_Drawing));
+    m_center->p_Transform->Scale = QVector3D(0.33f, 0.33f, 0.33f);
+    objects.push_back(std::make_unique<CompositeElement>(this, startObject));
+
+    compositePositionNotifier = p_Transform->Position.addNotifier([this]()
+        {
+            UpdateCompositeElements();
+        });
+    compositeRotationNotifier = p_Transform->Rotation.addNotifier([this]()
+        {
+          UpdateCompositeElements();
+        });
+    compositeScaleNotifier = p_Transform->Scale.addNotifier([this]()
+        {
+          UpdateCompositeElements();
+        });
 }
 
 Composite::~Composite()
@@ -62,18 +75,23 @@ void Composite::AddObject(std::shared_ptr<CompositeAware> newObject)
         if (el->servingObjectID == newObject->GetAttachedObjectID())
             return;
 
-    SetPosition((objects.size() * p_Transform->Position + newObject->p_Transform->Position) / (objects.size() + 1));
-    objects.push_back(std::make_unique<CompositeElement>(this, newObject->p_Transform, newObject->p_Drawing));
+    p_Transform->Position.setValueBypassingBindings((objects.size() * p_Transform->Position + newObject->p_Transform->Position) / (objects.size() + 1));
+    m_center->p_Transform->Position = p_Transform->Position.value();
+
+    objects.push_back(std::make_unique<CompositeElement>(this, newObject));
 
     for (const std::unique_ptr<CompositeElement>& el : objects)
         el->UpdateDTransform();
 }
 
-void Composite::SetPosition(QVector3D pos)
+void Composite::UpdateCompositeElements()
 {
-    //[TODO] trzeba zbindowac: pozycja -> pozycji kursora
-    p_Transform->Position = pos;
-    m_center->p_Transform->Position = pos;
+    m_center->p_Transform->Position = p_Transform->Position.value();
+    m_center->p_Transform->Rotation = p_Transform->Rotation.value();
+    m_center->p_Transform->Scale = p_Transform->Scale.value() / 3;
+
+    for (auto& obj : objects)
+        obj->UpdateServingObject();
 }
 
 

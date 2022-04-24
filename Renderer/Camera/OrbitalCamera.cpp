@@ -3,7 +3,6 @@
 //
 
 #include "OrbitalCamera.h"
-#include "Objects/TransformableObject.h"
 #include "Scene/Components/Transform.h"
 #include <cfloat>
 
@@ -71,7 +70,7 @@ void OrbitalCamera::MoveRight(float moveValue)
 void OrbitalCamera::UpdateFrontAndRight()
 {
     QVector3D frontVec = - GetPivotVector();
-    rightVec = QVector3D::crossProduct(frontVec, TransformableObject::GetYAxis()).normalized();
+    rightVec = QVector3D::crossProduct(frontVec, Transform::GetYAxis()).normalized();
     topVec = QVector3D::crossProduct(rightVec, frontVec);
 }
 

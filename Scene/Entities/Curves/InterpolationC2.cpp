@@ -18,9 +18,9 @@ InterpolationC2::InterpolationC2(const QString& name): BernsteinCurve(INTERPOLAT
     selectedNotifier = p_Selected->Selected.addNotifier([this]()
         {
             if (p_Selected->Selected)
-                CurveColor = QColor::fromRgbF(1.0f, 0.5f, 0.2f, 1.0f);
+                CurveColor = Selectable::SelectedColor;
             else
-                CurveColor = QColor::fromRgbF(0.8f, 0.8f, 0.8f, 1.0f);
+                CurveColor = DefaultColor;
         });
 }
 

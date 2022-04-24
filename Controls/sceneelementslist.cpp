@@ -5,6 +5,8 @@
 #include "Scene/Entities/Curves/BezierC0.h"
 #include "Scene/Systems/CollectionAwareSystem.h"
 #include "Scene/Entities/Curves/BezierC2.h"
+#include "Scene/Entities/Curves/InterpolationC2.h"
+#include "Scene/Systems/CompositeAwareSystem.h"
 
 #include <QMenu>
 #include <QInputDialog>
@@ -14,7 +16,10 @@ SceneElementsList::SceneElementsList(QWidget *parent) :
         ui(new Ui::SceneElementsList)
 {
     ui->setupUi(this);
-    SceneECS::elementList = ui->listSceneElements;
+    if (auto scene = SceneECS::Instance().lock())
+        if (auto sas = scene->GetSystem<SceneElementSystem>().lock())
+            sas->AttachItemList(ui->listSceneElements);
+
 
     ui->listSceneElements->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->listSceneElements, &QListWidget::customContextMenuRequested, this,
@@ -29,6 +34,9 @@ SceneElementsList::~SceneElementsList()
 void SceneElementsList::showObjectListContextMenu(const QPoint &pos)
 {
     QPoint globalPos = ui->listSceneElements->mapToGlobal(pos);
+    if (ui->listSceneElements->selectedItems().size() == 0)
+        return;
+
     auto item = (QListWidgetSceneElement *) (*ui->listSceneElements->selectedItems().begin());
     unsigned int oid = item->GetAttachedObjectID();
 
@@ -44,8 +52,10 @@ void SceneElementsList::showObjectListContextMenu(const QPoint &pos)
         }
         else if (ui->listSceneElements->selectedItems().size() > 1)
         {
+            //[TODO] wyprowadzic to do systemu z kolekcjami - wymag aprzebudowania sposobu przekazywania zaznaczonych obiektów
             myMenu.addAction("Create BezierC0 from points", this, &SceneElementsList::CreateBezierC0);
             myMenu.addAction("Create BezierC2 from points", this, &SceneElementsList::CreateBezierC2);
+            myMenu.addAction("Create InterpolationC2 from points", this, &SceneElementsList::CreateInterpolationC2);
         }
 
         auto menu_items = scene->CreateContextMenuForSceneElement(oid, ui->listSceneElements->selectedItems().size());
@@ -59,7 +69,7 @@ void SceneElementsList::showObjectListContextMenu(const QPoint &pos)
                 if (func)
                     func(item);
 
-                emit RequestControlsUpdate(item->GetAttachedObjectID());
+                //emit RequestControlsUpdate(item->GetAttachedObjectID());
                 emit RequestRepaint();
             });
         }
@@ -78,6 +88,24 @@ void SceneElementsList::on_listSceneElements_itemClicked(QListWidgetItem *item)
         rItem->SelectItem();
         emit RequestControlsUpdate(rItem->GetAttachedObjectID());
         emit RequestRepaint();
+    }
+    else
+    {
+        if (auto scene = SceneECS::Instance().lock())
+        {
+            if (auto cas = scene->GetSystem<CompositeAwareSystem>().lock())
+            {
+                std::list<unsigned int> objs;
+                for (QListWidgetItem *gElem: ui->listSceneElements->selectedItems())
+                {
+                    auto item = (QListWidgetSceneElement *) gElem;
+                    objs.emplace_back(item->GetAttachedObjectID());
+                }
+
+                emit RequestControlsUpdate(cas->SelectMultipleObjects(objs));
+                emit RequestRepaint();
+            }
+        }
     }
 }
 
@@ -168,3 +196,32 @@ void SceneElementsList::CreateBezierC2()
 
 }
 
+void SceneElementsList::CreateInterpolationC2()
+{
+    if (auto scene = SceneECS::Instance().lock())
+    {
+        std::shared_ptr<InterpolationC2> i2 = std::make_shared<InterpolationC2>("NewInterpolationC2");
+
+        int itemsAdded = 0;
+        for (QListWidgetItem *gElem: ui->listSceneElements->selectedItems())
+        {
+            auto item = (QListWidgetSceneElement *) gElem;
+            if (auto colElem = scene
+                    ->GetComponentOfSystem<CollectionAwareSystem, CollectionAware>(item->GetAttachedObjectID()).lock())
+            {
+                i2->p_Collection->AddPoint(colElem);
+                itemsAdded++;
+            }
+        }
+
+        if (itemsAdded)
+        {
+            scene->AddObject(i2);
+
+            i2->p_Selected->Selected = true;
+            emit RequestControlsUpdate(i2->GetObjectID());
+            emit RequestRepaint();
+        }
+    }
+
+}

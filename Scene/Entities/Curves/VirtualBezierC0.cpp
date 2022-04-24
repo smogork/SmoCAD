@@ -34,13 +34,13 @@ VirtualBezierC0::VirtualBezierC0(): IEntity(BEZIERC0_CLASS)
 
 void VirtualBezierC0::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
 {
-    shader->SetUniform("m_Chunks",
+    /*shader->SetUniform("m_Chunks",
             CalculateDrawableChunks(
                     Renderer::controller.viewport->GetProjectionMatrix(),
                     Renderer::controller.Camera->GetViewMatrix(),
                     Renderer::controller.viewport->GetViewportSize()
                     )
-                );
+                );*/
     shader->SetUniform("u_ObjectColor", QVector4D(m_color.redF(),
                                                   m_color.greenF(),
                                                   m_color.blueF(),

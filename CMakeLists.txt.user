@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 7.0.0, 2022-04-23T15:05:28. -->
+<!-- Written by QtCreator 7.0.0, 2022-04-24T00:13:57. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -67,7 +67,21 @@
     <value type="bool" key="AutoTest.Framework.QtQuickTest">true</value>
     <value type="bool" key="AutoTest.Framework.QtTest">true</value>
    </valuemap>
-   <valuemap type="QVariantMap" key="AutoTest.CheckStates"/>
+   <valuemap type="QVariantMap" key="AutoTest.CheckStates">
+    <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/InterpolationC2Test.cpp:CollinearDistinctPointsX">Checked</value>
+    <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/InterpolationC2Test.cpp:CollinearDistinctPointsXYZ">Checked</value>
+    <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/InterpolationC2Test.cpp:CollinearDistinctPointsY">Checked</value>
+    <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/InterpolationC2Test.cpp:CollinearDistinctPointsZ">Checked</value>
+    <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/InterpolationC2Test.cpp:DistinctPoints">Checked</value>
+    <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/InterpolationC2Test.cpp:InterpolationC2Test">Checked</value>
+    <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/InterpolationC2Test.cpp:RepeatedFirstPointC0">Checked</value>
+    <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/InterpolationC2Test.cpp:RepeatedFirstPointC1">Checked</value>
+    <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/InterpolationC2Test.cpp:RepeatedPointC0">Checked</value>
+    <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/InterpolationC2Test.cpp:RepeatedPointC1">Checked</value>
+    <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/InterpolationC2Test.cpp:SingleKnot">Checked</value>
+    <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/InterpolationC2Test.cpp:TwoKnotsLine">Checked</value>
+    <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/InterpolationC2Test.cpp:ZeroKnots">Checked</value>
+   </valuemap>
    <value type="int" key="AutoTest.RunAfterBuild">0</value>
    <value type="bool" key="AutoTest.UseGlobal">true</value>
    <valuelist type="QVariantList" key="ClangCodeModel.CustomCommandLineKey"/>
@@ -163,14 +177,34 @@
     <valuelist type="QVariantList" key="CustomOutputParsers"/>
     <value type="int" key="PE.EnvironmentAspect.Base">2</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">ProjectExplorer.CustomExecutableRunConfiguration</value>
-    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey"></value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">SmoCAD</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.SmoCAD</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">SmoCAD</value>
     <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
+    <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory.default">/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/build-SmoCAD-Desktop-Debug</value>
    </valuemap>
-   <value type="qlonglong" key="ProjectExplorer.Target.RunConfigurationCount">1</value>
+   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.1">
+    <value type="bool" key="Analyzer.Perf.Settings.UseGlobalSettings">true</value>
+    <value type="bool" key="Analyzer.QmlProfiler.Settings.UseGlobalSettings">true</value>
+    <value type="bool" key="Analyzer.Valgrind.Settings.UseGlobalSettings">true</value>
+    <valuelist type="QVariantList" key="CustomOutputParsers"/>
+    <value type="int" key="PE.EnvironmentAspect.Base">2</value>
+    <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">SmoCAD_Tests</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.SmoCAD_Tests</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">SmoCAD_Tests</value>
+    <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
+    <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
+    <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
+    <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
+    <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory.default">/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/build-SmoCAD-Desktop-Debug/Tests</value>
+   </valuemap>
+   <value type="qlonglong" key="ProjectExplorer.Target.RunConfigurationCount">2</value>
   </valuemap>
  </data>
  <data>

@@ -2,9 +2,6 @@
 
 layout (isolines, equal_spacing, ccw) in;
 
-//uniform mat4  matModelView;
-//uniform mat4  matProjection;
-
 struct MVP
 {
     mat4 Model;
@@ -43,5 +40,4 @@ main()
     array[3] = gl_in[3].gl_Position;
     vec4 pos = bezier( u, array);
     gl_Position = u_MVP.Projection * u_MVP.View * u_MVP.Model * pos;
-    //gl_Position = pos;
 }
