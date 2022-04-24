@@ -2,9 +2,6 @@
 
 layout (isolines, equal_spacing, ccw) in;
 
-//uniform mat4  matModelView;
-//uniform mat4  matProjection;
-
 struct MVP
 {
     mat4 Model;
@@ -18,12 +15,6 @@ uniform MVP u_MVP;
 // function to evaluate  the Bezier curve
 vec4 bezier(float u, vec4[4] array)
 {
-    //[TODO] Zamienic na algorytm de Castejeu
-    /*float B0 = (1.-u)*(1.-u)*(1.-u);
-    float B1 = 3.*u*(1.-u)*(1.-u);
-    float B2 = 3.*u*u*(1.-u);
-    float B3 = u*u*u;*/
-
     //Wyznaczneie stopnia wielomianu
     int size = 3;
     for (;array[size].w == 0.0f && size > 0; --size);
@@ -49,5 +40,4 @@ main()
     array[3] = gl_in[3].gl_Position;
     vec4 pos = bezier( u, array);
     gl_Position = u_MVP.Projection * u_MVP.View * u_MVP.Model * pos;
-    //gl_Position = pos;
 }

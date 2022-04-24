@@ -1,12 +1,12 @@
 #include "InputController.h"
-
+#include "Renderer/InputController/InputEvents/ObjectMoveEvent.h"
 
 InputController::InputController(std::shared_ptr<Viewport> viewport, QObject *parent)
 : QObject(parent)
 {
-    this->viewport = viewport;
     //[TODO] poprawic tworzenie kamery aby patrzyla na jakis sensowny obiekt
     Camera = std::make_unique<OrbitalCamera>(QVector3D(), 5);
+    this->viewport = viewport;
 
     InitlizeKeyStates();
     InitlizeMouseStates();
@@ -36,6 +36,19 @@ void InputController::mousePressSlot(QMouseEvent *event)
     int id = translateMouseButton(event->button());
     if (id != UNDEFINED_ID)
         mouseButtonStates[id] = KeyState::Pressed;
+
+    switch (event->button())
+    {
+        case Qt::LeftButton:
+
+            break;
+        case Qt::MiddleButton:
+
+            break;
+        case Qt::RightButton:
+            //emit MoveObjectRequested(std::make_shared<ObjectMoveEvent>(event->pos()));
+            break;
+    }
 }
 
 void InputController::mouseReleaseSlot(QMouseEvent *event)
@@ -47,13 +60,12 @@ void InputController::mouseReleaseSlot(QMouseEvent *event)
     switch (event->button())
     {
         case Qt::LeftButton:
-            EmitSceneMouseClickedEvent(event->pos(), true);
+            EmitSceneMouseClickedEvent(event->pos());
             break;
         case Qt::MiddleButton:
-            EmitSceneMouseClickedEvent(event->pos(), false);
             break;
         case Qt::RightButton:
-            //tutaj w przyslzosci tworzenie contextMenu
+            emit MoveObjectRequested(std::make_shared<ObjectMoveEvent>(event->pos()));
             break;
     }
 
@@ -76,8 +88,13 @@ void InputController::mouseMoveSlot(QMouseEvent *event)
     QVector2D dMove = QVector2D(event->pos() - lastCursorPos);
     lastCursorPos = event->pos();
 
-    bool cameraChanged = false;
+    if (mouseButtonStates[RMOUSE_ID])
+    {
+        emit MoveObjectRequested(std::make_shared<ObjectMoveEvent>(event->pos()));
+    }
 
+#pragma region Camera movement
+    bool cameraChanged = false;
     if (IsKeyPressed(Qt::Key_Shift))
     {
         if (IsKeyPressed(Qt::Key_Control))// touchpad - zoom
@@ -111,6 +128,7 @@ void InputController::mouseMoveSlot(QMouseEvent *event)
 
     if (cameraChanged)
         EmitCameraUpdateEvent();
+#pragma endregion
 }
 
 void InputController::wheelSlot(QWheelEvent *event)
@@ -164,22 +182,9 @@ void InputController::EmitCameraUpdateEvent()
     emit CameraUpdated(event);
 }
 
-void InputController::EmitSceneMouseClickedEvent(QPoint screenPoint, bool unselect)
+void InputController::EmitSceneMouseClickedEvent(QPoint screenPoint)
 {
-    QVector3D viewNear(screenPoint.x(), viewport->GetViewportSize().height() - screenPoint.y(), 0.0f);
-    QVector3D viewFar(screenPoint.x(), viewport->GetViewportSize().height() - screenPoint.y(), 1.0f);
-    QVector3D resultNear = viewNear.unproject(Camera->GetViewMatrix(), viewport->GetProjectionMatrix(), QRect(QPoint(0.0f, 0.0f), viewport->GetViewportSize()));
-    QVector3D resultFar = viewFar.unproject(Camera->GetViewMatrix(), viewport->GetProjectionMatrix(), QRect(QPoint(0.0f, 0.0f), viewport->GetViewportSize()));
-
-    /*qDebug() << "Camera position:" << Camera->GetPosition();
-    qDebug() << "Camera center position:" << Camera->CenterPoint;
-    qDebug() << "UnprojectNear:" << resultNear;
-    qDebug() << "ViewNear:" << viewNear;
-    qDebug() << "UnprojectFar:" << resultFar;
-    qDebug() << "ViewFar:" << viewFar;*/
-
-    std::shared_ptr<SceneMouseClickEvent> event = std::make_shared<SceneMouseClickEvent>(screenPoint, resultNear, resultFar, unselect);
-    emit SceneMouseClicked(event);
+    emit SceneMouseClicked(std::make_shared<SceneMouseClickEvent>(screenPoint));
 }
 
 bool InputController::IsKeyPressed(Qt::Key key)
@@ -187,5 +192,9 @@ bool InputController::IsKeyPressed(Qt::Key key)
     return keyStates[key] == KeyState::Pressed;
 }
 
+void InputController::EmitCursorFromScreenEvent(QPoint screenPoint)
+{
+    emit SceneMouseClicked(std::make_shared<SceneMouseClickEvent>(screenPoint, false));
+}
 
 #pragma endregion
