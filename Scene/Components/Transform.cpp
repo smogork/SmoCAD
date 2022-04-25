@@ -20,13 +20,10 @@ Transform::Transform(unsigned int oid, QVector3D position, QVector3D rotation, Q
 
 QMatrix4x4 Transform::GetModelMatrix()
 {
-    //[TODO] cos tu nie gra z tymi przeksztalceniami
     QMatrix4x4 result;
     result.setToIdentity();
     result.translate(Position);
-    result.rotate((*Rotation).x(), Transform::GetXAxis());
-    result.rotate((*Rotation).y(), Transform::GetYAxis());
-    result.rotate((*Rotation).z(), Transform::GetZAxis());
+    result.rotate(QQuaternion::fromEulerAngles(Rotation));
     result.scale(Scale);
     return result;
 }
