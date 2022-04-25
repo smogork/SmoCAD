@@ -8,6 +8,9 @@
 
 SceneMouseClickEvent::SceneMouseClickEvent(QPoint vPos, bool select): QEvent(User), SelectObjects(select)
 {
+    auto campos = Renderer::controller.Camera->GetPosition();
+    auto campivot = -Renderer::controller.Camera->GetPivotVector();
+
     ViewClickPoint = vPos;
     QVector3D viewNear(ViewClickPoint.x(), Renderer::controller.viewport->GetViewportSize().height() - ViewClickPoint.y(),
                        0.0f);

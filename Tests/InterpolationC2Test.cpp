@@ -104,10 +104,29 @@ TEST_F(InterpolationC2Test, DistinctPoints)
             {2, 0, 0},
             {3, -1, 0},
             {4, 0, 0},
-            {5, 1, 0},
-            {6, 0, 0},
-            {7, -1, 0},
-            {8, 0, 0},
+            {5, 3, 0},
+            {6, -1, 0},
+            {10, 10, 0},
+            {7, 0, 0},
+    };
+    std::vector<double> d = CountDistance(knots);
+
+    auto res = Interpolation::C2Interpolation(knots);
+
+    EXPECT_TRUE(TestInterpolationResultC0(knots, res));
+    EXPECT_TRUE(TestInterpolationResultC1(knots, res, d));
+    EXPECT_TRUE(TestInterpolationResultC2(knots, res, d));
+}
+
+TEST_F(InterpolationC2Test, DistinctPoints2)
+{
+    std::vector<QVector3D> knots = {
+            {0, 0, 0},
+            {1, 1, 0},
+            {5, 0, 3},
+            {-3, 0, 0},
+            {-2, -1, 1},
+            {5, 3, 0},
     };
     std::vector<double> d = CountDistance(knots);
 

@@ -74,10 +74,10 @@ void SceneECS::InitSceneObjects()
 {
     auto p1 = std::make_shared<Point>("P1", QVector3D(0, 0, 0));
     auto p2 = std::make_shared<Point>("P2", QVector3D(1, 1, 0));
-    auto p3 = std::make_shared<Point>("P3", QVector3D(2, 0, 0));
-    auto p4 = std::make_shared<Point>("P4", QVector3D(3, -1, 0));
-    auto p5 = std::make_shared<Point>("P5", QVector3D(4, 0, 0));
-    auto p6 = std::make_shared<Point>("P6", QVector3D(5, 1, 0));
+    auto p3 = std::make_shared<Point>("P3", QVector3D(5, 0, 3));
+    auto p4 = std::make_shared<Point>("P4", QVector3D(-3, 0, 0));
+    auto p5 = std::make_shared<Point>("P5", QVector3D(-2, -1, 1));
+    auto p6 = std::make_shared<Point>("P6", QVector3D(5, 3, 0));
     auto p7 = std::make_shared<Point>("P7", QVector3D(6, 0, 0));
     auto p8 = std::make_shared<Point>("P8", QVector3D(7, -1, 0));
     auto p9 = std::make_shared<Point>("P9", QVector3D(8, 0, 0));
@@ -103,9 +103,9 @@ void SceneECS::InitSceneObjects()
     polyline->p_Collection->AddPoint(p4->p_CollectionAware);
     polyline->p_Collection->AddPoint(p5->p_CollectionAware);
     polyline->p_Collection->AddPoint(p6->p_CollectionAware);
-    polyline->p_Collection->AddPoint(p7->p_CollectionAware);
+    /*polyline->p_Collection->AddPoint(p7->p_CollectionAware);
     polyline->p_Collection->AddPoint(p8->p_CollectionAware);
-    polyline->p_Collection->AddPoint(p9->p_CollectionAware);
+    polyline->p_Collection->AddPoint(p9->p_CollectionAware);*/
     objects.push_back(polyline);
 
     /*auto c2 = std::make_shared<BezierC2>("BezeierC2WithMultipleKnots");
