@@ -90,10 +90,10 @@ void SceneECS::InitSceneObjects()
     objects.push_back(p7);
     objects.push_back(p8);
     objects.push_back(p9);
-    objects.push_back(std::make_shared<Cube>("Cube1", QVector3D(2, 2, 0)));
+    /*objects.push_back(std::make_shared<Cube>("Cube1", QVector3D(2, 2, 0)));
     objects.push_back(std::make_shared<Cube>("Cube2", QVector3D(2, 4, 0)));
     objects.push_back(std::make_shared<Cube>("Cube3", QVector3D(2, 6, 2)));
-    objects.push_back(std::make_shared<Torus>("Torus1", QVector3D(10, 1, 10)));
+    objects.push_back(std::make_shared<Torus>("Torus1", QVector3D(10, 1, 10)));*/
 
 
     auto polyline = std::make_shared<InterpolationC2>("InterpolationC2Test");

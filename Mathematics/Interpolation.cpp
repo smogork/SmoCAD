@@ -79,7 +79,7 @@ Interpolation::SolveInterpolationEquation(std::vector<QVector3D> &knots, std::ve
     int N = knots.size() - 2;
 
 
-    if (N == 1)
+    /*if (N == 1)
     {
         if (qFuzzyIsNull(distance[0]) || qFuzzyIsNull(distance[1]))
             return {{},{},{}};
@@ -90,7 +90,7 @@ Interpolation::SolveInterpolationEquation(std::vector<QVector3D> &knots, std::ve
                 / (distance[0] + distance[1]),
                 {0, 0, 0}
         };
-    }
+    }*/
 
     std::vector<QVector3D> res(knots.size());
     //Warunki interpolacji naturalnej
