@@ -19,7 +19,7 @@ private:
     QVector3D topVec;
 
     void UpdateFrontAndRight();
-
+    QMatrix4x4 CreateStereoMatrix(bool isLeft);
 
 public:
     QVector3D CenterPoint;
@@ -40,6 +40,8 @@ public:
     //CenterViewPlain - płaszczyzna równoległa do neara i fara przechodząca przez centerPoint
     QVector4D GetCenterViewPlain();
     QMatrix4x4 GetViewMatrix();
+    QMatrix4x4 GetLeftEyeViewMatrix();
+    QMatrix4x4 GetRightEyeViewMatrix();
 };
 
 

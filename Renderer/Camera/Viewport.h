@@ -7,17 +7,22 @@
 
 
 #include <QMatrix4x4>
-#include "StereoscopicParameters.h"
+#include <QProperty>
+
+#define NEAR 0.1f
+#define FAR 100.0f
+
 
 class Viewport
 {
 private:
     QMatrix4x4 projectionMatrix, leftProjectionMatrix, rightProjectionMatrix;
-    float fov;
+    float fov, radFov;
     QSize viewportSize;
+    float aspectRatio;
+    QMatrix4x4 CreateStereoMatrix(bool isLeft);
 
 public:
-    std::unique_ptr<StereoscopicParameters> StereoParams;
 
     Viewport(QSize viewport, float fov);
 

@@ -30,14 +30,13 @@ void DrawingSystem::StereoscopyRender(QOpenGLContext* context)
     //gl->glBlendFunc(GL_ONE, GL_ONE);
 
     gl->glColorMask(false, true, true, true);
-    //gl->glColorMask(true, false, false, true);
-    //ustaw macierz perspektywy na lewe oko
+    Renderer::UpdateShadersStereo(true);
     PlainRender(context);
 
     glClear(GL_DEPTH_BUFFER_BIT);
     //gl->glBlendFunc(GL_ONE, GL_ZERO);
 
     gl->glColorMask(true, false, false, true);
-    //ustaw macierz perspektywy na prawe oko
+    Renderer::UpdateShadersStereo(false);
     PlainRender(context);
 }
