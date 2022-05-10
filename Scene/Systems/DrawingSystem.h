@@ -17,6 +17,10 @@ public:
 
     void Render(QOpenGLContext* context);
     const char* GetSystemName() override { return "DrawingSystem"; }
+
+private:
+    void PlainRender(QOpenGLContext* context);
+    void StereoscopyRender(QOpenGLContext* context);
 };
 
 

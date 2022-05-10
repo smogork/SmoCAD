@@ -112,7 +112,7 @@ set(PROJECT_SOURCES
         Scene/Entities/Points/InvisiblePoint.cpp Scene/Entities/Points/InvisiblePoint.h
         Renderer/InputController/InputEvents/ObjectMoveEvent.cpp Renderer/InputController/InputEvents/ObjectMoveEvent.h
         Controls/CustomQListWidget.cpp Controls/CustomQListWidget.h
-        )
+        Renderer/Camera/StereoscopicParameters.cpp Renderer/Camera/StereoscopicParameters.h)
 
 add_subdirectory(Tests)
 

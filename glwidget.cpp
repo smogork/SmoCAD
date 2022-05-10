@@ -22,7 +22,8 @@ void GLWidget::initializeGL()
     initializeOpenGLFunctions();
 
     glEnable(GL_PROGRAM_POINT_SIZE);
-    //glEnable(GL_POINT_SMOOTH);
+    glEnable(GL_BLEND);
+    glEnable(GL_DEPTH_TEST);
 
     LoadShaders();
     Renderer::UpdateShaders();

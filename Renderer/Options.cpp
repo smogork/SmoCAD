@@ -6,3 +6,4 @@
 
 QProperty<bool> Options::DrawBezierPolygon;
 QProperty<bool> Options::DrawDeBoorPolygon;
+QProperty<bool> Options::RenderStereoscopy;

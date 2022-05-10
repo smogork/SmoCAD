@@ -13,6 +13,8 @@ class Options
 public:
     static QProperty<bool> DrawBezierPolygon;
     static QProperty<bool> DrawDeBoorPolygon;
+    static QProperty<bool> RenderStereoscopy;
+
 };
 
 
