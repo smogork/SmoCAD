@@ -3,7 +3,7 @@
 //
 
 #include "Viewport.h"
-#include "Renderer/Renderer.h"
+#include "Renderer/Options.h"
 
 Viewport::Viewport(QSize viewport, float fov)
 {
@@ -47,12 +47,44 @@ QPoint Viewport::ComputeViewPoint(QVector3D NDCPoint)
 
 QMatrix4x4 Viewport::GetLeftEyeProjectionMatrix()
 {
-    return CreateStereoMatrix(true);
+    float top, bottom, left, right;
+
+    top     = NEAR * tan(radFov/2);
+    bottom  = -top;
+
+    float a = aspectRatio * tan(radFov/2) * Options::StereoParams->FocusDistance;
+
+    float b = a - Options::StereoParams->EyeSeparation/2;
+    float c = a + Options::StereoParams->EyeSeparation/2;
+
+    left    = -b * NEAR/Options::StereoParams->FocusDistance;
+    right   =  c * NEAR/Options::StereoParams->FocusDistance;
+
+    QMatrix4x4 res;
+    res.frustum(left, right, bottom, top,
+              NEAR, FAR);
+    return res;
 }
 
 QMatrix4x4 Viewport::GetRightEyeProjectionMatrix()
 {
-    return CreateStereoMatrix(false);
+    float top, bottom, left, right;
+
+    top     = NEAR * tan(radFov/2);
+    bottom  = -top;
+
+    float a = aspectRatio * tan(radFov/2) * Options::StereoParams->FocusDistance;
+
+    float b = a - Options::StereoParams->EyeSeparation/2;
+    float c = a + Options::StereoParams->EyeSeparation/2;
+
+    left    =  -c * NEAR/Options::StereoParams->FocusDistance;
+    right   =   b * NEAR/Options::StereoParams->FocusDistance;
+
+    QMatrix4x4 res;
+    res.frustum(left, right, bottom, top,
+                NEAR, FAR);
+    return res;
 }
 
 QMatrix4x4 Viewport::CreateStereoMatrix(bool isLeft)
@@ -63,7 +95,7 @@ QMatrix4x4 Viewport::CreateStereoMatrix(bool isLeft)
         left_right_direction = 1.0f;
     float nearZ = NEAR;
     float farZ = FAR;
-    double frustumshift = (Renderer::EyeSeparation/2)*nearZ/farZ;
+    double frustumshift = (Options::StereoParams->EyeSeparation /2)*nearZ/farZ;
     float top = tan(radFov/2)*nearZ;
     float right =
             aspectRatio*top+frustumshift*left_right_direction;
@@ -72,5 +104,8 @@ QMatrix4x4 Viewport::CreateStereoMatrix(bool isLeft)
     float bottom = -top;
     QMatrix4x4 res;
     res.frustum(left, right, bottom, top, nearZ, farZ);
+
+    auto proj = GetProjectionMatrix();
+    Q_ASSERT(res != proj);
     return res;
 }

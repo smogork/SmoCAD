@@ -9,12 +9,10 @@
 
 class StereoscopicParameters
 {
-private:
-    static const QVector3D m_leftRightDir;
 
 public:
-    double EyeSeparation = 0.1;
-
+    double EyeSeparation = 0.05;
+    double FocusDistance = 5.0;
 };
 
 #endif //SMOCAD_STEREOSCOPICPARAMETERS_H
