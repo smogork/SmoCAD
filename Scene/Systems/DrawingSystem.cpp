@@ -7,10 +7,10 @@
 
 void DrawingSystem::Render(QOpenGLContext* context)
 {
-    //if (Options::RenderStereoscopy)
+    if (Options::RenderStereoscopy)
         StereoscopyRender(context);
-    //else
-        //PlainRender(context);
+    else
+        PlainRender(context);
 
 }
 
@@ -26,15 +26,11 @@ void DrawingSystem::StereoscopyRender(QOpenGLContext* context)
 {
     auto gl = context->functions();
 
-    //Skonfiguruj blending
-    //gl->glBlendFunc(GL_ONE, GL_ONE);
-
     gl->glColorMask(false, true, true, true);
     Renderer::UpdateShadersStereo(true);
     PlainRender(context);
 
     glClear(GL_DEPTH_BUFFER_BIT);
-    //gl->glBlendFunc(GL_ONE, GL_ZERO);
 
     gl->glColorMask(true, false, false, true);
     Renderer::UpdateShadersStereo(false);

@@ -49,6 +49,7 @@ set(CONTROL_SOURCES
         Controls/sceneelementslist.h Controls/sceneelementslist.cpp Controls/sceneelementslist.ui
         Controls/ListElements/QListWidgetSceneElement.cpp Controls/ListElements/QListWidgetSceneElement.h
         Controls/ListElements/QListWidgetCollectionElement.cpp Controls/ListElements/QListWidgetCollectionElement.h
+        Controls/stereoscopicconfig.h Controls/stereoscopicconfig.cpp Controls/stereoscopicconfig.ui
     )
 
 set(PROJECT_SOURCES
