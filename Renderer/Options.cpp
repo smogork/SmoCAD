@@ -6,3 +6,5 @@
 
 QProperty<bool> Options::DrawBezierPolygon;
 QProperty<bool> Options::DrawDeBoorPolygon;
+QProperty<bool> Options::RenderStereoscopy;
+std::unique_ptr<StereoscopicParameters> Options::StereoParams = std::make_unique<StereoscopicParameters>();

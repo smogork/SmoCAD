@@ -17,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->anaglyphWidget->setVisible(Options::RenderStereoscopy);
 
     QObject::connect(&Renderer::controller, &InputController::SceneMouseClicked,
                      this, &MainWindow::MouseRaycastSlot);
@@ -31,6 +32,10 @@ MainWindow::MainWindow(QWidget *parent)
     QObject::connect(ui->sceneElementsWIdget, &SceneElementsList::RequestControlsUpdate,
                      this, &MainWindow::UpdateComponentUI);
     QObject::connect(ui->sceneElementsWIdget, &SceneElementsList::RequestRepaint,
+                     ui->sceneWidget, &GLWidget::RedrawScreen);
+
+    //Register signals to AnaglyphsConfig control
+    QObject::connect(ui->anaglyphWidget, &StereoscopicConfig::RequestRepaint,
                      ui->sceneWidget, &GLWidget::RedrawScreen);
 
     componentSpacer.reset();
@@ -149,6 +154,14 @@ void MainWindow::on_actionShow_Bezier_polygon_toggled(bool arg1)
 void MainWindow::on_actionShow_BSpline_polygon_toggled(bool arg1)
 {
     Options::DrawDeBoorPolygon = arg1;
+    ui->sceneWidget->update();
+}
+
+
+void MainWindow::on_actionAnaglyphic_3D_view_toggled(bool arg1)
+{
+    Options::RenderStereoscopy = arg1;
+    ui->anaglyphWidget->setVisible(Options::RenderStereoscopy);
     ui->sceneWidget->update();
 }
 

@@ -3,31 +3,36 @@
 //
 
 #include "DrawingSystem.h"
-
-/*std::weak_ptr<Drawing> DrawingSystem::GetComponent(unsigned int oid)
-{
-    return std::weak_ptr<Drawing>();
-}
-
-std::vector<std::weak_ptr<Drawing>> DrawingSystem::GetComponents()
-{
-    return std::vector<std::weak_ptr<Drawing>>();
-}
-
-std::shared_ptr<Drawing> DrawingSystem::CreateRegistered(unsigned int oid)
-{
-    return std::shared_ptr<Drawing>();
-}
-
-bool DrawingSystem::Unregister(unsigned int oid)
-{
-    return false;
-}*/
+#include "Renderer/Options.h"
 
 void DrawingSystem::Render(QOpenGLContext* context)
+{
+    if (Options::RenderStereoscopy)
+        StereoscopyRender(context);
+    else
+        PlainRender(context);
+
+}
+
+void DrawingSystem::PlainRender(QOpenGLContext* context)
 {
     for (const std::pair<unsigned int, std::weak_ptr<Drawing>> &p : components)
         if (auto obj = p.second.lock())
             if (obj->Enabled)
                 obj->Render(context);
+}
+
+void DrawingSystem::StereoscopyRender(QOpenGLContext* context)
+{
+    auto gl = context->functions();
+
+    gl->glColorMask(false, true, true, true);
+    Renderer::UpdateShadersStereo(true);
+    PlainRender(context);
+
+    glClear(GL_DEPTH_BUFFER_BIT);
+
+    gl->glColorMask(true, false, false, true);
+    Renderer::UpdateShadersStereo(false);
+    PlainRender(context);
 }

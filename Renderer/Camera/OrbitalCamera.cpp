@@ -4,6 +4,7 @@
 
 #include "OrbitalCamera.h"
 #include "Scene/Components/Transform.h"
+#include "Renderer/Options.h"
 #include <cfloat>
 
 OrbitalCamera::OrbitalCamera(QVector3D centerPoint, float pivotLength)
@@ -69,7 +70,7 @@ void OrbitalCamera::MoveRight(float moveValue)
 
 void OrbitalCamera::UpdateFrontAndRight()
 {
-    QVector3D frontVec = - GetPivotVector();
+    QVector3D frontVec = -GetPivotVector();
     rightVec = QVector3D::crossProduct(frontVec, Transform::GetYAxis()).normalized();
     topVec = QVector3D::crossProduct(rightVec, frontVec);
 }
@@ -88,7 +89,7 @@ QVector4D OrbitalCamera::GetCenterViewPlain()
 
 QVector3D OrbitalCamera::GetPivotVector()
 {
-    return QVector3D (
+    return QVector3D(
             cosf(thetaAngle) * cosf(fiAngle),
             sinf(thetaAngle),
             sinf(fiAngle) * cosf(thetaAngle));
@@ -97,6 +98,45 @@ QVector3D OrbitalCamera::GetPivotVector()
 float OrbitalCamera::Pivotlength()
 {
     return r;
+}
+
+QMatrix4x4 OrbitalCamera::GetLeftEyeViewMatrix()
+{
+    QMatrix4x4 res;
+    float scale = Options::StereoParams->EyeSeparation / 2;
+    res.lookAt(
+            GetPosition() - scale * rightVec ,
+            CenterPoint - scale * rightVec,
+            Transform::GetYAxis()
+    );
+    return res;
+}
+
+QMatrix4x4 OrbitalCamera::GetRightEyeViewMatrix()
+{
+    QMatrix4x4 res;
+    float scale = Options::StereoParams->EyeSeparation / 2;
+    res.lookAt(
+            GetPosition() + scale * rightVec,
+            CenterPoint + scale * rightVec,
+            Transform::GetYAxis()
+    );
+    return res;
+}
+
+QMatrix4x4 OrbitalCamera::CreateStereoMatrix(bool isLeft)
+{
+    float left_right_direction = -1.0f;
+    if (isLeft)
+        left_right_direction = 1.0f;
+
+    QMatrix4x4 res;
+    res.lookAt(
+            GetPosition() - rightVec *  Options::StereoParams->EyeSeparation / 2,
+            CenterPoint - rightVec *  Options::StereoParams->EyeSeparation / 2,
+            Transform::GetYAxis()
+        );
+    return res;
 }
 
 

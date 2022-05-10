@@ -49,6 +49,7 @@ set(CONTROL_SOURCES
         Controls/sceneelementslist.h Controls/sceneelementslist.cpp Controls/sceneelementslist.ui
         Controls/ListElements/QListWidgetSceneElement.cpp Controls/ListElements/QListWidgetSceneElement.h
         Controls/ListElements/QListWidgetCollectionElement.cpp Controls/ListElements/QListWidgetCollectionElement.h
+        Controls/stereoscopicconfig.h Controls/stereoscopicconfig.cpp Controls/stereoscopicconfig.ui
     )
 
 set(PROJECT_SOURCES
@@ -112,7 +113,7 @@ set(PROJECT_SOURCES
         Scene/Entities/Points/InvisiblePoint.cpp Scene/Entities/Points/InvisiblePoint.h
         Renderer/InputController/InputEvents/ObjectMoveEvent.cpp Renderer/InputController/InputEvents/ObjectMoveEvent.h
         Controls/CustomQListWidget.cpp Controls/CustomQListWidget.h
-        )
+        Renderer/Camera/StereoscopicParameters.cpp Renderer/Camera/StereoscopicParameters.h)
 
 add_subdirectory(Tests)
 

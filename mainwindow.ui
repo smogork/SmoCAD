@@ -54,6 +54,9 @@
        <widget class="CursorControl" name="cursorPosWidget" native="true"/>
       </item>
       <item>
+       <widget class="StereoscopicConfig" name="anaglyphWidget" native="true"/>
+      </item>
+      <item>
        <widget class="QScrollArea" name="scrollArea">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
@@ -79,7 +82,7 @@
            <x>0</x>
            <y>0</y>
            <width>68</width>
-           <height>724</height>
+           <height>718</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout"/>
@@ -127,6 +130,8 @@
     </property>
     <addaction name="actionShow_Bezier_polygon"/>
     <addaction name="actionShow_BSpline_polygon"/>
+    <addaction name="separator"/>
+    <addaction name="actionAnaglyphic_3D_view"/>
    </widget>
    <addaction name="menuObjects"/>
    <addaction name="menuOptions"/>
@@ -191,6 +196,14 @@
     <string>InterpolationC2</string>
    </property>
   </action>
+  <action name="actionAnaglyphic_3D_view">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Anaglyphic 3D view</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -209,6 +222,12 @@
    <class>SceneElementsList</class>
    <extends>QWidget</extends>
    <header>Controls/sceneelementslist.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>StereoscopicConfig</class>
+   <extends>QWidget</extends>
+   <header>Controls/stereoscopicconfig.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -25,9 +25,12 @@ private:
 
 public:
     static InputController controller;
+    static QProperty<double> EyeSeparation;
+
     static void AddShader(SHADERS id, std::shared_ptr<ShaderWrapper> sh);
     static std::weak_ptr<ShaderWrapper> GetShader(SHADERS id);
     static void UpdateShaders();
+    static void UpdateShadersStereo(bool isLeft);
     static void DeleteShaders();
 
 #pragma region Draw primitives

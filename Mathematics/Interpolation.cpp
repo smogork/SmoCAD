@@ -78,20 +78,6 @@ Interpolation::SolveInterpolationEquation(std::vector<QVector3D> &knots, std::ve
 {
     int N = knots.size() - 2;
 
-
-    /*if (N == 1)
-    {
-        if (qFuzzyIsNull(distance[0]) || qFuzzyIsNull(distance[1]))
-            return {{},{},{}};
-        return {
-                {0, 0, 0},
-                1.5f * ((knots[2] - knots[1]) / distance[1]) -
-                ((knots[1] - knots[0]) / distance[0])
-                / (distance[0] + distance[1]),
-                {0, 0, 0}
-        };
-    }*/
-
     std::vector<QVector3D> res(knots.size());
     //Warunki interpolacji naturalnej
     res[0] = QVector3D();//0
@@ -141,98 +127,4 @@ Interpolation::SolveInterpolationEquation(std::vector<QVector3D> &knots, std::ve
     for (int i = N - 1; i >= 0; --i)
         res[i + 1] = (R[i] - upperDiagonal[i] * res[i + 2]) / diagonal[i];
     return res;
-
-
-    /*//Przygotuj rozkład LU otrzymanej macierzy trójdiagonalnej
-    integer N = knots.size() - 2;
-
-    if (N == 1)
-    {
-        if (qFuzzyIsNull(distance[0]) || qFuzzyIsNull(distance[1]))
-            return {{},{},{}};
-        return {
-                {0, 0, 0},
-                1.5f * ((knots[2] - knots[1]) / distance[1]) -
-                ((knots[1] - knots[0]) / distance[0])
-                / (distance[0] + distance[1]),
-                {0, 0, 0}
-        };
-    }
-
-    std::vector<doublereal> diagonal(N, 2);
-    std::vector<doublereal> upper2Diagonal(N - 2, 0);
-    std::vector<doublereal> upperDiagonal(N - 1), lowerDiagonal(N - 1);
-    std::vector<integer> interchanges(N);
-    integer info = 0;
-
-    //obliczenie alfa_i, i = 2,...N-2
-    for (int i = 0; i < N - 1; i++)
-    {
-        const int alfa_pivot = 2;
-        if (qFuzzyIsNull(distance[i + alfa_pivot]) && qFuzzyIsNull(distance[i + alfa_pivot - 1]))
-            lowerDiagonal[i] = 0;
-        else
-            lowerDiagonal[i] = distance[i + alfa_pivot] / (distance[i + alfa_pivot] + distance[i + alfa_pivot - 1]);
-    }
-    //obliczanie beta_i i = 1,...,N-3
-    for (int i = 1; i < N - 1; ++i)
-    {
-        //[TODO] to mozna przeorbic aby korzystalo z wyliczonych alf oprocz pierwszego elementu
-        const int beta_pivot = 1;
-        if (qFuzzyIsNull(distance[i + beta_pivot]) && qFuzzyIsNull(distance[i + beta_pivot - 1]))
-            upperDiagonal[i] = 0;
-        else
-            upperDiagonal[i] = distance[i + beta_pivot] / (distance[i + beta_pivot] + distance[i + beta_pivot - 1]);
-    }
-    //https://scicomp.stackexchange.com/questions/26395/how-to-start-using-lapack-in-c
-    //jak to powinno byc uzywane, a mamy clapack.h sciagniete z lapacka++ http://lapackpp.sourceforge.net/
-    dgttrf_(&N, lowerDiagonal.data(), diagonal.data(), upperDiagonal.data(), upper2Diagonal.data(),
-            interchanges.data(), &info);
-
-    if (info != 0)
-        throw std::invalid_argument("LU sie popsulo. Info:" + std::to_string(info));
-
-    //Przygotowanie macierzy o 3 kolumnach - kazda kolumna to jeden wymiar
-    std::vector<QVector3D> res(knots.size());
-    std::vector<doublereal> B(3 * N);
-
-    for (int i = 0; i < N; ++i)
-    {
-        if (qFuzzyIsNull(distance[i + 1]) || qFuzzyIsNull(distance[i]))
-            B[i] = B[N + i] = B[2 * N + i] = 0;
-            //B[3 * i] = B[3 * i + 1] = B[3 * i + 2] = 0;
-        else
-        {
-            B[i] = 3.0f * (((knots[i + 2].x() - knots[i + 1].x()) / distance[i + 1]) -
-                           //B[3 * i] = 3.0f * (((knots[i + 2].x() - knots[i + 1].x()) / distance[i + 1]) -
-                           ((knots[i + 1].x() - knots[i].x()) / distance[i]))
-                   / (distance[i + 1] + distance[i]);
-            B[N + i] = 3.0f * (((knots[i + 2].y() - knots[i + 1].y()) / distance[i + 1]) -
-                               //B[3 * i + 1] = 3.0f * (((knots[i + 2].y() - knots[i + 1].y()) / distance[i + 1]) -
-                               ((knots[i + 1].y() - knots[i].y()) / distance[i]))
-                       / (distance[i + 1] + distance[i]);
-            B[2 * N + i] = 3.0f * (((knots[i + 2].z() - knots[i + 1].z()) / distance[i + 1]) -
-                                   //B[3 * i + 2] = 3.0f * (((knots[i + 2].z() - knots[i + 1].z()) / distance[i + 1]) -
-                                   ((knots[i + 1].z() - knots[i].z()) / distance[i]))
-                           / (distance[i + 1] + distance[i]);
-        }
-    }
-
-    //Rozwaiązanie układu równań dla 3 wymiarów jednocześnie
-    integer NHRS = 3;
-    char type = 'N';
-    dgttrs_(&type, &N, &NHRS, lowerDiagonal.data(), diagonal.data(), upperDiagonal.data(), upper2Diagonal.data(),
-            interchanges.data(), B.data(), &N, &info);
-
-    if (info != 0)
-        throw std::invalid_argument("Układ równań sie popsul. Info:" + std::to_string(info));
-
-    //Przetworzenie wyniku do QVector3D
-    for (int i = 0; i < N; ++i)
-        //res[i + 1] = QVector3D(B[(int)interchanges[i]], B[N + (int)interchanges[i]], B[2 * N + (int)interchanges[i]]);
-        res[i + 1] = QVector3D(B[i], B[N + i], B[2 * N + i]);
-        //res[i + 1] = QVector3D(B[3 * i], B[3 * i + 1], B[3 * i + 2]);
-
-
-    return res;*/
 }
