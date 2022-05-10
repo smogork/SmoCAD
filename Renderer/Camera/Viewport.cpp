@@ -16,6 +16,7 @@ QMatrix4x4 Viewport::UpdatePerspectiveMatrix(QSize viewport)
     this->viewportSize = viewport;
     projectionMatrix.setToIdentity();
     projectionMatrix.perspective(fov, (float)viewport.width() / (float)viewport.height(), 0.1f, 100.0f);
+    leftProjectionMatrix = rightProjectionMatrix = projectionMatrix;
     return GetProjectionMatrix();
 }
 
@@ -35,4 +36,14 @@ QPoint Viewport::ComputeViewPoint(QVector3D NDCPoint)
             2.0f * ((NDCPoint.x() - 1.0f) / viewportSize.width()) - 1.0f,
             2.0f * ((viewportSize.height() - NDCPoint.y() + 1.0f) / viewportSize.height()) - 1.0f
             );
+}
+
+QMatrix4x4 Viewport::GetLeftEyeProjectionMatrix()
+{
+    return leftProjectionMatrix;
+}
+
+QMatrix4x4 Viewport::GetRightEyeProjectionMatrix()
+{
+    return rightProjectionMatrix;
 }

@@ -13,7 +13,8 @@ private:
     static const QVector3D m_leftRightDir;
 
 public:
-    double EyeDistance = 0.1;
+    double EyeSeparation = 0.1;
+
 };
 
 #endif //SMOCAD_STEREOSCOPICPARAMETERS_H

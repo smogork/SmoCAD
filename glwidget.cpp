@@ -49,7 +49,9 @@ void GLWidget::resizeGL(int w, int h)
 void GLWidget::paintGL()
 {
     // set the background color = clear color
-    glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
+    glBlendFunc(GL_ONE, GL_ZERO);
+    glColorMask(true, true, true, true);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     if (auto scene = SceneECS::Instance().lock())
