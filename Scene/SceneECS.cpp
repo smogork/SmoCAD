@@ -6,20 +6,14 @@
 #include "Scene/Systems/DrawingSystem.h"
 #include "Scene/Systems/TransformSystem.h"
 #include "Scene/Entities/Points/Point.h"
-#include "Scene/Entities/Cube.h"
 #include "Scene/Systems/UVParamsSystem.h"
-#include "Scene/Entities/Torus.h"
 #include "Scene/Entities/Cursor.h"
 #include "Scene/Systems/SelectableSystem.h"
 #include "Scene/Systems/CompositeAwareSystem.h"
 #include "Scene/Systems/CollectionAwareSystem.h"
 #include "Scene/Systems/TransformCollectionSystem.h"
-#include "Scene/Entities/Polyline.h"
-#include "Scene/Entities/Curves/VirtualBezierC0.h"
-#include "Scene/Entities/Curves/BezierC2.h"
 #include "Controls/ComponentControl.h"
 #include "Scene/Systems/ScreenSelectableSystem.h"
-#include "Scene/Entities/Curves/InterpolationC2.h"
 #include <list>
 
 std::shared_ptr<SceneECS> SceneECS::scene = nullptr;
@@ -72,15 +66,22 @@ void SceneECS::InitUniqueObjects()
 
 void SceneECS::InitSceneObjects()
 {
-    auto p1 = std::make_shared<Point>("P1", QVector3D(0, 0, 0));
+    auto p1 = std::make_shared<Point>("P1", QVector3D(0, 1, 0));
     auto p2 = std::make_shared<Point>("P2", QVector3D(1, 1, 0));
-    auto p3 = std::make_shared<Point>("P3", QVector3D(5, 0, 3));
-    auto p4 = std::make_shared<Point>("P4", QVector3D(-3, 0, 0));
-    auto p5 = std::make_shared<Point>("P5", QVector3D(-2, -1, 1));
-    auto p6 = std::make_shared<Point>("P6", QVector3D(5, 3, 0));
-    auto p7 = std::make_shared<Point>("P7", QVector3D(6, 0, 0));
-    auto p8 = std::make_shared<Point>("P8", QVector3D(7, -1, 0));
-    auto p9 = std::make_shared<Point>("P9", QVector3D(8, 0, 0));
+    auto p3 = std::make_shared<Point>("P3", QVector3D(2, 1, 0));
+    auto p4 = std::make_shared<Point>("P3", QVector3D(3, 1, 0));
+    auto p5 = std::make_shared<Point>("P4", QVector3D(0, 1, 1));
+    auto p6 = std::make_shared<Point>("P5", QVector3D(1, 2, 1));
+    auto p7 = std::make_shared<Point>("P6", QVector3D(2, 2, 1));
+    auto p8 = std::make_shared<Point>("P6", QVector3D(3, 1, 1));
+    auto p9 = std::make_shared<Point>("P7", QVector3D(0, 1, 2));
+    auto p10 = std::make_shared<Point>("P8", QVector3D(1, 2, 2));
+    auto p11 = std::make_shared<Point>("P9", QVector3D(2, 2, 2));
+    auto p12 = std::make_shared<Point>("P9", QVector3D(3, 1, 2));
+    auto p13 = std::make_shared<Point>("P7", QVector3D(0, 1, 3));
+    auto p14 = std::make_shared<Point>("P8", QVector3D(1, 1, 3));
+    auto p15 = std::make_shared<Point>("P9", QVector3D(2, 1, 3));
+    auto p16 = std::make_shared<Point>("P9", QVector3D(3, 1, 3));
     objects.push_back(p1);
     objects.push_back(p2);
     objects.push_back(p3);
@@ -90,23 +91,45 @@ void SceneECS::InitSceneObjects()
     objects.push_back(p7);
     objects.push_back(p8);
     objects.push_back(p9);
-    /*objects.push_back(std::make_shared<Cube>("Cube1", QVector3D(2, 2, 0)));
-    objects.push_back(std::make_shared<Cube>("Cube2", QVector3D(2, 4, 0)));
-    objects.push_back(std::make_shared<Cube>("Cube3", QVector3D(2, 6, 2)));
-    objects.push_back(std::make_shared<Torus>("Torus1", QVector3D(10, 1, 10)));*/
+    objects.push_back(p10);
+    objects.push_back(p11);
+    objects.push_back(p12);
+    objects.push_back(p13);
+    objects.push_back(p14);
+    objects.push_back(p15);
+    objects.push_back(p16);
+
+    m = std::make_unique<Mesh>();
+    m->p_Collection->SecondDimension = 4;
+    m->p_Collection->AddPoint(p1->p_CollectionAware);
+    m->p_Collection->AddPoint(p2->p_CollectionAware);
+    m->p_Collection->AddPoint(p3->p_CollectionAware);
+    m->p_Collection->AddPoint(p4->p_CollectionAware);
+    m->p_Collection->AddPoint(p5->p_CollectionAware);
+    m->p_Collection->AddPoint(p6->p_CollectionAware);
+    m->p_Collection->AddPoint(p7->p_CollectionAware);
+    m->p_Collection->AddPoint(p8->p_CollectionAware);
+    m->p_Collection->AddPoint(p9->p_CollectionAware);
+    m->p_Collection->AddPoint(p10->p_CollectionAware);
+    m->p_Collection->AddPoint(p11->p_CollectionAware);
+    m->p_Collection->AddPoint(p12->p_CollectionAware);
+    m->p_Collection->AddPoint(p13->p_CollectionAware);
+    m->p_Collection->AddPoint(p14->p_CollectionAware);
+    m->p_Collection->AddPoint(p15->p_CollectionAware);
+    m->p_Collection->AddPoint(p16->p_CollectionAware);
 
 
-    auto polyline = std::make_shared<InterpolationC2>("InterpolationC2Test");
+    /*auto polyline = std::make_shared<InterpolationC2>("InterpolationC2Test");
     polyline->p_Collection->AddPoint(p1->p_CollectionAware);
     polyline->p_Collection->AddPoint(p2->p_CollectionAware);
     polyline->p_Collection->AddPoint(p3->p_CollectionAware);
     polyline->p_Collection->AddPoint(p4->p_CollectionAware);
     polyline->p_Collection->AddPoint(p5->p_CollectionAware);
     polyline->p_Collection->AddPoint(p6->p_CollectionAware);
-    /*polyline->p_Collection->AddPoint(p7->p_CollectionAware);
+    polyline->p_Collection->AddPoint(p7->p_CollectionAware);
     polyline->p_Collection->AddPoint(p8->p_CollectionAware);
-    polyline->p_Collection->AddPoint(p9->p_CollectionAware);*/
-    objects.push_back(polyline);
+    polyline->p_Collection->AddPoint(p9->p_CollectionAware);
+    objects.push_back(polyline);*/
 
     /*auto c2 = std::make_shared<BezierC2>("BezeierC2WithMultipleKnots");
     c2->p_Collection->AddPoint(p6->p_CollectionAware);
@@ -130,6 +153,7 @@ void SceneECS::RemoveUniqueObjects()
     grid.reset();
     composite.reset();
     cursor.reset();
+    m.reset();
     emit CursorChange(nullptr);
 }
 

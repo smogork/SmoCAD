@@ -26,6 +26,8 @@ private slots:
     void PointFromCollectionHasBeenDeleted(unsigned int deletedOid);
 
 public:
+    int SecondDimension = 0;
+
     static std::shared_ptr<TransformCollection> CreateRegisteredComponent(unsigned int oid);
     void UnregisterComponent();
 

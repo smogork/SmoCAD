@@ -51,7 +51,7 @@ void GLWidget::paintGL()
     // set the background color = clear color
     glBlendFunc(GL_ONE, GL_ZERO);
     glColorMask(true, true, true, true);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     if (auto scene = SceneECS::Instance().lock())
@@ -69,8 +69,8 @@ GLWidget::~GLWidget()
 
     if (auto scene = SceneECS::Instance().lock())
     {
-        scene->RemoveObjectsFromScene();
         scene->RemoveUniqueObjects();
+        scene->RemoveObjectsFromScene();
         scene->ClearSystems();
         qDebug() << scene->DebugSystemReport();
     }
@@ -92,7 +92,12 @@ void GLWidget::LoadShaders()
     Renderer::AddShader(BEZIER_SHADER,
                         std::make_shared<ShaderWrapper>("Shaders/bezier.vert", "Shaders/bezier.frag",
                                     "Shaders/bezier.tess", "Shaders/bezier.eval"));//bezier
+    /*Renderer::AddShader(PLAIN_SHADER,
+                        std::make_shared<ShaderWrapper>("Shaders/plain.vert", "Shaders/plain.frag",
+                                                        "Shaders/plain.tess", "Shaders/plain.eval"));//bezier*/
+
     Renderer::GetShader(SHADERS::BEZIER_SHADER).lock()->GetRawProgram()->setPatchVertexCount(4);
+    //Renderer::GetShader(SHADERS::PLAIN_SHADER).lock()->GetRawProgram()->setPatchVertexCount(16);
 }
 
 void GLWidget::RedrawScreen()
