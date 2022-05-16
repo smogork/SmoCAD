@@ -91,7 +91,6 @@ private:
     std::unique_ptr<Grid> grid = nullptr;
     std::shared_ptr<Cursor> cursor = nullptr;
     std::unique_ptr<Composite> composite = nullptr;
-    std::unique_ptr<Mesh> m;
 
     SceneECS();
 

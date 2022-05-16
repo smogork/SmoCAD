@@ -92,12 +92,12 @@ void GLWidget::LoadShaders()
     Renderer::AddShader(BEZIER_SHADER,
                         std::make_shared<ShaderWrapper>("Shaders/bezier.vert", "Shaders/bezier.frag",
                                     "Shaders/bezier.tess", "Shaders/bezier.eval"));//bezier
-    /*Renderer::AddShader(PLAIN_SHADER,
+    Renderer::AddShader(PLAIN_SHADER,
                         std::make_shared<ShaderWrapper>("Shaders/plain.vert", "Shaders/plain.frag",
-                                                        "Shaders/plain.tess", "Shaders/plain.eval"));//bezier*/
+                                                        "Shaders/plain.tess", "Shaders/plain.eval"));//bezier
 
     Renderer::GetShader(SHADERS::BEZIER_SHADER).lock()->GetRawProgram()->setPatchVertexCount(4);
-    //Renderer::GetShader(SHADERS::PLAIN_SHADER).lock()->GetRawProgram()->setPatchVertexCount(16);
+    Renderer::GetShader(SHADERS::PLAIN_SHADER).lock()->GetRawProgram()->setPatchVertexCount(16);
 }
 
 void GLWidget::RedrawScreen()

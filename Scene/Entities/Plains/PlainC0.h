@@ -9,15 +9,22 @@
 #include "Scene/Entities/IEntity.h"
 #include "Scene/Components/Drawing/DynamicDrawing.h"
 #include "Scene/Components/TransformCollection.h"
-#include "Scene/Entities/Polyline.h"
+#include "Scene/Entities/Mesh.h"
+#include "Scene/Components/Selectable.h"
+#include "Scene/Components/SceneElement.h"
 
 class PlainC0: public IEntity
 {
-    Q_OBJECT
+Q_OBJECT
+private slots:
+    void OnCollectionModified();
+    void OnSinglePointModified(QVector3D pos, unsigned int changedOID);
+
 protected:
-    class Polyline m_polyline;
-    QPropertyNotifier bezierPolylineDrawing;
-    QPropertyNotifier bezierPolylineColor;
+    class Mesh m_mesh;
+    QPropertyNotifier meshDrawingNotifier;
+    QPropertyNotifier meshColorNotifier;
+    QPropertyNotifier selectedNotifier;
 
     std::vector<float> GenerateGeometryVertices();
     std::vector<int> GenerateTopologyIndices();
@@ -27,15 +34,15 @@ protected:
     void DrawingFunction(QOpenGLContext* context);
     void UniformFunction(std::shared_ptr<ShaderWrapper> shader);
 
-    explicit PlainC0(unsigned int cid);
-
 public:
     std::shared_ptr<DynamicDrawing> p_Drawing;
     std::shared_ptr<TransformCollection> p_Collection;
-    QProperty<QColor> PolylineColor;
-    QProperty<QColor> CurveColor;
+    std::shared_ptr<Selectable> p_Selected;
+    std::shared_ptr<SceneElement> p_SceneElement;
+    QProperty<QColor> MeshColor;
+    QProperty<QColor> PlainColor;
 
-
+    explicit PlainC0(const QString& name);
 };
 
 #endif //SMOCAD_PLAINC0_H

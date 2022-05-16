@@ -14,6 +14,7 @@
 #include "Scene/Systems/TransformCollectionSystem.h"
 #include "Controls/ComponentControl.h"
 #include "Scene/Systems/ScreenSelectableSystem.h"
+#include "Scene/Entities/Plains/PlainC0.h"
 #include <list>
 
 std::shared_ptr<SceneECS> SceneECS::scene = nullptr;
@@ -99,24 +100,24 @@ void SceneECS::InitSceneObjects()
     objects.push_back(p15);
     objects.push_back(p16);
 
-    m = std::make_unique<Mesh>();
-    m->p_Collection->SecondDimension = 4;
-    m->p_Collection->AddPoint(p1->p_CollectionAware);
-    m->p_Collection->AddPoint(p2->p_CollectionAware);
-    m->p_Collection->AddPoint(p3->p_CollectionAware);
-    m->p_Collection->AddPoint(p4->p_CollectionAware);
-    m->p_Collection->AddPoint(p5->p_CollectionAware);
-    m->p_Collection->AddPoint(p6->p_CollectionAware);
-    m->p_Collection->AddPoint(p7->p_CollectionAware);
-    m->p_Collection->AddPoint(p8->p_CollectionAware);
-    m->p_Collection->AddPoint(p9->p_CollectionAware);
-    m->p_Collection->AddPoint(p10->p_CollectionAware);
-    m->p_Collection->AddPoint(p11->p_CollectionAware);
-    m->p_Collection->AddPoint(p12->p_CollectionAware);
-    m->p_Collection->AddPoint(p13->p_CollectionAware);
-    m->p_Collection->AddPoint(p14->p_CollectionAware);
-    m->p_Collection->AddPoint(p15->p_CollectionAware);
-    m->p_Collection->AddPoint(p16->p_CollectionAware);
+    auto p = std::make_shared<PlainC0>("PlainWTF");
+    p->p_Collection->AddPoint(p1->p_CollectionAware);
+    p->p_Collection->AddPoint(p2->p_CollectionAware);
+    p->p_Collection->AddPoint(p3->p_CollectionAware);
+    p->p_Collection->AddPoint(p4->p_CollectionAware);
+    p->p_Collection->AddPoint(p5->p_CollectionAware);
+    p->p_Collection->AddPoint(p6->p_CollectionAware);
+    p->p_Collection->AddPoint(p7->p_CollectionAware);
+    p->p_Collection->AddPoint(p8->p_CollectionAware);
+    p->p_Collection->AddPoint(p9->p_CollectionAware);
+    p->p_Collection->AddPoint(p10->p_CollectionAware);
+    p->p_Collection->AddPoint(p11->p_CollectionAware);
+    p->p_Collection->AddPoint(p12->p_CollectionAware);
+    p->p_Collection->AddPoint(p13->p_CollectionAware);
+    p->p_Collection->AddPoint(p14->p_CollectionAware);
+    p->p_Collection->AddPoint(p15->p_CollectionAware);
+    p->p_Collection->AddPoint(p16->p_CollectionAware);
+    objects.push_back(p);
 
 
     /*auto polyline = std::make_shared<InterpolationC2>("InterpolationC2Test");
@@ -153,7 +154,6 @@ void SceneECS::RemoveUniqueObjects()
     grid.reset();
     composite.reset();
     cursor.reset();
-    m.reset();
     emit CursorChange(nullptr);
 }
 

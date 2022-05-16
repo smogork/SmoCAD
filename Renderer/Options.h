@@ -13,6 +13,7 @@ class Options
 public:
     static QProperty<bool> DrawBezierPolygon;
     static QProperty<bool> DrawDeBoorPolygon;
+    static QProperty<bool> DrawPlainMesh;
     static QProperty<bool> RenderStereoscopy;
     static std::unique_ptr<StereoscopicParameters> StereoParams;
 };
