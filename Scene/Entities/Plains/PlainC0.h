@@ -13,6 +13,7 @@
 #include "Scene/Components/Selectable.h"
 #include "Scene/Components/SceneElement.h"
 #include "Scene/Entities/Points/Point.h"
+#include "Scene/Components/UVParams.h"
 
 class PlainC0: public IEntity
 {
@@ -35,17 +36,16 @@ protected:
     void DrawingFunction(QOpenGLContext* context);
     void UniformFunction(std::shared_ptr<ShaderWrapper> shader);
 
-
-
 public:
     std::shared_ptr<DynamicDrawing> p_Drawing;
     std::shared_ptr<TransformCollection> p_Collection;
     std::shared_ptr<Selectable> p_Selected;
     std::shared_ptr<SceneElement> p_SceneElement;
+    std::shared_ptr<UVParams> p_UV;
     QProperty<QColor> MeshColor;
     QProperty<QColor> PlainColor;
 
-    PlainC0(const QString& name, int secondDimension);
+    PlainC0(const QString& name, int width, int height);
 };
 
 #endif //SMOCAD_PLAINC0_H

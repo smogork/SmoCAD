@@ -9,7 +9,6 @@
 
 #include "IComponent.h"
 #include "Scene/Events/SystemEvents/UVParamsChanged.h"
-#include "Scene/Entities/Plains/PlainC0.h"
 
 class UVParams: public IComponent
 {
@@ -25,8 +24,6 @@ public:
 
     static std::shared_ptr<UVParams> CreateRegisteredComponent(unsigned int oid, int U, int V);
     void UnregisterComponent();
-
-    //std::shared_ptr<PlainC0> CreatePlainC0(std::shared_ptr<Transform> startPoint);
 };
 
 

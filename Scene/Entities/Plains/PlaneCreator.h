@@ -12,15 +12,6 @@
 #include "Scene/Entities/Points/VirtualPoint.h"
 #include "Scene/Components/UvPlainCreator.h"
 
-#define PATCH_SIZE 4
-
-enum Plane
-{
-    XY,
-    XZ,
-    YZ
-};
-
 class PlaneCreator: public IEntity
 {
     Q_OBJECT
@@ -31,7 +22,7 @@ protected:
     QPropertyNotifier uNotifier, vNotifier;
     QPropertyNotifier posNotifier, rotNotifier, scaleNotifier;
 
-    std::list<std::shared_ptr<VirtualPoint>> GetPatchPoints(std::list<std::shared_ptr<VirtualPoint>> points, int i, int j);
+
     void CreatePoints(int w, int h, Plane p = XY);
     void CreateTempMesh();
 

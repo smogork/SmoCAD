@@ -54,7 +54,7 @@ void UVPlaneCreatorControl::on_checkBox_toggled(bool checked)
 void UVPlaneCreatorControl::on_btnCreatePlain_clicked()
 {
     //[TODO] zmienic aby tworzyla sie rozna plaszczyzna pozniej
-    auto plain = m_uv->CreatePlainC0();
+    auto plain = m_uv->CreatePlainC0("Cokolwiek");
     if (auto scene = SceneECS::Instance().lock())
     {
         scene->AddObject(plain);

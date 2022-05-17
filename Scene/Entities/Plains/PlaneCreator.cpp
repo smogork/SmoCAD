@@ -42,12 +42,6 @@ PlaneCreator::PlaneCreator(const QString &name, QVector3D pos) : IEntity(PLAIN_C
     CreateTempMesh();
 }
 
-std::list<std::shared_ptr<VirtualPoint>>
-PlaneCreator::GetPatchPoints(std::list<std::shared_ptr<VirtualPoint>> points, int i, int j)
-{
-    return std::list<std::shared_ptr<VirtualPoint>>();
-}
-
 void PlaneCreator::CreateTempMesh()
 {
     m_mesh.p_Collection->Clear();
@@ -65,11 +59,10 @@ void PlaneCreator::CreatePoints(int w, int h, Plane p)
         for (int i = 0; i < h; ++i)
             for (int j = 0; j < w; ++j)
             {
-                auto p = std::make_shared<VirtualPoint>(QVector3D((PATCH_SIZE - 1) * i, 0, (PATCH_SIZE - 1) * j)
+                auto p = std::make_shared<VirtualPoint>(QVector3D(i, 0, j)
                         + p_Transform->Position);
                 points.push_back(p);
                 elements.emplace_back(p->p_CollectionAware);
-                //scene->AddObjectExplicitPosition(p);
             }
     }
 

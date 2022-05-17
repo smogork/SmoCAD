@@ -6,14 +6,15 @@
 #include "Renderer/Options.h"
 #include "Scene/Utilities/Utilites.h"
 
-PlainC0::PlainC0(const QString& name, int secondDimension): IEntity(PLAINC0_CLASS)
+PlainC0::PlainC0(const QString& name, int width, int height): IEntity(PLAINC0_CLASS)
 {
     AddComponent(p_Drawing = DynamicDrawing::CreateRegisteredComponent(objectID));
     AddComponent(p_Collection = TransformCollection::CreateRegisteredComponent(objectID));
     AddComponent(p_Selected = Selectable::CreateRegisteredComponent(objectID));
     AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(objectID, name, p_Selected));
+    AddComponent(p_UV = UVParams::CreateRegisteredComponent(objectID, width, height));
 
-    p_Collection->SecondDimension = m_mesh.p_Collection->SecondDimension = secondDimension;
+    p_Collection->SecondDimension = m_mesh.p_Collection->SecondDimension = width;
     InitializeDrawing();
     QObject::connect(p_Collection.get(), &TransformCollection::PointInCollectionModified,
                      this, &PlainC0::OnCollectionModified);
