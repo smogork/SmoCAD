@@ -14,8 +14,8 @@
 #include "Scene/Systems/TransformCollectionSystem.h"
 #include "Controls/ComponentControl.h"
 #include "Scene/Systems/ScreenSelectableSystem.h"
-#include "Scene/Entities/Plains/PlainC0.h"
-#include "Scene/Entities/Plains/PlainCreator.h"
+#include "Scene/Entities/Plains/PlaneCreator.h"
+#include "Scene/Systems/UvPlaneCreatorSystem.h"
 #include <list>
 
 std::shared_ptr<SceneECS> SceneECS::scene = nullptr;
@@ -47,6 +47,8 @@ SceneECS::SceneECS()
             std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<TransformCollectionSystem>()));
     systems.put<SceneElementSystem>(
             std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<SceneElementSystem>()));
+    systems.put<UVPlaneCreatorSystem>(
+            std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<UVPlaneCreatorSystem>()));
 }
 
 SceneECS::~SceneECS()
@@ -94,7 +96,7 @@ void SceneECS::InitSceneObjects()
                 plain->p_Collection->AddPoint(p->p_CollectionAware);
         }*/
 
-    auto pCreator = std::make_shared<PlainCreator>("pcr_test", QVector3D(1, 2, 3));
+    auto pCreator = std::make_shared<PlaneCreator>("pcr_test", QVector3D(1, 2, 3));
     objects.push_back(pCreator);
 }
 

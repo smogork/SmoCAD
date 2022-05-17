@@ -119,7 +119,7 @@ set(PROJECT_SOURCES
         Controls/CustomQListWidget.cpp Controls/CustomQListWidget.h
         Renderer/Camera/StereoscopicParameters.cpp Renderer/Camera/StereoscopicParameters.h
         Scene/Entities/Plains/PlainC0.cpp Scene/Entities/Plains/PlainC0.h
-        Scene/Entities/Mesh.cpp Scene/Entities/Mesh.h Scene/Entities/Plains/PlainCreator.cpp Scene/Entities/Plains/PlainCreator.h)
+        Scene/Entities/Mesh.cpp Scene/Entities/Mesh.h Scene/Entities/Plains/PlaneCreator.cpp Scene/Entities/Plains/PlaneCreator.h Scene/Systems/UvPlaneCreatorSystem.cpp Scene/Systems/UvPlaneCreatorSystem.h Scene/Components/UvPlainCreator.cpp Scene/Components/UvPlainCreator.h)
 
 add_subdirectory(Tests)
 

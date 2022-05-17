@@ -2,15 +2,15 @@
 // Created by ksm on 5/17/22.
 //
 
-#include "PlainCreator.h"
+#include "PlaneCreator.h"
 #include "Scene/SceneECS.h"
 
-PlainCreator::PlainCreator(const QString &name, QVector3D pos) : IEntity(PLAIN_CREATOR_CLASS)
+PlaneCreator::PlaneCreator(const QString &name, QVector3D pos) : IEntity(PLAIN_CREATOR_CLASS)
 {
     AddComponent(p_Transform = Transform::CreateRegisteredComponent(objectID, pos));
     AddComponent(p_Selected = Selectable::CreateRegisteredComponent(objectID));
     AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(objectID, name, p_Selected));
-    AddComponent(p_UVParams = UVParams::CreateRegisteredComponent(objectID, 4, 3));
+    AddComponent(p_UVParams = UVPlaneCreator::CreateRegisteredComponent(objectID, 4, 3));
     p_UVParams->UDensity = 7;
     p_UVParams->VDensity = 4;
 
@@ -43,19 +43,19 @@ PlainCreator::PlainCreator(const QString &name, QVector3D pos) : IEntity(PLAIN_C
 }
 
 std::list<std::shared_ptr<VirtualPoint>>
-PlainCreator::GetPatchPoints(std::list<std::shared_ptr<VirtualPoint>> points, int i, int j)
+PlaneCreator::GetPatchPoints(std::list<std::shared_ptr<VirtualPoint>> points, int i, int j)
 {
     return std::list<std::shared_ptr<VirtualPoint>>();
 }
 
-void PlainCreator::CreateTempMesh()
+void PlaneCreator::CreateTempMesh()
 {
     m_mesh.p_Collection->Clear();
     CreatePoints(p_UVParams->U, p_UVParams->V);
     m_mesh.p_Collection->SetPoints(elements);
 }
 
-void PlainCreator::CreatePoints(int w, int h, Plane p)
+void PlaneCreator::CreatePoints(int w, int h, Plane p)
 {
     elements.clear();
     points.clear();
