@@ -9,7 +9,7 @@ Torus::Torus(const QString& name, QVector3D position): IEntity(TORUS_CLASS)
 {
     AddComponent(p_Transform = Transform::CreateRegisteredComponent(objectID, position));
     AddComponent(p_Drawing = DynamicDrawing::CreateRegisteredComponent(objectID));
-    AddComponent(p_UV = UVParams::CreateRegisteredComponent(objectID));
+    AddComponent(p_UV = UVParams::CreateRegisteredComponent(objectID, 5, 1));
     AddComponent(p_CompositeAware = CompositeAware::CreateRegisteredComponent(objectID, p_Transform, p_Drawing));
     AddComponent(p_Selected = Selectable::CreateRegisteredComponent(objectID));
     AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(objectID, name, p_Selected));

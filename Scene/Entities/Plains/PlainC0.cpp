@@ -6,15 +6,14 @@
 #include "Renderer/Options.h"
 #include "Scene/Utilities/Utilites.h"
 
-PlainC0::PlainC0(const QString& name): IEntity(PLAINC0_CLASS)
+PlainC0::PlainC0(const QString& name, int secondDimension): IEntity(PLAINC0_CLASS)
 {
     AddComponent(p_Drawing = DynamicDrawing::CreateRegisteredComponent(objectID));
     AddComponent(p_Collection = TransformCollection::CreateRegisteredComponent(objectID));
     AddComponent(p_Selected = Selectable::CreateRegisteredComponent(objectID));
     AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(objectID, name, p_Selected));
 
-    p_Collection->SecondDimension = 8;
-    m_mesh.p_Collection->SecondDimension = 8;
+    p_Collection->SecondDimension = m_mesh.p_Collection->SecondDimension = secondDimension;
     InitializeDrawing();
     QObject::connect(p_Collection.get(), &TransformCollection::PointInCollectionModified,
                      this, &PlainC0::OnCollectionModified);
@@ -99,10 +98,5 @@ void PlainC0::OnCollectionModified()
     p_Drawing->SetVertexData(GenerateGeometryVertices());
     p_Drawing->SetIndexData(GenerateTopologyIndices());
     (*m_mesh.p_Collection) = (*p_Collection);
-}
-
-std::list<std::shared_ptr<Point>> PlainC0::CreatePatch(int i, int j)
-{
-    return std::list<std::shared_ptr<Point>>();
 }
 

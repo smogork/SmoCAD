@@ -19,12 +19,15 @@ UVParams::~UVParams()
     UnregisterComponent();
 }
 
-std::shared_ptr<UVParams> UVParams::CreateRegisteredComponent(unsigned int oid)
+std::shared_ptr<UVParams> UVParams::CreateRegisteredComponent(unsigned int oid, int U, int V)
 {
     if (auto scene = SceneECS::Instance().lock())
     {
         auto system = scene->GetSystem<UVParamsSystem>().lock();
-        return system->CreateRegistered(oid);
+       auto res =  system->CreateRegistered(oid);
+       res->U = U;
+       res->V = V;
+       return res;
     }
     return nullptr;
 }

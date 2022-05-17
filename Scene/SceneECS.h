@@ -63,6 +63,8 @@ public:
 
     void AddObject(std::shared_ptr<IEntity> obj);
 
+    void AddObjectExplicitPosition(std::shared_ptr<IEntity> obj);
+
     void RemoveObject(unsigned int oid);
 
     std::list<std::unique_ptr<ComponentControl>> CreateUIForObject(unsigned int oid);

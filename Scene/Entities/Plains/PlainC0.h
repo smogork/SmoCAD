@@ -35,7 +35,7 @@ protected:
     void DrawingFunction(QOpenGLContext* context);
     void UniformFunction(std::shared_ptr<ShaderWrapper> shader);
 
-    std::list<std::shared_ptr<Point>> CreatePatch(int i, int j);
+
 
 public:
     std::shared_ptr<DynamicDrawing> p_Drawing;
@@ -45,7 +45,7 @@ public:
     QProperty<QColor> MeshColor;
     QProperty<QColor> PlainColor;
 
-    explicit PlainC0(const QString& name);
+    PlainC0(const QString& name, int secondDimension);
 };
 
 #endif //SMOCAD_PLAINC0_H

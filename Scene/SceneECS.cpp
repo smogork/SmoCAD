@@ -15,6 +15,7 @@
 #include "Controls/ComponentControl.h"
 #include "Scene/Systems/ScreenSelectableSystem.h"
 #include "Scene/Entities/Plains/PlainC0.h"
+#include "Scene/Entities/Plains/PlainCreator.h"
 #include <list>
 
 std::shared_ptr<SceneECS> SceneECS::scene = nullptr;
@@ -82,16 +83,19 @@ std::list<std::shared_ptr<Point>> SceneECS::CreatePatch(int pi, int pj)
 
 void SceneECS::InitSceneObjects()
 {
-    auto plain = std::make_shared<PlainC0>("PlainWTF");
-    objects.push_back(plain);
+    //auto plain = std::make_shared<PlainC0>("PlainWTF");
+    //objects.push_back(plain);
 
-    for (int i = 0; i < 3; ++i)
+    /*for (int i = 0; i < 3; ++i)
         for (int j = 0; j < 2; ++j)
         {
             auto points = CreatePatch(i, j);
             for (const auto& p: points)
                 plain->p_Collection->AddPoint(p->p_CollectionAware);
-        }
+        }*/
+
+    auto pCreator = std::make_shared<PlainCreator>("pcr_test", QVector3D(1, 2, 3));
+    objects.push_back(pCreator);
 }
 
 void SceneECS::RemoveUniqueObjects()
@@ -169,6 +173,11 @@ void SceneECS::AddObject(std::shared_ptr<IEntity> obj)
         objects.push_back(obj);
 }
 
+void SceneECS::AddObjectExplicitPosition(std::shared_ptr<IEntity> obj)
+{
+    objects.push_back(obj);
+}
+
 std::list<std::unique_ptr<ComponentControl>> SceneECS::CreateUIForObject(unsigned int oid)
 {
     std::list<std::unique_ptr<ComponentControl>> res;
@@ -225,5 +234,7 @@ void SceneECS::InitializeScene()
     InitUniqueObjects();
     InitSceneObjects();
 }
+
+
 
 

@@ -98,7 +98,8 @@ void Mesh::InitializeDrawing()
 
 void Mesh::DrawingFunction(QOpenGLContext *context)
 {
-    Renderer::DrawLines(context->functions(), GetIndexCount());
+    if (p_Collection->Size())
+        Renderer::DrawLines(context->functions(), GetIndexCount());
 }
 
 void Mesh::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
@@ -109,6 +110,9 @@ void Mesh::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
 
 int Mesh::GetIndexCount()
 {
+    if (p_Collection->Size() == 0)
+        return 0;
+
     int height = p_Collection->Size() / p_Collection->SecondDimension;
     int width = p_Collection->SecondDimension;
     return 2 * (2 * p_Collection->Size() - width - height);

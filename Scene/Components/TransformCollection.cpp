@@ -65,6 +65,9 @@ void TransformCollection::ConnectSignals(std::shared_ptr<Transform> p)
 
 void TransformCollection::Clear()
 {
+    if (points.size() == 0)
+        return;
+
     pointNotifiers.clear();
     points.clear();
     //disconnect(nullptr, &IComponent::ComponentDeleted, this, &TransformCollection::PointFromCollectionHasBeenDeleted);
