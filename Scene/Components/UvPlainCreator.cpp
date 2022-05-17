@@ -45,14 +45,17 @@ void UVPlaneCreator::UnregisterComponent()
 
 std::shared_ptr<PlainC0> UVPlaneCreator::CreatePlainC0(const QString &name)
 {
+    int width = (PATCH_SIZE - 1) * U + 1;
+    int height = (PATCH_SIZE - 1) * V + 1;
+
     //Uwtorz punkty budujace plaszczyzne i dodaj je do sceny
-    auto points = CreatePoints(name, U, V);
+    auto points = CreatePoints(name, width, height);
 
     //Dodaj punkty w odpowiedniej kolejnosci do plaszczyzny
-    auto plane = std::make_shared<PlainC0>(name, (PATCH_SIZE - 1) * U + 1, (PATCH_SIZE - 1) * V + 1);
+    auto plane = std::make_shared<PlainC0>(name, width, height);
 
-    for (int i = 0; i < U; ++i)
-        for (int j = 0; j < V; ++j)
+    for (int j = 0; j < V; ++j)//height
+        for (int i = 0; i < U; ++i)//width
         {
             auto patch_points = GetPointsForPatch(points, i, j);
             for (const auto &p: patch_points)
@@ -74,12 +77,12 @@ std::vector<std::shared_ptr<Point>> UVPlaneCreator::CreatePoints(const QString &
 
     if (auto scene = SceneECS::Instance().lock())
     {
-        for (int i = 0; i < (PATCH_SIZE - 1) * h + 1; ++i)
-            for (int j = 0; j < (PATCH_SIZE - 1) * w + 1; ++j)
+        for (int i = 0; i < h; ++i)
+            for (int j = 0; j < w; ++j)
             {
                 auto p = std::make_shared<Point>(QString("P_%0_%1%2").arg(name).arg(i).arg(j),
-                                                 QVector3D((float) i / (PATCH_SIZE - 1), 0,
-                                                           (float) j / (PATCH_SIZE - 1)) + m_transform->Position);
+                                                 QVector3D((float)j / (PATCH_SIZE - 1), 0,
+                                                           (float)i / (PATCH_SIZE - 1)) + m_transform->Position);
                 res.emplace_back(p);
                 scene->AddObjectExplicitPosition(p);
             }
@@ -89,7 +92,7 @@ std::vector<std::shared_ptr<Point>> UVPlaneCreator::CreatePoints(const QString &
 }
 
 std::vector<std::shared_ptr<CollectionAware>>
-UVPlaneCreator::GetPointsForPatch(std::vector<std::shared_ptr<Point>> &points, int pi, int pj)
+UVPlaneCreator::GetPointsForPatch(std::vector<std::shared_ptr<Point>> &points, int wpIdx, int hpIdx)
 {
     std::vector<std::shared_ptr<CollectionAware>> res(16);
 
@@ -97,8 +100,8 @@ UVPlaneCreator::GetPointsForPatch(std::vector<std::shared_ptr<Point>> &points, i
     for (int i = 0; i < PATCH_SIZE; ++i)
         for (int j = 0; j < PATCH_SIZE; ++j)
         {
-            int wIdx = pi * (PATCH_SIZE - 1) + i;
-            int hIdx = pj * (PATCH_SIZE - 1) + j;
+            int wIdx = wpIdx * (PATCH_SIZE - 1) + j;
+            int hIdx = hpIdx * (PATCH_SIZE - 1) + i;
             res[i * PATCH_SIZE + j] = points[
                     hIdx * second_dim + wIdx]->p_CollectionAware;
         }

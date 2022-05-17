@@ -14,11 +14,11 @@ PlaneCreator::PlaneCreator(const QString &name, QVector3D pos) : IEntity(PLAIN_C
     p_UVParams->UDensity = 7;
     p_UVParams->VDensity = 4;
 
-    m_mesh.p_Collection->SecondDimension = p_UVParams->U;
+    m_mesh.p_Collection->SecondDimension = p_UVParams->U + 1;
 
     uNotifier = p_UVParams->U.addNotifier([this]()
     {
-        m_mesh.p_Collection->SecondDimension = p_UVParams->U;
+        m_mesh.p_Collection->SecondDimension = p_UVParams->U + 1;
         CreateTempMesh();
     });
     vNotifier = p_UVParams->V.addNotifier([this]()
@@ -45,7 +45,7 @@ PlaneCreator::PlaneCreator(const QString &name, QVector3D pos) : IEntity(PLAIN_C
 void PlaneCreator::CreateTempMesh()
 {
     m_mesh.p_Collection->Clear();
-    CreatePoints(p_UVParams->U, p_UVParams->V);
+    CreatePoints(p_UVParams->U + 1, p_UVParams->V + 1);
     m_mesh.p_Collection->SetPoints(elements);
 }
 
@@ -59,24 +59,10 @@ void PlaneCreator::CreatePoints(int w, int h, Plane p)
         for (int i = 0; i < h; ++i)
             for (int j = 0; j < w; ++j)
             {
-                auto p = std::make_shared<VirtualPoint>(QVector3D(i, 0, j)
+                auto p = std::make_shared<VirtualPoint>(QVector3D(j, 0, i)
                         + p_Transform->Position);
                 points.push_back(p);
                 elements.emplace_back(p->p_CollectionAware);
             }
     }
-
-    //to kawalek do tworzenia legitnej siatki dla prawdizwej plaszczyzny
-    /*if (auto scene = SceneECS::Instance().lock())
-    {
-        for (int i = 0; i < (PATCH_SIZE - 1) * h + 1; ++i)
-            for (int j = 0; j < (PATCH_SIZE - 1) * w + 1; ++j)
-            {
-                auto p = std::make_shared<VirtualPoint>(QString("P_%0_%1%2").arg(p_SceneElement->Name).arg(i).arg(j),
-                                                 QVector3D(i, 0, j) + p_Transform->Position);
-                points.emplace_back(p);
-                scene->AddObjectExplicitPosition(p);
-            }
-    }*/
-
 }

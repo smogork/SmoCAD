@@ -12,7 +12,7 @@ PlainC0::PlainC0(const QString& name, int width, int height): IEntity(PLAINC0_CL
     AddComponent(p_Collection = TransformCollection::CreateRegisteredComponent(objectID));
     AddComponent(p_Selected = Selectable::CreateRegisteredComponent(objectID));
     AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(objectID, name, p_Selected));
-    AddComponent(p_UV = UVParams::CreateRegisteredComponent(objectID, width, height));
+    AddComponent(p_UV = UVParams::CreateRegisteredComponent(objectID, (width - 1)/3.0f, (height - 1)/3.0f));
 
     p_Collection->SecondDimension = m_mesh.p_Collection->SecondDimension = width;
     InitializeDrawing();
