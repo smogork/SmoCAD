@@ -34,6 +34,7 @@ public:
 
 signals:
     void RequestRepaint();
+    void RequestControlsUpdate(unsigned int oid);
 };
 
 

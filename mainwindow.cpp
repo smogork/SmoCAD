@@ -64,6 +64,8 @@ void MainWindow::UpdateComponentUI(unsigned int oid)
             ui->verticalLayout->addWidget(widget.get());
             QObject::connect(widget.get(), &ComponentControl::RequestRepaint,
                              ui->sceneWidget, &GLWidget::RedrawScreen);
+            QObject::connect(widget.get(), &ComponentControl::RequestControlsUpdate,
+                             this, &MainWindow::UpdateComponentUI);
         }
     }
 }

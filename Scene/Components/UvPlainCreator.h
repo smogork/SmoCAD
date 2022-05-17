@@ -12,6 +12,9 @@
 class UVPlaneCreator: public IComponent
 {
     Q_OBJECT
+
+private:
+    std::shared_ptr<Transform> m_transform = nullptr;
 public:
     QProperty<float> U;
     QProperty<float> V;
@@ -21,10 +24,10 @@ public:
     explicit UVPlaneCreator(unsigned int oid);
     ~UVPlaneCreator() override;
 
-    static std::shared_ptr<UVPlaneCreator> CreateRegisteredComponent(unsigned int oid, int U, int V);
+    static std::shared_ptr<UVPlaneCreator> CreateRegisteredComponent(unsigned int oid, std::shared_ptr<Transform> transform, int U, int V);
     void UnregisterComponent();
 
-    std::shared_ptr<PlainC0> CreatePlainC0(std::shared_ptr<Transform> startPoint);
+    std::shared_ptr<PlainC0> CreatePlainC0();
 };
 
 #endif //SMOCAD_UVPLAINCREATOR_H

@@ -3,10 +3,11 @@
 //
 
 #include "UvPlaneCreatorSystem.h"
+#include "Controls/uvplanecreatorcontrol.h"
 
 std::unique_ptr<ComponentControl> UVPlaneCreatorSystem::PrepareUIForObject(unsigned int oid)
 {
-    /*if (auto uv = GetComponent(oid).lock())
-        return std::move(std::make_unique<UVPlainCreatorControl>(uv));*/
+    if (auto uv = GetComponent(oid).lock())
+        return std::move(std::make_unique<UVPlaneCreatorControl>(uv));
     return nullptr;
 }
