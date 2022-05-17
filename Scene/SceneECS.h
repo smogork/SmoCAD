@@ -18,6 +18,7 @@
 #include "Scene/Systems/SceneElementSystem.h"
 #include "Controls/ListElements/QListWidgetSceneElement.h"
 #include "Scene/Entities/Mesh.h"
+#include "Scene/Entities/Points/Point.h"
 
 class SceneECS : public QObject
 {
@@ -95,8 +96,8 @@ private:
     SceneECS();
 
     void InitUniqueObjects();
-
     void InitSceneObjects();
+    std::list<std::shared_ptr<Point>> CreatePatch(int i, int j);
 
     void UpdateCursorObject(QVector3D cursorPos);
 };

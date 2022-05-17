@@ -65,88 +65,33 @@ void SceneECS::InitUniqueObjects()
     composite = nullptr;
 }
 
+std::list<std::shared_ptr<Point>> SceneECS::CreatePatch(int pi, int pj)
+{
+    std::list<std::shared_ptr<Point>> points;
+
+    for (int i = 0; i < 4; ++i)
+        for (int j = 0; j < 4; ++j)
+        {
+            auto p = std::make_shared<Point>(QString("P%0%1%2").arg(pi).arg(pj).arg(i * 4 + j), QVector3D(4 * pi + i, 1, 4 * pj + j));
+            points.emplace_back(p);
+            objects.push_back(p);
+        }
+
+    return points;
+}
+
 void SceneECS::InitSceneObjects()
 {
-    auto p1 = std::make_shared<Point>("P1", QVector3D(0, 1, 0));
-    auto p2 = std::make_shared<Point>("P2", QVector3D(1, 1, 0));
-    auto p3 = std::make_shared<Point>("P3", QVector3D(2, 1, 0));
-    auto p4 = std::make_shared<Point>("P3", QVector3D(3, 1, 0));
-    auto p5 = std::make_shared<Point>("P4", QVector3D(0, 1, 1));
-    auto p6 = std::make_shared<Point>("P5", QVector3D(1, 2, 1));
-    auto p7 = std::make_shared<Point>("P6", QVector3D(2, 2, 1));
-    auto p8 = std::make_shared<Point>("P6", QVector3D(3, 1, 1));
-    auto p9 = std::make_shared<Point>("P7", QVector3D(0, 1, 2));
-    auto p10 = std::make_shared<Point>("P8", QVector3D(1, 2, 2));
-    auto p11 = std::make_shared<Point>("P9", QVector3D(2, 2, 2));
-    auto p12 = std::make_shared<Point>("P9", QVector3D(3, 1, 2));
-    auto p13 = std::make_shared<Point>("P7", QVector3D(0, 1, 3));
-    auto p14 = std::make_shared<Point>("P8", QVector3D(1, 1, 3));
-    auto p15 = std::make_shared<Point>("P9", QVector3D(2, 1, 3));
-    auto p16 = std::make_shared<Point>("P9", QVector3D(3, 1, 3));
-    objects.push_back(p1);
-    objects.push_back(p2);
-    objects.push_back(p3);
-    objects.push_back(p4);
-    objects.push_back(p5);
-    objects.push_back(p6);
-    objects.push_back(p7);
-    objects.push_back(p8);
-    objects.push_back(p9);
-    objects.push_back(p10);
-    objects.push_back(p11);
-    objects.push_back(p12);
-    objects.push_back(p13);
-    objects.push_back(p14);
-    objects.push_back(p15);
-    objects.push_back(p16);
+    auto plain = std::make_shared<PlainC0>("PlainWTF");
+    objects.push_back(plain);
 
-    auto p = std::make_shared<PlainC0>("PlainWTF");
-    p->p_Collection->AddPoint(p1->p_CollectionAware);
-    p->p_Collection->AddPoint(p2->p_CollectionAware);
-    p->p_Collection->AddPoint(p3->p_CollectionAware);
-    p->p_Collection->AddPoint(p4->p_CollectionAware);
-    p->p_Collection->AddPoint(p5->p_CollectionAware);
-    p->p_Collection->AddPoint(p6->p_CollectionAware);
-    p->p_Collection->AddPoint(p7->p_CollectionAware);
-    p->p_Collection->AddPoint(p8->p_CollectionAware);
-    p->p_Collection->AddPoint(p9->p_CollectionAware);
-    p->p_Collection->AddPoint(p10->p_CollectionAware);
-    p->p_Collection->AddPoint(p11->p_CollectionAware);
-    p->p_Collection->AddPoint(p12->p_CollectionAware);
-    p->p_Collection->AddPoint(p13->p_CollectionAware);
-    p->p_Collection->AddPoint(p14->p_CollectionAware);
-    p->p_Collection->AddPoint(p15->p_CollectionAware);
-    p->p_Collection->AddPoint(p16->p_CollectionAware);
-    objects.push_back(p);
-
-
-    /*auto polyline = std::make_shared<InterpolationC2>("InterpolationC2Test");
-    polyline->p_Collection->AddPoint(p1->p_CollectionAware);
-    polyline->p_Collection->AddPoint(p2->p_CollectionAware);
-    polyline->p_Collection->AddPoint(p3->p_CollectionAware);
-    polyline->p_Collection->AddPoint(p4->p_CollectionAware);
-    polyline->p_Collection->AddPoint(p5->p_CollectionAware);
-    polyline->p_Collection->AddPoint(p6->p_CollectionAware);
-    polyline->p_Collection->AddPoint(p7->p_CollectionAware);
-    polyline->p_Collection->AddPoint(p8->p_CollectionAware);
-    polyline->p_Collection->AddPoint(p9->p_CollectionAware);
-    objects.push_back(polyline);*/
-
-    /*auto c2 = std::make_shared<BezierC2>("BezeierC2WithMultipleKnots");
-    c2->p_Collection->AddPoint(p6->p_CollectionAware);
-    c2->p_Collection->AddPoint(p1->p_CollectionAware);
-    c2->p_Collection->AddPoint(p2->p_CollectionAware);
-    c2->p_Collection->AddPoint(p2->p_CollectionAware);
-    c2->p_Collection->AddPoint(p3->p_CollectionAware);
-    c2->p_Collection->AddPoint(p5->p_CollectionAware);
-    objects.push_back(c2);*/
-    //p5->p_Transform->Position = QVector3D(-3, -3, 0);
-
-
-    //composite = std::make_unique<Composite>(p1->p_CompositeAware);
-    //composite->AddObject(p2->p_CompositeAware);
-
-    //composite->p_Transform->Rotation.setX(90);
+    for (int i = 0; i < 3; ++i)
+        for (int j = 0; j < 2; ++j)
+        {
+            auto points = CreatePatch(i, j);
+            for (const auto& p: points)
+                plain->p_Collection->AddPoint(p->p_CollectionAware);
+        }
 }
 
 void SceneECS::RemoveUniqueObjects()
@@ -280,4 +225,5 @@ void SceneECS::InitializeScene()
     InitUniqueObjects();
     InitSceneObjects();
 }
+
 

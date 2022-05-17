@@ -12,6 +12,7 @@
 #include "Scene/Entities/Mesh.h"
 #include "Scene/Components/Selectable.h"
 #include "Scene/Components/SceneElement.h"
+#include "Scene/Entities/Points/Point.h"
 
 class PlainC0: public IEntity
 {
@@ -33,6 +34,8 @@ protected:
     void InitializeDrawing();
     void DrawingFunction(QOpenGLContext* context);
     void UniformFunction(std::shared_ptr<ShaderWrapper> shader);
+
+    std::list<std::shared_ptr<Point>> CreatePatch(int i, int j);
 
 public:
     std::shared_ptr<DynamicDrawing> p_Drawing;
