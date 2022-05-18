@@ -24,6 +24,7 @@ Q_OBJECT
 private slots:
     void OnCollectionModified();
     void OnSinglePointModified(QVector3D pos, unsigned int changedOID);
+    void PointRemovedFromCollection();
 
 protected:
     class Mesh m_mesh;

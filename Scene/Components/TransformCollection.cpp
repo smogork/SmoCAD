@@ -152,6 +152,7 @@ void TransformCollection::PointFromCollectionHasBeenDeleted(unsigned int deleted
                      });
     pointNotifiers.erase(oid);
     emit PointInCollectionModified();
+    emit PointDeleted();
 }
 
 void TransformCollection::SetPoints(std::vector<std::shared_ptr<CollectionAware>> newPoints)

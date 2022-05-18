@@ -5,6 +5,7 @@
 #include "PlainC0.h"
 #include "Renderer/Options.h"
 #include "Scene/Utilities/Utilites.h"
+#include "Scene/SceneECS.h"
 
 PlainC0::PlainC0(const QString& name, int width, int height): IEntity(PLAINC0_CLASS)
 {
@@ -20,12 +21,21 @@ PlainC0::PlainC0(const QString& name, int width, int height): IEntity(PLAINC0_CL
                      this, &PlainC0::OnCollectionModified);
     QObject::connect(p_Collection.get(), &TransformCollection::SinglePointChanged,
                      this, &PlainC0::OnSinglePointModified);
+    QObject::connect(p_Collection.get(), &TransformCollection::PointDeleted,
+                     this, &PlainC0::PointRemovedFromCollection);
 
+    selectedNotifier = p_Selected->Selected.addNotifier([this]() {
+        if (p_Selected->Selected)
+            PlainColor = Selectable::SelectedColor;
+        else
+            PlainColor = DefaultColor;
+    });
 
     meshColorNotifier = MeshColor.addNotifier([this]() {
         this->m_mesh.DrawingColor = MeshColor;
     });
     PlainColor = DefaultColor;
+    MeshColor = Qt::darkGreen;
 
     meshDrawingNotifier = Options::DrawPlainMesh.addNotifier([this]()
     {
@@ -111,5 +121,11 @@ void PlainC0::OnCollectionModified()
     p_Drawing->SetVertexData(GenerateGeometryVertices());
     p_Drawing->SetIndexData(GenerateTopologyIndices());
     (*m_mesh.p_Collection) = (*p_Collection);
+}
+
+void PlainC0::PointRemovedFromCollection()
+{
+    if (auto scene = SceneECS::Instance().lock())
+        scene->RemoveObject(GetObjectID());
 }
 
