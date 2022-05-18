@@ -113,6 +113,8 @@ void PlainC0::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
 {
     shader->SetUniform("u_ObjectColor", ColorToVector4D(PlainColor));
     shader->SetUniform("u_MVP.Model", QMatrix4x4());
+    shader->SetUniform("u_UDensity", p_UV->UDensity);
+    shader->SetUniform("u_VDensity", p_UV->VDensity);
 }
 
 void PlainC0::OnSinglePointModified(QVector3D pos, unsigned int changedOID)

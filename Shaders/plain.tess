@@ -2,11 +2,14 @@
 
 layout (vertices = 16) out;
 
+uniform int u_UDensity;
+uniform int u_VDensity;
+
 void
 main()
 {
-    int du = 4;
-    int dv = 7;
+    int du = u_UDensity;
+    int dv = u_VDensity;
 
     gl_TessLevelOuter[0] = du;//u
     gl_TessLevelOuter[1] = dv;//v

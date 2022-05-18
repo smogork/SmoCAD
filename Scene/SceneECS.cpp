@@ -5,7 +5,6 @@
 #include "SceneECS.h"
 #include "Scene/Systems/DrawingSystem.h"
 #include "Scene/Systems/TransformSystem.h"
-#include "Scene/Entities/Points/Point.h"
 #include "Scene/Systems/UVParamsSystem.h"
 #include "Scene/Entities/Cursor.h"
 #include "Scene/Systems/SelectableSystem.h"
@@ -68,33 +67,8 @@ void SceneECS::InitUniqueObjects()
     composite = nullptr;
 }
 
-std::list<std::shared_ptr<Point>> SceneECS::CreatePatch(int pi, int pj)
-{
-    std::list<std::shared_ptr<Point>> points;
-
-    for (int i = 0; i < 4; ++i)
-        for (int j = 0; j < 4; ++j)
-        {
-            auto p = std::make_shared<Point>(QString("P%0%1%2").arg(pi).arg(pj).arg(i * 4 + j), QVector3D(4 * pi + i, 1, 4 * pj + j));
-            points.emplace_back(p);
-            objects.push_back(p);
-        }
-
-    return points;
-}
-
 void SceneECS::InitSceneObjects()
 {
-    //auto plain = std::make_shared<PlainC0>("PlainWTF");
-    //objects.push_back(plain);
-
-    /*for (int i = 0; i < 3; ++i)
-        for (int j = 0; j < 2; ++j)
-        {
-            auto points = CreatePatch(i, j);
-            for (const auto& p: points)
-                plain->p_Collection->AddPoint(p->p_CollectionAware);
-        }*/
 
     auto pCreator = std::make_shared<PlaneCreator>("pcr_test", QVector3D(1, 2, 3));
     objects.push_back(pCreator);

@@ -99,7 +99,6 @@ private:
 
     void InitUniqueObjects();
     void InitSceneObjects();
-    std::list<std::shared_ptr<Point>> CreatePatch(int i, int j);
 
     void UpdateCursorObject(QVector3D cursorPos);
 };
