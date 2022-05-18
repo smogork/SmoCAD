@@ -26,14 +26,14 @@ private:
     std::shared_ptr<Transform> m_transform = nullptr;
 
     std::vector<std::shared_ptr<Point>> CreatePoints(const QString &name, int w, int h, Plane p = XY);
-    std::vector<std::shared_ptr<CollectionAware>>
-    GetPointsForPatch(std::vector<std::shared_ptr<Point>>& points, int pi, int pj);
+
 public:
     QProperty<int> U;
     QProperty<int> V;
     QProperty<int> UDensity;
     QProperty<int> VDensity;
     QProperty<double> Width, Height;
+    QProperty<bool> IsPipe;
 
     explicit UVPlaneCreator(unsigned int oid);
     ~UVPlaneCreator() override;

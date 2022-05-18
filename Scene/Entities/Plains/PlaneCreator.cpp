@@ -33,6 +33,11 @@ PlaneCreator::PlaneCreator(const QString &name, QVector3D pos) : IEntity(PLAIN_C
                                           {
                                               CreateTempMesh();
                                           });
+    pipeNotifier = p_UVParams->IsPipe.addNotifier([this]()
+                                               {
+                                                   m_mesh.IsPipe = p_UVParams->IsPipe;
+                                                   CreateTempMesh();
+                                               });
 
     posNotifier = p_Transform->Position.addNotifier([this]()
                                                     {
@@ -67,10 +72,17 @@ void PlaneCreator::CreatePoints(int w, int h, Plane p)
         for (int i = 0; i < h; ++i)
             for (int j = 0; j < w; ++j)
             {
-                auto p = std::make_shared<VirtualPoint>(
-                        QVector3D((float)j * p_UVParams->Width / p_UVParams->U, 0, (float)i * p_UVParams->Height / p_UVParams->V)
-                        + p_Transform->Position);
+                QVector3D pos;
+                if (p_UVParams->IsPipe)
+                    pos = QVector3D(p_UVParams->Width * cos(2 * M_PIf * j / w),
+                                              p_UVParams->Width * sin(2 * M_PIf * j / w),
+                                              (float) i / (PATCH_SIZE - 1) * p_UVParams->Height / p_UVParams->V);
+                else
+                    pos = QVector3D((float)j * p_UVParams->Width / p_UVParams->U, 0, (float)i * p_UVParams->Height / p_UVParams->V);
+
+                auto p = std::make_shared<VirtualPoint>(pos + p_Transform->Position);
                 p->p_Transform->Locked = true;
+
                 points.push_back(p);
                 elements.emplace_back(p->p_CollectionAware);
             }

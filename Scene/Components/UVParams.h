@@ -16,11 +16,13 @@ class UVParams: public IComponent
 
 private:
     bool m_locked = false;
+
 public:
     QProperty<float> U;
     QProperty<float> V;
     QProperty<int> UDensity;
     QProperty<int> VDensity;
+    QProperty<bool> UWraps, VWraps;
 
     explicit UVParams(unsigned int);
     ~UVParams() override;

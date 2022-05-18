@@ -13,6 +13,8 @@ Torus::Torus(const QString& name, QVector3D position): IEntity(TORUS_CLASS)
     AddComponent(p_CompositeAware = CompositeAware::CreateRegisteredComponent(objectID, p_Transform, p_Drawing));
     AddComponent(p_Selected = Selectable::CreateRegisteredComponent(objectID));
     AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(objectID, name, p_Selected));
+    p_UV->UWraps = true;
+    p_UV->VWraps = true;
 
     selectedNotifier = p_Selected->Selected.addNotifier([this]() {
         HandleColors();

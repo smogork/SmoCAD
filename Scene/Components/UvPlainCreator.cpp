@@ -65,6 +65,7 @@ std::shared_ptr<PlainC0> UVPlaneCreator::CreatePlainC0(const QString &name)
     //przenies parametry UV do plaszczyzny
     plane->p_UV->UDensity = *UDensity;
     plane->p_UV->VDensity = *VDensity;
+    plane->p_UV->UWraps = *IsPipe;
     plane->p_UV->LockEditUV();
 
     if (auto scene = SceneECS::Instance().lock())
@@ -81,31 +82,22 @@ std::vector<std::shared_ptr<Point>> UVPlaneCreator::CreatePoints(const QString &
         for (int i = 0; i < h; ++i)
             for (int j = 0; j < w; ++j)
             {
-                auto p = std::make_shared<Point>(QString("P_%0_%1%2").arg(name).arg(i).arg(j),
-                                                 QVector3D((float)j / (PATCH_SIZE - 1) * Width / U, 0,
-                                                           (float)i / (PATCH_SIZE - 1) * Height / V) + m_transform->Position);
+                std::shared_ptr<Point> p;
+                QString pName = QString("P_%0_%1%2").arg(name).arg(i).arg(j);
+                if (IsPipe)
+                {
+                    QVector3D pos = QVector3D(Width * cos(2 * M_PIf * j / w), Width * sin(2 * M_PIf * j / w),
+                                              (float) i / (PATCH_SIZE - 1) * Height / V);
+                    p = std::make_shared<Point>(pName, pos + m_transform->Position);
+                    p->p_Transform->Locked = true;
+                } else
+                    p = std::make_shared<Point>(pName, QVector3D((float) j / (PATCH_SIZE - 1) * Width / U, 0,
+                                                                 (float) i / (PATCH_SIZE - 1) * Height / V) +
+                                                       m_transform->Position);
                 res.emplace_back(p);
                 scene->AddObjectExplicitPosition(p);
             }
     }
-
-    return res;
-}
-
-std::vector<std::shared_ptr<CollectionAware>>
-UVPlaneCreator::GetPointsForPatch(std::vector<std::shared_ptr<Point>> &points, int wpIdx, int hpIdx)
-{
-    std::vector<std::shared_ptr<CollectionAware>> res(16);
-
-    int second_dim = (PATCH_SIZE - 1) * U + 1;
-    for (int i = 0; i < PATCH_SIZE; ++i)
-        for (int j = 0; j < PATCH_SIZE; ++j)
-        {
-            int wIdx = wpIdx * (PATCH_SIZE - 1) + j;
-            int hIdx = hpIdx * (PATCH_SIZE - 1) + i;
-            res[i * PATCH_SIZE + j] = points[
-                    hIdx * second_dim + wIdx]->p_CollectionAware;
-        }
 
     return res;
 }

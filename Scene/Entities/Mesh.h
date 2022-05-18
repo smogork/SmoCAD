@@ -28,6 +28,7 @@ public:
     std::shared_ptr<DynamicDrawing> p_Drawing;
     std::shared_ptr<TransformCollection> p_Collection;
     QColor DrawingColor = DefaultColor;
+    bool IsPipe;
 
     Mesh();
 };

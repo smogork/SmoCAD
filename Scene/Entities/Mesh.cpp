@@ -80,6 +80,15 @@ std::vector<int> Mesh::GenerateTopologyIndices()
         }
     }
 
+    if (IsPipe)
+    {
+        for (int i = 0; i < height; ++i)
+        {
+            res.push_back(i * width + width - 1);
+            res.push_back(i * width);
+        }
+    }
+
     return res;
 }
 
@@ -115,6 +124,10 @@ int Mesh::GetIndexCount()
 
     int height = p_Collection->Size() / p_Collection->SecondDimension;
     int width = p_Collection->SecondDimension;
-    return 2 * (2 * p_Collection->Size() - width - height);
+    int res = 2 * p_Collection->Size() - width - height;
+    if (IsPipe)
+        res += height;
+
+    return 2 * res;
 }
 

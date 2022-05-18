@@ -53,13 +53,13 @@ void UVPlaneCreatorControl::on_spinParamVDens_valueChanged(int arg1)
 
 void UVPlaneCreatorControl::on_checkBox_toggled(bool checked)
 {
-    //[TODO] dodac zawiniecie
+    UPDATE_VALUE_IGNORING_NOTIFIER(m_uv->IsPipe = checked);
 }
 
 void UVPlaneCreatorControl::on_btnCreatePlain_clicked()
 {
     //[TODO] zmienic aby tworzyla sie rozna plaszczyzna pozniej
-    auto plain = m_uv->CreatePlainC0("Cokolwiek");
+    auto plain = m_uv->CreatePlainC0("PlaneC0");
     if (auto scene = SceneECS::Instance().lock())
     {
         scene->AddObject(plain);
