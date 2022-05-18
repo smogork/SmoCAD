@@ -12,6 +12,7 @@
 
 #include "Renderer/Options.h"
 #include "Scene/Entities/Curves/InterpolationC2.h"
+#include "Scene/Entities/Plains/PlaneCreator.h"
 
 MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -67,6 +68,16 @@ void MainWindow::UpdateComponentUI(unsigned int oid)
             QObject::connect(widget.get(), &ComponentControl::RequestControlsUpdate,
                              this, &MainWindow::UpdateComponentUI);
         }
+    }
+}
+
+void MainWindow::MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event)
+{
+    if (auto scene = SceneECS::Instance().lock())
+    {
+        unsigned int oid = scene->MouseClicked(event);
+        UpdateComponentUI(oid);
+        ui->sceneWidget->update();
     }
 }
 
@@ -136,14 +147,13 @@ void MainWindow::on_actionInterpolationC2_triggered()
     ui->sceneWidget->update();
 }
 
-void MainWindow::MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event)
+
+void MainWindow::on_actionPlaneC0_triggered()
 {
+    std::shared_ptr<PlaneCreator> pcr = std::make_shared<PlaneCreator>("PlaneC0Creator");
     if (auto scene = SceneECS::Instance().lock())
-    {
-        unsigned int oid = scene->MouseClicked(event);
-        UpdateComponentUI(oid);
-        ui->sceneWidget->update();
-    }
+        scene->AddObject(pcr);
+    ui->sceneWidget->update();
 }
 #pragma endregion
 
@@ -173,4 +183,6 @@ void MainWindow::on_actionShow_Bezier_mesh_triggered(bool checked)
     Options::DrawPlainMesh = checked;
     ui->sceneWidget->update();
 }
+
+
 

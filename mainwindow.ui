@@ -120,6 +120,8 @@
      <addaction name="actionBezierC0"/>
      <addaction name="actionBezierC2"/>
      <addaction name="actionInterpolationC2"/>
+     <addaction name="separator"/>
+     <addaction name="actionPlaneC0"/>
     </widget>
     <addaction name="menuAdd"/>
     <addaction name="separator"/>
@@ -211,6 +213,11 @@
    </property>
    <property name="text">
     <string>Show Bezier mesh</string>
+   </property>
+  </action>
+  <action name="actionPlaneC0">
+   <property name="text">
+    <string>PlaneC0</string>
    </property>
   </action>
  </widget>

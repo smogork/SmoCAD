@@ -50,6 +50,7 @@ public:
     QProperty<QColor> PlainColor;
 
     PlainC0(const QString& name, bool isPipe, int width, int height);
+    ~PlainC0();
 };
 
 #endif //SMOCAD_PLAINC0_H

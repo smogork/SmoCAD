@@ -32,7 +32,7 @@ public:
     std::shared_ptr<SceneElement> p_SceneElement;
     std::shared_ptr<UVPlaneCreator> p_UVParams;
 
-    explicit PlaneCreator(const QString& name, QVector3D pos);
+    explicit PlaneCreator(const QString& name, QVector3D pos = QVector3D());
 };
 
 #endif //SMOCAD_PLANECREATOR_H

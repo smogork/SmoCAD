@@ -48,6 +48,14 @@ PlainC0::PlainC0(const QString& name, bool isPipe, int width, int height): IEnti
     m_mesh.p_Drawing->Enabled = Options::DrawPlainMesh;
 }
 
+
+PlainC0::~PlainC0()
+{
+    for(const auto& el : p_Collection->GetPoints())
+        if (auto p = el.lock())
+            p->Locked = false;//jakby byla potrzeba lockowania przez wiele obiektow to mozna oddac licznik blokad i kazde uzycie bedzie zmieniac o jeden ten licznik
+}
+
 std::vector<float> PlainC0::GenerateGeometryVertices()
 {
     std::vector<float> res (3 * p_Collection->Size());
@@ -136,4 +144,5 @@ void PlainC0::PointRemovedFromCollection()
     if (auto scene = SceneECS::Instance().lock())
         scene->RemoveObject(GetObjectID());
 }
+
 
