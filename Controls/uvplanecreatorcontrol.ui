@@ -25,17 +25,27 @@
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="0">
        <layout class="QGridLayout" name="gridLayout_3">
-        <item row="0" column="1">
-         <widget class="QDoubleSpinBox" name="spinParamU">
+        <item row="1" column="3">
+         <widget class="QSpinBox" name="spinParamUDens">
           <property name="minimum">
-           <double>0.100000000000000</double>
+           <number>4</number>
+          </property>
+          <property name="maximum">
+           <number>500</number>
           </property>
           <property name="value">
-           <double>1.000000000000000</double>
+           <number>4</number>
           </property>
          </widget>
         </item>
-        <item row="1" column="3">
+        <item row="3" column="2" colspan="2">
+         <widget class="QCheckBox" name="checkBox">
+          <property name="text">
+           <string>Pipe</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="3">
          <widget class="QSpinBox" name="spinParamVDens">
           <property name="minimum">
            <number>4</number>
@@ -44,32 +54,25 @@
            <number>250</number>
           </property>
           <property name="value">
-           <number>32</number>
+           <number>4</number>
           </property>
          </widget>
         </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label">
+        <item row="3" column="0" colspan="2">
+         <widget class="QPushButton" name="btnCreatePlain">
           <property name="text">
-           <string>U</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="2">
-         <widget class="QLabel" name="label_15">
-          <property name="text">
-           <string>Density</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           <string>Create Plane</string>
           </property>
          </widget>
         </item>
         <item row="1" column="2">
-         <widget class="QLabel" name="label_16">
+         <widget class="QLabel" name="label_15">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="text">
            <string>Density</string>
           </property>
@@ -79,6 +82,32 @@
          </widget>
         </item>
         <item row="1" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>U</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QLabel" name="label_16">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Density</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
          <widget class="QLabel" name="label_14">
           <property name="text">
            <string>V</string>
@@ -88,46 +117,63 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="3">
-         <widget class="QSpinBox" name="spinParamUDens">
+        <item row="0" column="1">
+         <widget class="QDoubleSpinBox" name="spinWidth">
           <property name="minimum">
-           <number>4</number>
-          </property>
-          <property name="maximum">
-           <number>500</number>
+           <double>1.000000000000000</double>
           </property>
           <property name="value">
-           <number>32</number>
+           <double>3.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <widget class="QDoubleSpinBox" name="spinHeight">
+          <property name="minimum">
+           <double>1.000000000000000</double>
+          </property>
+          <property name="value">
+           <double>2.000000000000000</double>
           </property>
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QDoubleSpinBox" name="spinParamV">
+         <widget class="QSpinBox" name="spinParamU">
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="value">
+           <number>3</number>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QSpinBox" name="spinParamV">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <sizepolicy hsizetype="Fixed" vsizetype="Minimum">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
           <property name="minimum">
-           <double>0.100000000000000</double>
+           <number>1</number>
           </property>
           <property name="value">
-           <double>1.000000000000000</double>
+           <number>2</number>
           </property>
          </widget>
         </item>
-        <item row="2" column="2" colspan="2">
-         <widget class="QCheckBox" name="checkBox">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_2">
           <property name="text">
-           <string>Pipe</string>
+           <string>Width</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="0" colspan="2">
-         <widget class="QPushButton" name="btnCreatePlain">
+        <item row="0" column="2">
+         <widget class="QLabel" name="label_3">
           <property name="text">
-           <string>Stwórz płaszczyznę</string>
+           <string>Height</string>
           </property>
          </widget>
         </item>

@@ -17,27 +17,35 @@ PlaneCreator::PlaneCreator(const QString &name, QVector3D pos) : IEntity(PLAIN_C
     m_mesh.p_Collection->SecondDimension = p_UVParams->U + 1;
 
     uNotifier = p_UVParams->U.addNotifier([this]()
-    {
-        m_mesh.p_Collection->SecondDimension = p_UVParams->U + 1;
-        CreateTempMesh();
-    });
+                                          {
+                                              m_mesh.p_Collection->SecondDimension = p_UVParams->U + 1;
+                                              CreateTempMesh();
+                                          });
     vNotifier = p_UVParams->V.addNotifier([this]()
-    {
-      CreateTempMesh();
-    });
+                                          {
+                                              CreateTempMesh();
+                                          });
+    wNotifier = p_UVParams->Width.addNotifier([this]()
+                                          {
+                                              CreateTempMesh();
+                                          });
+    hNotifier = p_UVParams->Height.addNotifier([this]()
+                                          {
+                                              CreateTempMesh();
+                                          });
 
     posNotifier = p_Transform->Position.addNotifier([this]()
-                                          {
-                                              CreateTempMesh();
-                                          });
+                                                    {
+                                                        CreateTempMesh();
+                                                    });
     rotNotifier = p_Transform->Rotation.addNotifier([this]()
-                                          {
-                                              CreateTempMesh();
-                                          });
+                                                    {
+                                                        CreateTempMesh();
+                                                    });
     scaleNotifier = p_Transform->Scale.addNotifier([this]()
-                                          {
-                                              CreateTempMesh();
-                                          });
+                                                   {
+                                                       CreateTempMesh();
+                                                   });
 
     CreateTempMesh();
 }
@@ -59,7 +67,8 @@ void PlaneCreator::CreatePoints(int w, int h, Plane p)
         for (int i = 0; i < h; ++i)
             for (int j = 0; j < w; ++j)
             {
-                auto p = std::make_shared<VirtualPoint>(QVector3D(j, 0, i)
+                auto p = std::make_shared<VirtualPoint>(
+                        QVector3D((float)j * p_UVParams->Width / p_UVParams->U, 0, (float)i * p_UVParams->Height / p_UVParams->V)
                         + p_Transform->Position);
                 points.push_back(p);
                 elements.emplace_back(p->p_CollectionAware);

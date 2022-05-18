@@ -18,10 +18,12 @@ public:
     ~UVPlaneCreatorControl() override;
 
 private slots:
-    void on_spinParamU_valueChanged(double arg1);
+    void on_spinParamU_valueChanged(int arg1);
     void on_spinParamUDens_valueChanged(int arg1);
-    void on_spinParamV_valueChanged(double arg1);
+    void on_spinParamV_valueChanged(int arg1);
     void on_spinParamVDens_valueChanged(int arg1);
+    void on_spinWidth_valueChanged(double arg1);
+    void on_spinHeight_valueChanged(double arg1);
 
     void on_checkBox_toggled(bool checked);
     void on_btnCreatePlain_clicked();
@@ -33,7 +35,8 @@ private:
     QPropertyNotifier m_vNotifier;
     QPropertyNotifier m_udNotifier;
     QPropertyNotifier m_vdNotifier;
-
+    QPropertyNotifier m_wNotifier;
+    QPropertyNotifier m_hNotifier;
 
 };
 

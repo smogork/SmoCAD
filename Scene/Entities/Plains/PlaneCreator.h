@@ -19,7 +19,7 @@ protected:
     class Mesh m_mesh;
     std::vector<std::shared_ptr<CollectionAware>> elements;
     std::vector<std::shared_ptr<VirtualPoint>> points;
-    QPropertyNotifier uNotifier, vNotifier;
+    QPropertyNotifier uNotifier, vNotifier, wNotifier, hNotifier;
     QPropertyNotifier posNotifier, rotNotifier, scaleNotifier;
 
 

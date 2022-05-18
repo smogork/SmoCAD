@@ -12,6 +12,8 @@ UVPlaneCreator::UVPlaneCreator(unsigned int oid) : IComponent(oid, UV_PLANE_CREA
     V = 1;
     UDensity = 32;
     VDensity = 16;
+    Width = 3;
+    Height = 2;
 }
 
 UVPlaneCreator::~UVPlaneCreator()
@@ -45,14 +47,14 @@ void UVPlaneCreator::UnregisterComponent()
 
 std::shared_ptr<PlainC0> UVPlaneCreator::CreatePlainC0(const QString &name)
 {
-    int width = (PATCH_SIZE - 1) * U + 1;
-    int height = (PATCH_SIZE - 1) * V + 1;
+    int index_width = (PATCH_SIZE - 1) * U + 1;
+    int index_height = (PATCH_SIZE - 1) * V + 1;
 
     //Uwtorz punkty budujace plaszczyzne i dodaj je do sceny
-    auto points = CreatePoints(name, width, height);
+    auto points = CreatePoints(name, index_width, index_height);
 
     //Dodaj punkty w odpowiedniej kolejnosci do plaszczyzny
-    auto plane = std::make_shared<PlainC0>(name, width, height);
+    auto plane = std::make_shared<PlainC0>(name, index_width, index_height);
 
     for (int j = 0; j < V; ++j)//height
         for (int i = 0; i < U; ++i)//width
@@ -81,8 +83,8 @@ std::vector<std::shared_ptr<Point>> UVPlaneCreator::CreatePoints(const QString &
             for (int j = 0; j < w; ++j)
             {
                 auto p = std::make_shared<Point>(QString("P_%0_%1%2").arg(name).arg(i).arg(j),
-                                                 QVector3D((float)j / (PATCH_SIZE - 1), 0,
-                                                           (float)i / (PATCH_SIZE - 1)) + m_transform->Position);
+                                                 QVector3D((float)j / (PATCH_SIZE - 1) * Width / U, 0,
+                                                           (float)i / (PATCH_SIZE - 1) * Height / V) + m_transform->Position);
                 res.emplace_back(p);
                 scene->AddObjectExplicitPosition(p);
             }

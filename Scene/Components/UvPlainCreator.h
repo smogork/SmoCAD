@@ -29,10 +29,11 @@ private:
     std::vector<std::shared_ptr<CollectionAware>>
     GetPointsForPatch(std::vector<std::shared_ptr<Point>>& points, int pi, int pj);
 public:
-    QProperty<float> U;
-    QProperty<float> V;
+    QProperty<int> U;
+    QProperty<int> V;
     QProperty<int> UDensity;
     QProperty<int> VDensity;
+    QProperty<double> Width, Height;
 
     explicit UVPlaneCreator(unsigned int oid);
     ~UVPlaneCreator() override;
