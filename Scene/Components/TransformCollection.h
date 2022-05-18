@@ -16,6 +16,7 @@ class TransformCollection: public IComponent
 {
     Q_OBJECT
 private:
+    bool m_locked = false;
     std::list<std::weak_ptr<Transform>> points;
     std::map<unsigned int, QPropertyNotifier> pointNotifiers;
 
@@ -40,6 +41,9 @@ public:
     void RemovePoint(unsigned int oid);
     void Clear();
     int Size();
+
+    bool IsContentLocked();
+    void LockContent();
 
     //const std::weak_ptr<Transform>& operator[](std::size_t idx) const;
     TransformCollection& operator=(const TransformCollection& other);

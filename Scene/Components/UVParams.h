@@ -13,6 +13,9 @@
 class UVParams: public IComponent
 {
     Q_OBJECT
+
+private:
+    bool m_locked = false;
 public:
     QProperty<float> U;
     QProperty<float> V;
@@ -24,6 +27,9 @@ public:
 
     static std::shared_ptr<UVParams> CreateRegisteredComponent(unsigned int oid, int U, int V);
     void UnregisterComponent();
+
+    bool IsUVLocked();
+    void LockEditUV();
 };
 
 

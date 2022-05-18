@@ -40,3 +40,13 @@ void UVParams::UnregisterComponent()
             system->Unregister(GetAttachedObjectID());
     }
 }
+
+void UVParams::LockEditUV()
+{
+    m_locked = true;
+}
+
+bool UVParams::IsUVLocked()
+{
+    return m_locked;
+}

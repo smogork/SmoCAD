@@ -63,10 +63,12 @@ std::shared_ptr<PlainC0> UVPlaneCreator::CreatePlainC0(const QString &name)
             for (const auto &p: patch_points)
                 plane->p_Collection->AddPoint(p);
         }
+    plane->p_Collection->LockContent();
 
     //przenies parametry UV do plaszczyzny
     plane->p_UV->UDensity = *UDensity;
     plane->p_UV->VDensity = *VDensity;
+    plane->p_UV->LockEditUV();
 
     if (auto scene = SceneECS::Instance().lock())
         scene->AddObject(plane);
