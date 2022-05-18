@@ -130,6 +130,7 @@
     </property>
     <addaction name="actionShow_Bezier_polygon"/>
     <addaction name="actionShow_BSpline_polygon"/>
+    <addaction name="actionShow_Bezier_mesh"/>
     <addaction name="separator"/>
     <addaction name="actionAnaglyphic_3D_view"/>
    </widget>
@@ -202,6 +203,14 @@
    </property>
    <property name="text">
     <string>Anaglyphic 3D view</string>
+   </property>
+  </action>
+  <action name="actionShow_Bezier_mesh">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Bezier mesh</string>
    </property>
   </action>
  </widget>

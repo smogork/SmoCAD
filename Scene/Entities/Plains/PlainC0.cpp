@@ -54,13 +54,25 @@ std::vector<float> PlainC0::GenerateGeometryVertices()
 std::vector<int> PlainC0::GenerateTopologyIndices()
 {
     std::vector<int> res(GetIndexCount());
-    std::iota (std::begin(res), std::end(res), 0);
+    int res_idx = 0;
+
+    int second_dim = (PATCH_SIZE - 1) * p_UV->U + 1;
+    for (int h = 0; h < p_UV->V; ++h)//height
+        for (int w = 0; w < p_UV->U; ++w)//width
+            for (int i = 0; i < PATCH_SIZE; ++i)//height
+                for (int j = 0; j < PATCH_SIZE; ++j)//width
+                {
+                    int wIdx = w * (PATCH_SIZE - 1) + j;
+                    int hIdx = h * (PATCH_SIZE - 1) + i;
+                    res[res_idx++] = hIdx * second_dim + wIdx;
+                }
+
     return res;
 }
 
 int PlainC0::GetIndexCount()
 {
-    return p_Collection->Size();
+    return PATCH_SIZE * PATCH_SIZE * p_UV->U * p_UV->V;
 }
 
 void PlainC0::InitializeDrawing()

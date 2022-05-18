@@ -70,6 +70,7 @@ void PlaneCreator::CreatePoints(int w, int h, Plane p)
                 auto p = std::make_shared<VirtualPoint>(
                         QVector3D((float)j * p_UVParams->Width / p_UVParams->U, 0, (float)i * p_UVParams->Height / p_UVParams->V)
                         + p_Transform->Position);
+                p->p_Transform->Locked = true;
                 points.push_back(p);
                 elements.emplace_back(p->p_CollectionAware);
             }

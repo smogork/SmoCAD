@@ -56,13 +56,10 @@ std::shared_ptr<PlainC0> UVPlaneCreator::CreatePlainC0(const QString &name)
     //Dodaj punkty w odpowiedniej kolejnosci do plaszczyzny
     auto plane = std::make_shared<PlainC0>(name, index_width, index_height);
 
-    for (int j = 0; j < V; ++j)//height
-        for (int i = 0; i < U; ++i)//width
-        {
-            auto patch_points = GetPointsForPatch(points, i, j);
-            for (const auto &p: patch_points)
-                plane->p_Collection->AddPoint(p);
-        }
+    std::vector<std::shared_ptr<CollectionAware>> elems(points.size());
+    for (int i = 0; i < elems.size(); ++i)
+        elems[i] = points[i]->p_CollectionAware;
+    plane->p_Collection->SetPoints(elems);
     plane->p_Collection->LockContent();
 
     //przenies parametry UV do plaszczyzny

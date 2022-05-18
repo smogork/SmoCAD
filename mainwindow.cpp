@@ -167,3 +167,10 @@ void MainWindow::on_actionAnaglyphic_3D_view_toggled(bool arg1)
     ui->sceneWidget->update();
 }
 
+
+void MainWindow::on_actionShow_Bezier_mesh_triggered(bool checked)
+{
+    Options::DrawPlainMesh = checked;
+    ui->sceneWidget->update();
+}
+

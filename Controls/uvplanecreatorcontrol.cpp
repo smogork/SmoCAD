@@ -4,6 +4,7 @@
 
 UVPlaneCreatorControl::~UVPlaneCreatorControl()
 {
+    m_uv.reset();
     delete ui;
 }
 
@@ -26,8 +27,8 @@ UVPlaneCreatorControl::UVPlaneCreatorControl(std::shared_ptr<UVPlaneCreator> uv,
     m_vNotifier = m_uv->V.addNotifier([this]() {if (this->ignoreNotifier) return; this->ui->spinParamV->setValue(m_uv->V); });
     m_udNotifier = m_uv->UDensity.addNotifier([this]() {if (this->ignoreNotifier) return; this->ui->spinParamUDens->setValue(m_uv->UDensity); });
     m_vdNotifier = m_uv->VDensity.addNotifier([this]() {if (this->ignoreNotifier) return; this->ui->spinParamVDens->setValue(m_uv->VDensity); });
-    m_wNotifier = m_uv->U.addNotifier([this]() {if (this->ignoreNotifier) return; this->ui->spinWidth->setValue(m_uv->Width); });
-    m_hNotifier = m_uv->V.addNotifier([this]() {if (this->ignoreNotifier) return; this->ui->spinHeight->setValue(m_uv->Height); });
+    m_wNotifier = m_uv->Width.addNotifier([this]() {if (this->ignoreNotifier) return; this->ui->spinWidth->setValue(m_uv->Width); });
+    m_hNotifier = m_uv->Height.addNotifier([this]() {if (this->ignoreNotifier) return; this->ui->spinHeight->setValue(m_uv->Height); });
 }
 
 void UVPlaneCreatorControl::on_spinParamU_valueChanged(int arg1)

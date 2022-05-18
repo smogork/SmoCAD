@@ -43,6 +43,7 @@ private slots:
 
     void on_actionShow_Bezier_polygon_toggled(bool arg1);
     void on_actionShow_BSpline_polygon_toggled(bool arg1);
+    void on_actionShow_Bezier_mesh_triggered(bool checked);
     void on_actionAnaglyphic_3D_view_toggled(bool arg1);
 };
 #endif // MAINWINDOW_H

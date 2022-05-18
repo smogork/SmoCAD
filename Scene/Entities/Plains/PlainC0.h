@@ -15,6 +15,9 @@
 #include "Scene/Entities/Points/Point.h"
 #include "Scene/Components/UVParams.h"
 
+
+#define PATCH_SIZE 4
+
 class PlainC0: public IEntity
 {
 Q_OBJECT

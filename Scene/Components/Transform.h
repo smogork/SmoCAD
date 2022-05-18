@@ -14,10 +14,10 @@ class Transform: public IComponent
 {
     Q_OBJECT
 public:
-    QProperty<bool> Locked;
-    QBindable<QVector3D> Position;
-    QBindable<QVector3D> Rotation;
-    QBindable<QVector3D> Scale;
+    bool Locked = false;
+    QProperty<QVector3D> Position;
+    QProperty<QVector3D> Rotation;
+    QProperty<QVector3D> Scale;
 
     static QVector3D GetXAxis() { return {1.0, 0.0, 0.0}; }
     static QVector3D GetYAxis() { return {0.0, 1.0, 0.0}; }
@@ -32,6 +32,8 @@ public:
 
     virtual QMatrix4x4 GetModelMatrix();
     void DecomposeTransformations(QMatrix4x4 transform);
+
+    void SetPosition(QVector3D pos);
 };
 
 
