@@ -18,7 +18,10 @@ PlaneCreator::PlaneCreator(const QString &name, QVector3D pos) : IEntity(PLAIN_C
 
     uNotifier = p_UVParams->U.addNotifier([this]()
                                           {
-                                              m_mesh.p_Collection->SecondDimension = p_UVParams->U + 1;
+                                                if (p_UVParams->IsPipe)
+                                                    m_mesh.p_Collection->SecondDimension = p_UVParams->U;
+                                                else
+                                                    m_mesh.p_Collection->SecondDimension = p_UVParams->U + 1;
                                               CreateTempMesh();
                                           });
     vNotifier = p_UVParams->V.addNotifier([this]()
@@ -35,6 +38,10 @@ PlaneCreator::PlaneCreator(const QString &name, QVector3D pos) : IEntity(PLAIN_C
                                           });
     pipeNotifier = p_UVParams->IsPipe.addNotifier([this]()
                                                {
+                                                   if (p_UVParams->IsPipe)
+                                                       m_mesh.p_Collection->SecondDimension = p_UVParams->U;
+                                                   else
+                                                       m_mesh.p_Collection->SecondDimension = p_UVParams->U + 1;
                                                    m_mesh.IsPipe = p_UVParams->IsPipe;
                                                    CreateTempMesh();
                                                });
@@ -58,7 +65,10 @@ PlaneCreator::PlaneCreator(const QString &name, QVector3D pos) : IEntity(PLAIN_C
 void PlaneCreator::CreateTempMesh()
 {
     m_mesh.p_Collection->Clear();
-    CreatePoints(p_UVParams->U + 1, p_UVParams->V + 1);
+    if (p_UVParams->IsPipe)
+        CreatePoints(p_UVParams->U, p_UVParams->V + 1);
+    else
+        CreatePoints(p_UVParams->U + 1, p_UVParams->V + 1);
     m_mesh.p_Collection->SetPoints(elements);
 }
 
@@ -76,7 +86,7 @@ void PlaneCreator::CreatePoints(int w, int h, Plane p)
                 if (p_UVParams->IsPipe)
                     pos = QVector3D(p_UVParams->Width * cos(2 * M_PIf * j / w),
                                               p_UVParams->Width * sin(2 * M_PIf * j / w),
-                                              (float) i / (PATCH_SIZE - 1) * p_UVParams->Height / p_UVParams->V);
+                                    (float)i * p_UVParams->Height / p_UVParams->V);
                 else
                     pos = QVector3D((float)j * p_UVParams->Width / p_UVParams->U, 0, (float)i * p_UVParams->Height / p_UVParams->V);
 

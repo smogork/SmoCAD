@@ -49,7 +49,7 @@ public:
     QProperty<QColor> MeshColor;
     QProperty<QColor> PlainColor;
 
-    PlainC0(const QString& name, int width, int height);
+    PlainC0(const QString& name, bool isPipe, int width, int height);
 };
 
 #endif //SMOCAD_PLAINC0_H

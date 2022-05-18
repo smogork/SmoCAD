@@ -7,13 +7,17 @@
 #include "Scene/Utilities/Utilites.h"
 #include "Scene/SceneECS.h"
 
-PlainC0::PlainC0(const QString& name, int width, int height): IEntity(PLAINC0_CLASS)
+PlainC0::PlainC0(const QString& name, bool isPipe, int width, int height): IEntity(PLAINC0_CLASS)
 {
     AddComponent(p_Drawing = DynamicDrawing::CreateRegisteredComponent(objectID));
     AddComponent(p_Collection = TransformCollection::CreateRegisteredComponent(objectID));
     AddComponent(p_Selected = Selectable::CreateRegisteredComponent(objectID));
     AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(objectID, name, p_Selected));
-    AddComponent(p_UV = UVParams::CreateRegisteredComponent(objectID, (width - 1)/3.0f, (height - 1)/3.0f));
+    if (isPipe)
+        AddComponent(p_UV = UVParams::CreateRegisteredComponent(objectID, width/3.0f, (height - 1)/3.0f));
+    else
+        AddComponent(p_UV = UVParams::CreateRegisteredComponent(objectID, (width - 1)/3.0f, (height - 1)/3.0f));
+    p_UV->UWraps = isPipe;
 
     p_Collection->SecondDimension = m_mesh.p_Collection->SecondDimension = width;
     InitializeDrawing();
@@ -67,6 +71,8 @@ std::vector<int> PlainC0::GenerateTopologyIndices()
     int res_idx = 0;
 
     int second_dim = (PATCH_SIZE - 1) * p_UV->U + 1;
+    if (p_UV->UWraps)
+        second_dim--;
     for (int h = 0; h < p_UV->V; ++h)//height
         for (int w = 0; w < p_UV->U; ++w)//width
             for (int i = 0; i < PATCH_SIZE; ++i)//height
@@ -74,7 +80,7 @@ std::vector<int> PlainC0::GenerateTopologyIndices()
                 {
                     int wIdx = w * (PATCH_SIZE - 1) + j;
                     int hIdx = h * (PATCH_SIZE - 1) + i;
-                    res[res_idx++] = hIdx * second_dim + wIdx;
+                    res[res_idx++] = hIdx * second_dim + (wIdx % second_dim);
                 }
 
     return res;
