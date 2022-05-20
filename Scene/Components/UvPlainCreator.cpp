@@ -91,7 +91,7 @@ std::vector<std::shared_ptr<Point>> UVPlaneCreator::CreatePoints(const QString &
                     QVector3D pos = QVector3D(Width * cos(2 * M_PIf * j / w), Width * sin(2 * M_PIf * j / w),
                                               (float) i / (PATCH_SIZE - 1) * Height / V);
                     p = std::make_shared<Point>(pName, pos + m_transform->Position);
-                    p->p_Transform->Locked = true;
+                    //p->p_Transform->Locked = true;
                 } else
                     p = std::make_shared<Point>(pName, QVector3D((float) j / (PATCH_SIZE - 1) * Width / U, 0,
                                                                  (float) i / (PATCH_SIZE - 1) * Height / V) +

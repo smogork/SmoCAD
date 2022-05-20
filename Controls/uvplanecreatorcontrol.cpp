@@ -21,6 +21,7 @@ UVPlaneCreatorControl::UVPlaneCreatorControl(std::shared_ptr<UVPlaneCreator> uv,
     this->ui->spinParamVDens->setValue(m_uv->VDensity);
     this->ui->spinWidth->setValue(m_uv->Width);
     this->ui->spinHeight->setValue(m_uv->Height);
+    this->ui->checkBox->setChecked(m_uv->IsPipe);
     ignoreValueChanged = false;
 
     m_uNotifier = m_uv->U.addNotifier([this]() {if (this->ignoreNotifier) return; this->ui->spinParamU->setValue(m_uv->U); });
