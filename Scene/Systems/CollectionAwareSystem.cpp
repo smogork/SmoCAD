@@ -24,9 +24,13 @@ CollectionAwareSystem::CreateContextMenuForSceneElement(unsigned int contextOid,
 
     if (auto scene = SceneECS::Instance().lock())
     {
-        if (scene->IsObjectInSystem<TransformCollectionSystem>(selectedOid))
-            res.emplace_back(std::make_pair("Add object to collection",
-                                            ASSIGN_CONTEXT_FUNCTION(&CollectionAwareSystem::AddObjectToCollection)));
+        if (auto col = scene->GetComponentOfSystem<TransformCollectionSystem, TransformCollection>(selectedOid).lock())
+        {
+            if (!col->IsContentLocked())
+                res.emplace_back(std::make_pair("Add object to collection",
+                                                ASSIGN_CONTEXT_FUNCTION(
+                                                        &CollectionAwareSystem::AddObjectToCollection)));
+        }
     }
 
     return res;

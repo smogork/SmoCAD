@@ -26,9 +26,7 @@ void TransformCollection::UnregisterComponent()
 }
 
 TransformCollection::TransformCollection(unsigned int oid) : IComponent(oid, TRANSFORM_COLLECTION)
-{
-
-}
+{ }
 
 TransformCollection::~TransformCollection()
 {
@@ -51,21 +49,25 @@ void TransformCollection::ConnectSignals(std::shared_ptr<Transform> p)
         return;
 
     std::weak_ptr<Transform> weakP = p;
-    pointNotifiers.insert(std::make_pair(p->GetAttachedObjectID(), p->Position.addNotifier([this, weakP]()
-                                                                                           {
-                                                                                               if (auto p = weakP.lock())
-                                                                                               {
-                                                                                                   emit this->SinglePointChanged(
-                                                                                                           p->Position,
-                                                                                                           p->GetAttachedObjectID());
-                                                                                               }
-                                                                                           })));
+    pointNotifiers.insert(std::make_pair(p->GetAttachedObjectID(),
+    p->Position.addNotifier([this, weakP]()
+    {
+       if (auto p = weakP.lock())
+       {
+           emit this->SinglePointChanged(
+                   p->Position,
+                   p->GetAttachedObjectID());
+       }
+    })));
 
     connect(p.get(), &IComponent::ComponentDeleted, this, &TransformCollection::PointFromCollectionHasBeenDeleted);
 }
 
 void TransformCollection::Clear()
 {
+    if (points.size() == 0)
+        return;
+
     pointNotifiers.clear();
     points.clear();
     //disconnect(nullptr, &IComponent::ComponentDeleted, this, &TransformCollection::PointFromCollectionHasBeenDeleted);
@@ -150,6 +152,7 @@ void TransformCollection::PointFromCollectionHasBeenDeleted(unsigned int deleted
                      });
     pointNotifiers.erase(oid);
     emit PointInCollectionModified();
+    emit PointDeleted();
 }
 
 void TransformCollection::SetPoints(std::vector<std::shared_ptr<CollectionAware>> newPoints)
@@ -164,4 +167,14 @@ void TransformCollection::SetPoints(std::vector<std::shared_ptr<CollectionAware>
     }
 
     emit PointInCollectionModified();
+}
+
+void TransformCollection::LockContent()
+{
+    m_locked = true;
+}
+
+bool TransformCollection::IsContentLocked()
+{
+    return m_locked;
 }

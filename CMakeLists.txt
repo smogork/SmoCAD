@@ -30,6 +30,10 @@ set(SHADER_FILES
         Shaders/bezier.tess
         Shaders/bezier.eval
         Shaders/bezier.frag
+        Shaders/plain.vert
+        Shaders/plain.tess
+        Shaders/plain.eval
+        Shaders/plain.frag
         )
 
 set(MATH_FILES
@@ -50,6 +54,7 @@ set(CONTROL_SOURCES
         Controls/ListElements/QListWidgetSceneElement.cpp Controls/ListElements/QListWidgetSceneElement.h
         Controls/ListElements/QListWidgetCollectionElement.cpp Controls/ListElements/QListWidgetCollectionElement.h
         Controls/stereoscopicconfig.h Controls/stereoscopicconfig.cpp Controls/stereoscopicconfig.ui
+        Controls/uvplanecreatorcontrol.h Controls/uvplanecreatorcontrol.cpp Controls/uvplanecreatorcontrol.ui
     )
 
 set(PROJECT_SOURCES
@@ -113,7 +118,9 @@ set(PROJECT_SOURCES
         Scene/Entities/Points/InvisiblePoint.cpp Scene/Entities/Points/InvisiblePoint.h
         Renderer/InputController/InputEvents/ObjectMoveEvent.cpp Renderer/InputController/InputEvents/ObjectMoveEvent.h
         Controls/CustomQListWidget.cpp Controls/CustomQListWidget.h
-        Renderer/Camera/StereoscopicParameters.cpp Renderer/Camera/StereoscopicParameters.h)
+        Renderer/Camera/StereoscopicParameters.cpp Renderer/Camera/StereoscopicParameters.h
+        Scene/Entities/Plains/PlainC0.cpp Scene/Entities/Plains/PlainC0.h
+        Scene/Entities/Mesh.cpp Scene/Entities/Mesh.h Scene/Entities/Plains/PlaneCreator.cpp Scene/Entities/Plains/PlaneCreator.h Scene/Systems/UvPlaneCreatorSystem.cpp Scene/Systems/UvPlaneCreatorSystem.h Scene/Components/UvPlainCreator.cpp Scene/Components/UvPlainCreator.h)
 
 add_subdirectory(Tests)
 

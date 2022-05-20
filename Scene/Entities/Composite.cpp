@@ -86,7 +86,7 @@ void Composite::AddObject(std::shared_ptr<CompositeAware> newObject)
 
 void Composite::UpdateCompositeElements()
 {
-    m_center->p_Transform->Position = p_Transform->Position.value();
+    m_center->p_Transform->SetPosition(p_Transform->Position.value());
     m_center->p_Transform->Rotation = p_Transform->Rotation.value();
     m_center->p_Transform->Scale = p_Transform->Scale.value() / 3;
 

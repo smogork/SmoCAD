@@ -11,7 +11,6 @@ void DrawingSystem::Render(QOpenGLContext* context)
         StereoscopyRender(context);
     else
         PlainRender(context);
-
 }
 
 void DrawingSystem::PlainRender(QOpenGLContext* context)

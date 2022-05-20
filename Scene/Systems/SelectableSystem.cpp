@@ -93,7 +93,7 @@ void SelectableSystem::OnSelectedMoveRequest(std::shared_ptr<ObjectMoveEvent> ev
             //Rowiąż równanie raycastingu do prostej wysłanej z ekranu aby wyznaczyć nowe położenie obiektu
             float t = -QVector4D::dotProduct(objPlain, event->RaycastStart) /
                       QVector4D::dotProduct(objPlain, event->RaycastDirection);
-            selectedTransform->Position = (event->RaycastDirection * t + event->RaycastStart).toVector3D();
+            selectedTransform->SetPosition((event->RaycastDirection * t + event->RaycastStart).toVector3D());
         }
     }
 }

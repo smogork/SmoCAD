@@ -120,6 +120,8 @@
      <addaction name="actionBezierC0"/>
      <addaction name="actionBezierC2"/>
      <addaction name="actionInterpolationC2"/>
+     <addaction name="separator"/>
+     <addaction name="actionPlaneC0"/>
     </widget>
     <addaction name="menuAdd"/>
     <addaction name="separator"/>
@@ -130,6 +132,7 @@
     </property>
     <addaction name="actionShow_Bezier_polygon"/>
     <addaction name="actionShow_BSpline_polygon"/>
+    <addaction name="actionShow_Bezier_mesh"/>
     <addaction name="separator"/>
     <addaction name="actionAnaglyphic_3D_view"/>
    </widget>
@@ -202,6 +205,19 @@
    </property>
    <property name="text">
     <string>Anaglyphic 3D view</string>
+   </property>
+  </action>
+  <action name="actionShow_Bezier_mesh">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Bezier mesh</string>
+   </property>
+  </action>
+  <action name="actionPlaneC0">
+   <property name="text">
+    <string>PlaneC0</string>
    </property>
   </action>
  </widget>

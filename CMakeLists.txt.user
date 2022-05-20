@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 7.0.0, 2022-04-24T00:13:57. -->
+<!-- Written by QtCreator 7.0.1, 2022-05-18T16:03:46. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -73,6 +73,7 @@
     <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/InterpolationC2Test.cpp:CollinearDistinctPointsY">Checked</value>
     <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/InterpolationC2Test.cpp:CollinearDistinctPointsZ">Checked</value>
     <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/InterpolationC2Test.cpp:DistinctPoints">Checked</value>
+    <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/InterpolationC2Test.cpp:DistinctPoints2">Checked</value>
     <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/InterpolationC2Test.cpp:InterpolationC2Test">Checked</value>
     <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/InterpolationC2Test.cpp:RepeatedFirstPointC0">Checked</value>
     <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/InterpolationC2Test.cpp:RepeatedFirstPointC1">Checked</value>

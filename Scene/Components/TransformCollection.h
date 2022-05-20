@@ -16,6 +16,7 @@ class TransformCollection: public IComponent
 {
     Q_OBJECT
 private:
+    bool m_locked = false;
     std::list<std::weak_ptr<Transform>> points;
     std::map<unsigned int, QPropertyNotifier> pointNotifiers;
 
@@ -26,6 +27,8 @@ private slots:
     void PointFromCollectionHasBeenDeleted(unsigned int deletedOid);
 
 public:
+    int SecondDimension = 0;
+
     static std::shared_ptr<TransformCollection> CreateRegisteredComponent(unsigned int oid);
     void UnregisterComponent();
 
@@ -39,6 +42,9 @@ public:
     void Clear();
     int Size();
 
+    bool IsContentLocked();
+    void LockContent();
+
     //const std::weak_ptr<Transform>& operator[](std::size_t idx) const;
     TransformCollection& operator=(const TransformCollection& other);
 
@@ -46,6 +52,7 @@ signals:
     //Sygnal informuje o zmianie polozenia pewnego punktu w kolekcji
     void PointInCollectionModified();
     void SinglePointChanged(QVector3D position, unsigned int changedOID);
+    void PointDeleted();
 };
 
 

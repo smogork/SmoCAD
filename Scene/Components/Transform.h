@@ -14,6 +14,7 @@ class Transform: public IComponent
 {
     Q_OBJECT
 public:
+    bool Locked = false;
     QProperty<QVector3D> Position;
     QProperty<QVector3D> Rotation;
     QProperty<QVector3D> Scale;
@@ -31,6 +32,8 @@ public:
 
     virtual QMatrix4x4 GetModelMatrix();
     void DecomposeTransformations(QMatrix4x4 transform);
+
+    void SetPosition(QVector3D pos);
 };
 
 

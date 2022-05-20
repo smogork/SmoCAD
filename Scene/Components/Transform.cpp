@@ -30,6 +30,9 @@ QMatrix4x4 Transform::GetModelMatrix()
 
 void Transform::DecomposeTransformations(QMatrix4x4 transform)
 {
+    if (Locked)
+        return;
+
     Qt3DCore::QTransform test;
     test.setMatrix(transform);
     Position = test.translation();
@@ -63,6 +66,13 @@ std::shared_ptr<Transform>  Transform::CreateRegisteredComponent(unsigned int oi
         }
     }
     return nullptr;
+}
+
+void Transform::SetPosition(QVector3D pos)
+{
+    if (Locked)
+        return;
+    Position = pos;
 }
 
 

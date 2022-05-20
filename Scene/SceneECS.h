@@ -17,6 +17,8 @@
 #include "Scene/Entities/Composite.h"
 #include "Scene/Systems/SceneElementSystem.h"
 #include "Controls/ListElements/QListWidgetSceneElement.h"
+#include "Scene/Entities/Mesh.h"
+#include "Scene/Entities/Points/Point.h"
 
 class SceneECS : public QObject
 {
@@ -61,6 +63,8 @@ public:
 
     void AddObject(std::shared_ptr<IEntity> obj);
 
+    void AddObjectExplicitPosition(std::shared_ptr<IEntity> obj);
+
     void RemoveObject(unsigned int oid);
 
     std::list<std::unique_ptr<ComponentControl>> CreateUIForObject(unsigned int oid);
@@ -94,7 +98,6 @@ private:
     SceneECS();
 
     void InitUniqueObjects();
-
     void InitSceneObjects();
 
     void UpdateCursorObject(QVector3D cursorPos);
