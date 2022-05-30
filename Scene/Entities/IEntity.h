@@ -35,6 +35,7 @@ class IEntity: public QObject
     Q_OBJECT
 private:
     TypeMap<std::shared_ptr<IComponent>> m_components;
+    bool m_deleted = false;
 
 protected:
     unsigned int objectID;
@@ -57,6 +58,7 @@ public:
 
     unsigned int GetObjectID();
     unsigned int GetClassID();
+    bool IsDeleted () { return m_deleted; }
 
     template <typename C>
     std::weak_ptr<C> GetComponent()

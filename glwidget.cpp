@@ -90,18 +90,17 @@ void GLWidget::LoadShaders()
     Renderer::AddShader(CURSOR_SHADER,
                         std::make_shared<ShaderWrapper>("Shaders/buffer_color.vert", "Shaders/simple_color.frag"));//cursor
     Renderer::AddShader(BEZIER_SHADER,
-                        std::make_shared<ShaderWrapper>("Shaders/bezier.vert", "Shaders/bezier.frag",
-                                    "Shaders/bezier.tess", "Shaders/bezier.eval"));//bezier
+                        std::make_shared<ShaderWrapper>("Shaders/Curves/bezier.vert", "Shaders/Curves/bezier.frag",
+                                                        "Shaders/Curves/bezier.tess", "Shaders/Curves/bezier.eval"));
     Renderer::AddShader(BEZIERC2_SHADER,
-                        std::make_shared<ShaderWrapper>("Shaders/bezierC2.vert", "Shaders/bezierC2.frag",
-                                                        "Shaders/bezierC2.tess", "Shaders/bezierC2.eval"));//bezierc2
-    Renderer::AddShader(PLAIN_SHADER,
-                        std::make_shared<ShaderWrapper>("Shaders/plain.vert", "Shaders/plain.frag",
-                                                        "Shaders/plain.tess", "Shaders/plain.eval"));//bezier
-
-    Renderer::GetShader(SHADERS::BEZIER_SHADER).lock()->GetRawProgram()->setPatchVertexCount(4);
-    Renderer::GetShader(SHADERS::BEZIERC2_SHADER).lock()->GetRawProgram()->setPatchVertexCount(4);
-    //Renderer::GetShader(SHADERS::PLAIN_SHADER).lock()->GetRawProgram()->setPatchVertexCount(16);
+                        std::make_shared<ShaderWrapper>("Shaders/Curves/bezierC2.vert", "Shaders/Curves/bezierC2.frag",
+                                                        "Shaders/Curves/bezierC2.tess", "Shaders/Curves/bezierC2.eval"));
+    Renderer::AddShader(PLANE_SHADER,
+                        std::make_shared<ShaderWrapper>("Shaders/Planes/plane.vert", "Shaders/Planes/plane.frag",
+                                                        "Shaders/Planes/plane.tess", "Shaders/Planes/plane.eval"));
+    Renderer::AddShader(PLANEC2_SHADER,
+                        std::make_shared<ShaderWrapper>("Shaders/Planes/planeC2.vert", "Shaders/Planes/planeC2.frag",
+                                                        "Shaders/Planes/planeC2.tess", "Shaders/Planes/planeC2.eval"));
 }
 
 void GLWidget::RedrawScreen()

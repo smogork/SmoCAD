@@ -10,7 +10,7 @@
 #include "Scene/Entities/Mesh.h"
 #include "Scene/Components/UVParams.h"
 #include "Scene/Entities/Points/VirtualPoint.h"
-#include "Scene/Components/UvPlainCreator.h"
+#include "Scene/Components/UvPlaneCreator.h"
 
 class PlaneCreator: public IEntity
 {

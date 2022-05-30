@@ -12,7 +12,7 @@
 
 #include "Renderer/Options.h"
 #include "Scene/Entities/Curves/InterpolationC2.h"
-#include "Scene/Entities/Plains/PlaneCreator.h"
+#include "Scene/Entities/Planes/PlaneCreator.h"
 
 MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent), ui(new Ui::MainWindow)

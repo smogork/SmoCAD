@@ -2,9 +2,10 @@
 // Created by ksm on 5/17/22.
 //
 
-#include "UvPlainCreator.h"
+#include "UvPlaneCreator.h"
 #include "Scene/SceneECS.h"
 #include "Scene/Systems/UvPlaneCreatorSystem.h"
+#include "Scene/Entities/Planes/PlaneC0.h"
 
 UVPlaneCreator::UVPlaneCreator(unsigned int oid) : IComponent(oid, UV_PLANE_CREATOR)
 {
@@ -45,7 +46,7 @@ void UVPlaneCreator::UnregisterComponent()
     }
 }
 
-std::shared_ptr<PlainC0> UVPlaneCreator::CreatePlainC0(const QString &name)
+std::shared_ptr<PlaneC0> UVPlaneCreator::CreatePlainC0(const QString &name)
 {
     int index_width = (PATCH_SIZE - 1) * U + 1;
     int index_height = (PATCH_SIZE - 1) * V + 1;
@@ -57,7 +58,7 @@ std::shared_ptr<PlainC0> UVPlaneCreator::CreatePlainC0(const QString &name)
     auto points = CreatePoints(name, index_width, index_height);
 
     //Dodaj punkty w odpowiedniej kolejnosci do plaszczyzny
-    auto plane = std::make_shared<PlainC0>(name, IsPipe, index_width, index_height);
+    auto plane = std::make_shared<PlaneC0>(name, IsPipe, index_width, index_height);
 
     std::vector<std::shared_ptr<CollectionAware>> elems(points.size());
     for (int i = 0; i < elems.size(); ++i)

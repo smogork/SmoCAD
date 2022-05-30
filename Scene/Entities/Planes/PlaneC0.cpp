@@ -2,12 +2,12 @@
 // Created by ksm on 5/14/22.
 //
 
-#include "PlainC0.h"
+#include "PlaneC0.h"
 #include "Renderer/Options.h"
 #include "Scene/Utilities/Utilites.h"
 #include "Scene/SceneECS.h"
 
-PlainC0::PlainC0(const QString& name, bool isPipe, int width, int height): IEntity(PLAINC0_CLASS)
+PlaneC0::PlaneC0(const QString& name, bool isPipe, int width, int height): IEntity(PLAINC0_CLASS)
 {
     AddComponent(p_Drawing = DynamicDrawing::CreateRegisteredComponent(objectID));
     AddComponent(p_Collection = TransformCollection::CreateRegisteredComponent(objectID));
@@ -22,11 +22,11 @@ PlainC0::PlainC0(const QString& name, bool isPipe, int width, int height): IEnti
     p_Collection->SecondDimension = m_mesh.p_Collection->SecondDimension = width;
     InitializeDrawing();
     QObject::connect(p_Collection.get(), &TransformCollection::PointInCollectionModified,
-                     this, &PlainC0::OnCollectionModified);
+                     this, &PlaneC0::OnCollectionModified);
     QObject::connect(p_Collection.get(), &TransformCollection::SinglePointChanged,
-                     this, &PlainC0::OnSinglePointModified);
+                     this, &PlaneC0::OnSinglePointModified);
     QObject::connect(p_Collection.get(), &TransformCollection::PointDeleted,
-                     this, &PlainC0::PointRemovedFromCollection);
+                     this, &PlaneC0::PointRemovedFromCollection);
 
     selectedNotifier = p_Selected->Selected.addNotifier([this]() {
         if (p_Selected->Selected)
@@ -49,14 +49,14 @@ PlainC0::PlainC0(const QString& name, bool isPipe, int width, int height): IEnti
 }
 
 
-PlainC0::~PlainC0()
+PlaneC0::~PlaneC0()
 {
     for(const auto& el : p_Collection->GetPoints())
         if (auto p = el.lock())
             p->Locked = false;//jakby byla potrzeba lockowania przez wiele obiektow to mozna oddac licznik blokad i kazde uzycie bedzie zmieniac o jeden ten licznik
 }
 
-std::vector<float> PlainC0::GenerateGeometryVertices()
+std::vector<float> PlaneC0::GenerateGeometryVertices()
 {
     std::vector<float> res (3 * p_Collection->Size());
 
@@ -73,7 +73,7 @@ std::vector<float> PlainC0::GenerateGeometryVertices()
     return res;
 }
 
-std::vector<int> PlainC0::GenerateTopologyIndices()
+std::vector<int> PlaneC0::GenerateTopologyIndices()
 {
     std::vector<int> res(GetIndexCount());
     int res_idx = 0;
@@ -94,55 +94,57 @@ std::vector<int> PlainC0::GenerateTopologyIndices()
     return res;
 }
 
-int PlainC0::GetIndexCount()
+int PlaneC0::GetIndexCount()
 {
     return PATCH_SIZE * PATCH_SIZE * p_UV->U * p_UV->V;
 }
 
-void PlainC0::InitializeDrawing()
+void PlaneC0::InitializeDrawing()
 {
     p_Drawing->SetVertexData(GenerateGeometryVertices());
     p_Drawing->SetIndexData(GenerateTopologyIndices());
     p_Drawing->p_bufferLayout.Push<float>(3);//position
-    if (auto sh = Renderer::GetShader(PLAIN_SHADER).lock())
+    if (auto sh = Renderer::GetShader(PLANE_SHADER).lock())
         p_Drawing->AttachShader(sh);
 
-    p_Drawing->p_renderingFunction = ASSIGN_DRAWING_FUNCTION(&PlainC0::DrawingFunction);
-    p_Drawing->p_uniformFunction = ASSIGN_UNIFORM_FUNCTION(&PlainC0::UniformFunction);
+    p_Drawing->p_renderingFunction = ASSIGN_DRAWING_FUNCTION(&PlaneC0::DrawingFunction);
+    p_Drawing->p_uniformFunction = ASSIGN_UNIFORM_FUNCTION(&PlaneC0::UniformFunction);
 }
 
-void PlainC0::DrawingFunction(QOpenGLContext *context)
+void PlaneC0::DrawingFunction(QOpenGLContext *context)
 {
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE );
     Renderer::DrawPatches(context->functions(), GetIndexCount());
 }
 
-void PlainC0::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
+void PlaneC0::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
 {
     shader->SetUniform("u_ObjectColor", ColorToVector4D(PlainColor));
     shader->SetUniform("u_MVP.Model", QMatrix4x4());
     shader->SetUniform("u_UDensity", p_UV->UDensity);
     shader->SetUniform("u_VDensity", p_UV->VDensity);
+    shader->GetRawProgram()->setPatchVertexCount(16);
 }
 
-void PlainC0::OnSinglePointModified(QVector3D pos, unsigned int changedOID)
+void PlaneC0::OnSinglePointModified(QVector3D pos, unsigned int changedOID)
 {
     p_Drawing->SetVertexData(GenerateGeometryVertices());
     p_Drawing->SetIndexData(GenerateTopologyIndices());
     (*m_mesh.p_Collection) = (*p_Collection);
 }
 
-void PlainC0::OnCollectionModified()
+void PlaneC0::OnCollectionModified()
 {
     p_Drawing->SetVertexData(GenerateGeometryVertices());
     p_Drawing->SetIndexData(GenerateTopologyIndices());
     (*m_mesh.p_Collection) = (*p_Collection);
 }
 
-void PlainC0::PointRemovedFromCollection()
+void PlaneC0::PointRemovedFromCollection()
 {
-    if (auto scene = SceneECS::Instance().lock())
-        scene->RemoveObject(GetObjectID());
+    if (!IsDeleted())
+        if (auto scene = SceneECS::Instance().lock())
+            scene->RemoveObject(GetObjectID());
 }
 
 

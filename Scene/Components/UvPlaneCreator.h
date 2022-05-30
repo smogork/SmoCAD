@@ -2,12 +2,12 @@
 // Created by ksm on 5/17/22.
 //
 
-#ifndef SMOCAD_UVPLAINCREATOR_H
-#define SMOCAD_UVPLAINCREATOR_H
+#ifndef SMOCAD_UVPLANECREATOR_H
+#define SMOCAD_UVPLANECREATOR_H
 
 #include "IComponent.h"
 #include "Transform.h"
-#include "Scene/Entities/Plains/PlainC0.h"
+#include "Scene/Entities/Planes/PlaneC0.h"
 
 #define PATCH_SIZE 4
 
@@ -42,7 +42,7 @@ public:
     CreateRegisteredComponent(unsigned int oid, std::shared_ptr<Transform> transform, int U, int V);
     void UnregisterComponent();
 
-    std::shared_ptr<PlainC0> CreatePlainC0(const QString &name);
+    std::shared_ptr<PlaneC0> CreatePlainC0(const QString &name);
 };
 
-#endif //SMOCAD_UVPLAINCREATOR_H
+#endif //SMOCAD_UVPLANECREATOR_H

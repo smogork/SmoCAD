@@ -90,6 +90,7 @@ private:
     unsigned int objectCounter;
     TypeMap<std::shared_ptr<IAbstractSystem>> systems;
     std::list<std::shared_ptr<IEntity>> objects;
+    bool m_cleanup = false;//flaga informujaca o czyszczeniu calej sceny
 
     std::unique_ptr<Grid> grid = nullptr;
     std::shared_ptr<Cursor> cursor = nullptr;

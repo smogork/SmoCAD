@@ -2,8 +2,8 @@
 // Created by ksm on 5/14/22.
 //
 
-#ifndef SMOCAD_PLAINC0_H
-#define SMOCAD_PLAINC0_H
+#ifndef SMOCAD_PLANEC0_H
+#define SMOCAD_PLANEC0_H
 
 #include <QPropertyNotifier>
 #include "Scene/Entities/IEntity.h"
@@ -18,7 +18,7 @@
 
 #define PATCH_SIZE 4
 
-class PlainC0: public IEntity
+class PlaneC0: public IEntity
 {
 Q_OBJECT
 private slots:
@@ -49,8 +49,8 @@ public:
     QProperty<QColor> MeshColor;
     QProperty<QColor> PlainColor;
 
-    PlainC0(const QString& name, bool isPipe, int width, int height);
-    ~PlainC0();
+    PlaneC0(const QString& name, bool isPipe, int width, int height);
+    ~PlaneC0();
 };
 
-#endif //SMOCAD_PLAINC0_H
+#endif //SMOCAD_PLANEC0_H

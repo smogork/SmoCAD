@@ -39,6 +39,7 @@ void VirtualBezierC0::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
                                                   m_color.blueF(),
                                                   m_color.alphaF()));
     shader->SetUniform("u_MVP.Model", QMatrix4x4());
+    shader->GetRawProgram()->setPatchVertexCount(4);
 }
 
 void VirtualBezierC0::DrawingFunction(QOpenGLContext *context)

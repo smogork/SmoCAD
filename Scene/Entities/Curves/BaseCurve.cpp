@@ -48,5 +48,6 @@ void BaseCurve::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
 {
     shader->SetUniform("u_ObjectColor", ColorToVector4D(CurveColor));
     shader->SetUniform("u_MVP.Model", QMatrix4x4());
+    shader->GetRawProgram()->setPatchVertexCount(4);
 }
 
