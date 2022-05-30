@@ -59,7 +59,7 @@ void Renderer::UpdateShaders()
         shader->SetUniform("u_MVP.View", controller.Camera->GetViewMatrix());
         shader->SetUniform("u_MVP.Projection", controller.viewport->GetProjectionMatrix());
 
-        if (sh.first == BEZIER_SHADER)
+        if (sh.first == BEZIER_SHADER || sh.first == BEZIERC2_SHADER)
         {
             shader->SetUniform("u_viewportSize", controller.viewport->GetViewportSize());
         }

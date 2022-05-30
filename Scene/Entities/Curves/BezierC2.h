@@ -12,8 +12,9 @@
 #include "VirtualBezierC0.h"
 #include "Scene/Entities/Points/VirtualPoint.h"
 #include "Scene/Components/SceneElement.h"
+#include "BaseCurve.h"
 
-class BezierC2: public IEntity
+class BezierC2: public BaseCurve
 {
 Q_OBJECT
 private slots:
@@ -23,14 +24,17 @@ private slots:
 private:
     QPropertyNotifier selectedNotifier;
     QPropertyNotifier deBoorPolylineDrawing;
-    VirtualBezierC0 m_bezier;
     class Polyline m_deBoorPolyline;
     std::list<std::unique_ptr<VirtualPoint>> bezierPoints;
 
     void CalculateBezierPoints();
+    std::vector<float> GenerateGeometryVertices() override;
+    std::vector<int> GenerateTopologyIndices() override;
+    int GetIndexCount() override;
+
+    void InitializeDrawing() override;
 
 public:
-    std::shared_ptr<TransformCollection> p_Collection;
     std::shared_ptr<Selectable> p_Selected;
     std::shared_ptr<SceneElement> p_SceneElement;
 

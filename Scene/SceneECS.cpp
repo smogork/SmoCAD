@@ -15,6 +15,8 @@
 #include "Scene/Systems/ScreenSelectableSystem.h"
 #include "Scene/Entities/Plains/PlaneCreator.h"
 #include "Scene/Systems/UvPlaneCreatorSystem.h"
+#include "Scene/Entities/Curves/BezierC2.h"
+#include "Scene/Entities/Curves/BezierC0.h"
 #include <list>
 
 std::shared_ptr<SceneECS> SceneECS::scene = nullptr;
@@ -69,9 +71,33 @@ void SceneECS::InitUniqueObjects()
 
 void SceneECS::InitSceneObjects()
 {
+    auto p1 = std::make_shared<Point>("p1", QVector3D(0, 2, 3));
+    auto p2 = std::make_shared<Point>("p2", QVector3D(1, 0, 1));
+    auto p3 = std::make_shared<Point>("p3", QVector3D(0, 4, -4));
+    auto p4 = std::make_shared<Point>("p4", QVector3D(2, 1, 3));
+    auto p5 = std::make_shared<Point>("p5", QVector3D(1, -4, -2));
 
-    auto pCreator = std::make_shared<PlaneCreator>("pcr_test", QVector3D(1, 2, 3));
-    objects.push_back(pCreator);
+    objects.push_back(p1);
+    objects.push_back(p2);
+    objects.push_back(p3);
+    objects.push_back(p4);
+    objects.push_back(p5);
+
+
+    auto C2 = std::make_shared<BezierC2>("c2_test");
+    C2->p_Collection->AddPoint(p1->p_CollectionAware);
+    C2->p_Collection->AddPoint(p2->p_CollectionAware);
+    C2->p_Collection->AddPoint(p3->p_CollectionAware);
+    C2->p_Collection->AddPoint(p4->p_CollectionAware);
+    C2->p_Collection->AddPoint(p5->p_CollectionAware);
+    objects.push_back(C2);
+
+    /*auto C0 = std::make_shared<BezierC0>("c0_test");
+    C0->p_Collection->AddPoint(p1->p_CollectionAware);
+    C0->p_Collection->AddPoint(p2->p_CollectionAware);
+    C0->p_Collection->AddPoint(p4->p_CollectionAware);
+    C0->p_Collection->AddPoint(p5->p_CollectionAware);
+    objects.push_back(C0);*/
 }
 
 void SceneECS::RemoveUniqueObjects()

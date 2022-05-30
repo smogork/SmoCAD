@@ -30,6 +30,10 @@ set(SHADER_FILES
         Shaders/bezier.tess
         Shaders/bezier.eval
         Shaders/bezier.frag
+        Shaders/bezierC2.vert
+        Shaders/bezierC2.tess
+        Shaders/bezierC2.eval
+        Shaders/bezierC2.frag
         Shaders/plain.vert
         Shaders/plain.tess
         Shaders/plain.eval
@@ -113,7 +117,7 @@ set(PROJECT_SOURCES
         Scene/Systems/SceneElementSystem.cpp Scene/Systems/SceneElementSystem.h
         Scene/Entities/Curves/BezierC0.cpp Scene/Entities/Curves/BezierC0.h
         Renderer/Options.cpp Renderer/Options.h
-        Scene/Entities/Curves/BernsteinCurve.cpp Scene/Entities/Curves/BernsteinCurve.h
+        Scene/Entities/Curves/BaseCurve.cpp Scene/Entities/Curves/BaseCurve.h
         Scene/Entities/Curves/InterpolationC2.cpp Scene/Entities/Curves/InterpolationC2.h
         Scene/Entities/Points/InvisiblePoint.cpp Scene/Entities/Points/InvisiblePoint.h
         Renderer/InputController/InputEvents/ObjectMoveEvent.cpp Renderer/InputController/InputEvents/ObjectMoveEvent.h

@@ -2,8 +2,8 @@
 // Created by ksm on 4/22/22.
 //
 
-#ifndef SMOCAD_BERNSTEINCURVE_H
-#define SMOCAD_BERNSTEINCURVE_H
+#ifndef SMOCAD_BASECURVE_H
+#define SMOCAD_BASECURVE_H
 
 #include "Scene/Entities/IEntity.h"
 #include "Scene/Components/Drawing/DynamicDrawing.h"
@@ -13,13 +13,13 @@
 
 //Wirtualna klasa bazowa dla krzywych
 //Utworzenie jej nie ma większego sensu
-class BernsteinCurve: public IEntity
+class BaseCurve: public IEntity
 {
     Q_OBJECT
 protected:
-    class Polyline m_bezierPolyline;
-    QPropertyNotifier bezierPolylineDrawing;
-    QPropertyNotifier bezierPolylineColor;
+    class Polyline m_curvePolyline;
+    QPropertyNotifier curvePolylineDrawing;
+    QPropertyNotifier curvePolylineColor;
 
     virtual std::vector<float> GenerateGeometryVertices() = 0;
     virtual std::vector<int> GenerateTopologyIndices() = 0;
@@ -29,7 +29,7 @@ protected:
     void DrawingFunction(QOpenGLContext* context);
     void UniformFunction(std::shared_ptr<ShaderWrapper> shader);
 
-    explicit BernsteinCurve(unsigned int cid);
+    explicit BaseCurve(unsigned int cid);
 
 public:
     std::shared_ptr<DynamicDrawing> p_Drawing;
@@ -37,7 +37,6 @@ public:
     QProperty<QColor> PolylineColor;
     QProperty<QColor> CurveColor;
 
-
 };
 
-#endif //SMOCAD_BERNSTEINCURVE_H
+#endif //SMOCAD_BASECURVE_H
