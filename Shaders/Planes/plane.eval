@@ -11,13 +11,9 @@ struct MVP
 
 uniform MVP u_MVP;
 
-///////////////////////////////////////////////////
-// function to evaluate  the Bezier curve
 vec4 bezier(float t, vec4[4] array)
 {
-    //Wyznaczneie stopnia wielomianu
     int size = 3;
-    //for (;array[size].w == 0.0f && size > 0; --size);
 
     //algorytm de castaljeu
     for (int h = 0; h < size; ++h)
@@ -27,40 +23,34 @@ vec4 bezier(float t, vec4[4] array)
     return vec4(array[0].xyz, 1.0f);
 }
 
-void loadBezierData(int idx, vec4[4] outArray)
+vec4[4] loadControlPoints(int idx, vec4[16] inArray)
 {
+    vec4 outArray[4];
     for (int i = 0; i < 4; ++i)
-        outArray[i] = gl_in[idx + i].gl_Position;
+    outArray[i] = gl_in[idx + i].gl_Position;
+
+    return outArray;
 }
 
-void
-main()
+void main()
 {
     float u = gl_TessCoord.x;
     float v = gl_TessCoord.y;
 
     vec4 midValue[4];
-    vec4 bezierData[4];
+    vec4 controlPoints[4];
+    vec4 inData[16];
+    for (int i = 0; i < 16; ++i)
+        inData[i] = gl_in[i].gl_Position;
 
-    int idx = 0;
-    for (int i = 0; i < 4; ++i)
-        bezierData[i] = gl_in[idx + i].gl_Position;
-    midValue[0] = bezier(u, bezierData);
-
-    idx = 4;
-    for (int i = 0; i < 4; ++i)
-        bezierData[i] = gl_in[idx + i].gl_Position;
-    midValue[1] = bezier(u, bezierData);
-
-    idx = 8;
-    for (int i = 0; i < 4; ++i)
-        bezierData[i] = gl_in[idx + i].gl_Position;
-    midValue[2] = bezier(u, bezierData);
-
-    idx = 12;
-    for (int i = 0; i < 4; ++i)
-        bezierData[i] = gl_in[idx + i].gl_Position;
-    midValue[3] = bezier(u, bezierData);
+    controlPoints = loadControlPoints(0, inData);
+    midValue[0] = bezier(u, controlPoints);
+    controlPoints = loadControlPoints(4, inData);
+    midValue[1] = bezier(u, controlPoints);
+    controlPoints = loadControlPoints(8, inData);
+    midValue[2] = bezier(u, controlPoints);
+    controlPoints = loadControlPoints(12, inData);
+    midValue[3] = bezier(u, controlPoints);
 
     vec4 pos = bezier(v, midValue);
     gl_Position = u_MVP.Projection * u_MVP.View * u_MVP.Model * pos;

@@ -25,10 +25,24 @@ vec4 bezier(float t, vec4[4] array)
     return vec4(array[0].xyz, 1.0f);
 }
 
-void loadBezierData(int idx, vec4[4] outArray)
+vec4[4] loadControlPoints(int idx, vec4[16] inArray)
 {
+    vec4 outArray[4];
     for (int i = 0; i < 4; ++i)
         outArray[i] = gl_in[idx + i].gl_Position;
+
+    return outArray;
+}
+
+vec4[4] bspline_to_bernstein(vec4[4] array)
+{
+    vec4 bernsteinPoints[4];
+    bernsteinPoints[0] = 1.0f / 6.0f * array[0] + 2.0f / 3.0f * array[1] + 1.0f / 6.0f * array[2];
+    bernsteinPoints[1] = 2.0f / 3.0f * array[1] + 1.0f / 3.0f * array[2];
+    bernsteinPoints[2] = 1.0f / 3.0f * array[1] + 2.0f / 3.0f * array[2];
+    bernsteinPoints[3] = 1.0f / 6.0f * array[1] + 2.0f / 3.0f * array[2] + 1.0f / 6.0f * array[3];
+
+    return bernsteinPoints;
 }
 
 void main()
@@ -37,27 +51,19 @@ void main()
     float v = gl_TessCoord.y;
 
     vec4 midValue[4];
-    vec4 bezierData[4];
+    vec4 controlPoints[4];
+    vec4 inData[16];
+    for (int i = 0; i < 16; ++i)
+        inData[i] = gl_in[i].gl_Position;
 
-    int idx = 0;
-    for (int i = 0; i < 4; ++i)
-        bezierData[i] = gl_in[idx + i].gl_Position;
-    midValue[0] = bezier(u, bezierData);
-
-    idx = 4;
-    for (int i = 0; i < 4; ++i)
-        bezierData[i] = gl_in[idx + i].gl_Position;
-    midValue[1] = bezier(u, bezierData);
-
-    idx = 8;
-    for (int i = 0; i < 4; ++i)
-        bezierData[i] = gl_in[idx + i].gl_Position;
-    midValue[2] = bezier(u, bezierData);
-
-    idx = 12;
-    for (int i = 0; i < 4; ++i)
-        bezierData[i] = gl_in[idx + i].gl_Position;
-    midValue[3] = bezier(u, bezierData);
+    controlPoints = bspline_to_bernstein(loadControlPoints(0, inData));
+    midValue[0] = bezier(u, controlPoints);
+    controlPoints = bspline_to_bernstein(loadControlPoints(4, inData));
+    midValue[1] = bezier(u, controlPoints);
+    controlPoints = bspline_to_bernstein(loadControlPoints(8, inData));
+    midValue[2] = bezier(u, controlPoints);
+    controlPoints = bspline_to_bernstein(loadControlPoints(12, inData));
+    midValue[3] = bezier(u, controlPoints);
 
     vec4 pos = bezier(v, midValue);
     gl_Position = u_MVP.Projection * u_MVP.View * u_MVP.Model * pos;
