@@ -58,7 +58,7 @@ std::shared_ptr<PlaneC0> UVPlaneCreator::CreatePlainC0(const QString &name)
     auto points = CreatePoints(name, index_width, index_height);
 
     //Dodaj punkty w odpowiedniej kolejnosci do plaszczyzny
-    auto plane = std::make_shared<PlaneC0>(name, IsPipe, index_width, index_height);
+    auto plane = std::make_shared<PlaneC0>(name, IsPipe, U, V);
 
     std::vector<std::shared_ptr<CollectionAware>> elems(points.size());
     for (int i = 0; i < elems.size(); ++i)

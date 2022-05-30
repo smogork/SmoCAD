@@ -14,11 +14,11 @@
 #include "Scene/Components/SceneElement.h"
 #include "Scene/Entities/Points/Point.h"
 #include "Scene/Components/UVParams.h"
-
+#include "BasePlane.h"
 
 #define PATCH_SIZE 4
 
-class PlaneC0: public IEntity
+/*class PlaneC0: public IEntity
 {
 Q_OBJECT
 private slots:
@@ -51,6 +51,28 @@ public:
 
     PlaneC0(const QString& name, bool isPipe, int width, int height);
     ~PlaneC0();
+};*/
+
+class PlaneC0: public BasePlane
+{
+Q_OBJECT
+private slots:
+    void OnCollectionModified();
+    void OnSinglePointModified(QVector3D pos, unsigned int changedOID);
+    void PointRemovedFromCollection();
+
+protected:
+    QPropertyNotifier selectedNotifier;
+
+    std::vector<float> GenerateGeometryVertices() override;
+    std::vector<int> GenerateTopologyIndices() override;
+    int GetIndexCount() override;
+
+public:
+    std::shared_ptr<Selectable> p_Selected;
+    std::shared_ptr<SceneElement> p_SceneElement;
+
+    PlaneC0(const QString& name, bool isPipe, int countU, int countV);
 };
 
 #endif //SMOCAD_PLANEC0_H

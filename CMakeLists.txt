@@ -131,7 +131,7 @@ set(PROJECT_SOURCES
         Scene/Entities/Mesh.cpp Scene/Entities/Mesh.h
         Scene/Entities/Planes/PlaneCreator.cpp Scene/Entities/Planes/PlaneCreator.h
         Scene/Systems/UvPlaneCreatorSystem.cpp Scene/Systems/UvPlaneCreatorSystem.h
-        Scene/Components/UvPlaneCreator.cpp Scene/Components/UvPlaneCreator.h)
+        Scene/Components/UvPlaneCreator.cpp Scene/Components/UvPlaneCreator.h Scene/Entities/Planes/BasePlane.cpp Scene/Entities/Planes/BasePlane.h Scene/Entities/Planes/PlaneC2.cpp Scene/Entities/Planes/PlaneC2.h)
 
 add_subdirectory(Tests)
 

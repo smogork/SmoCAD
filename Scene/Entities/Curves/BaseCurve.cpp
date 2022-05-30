@@ -25,6 +25,7 @@ BaseCurve::BaseCurve(unsigned int cid) : IEntity(cid)
     {
        this->m_curvePolyline.DrawingColor = PolylineColor;
     });
+
 }
 
 void BaseCurve::InitializeDrawing()

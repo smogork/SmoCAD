@@ -5,7 +5,7 @@
 #include "PlaneCreator.h"
 #include "Scene/SceneECS.h"
 
-PlaneCreator::PlaneCreator(const QString &name, QVector3D pos) : IEntity(PLAIN_CREATOR_CLASS)
+PlaneCreator::PlaneCreator(const QString &name, QVector3D pos) : IEntity(PLANE_CREATOR_CLASS)
 {
     AddComponent(p_Transform = Transform::CreateRegisteredComponent(objectID, pos));
     AddComponent(p_Selected = Selectable::CreateRegisteredComponent(objectID));
