@@ -6,12 +6,12 @@
 #include "Scene/SceneECS.h"
 #include "Mathematics/PointShapes.h"
 
-PlaneCreator::PlaneCreator(const QString &name, QVector3D pos) : IEntity(PLANE_CREATOR_CLASS)
+PlaneCreator::PlaneCreator(const QString &name, uint creatingCid, QVector3D pos) : IEntity(PLANE_CREATOR_CLASS)
 {
     AddComponent(p_Transform = Transform::CreateRegisteredComponent(objectID, pos));
     AddComponent(p_Selected = Selectable::CreateRegisteredComponent(objectID));
     AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(objectID, name, p_Selected));
-    AddComponent(p_UVParams = UVPlaneCreator::CreateRegisteredComponent(objectID, p_Transform, 4, 3));
+    AddComponent(p_UVParams = UVPlaneCreator::CreateRegisteredComponent(objectID, p_Transform, creatingCid, 4, 3));
     p_UVParams->UDensity = 4;
     p_UVParams->VDensity = 4;
 
@@ -73,7 +73,7 @@ void PlaneCreator::CreateTempMesh()
     m_mesh.p_Collection->SetPoints(elements);
 }
 
-void PlaneCreator::CreatePoints(int w, int h, Plane p)
+void PlaneCreator::CreatePoints(int w, int h)
 {
     elements.clear();
     points.clear();

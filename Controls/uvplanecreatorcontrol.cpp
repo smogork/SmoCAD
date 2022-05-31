@@ -1,6 +1,7 @@
 #include "uvplanecreatorcontrol.h"
 #include "ui_uvplanecreatorcontrol.h"
 #include "Scene/SceneECS.h"
+#include "Scene/Entities/Planes/PlaneC2.h"
 
 UVPlaneCreatorControl::~UVPlaneCreatorControl()
 {
@@ -69,11 +70,23 @@ void UVPlaneCreatorControl::on_checkBox_toggled(bool checked)
 
 void UVPlaneCreatorControl::on_btnCreatePlain_clicked()
 {
-    //[TODO] zmienic aby tworzyla sie rozna plaszczyzna pozniej
-    auto plain = m_uv->CreatePlane<PlaneC0>("PlaneC0");
+    std::shared_ptr<BasePlane> plane;
+    switch (m_uv->GetCID())
+    {
+        case PLANEC0_CLASS:
+            plane = m_uv->CreatePlane<PlaneC0>("PlaneC0");
+            break;
+        case PLANEC2_CLASS:
+            plane = m_uv->CreatePlane<PlaneC2>("PlaneC2");
+            break;
+        default:
+            qDebug() << "Cannot create non-plane object at UVPlaneCreatorControl";
+            throw std::runtime_error("Cannot create non-plane object at UVPlaneCreatorControl");
+    }
+
     if (auto scene = SceneECS::Instance().lock())
     {
-        scene->AddObject(plain);
+        scene->AddObject(plane);
         scene->RemoveObject(m_uv->GetAttachedObjectID());
         emit RequestRepaint();
         emit RequestControlsUpdate(SceneECS::NON_OBJECT_ID);

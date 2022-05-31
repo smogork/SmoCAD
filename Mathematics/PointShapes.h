@@ -7,6 +7,13 @@
 
 #include <QVector3D>
 
+enum Plane
+{
+    XY,
+    XZ,
+    YZ
+};
+
 class PointShapes
 {
 public:

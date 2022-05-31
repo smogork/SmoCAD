@@ -21,9 +21,10 @@ protected:
     std::vector<std::shared_ptr<VirtualPoint>> points;
     QPropertyNotifier uNotifier, vNotifier, wNotifier, hNotifier, pipeNotifier;
     QPropertyNotifier posNotifier, rotNotifier, scaleNotifier;
+    uint m_cid;
 
 
-    void CreatePoints(int w, int h, Plane p = XY);
+    void CreatePoints(int w, int h);
     void CreateTempMesh();
 
 public:
@@ -32,7 +33,7 @@ public:
     std::shared_ptr<SceneElement> p_SceneElement;
     std::shared_ptr<UVPlaneCreator> p_UVParams;
 
-    explicit PlaneCreator(const QString& name, QVector3D pos = QVector3D());
+    explicit PlaneCreator(const QString& name, uint creatingCid, QVector3D pos = QVector3D());
 };
 
 #endif //SMOCAD_PLANECREATOR_H
