@@ -8,6 +8,7 @@
 #include "IComponent.h"
 #include "Transform.h"
 #include "Scene/Entities/Planes/PlaneC0.h"
+#include "Scene/SceneECS.h"
 
 #define PATCH_SIZE 4
 
@@ -42,7 +43,30 @@ public:
     CreateRegisteredComponent(unsigned int oid, std::shared_ptr<Transform> transform, int U, int V);
     void UnregisterComponent();
 
-    std::shared_ptr<PlaneC0> CreatePlainC0(const QString &name);
+    template <typename P>
+    std::shared_ptr<P> CreatePlane(const QString &name)
+    {
+        //Utworz punkty budujace plaszczyzne i dodaj je do sceny
+        auto points = P::CreatePointsForPlane(m_transform->Position, name, IsPipe, U, V, Width, Height);
+
+        //Dodaj punkty w odpowiedniej kolejnosci do plaszczyzny
+        auto plane = std::make_shared<PlaneC0>(name, IsPipe, U, V);
+
+        std::vector<std::shared_ptr<CollectionAware>> elems(points.size());
+        for (int i = 0; i < elems.size(); ++i)
+            elems[i] = points[i]->p_CollectionAware;
+        plane->p_Collection->SetPoints(elems);
+        plane->p_Collection->LockContent();
+
+        //przenies parametry UV do plaszczyzny
+        plane->p_UV->UDensity = *UDensity;
+        plane->p_UV->VDensity = *VDensity;
+        plane->p_UV->LockEditUV();
+
+        if (auto scene = SceneECS::Instance().lock())
+            scene->AddObject(plane);
+        return plane;
+    }
 };
 
 #endif //SMOCAD_UVPLANECREATOR_H

@@ -55,12 +55,22 @@ void UVPlaneCreatorControl::on_spinParamVDens_valueChanged(int arg1)
 void UVPlaneCreatorControl::on_checkBox_toggled(bool checked)
 {
     UPDATE_VALUE_IGNORING_NOTIFIER(m_uv->IsPipe = checked);
+    if (checked)
+    {
+        ui->lblWidth->setText("Radius");
+        ui->lblHeight->setText("Length");
+    }
+    else
+    {
+        ui->lblWidth->setText("Width");
+        ui->lblHeight->setText("Height");
+    }
 }
 
 void UVPlaneCreatorControl::on_btnCreatePlain_clicked()
 {
     //[TODO] zmienic aby tworzyla sie rozna plaszczyzna pozniej
-    auto plain = m_uv->CreatePlainC0("PlaneC0");
+    auto plain = m_uv->CreatePlane<PlaneC0>("PlaneC0");
     if (auto scene = SceneECS::Instance().lock())
     {
         scene->AddObject(plain);

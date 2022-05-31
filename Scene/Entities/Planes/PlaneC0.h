@@ -16,44 +16,7 @@
 #include "Scene/Components/UVParams.h"
 #include "BasePlane.h"
 
-#define PATCH_SIZE 4
-
-/*class PlaneC0: public IEntity
-{
-Q_OBJECT
-private slots:
-    void OnCollectionModified();
-    void OnSinglePointModified(QVector3D pos, unsigned int changedOID);
-    void PointRemovedFromCollection();
-
-protected:
-    class Mesh m_mesh;
-    QPropertyNotifier meshDrawingNotifier;
-    QPropertyNotifier meshColorNotifier;
-    QPropertyNotifier selectedNotifier;
-
-    std::vector<float> GenerateGeometryVertices();
-    std::vector<int> GenerateTopologyIndices();
-    int GetIndexCount();
-
-    void InitializeDrawing();
-    void DrawingFunction(QOpenGLContext* context);
-    void UniformFunction(std::shared_ptr<ShaderWrapper> shader);
-
-public:
-    std::shared_ptr<DynamicDrawing> p_Drawing;
-    std::shared_ptr<TransformCollection> p_Collection;
-    std::shared_ptr<Selectable> p_Selected;
-    std::shared_ptr<SceneElement> p_SceneElement;
-    std::shared_ptr<UVParams> p_UV;
-    QProperty<QColor> MeshColor;
-    QProperty<QColor> PlainColor;
-
-    PlaneC0(const QString& name, bool isPipe, int width, int height);
-    ~PlaneC0();
-};*/
-
-class PlaneC0: public BasePlane
+class PlaneC0 : public BasePlane
 {
 Q_OBJECT
 private slots:
@@ -72,7 +35,10 @@ public:
     std::shared_ptr<Selectable> p_Selected;
     std::shared_ptr<SceneElement> p_SceneElement;
 
-    PlaneC0(const QString& name, bool isPipe, int countU, int countV);
+    PlaneC0(const QString &name, bool isPipe, int countU, int countV);
+
+    static std::vector<std::shared_ptr<Point>>
+    CreatePointsForPlane(QVector3D startPos, const QString &name, bool isPipe, int U, int V, float width, float height);
 };
 
 #endif //SMOCAD_PLANEC0_H

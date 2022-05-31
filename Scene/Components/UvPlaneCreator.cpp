@@ -46,36 +46,6 @@ void UVPlaneCreator::UnregisterComponent()
     }
 }
 
-std::shared_ptr<PlaneC0> UVPlaneCreator::CreatePlainC0(const QString &name)
-{
-    int index_width = (PATCH_SIZE - 1) * U + 1;
-    int index_height = (PATCH_SIZE - 1) * V + 1;
-
-    if(IsPipe)
-        index_width--;
-
-    //Uwtorz punkty budujace plaszczyzne i dodaj je do sceny
-    auto points = CreatePoints(name, index_width, index_height);
-
-    //Dodaj punkty w odpowiedniej kolejnosci do plaszczyzny
-    auto plane = std::make_shared<PlaneC0>(name, IsPipe, U, V);
-
-    std::vector<std::shared_ptr<CollectionAware>> elems(points.size());
-    for (int i = 0; i < elems.size(); ++i)
-        elems[i] = points[i]->p_CollectionAware;
-    plane->p_Collection->SetPoints(elems);
-    plane->p_Collection->LockContent();
-
-    //przenies parametry UV do plaszczyzny
-    plane->p_UV->UDensity = *UDensity;
-    plane->p_UV->VDensity = *VDensity;
-    plane->p_UV->LockEditUV();
-
-    if (auto scene = SceneECS::Instance().lock())
-        scene->AddObject(plane);
-    return plane;
-}
-
 std::vector<std::shared_ptr<Point>> UVPlaneCreator::CreatePoints(const QString &name, int w, int h, Plane p)
 {
     std::vector<std::shared_ptr<Point>> res;

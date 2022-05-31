@@ -4,6 +4,7 @@
 
 #include "PlaneCreator.h"
 #include "Scene/SceneECS.h"
+#include "Mathematics/PointShapes.h"
 
 PlaneCreator::PlaneCreator(const QString &name, QVector3D pos) : IEntity(PLANE_CREATOR_CLASS)
 {
@@ -77,24 +78,17 @@ void PlaneCreator::CreatePoints(int w, int h, Plane p)
     elements.clear();
     points.clear();
 
-    if (auto scene = SceneECS::Instance().lock())
+    std::vector<QVector3D> positions;
+    if (p_UVParams->IsPipe)
+        positions = PointShapes::CreateTube(p_Transform->Position, p_UVParams->Width, p_UVParams->Height, w, h);
+    else
+        positions = PointShapes::CreateRect(p_Transform->Position, p_UVParams->Width, p_UVParams->Height, w, h);
+
+    for (const auto& t : positions)
     {
-        for (int i = 0; i < h; ++i)
-            for (int j = 0; j < w; ++j)
-            {
-                QVector3D pos;
-                if (p_UVParams->IsPipe)
-                    pos = QVector3D(p_UVParams->Width * cos(2 * M_PIf * j / w),
-                                              p_UVParams->Width * sin(2 * M_PIf * j / w),
-                                    (float)i * p_UVParams->Height / p_UVParams->V);
-                else
-                    pos = QVector3D((float)j * p_UVParams->Width / p_UVParams->U, 0, (float)i * p_UVParams->Height / p_UVParams->V);
-
-                auto p = std::make_shared<VirtualPoint>(pos + p_Transform->Position);
-                p->p_Transform->Locked = true;
-
-                points.push_back(p);
-                elements.emplace_back(p->p_CollectionAware);
-            }
+        auto p = std::make_shared<VirtualPoint>(t);
+        p->p_Transform->Locked = true;
+        points.push_back(p);
+        elements.emplace_back(p->p_CollectionAware);
     }
 }

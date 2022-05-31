@@ -5,13 +5,15 @@
 #ifndef SMOCAD_BASEPLANE_H
 #define SMOCAD_BASEPLANE_H
 
-//Width - U
-//Height - V
-
 #include <QPropertyNotifier>
 #include "Scene/Entities/IEntity.h"
 #include "Scene/Entities/Mesh.h"
 #include "Scene/Components/UVParams.h"
+#include "Scene/Entities/Points/Point.h"
+
+#define PATCH_SIZE 4
+//Width - U
+//Height - V
 
 class BasePlane: public IEntity
 {
@@ -29,6 +31,8 @@ protected:
     void InitializeDrawing();
     void DrawingFunction(QOpenGLContext* context);
     void UniformFunction(std::shared_ptr<ShaderWrapper> shader);
+
+
 
 public:
     std::shared_ptr<DynamicDrawing> p_Drawing;
