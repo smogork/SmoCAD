@@ -65,6 +65,6 @@ void main()
     controlPoints = bspline_to_bernstein(loadControlPoints(12, inData));
     midValue[3] = bezier(u, controlPoints);
 
-    vec4 pos = bezier(v, midValue);
+    vec4 pos = bezier(v, bspline_to_bernstein(midValue));
     gl_Position = u_MVP.Projection * u_MVP.View * u_MVP.Model * pos;
 }

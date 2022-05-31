@@ -33,6 +33,8 @@ PlaneC2::PlaneC2(const QString &name, bool isPipe, int countU, int countV): Base
 
     p_Collection->SecondDimension = m_mesh.p_Collection->SecondDimension =
             isPipe ? countU + 3 : countU;
+    if (auto sh = Renderer::GetShader(PLANEC2_SHADER).lock())
+        p_Drawing->AttachShader(sh);
 
     QObject::connect(p_Collection.get(), &TransformCollection::PointInCollectionModified,
                      this, &PlaneC2::OnCollectionModified);
@@ -80,8 +82,8 @@ std::vector<int> PlaneC2::GenerateTopologyIndices()
             for (int i = 0; i < PATCH_SIZE; ++i)//height
                 for (int j = 0; j < PATCH_SIZE; ++j)//width
                 {
-                    int wIdx = w * (PATCH_SIZE - 1) + j;
-                    int hIdx = h * (PATCH_SIZE - 1) + i;
+                    int wIdx = w  + j;
+                    int hIdx = h  + i;
                     res[res_idx++] = hIdx * index_width + (wIdx % index_width);
                 }
 
@@ -103,9 +105,9 @@ PlaneC2::CreatePointsForPlane(QVector3D startPos, const QString &name, bool isPi
     {
         std::vector<QVector3D> positions;
         if (isPipe)
-            positions = PointShapes::CreateTube(startPos, width, height, U , V + 3);
+            positions = PointShapes::CreateTube(startPos - QVector3D(0, 0, height/ V), width, height * (1 + 2.0f / V), U , V + 3);
         else
-            positions = PointShapes::CreateRect(startPos - QVector3D(width / U, 0, width / U), width, height, U + 3, V + 3);
+            positions = PointShapes::CreateRect(startPos - QVector3D(width / U, 0, height/ V), width * (1 + 2.0f / U), height * (1 + 2.0f / V), U + 3, V + 3);
 
         for (int i = 0; i < positions.size(); ++i)
         {

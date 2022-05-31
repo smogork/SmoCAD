@@ -22,7 +22,7 @@ std::vector<QVector3D> PointShapes::CreateTube(QVector3D startPos, float radius,
     for (int i = 0; i < lPoints; ++i)//height
         for (int j = 0; j < rPoints; ++j)//width
             res[i * rPoints + j] = QVector3D(radius * cos(2 * M_PIf * j / rPoints), radius * sin(2 * M_PIf * j / rPoints),
-                                             (float) i  * length / (lPoints - 1));
+                                             (float) i  * length / (lPoints - 1))+ startPos;
 
     return res;
 }
