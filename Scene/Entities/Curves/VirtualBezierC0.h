@@ -11,6 +11,7 @@
 #include "Scene/Components/TransformCollection.h"
 #include "Scene/Entities/Polyline.h"
 
+//[TODO] Ta klasa jest obsolete - trzeba ja usunac
 class VirtualBezierC0: public IEntity
 {
     Q_OBJECT

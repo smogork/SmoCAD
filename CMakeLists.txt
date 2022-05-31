@@ -13,7 +13,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_compile_definitions(Q_ENABLE_OPENGL_FUNCTIONS_DEBUG)
 
-find_package(LAPACK REQUIRED)
+#find_package(LAPACK REQUIRED)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools REQUIRED)
@@ -26,14 +26,22 @@ set(SHADER_FILES
         Shaders/buffer_color.vert
         Shaders/uniform_color.vert
         Shaders/simple_color.frag
-        Shaders/bezier.vert
-        Shaders/bezier.tess
-        Shaders/bezier.eval
-        Shaders/bezier.frag
-        Shaders/plain.vert
-        Shaders/plain.tess
-        Shaders/plain.eval
-        Shaders/plain.frag
+        Shaders/Curves/bezier.vert
+        Shaders/Curves/bezier.tess
+        Shaders/Curves/bezier.eval
+        Shaders/Curves/bezier.frag
+        Shaders/Curves/bezierC2.vert
+        Shaders/Curves/bezierC2.tess
+        Shaders/Curves/bezierC2.eval
+        Shaders/Curves/bezierC2.frag
+        Shaders/Planes/plane.vert
+        Shaders/Planes/plane.tess
+        Shaders/Planes/plane.eval
+        Shaders/Planes/plane.frag
+        Shaders/Planes/planeC2.vert
+        Shaders/Planes/planeC2.tess
+        Shaders/Planes/planeC2.eval
+        Shaders/Planes/planeC2.frag
         )
 
 set(MATH_FILES
@@ -113,14 +121,17 @@ set(PROJECT_SOURCES
         Scene/Systems/SceneElementSystem.cpp Scene/Systems/SceneElementSystem.h
         Scene/Entities/Curves/BezierC0.cpp Scene/Entities/Curves/BezierC0.h
         Renderer/Options.cpp Renderer/Options.h
-        Scene/Entities/Curves/BernsteinCurve.cpp Scene/Entities/Curves/BernsteinCurve.h
+        Scene/Entities/Curves/BaseCurve.cpp Scene/Entities/Curves/BaseCurve.h
         Scene/Entities/Curves/InterpolationC2.cpp Scene/Entities/Curves/InterpolationC2.h
         Scene/Entities/Points/InvisiblePoint.cpp Scene/Entities/Points/InvisiblePoint.h
         Renderer/InputController/InputEvents/ObjectMoveEvent.cpp Renderer/InputController/InputEvents/ObjectMoveEvent.h
         Controls/CustomQListWidget.cpp Controls/CustomQListWidget.h
         Renderer/Camera/StereoscopicParameters.cpp Renderer/Camera/StereoscopicParameters.h
-        Scene/Entities/Plains/PlainC0.cpp Scene/Entities/Plains/PlainC0.h
-        Scene/Entities/Mesh.cpp Scene/Entities/Mesh.h Scene/Entities/Plains/PlaneCreator.cpp Scene/Entities/Plains/PlaneCreator.h Scene/Systems/UvPlaneCreatorSystem.cpp Scene/Systems/UvPlaneCreatorSystem.h Scene/Components/UvPlainCreator.cpp Scene/Components/UvPlainCreator.h)
+        Scene/Entities/Planes/PlaneC0.cpp Scene/Entities/Planes/PlaneC0.h
+        Scene/Entities/Mesh.cpp Scene/Entities/Mesh.h
+        Scene/Entities/Planes/PlaneCreator.cpp Scene/Entities/Planes/PlaneCreator.h
+        Scene/Systems/UvPlaneCreatorSystem.cpp Scene/Systems/UvPlaneCreatorSystem.h
+        Scene/Components/UvPlaneCreator.cpp Scene/Components/UvPlaneCreator.h Scene/Entities/Planes/BasePlane.cpp Scene/Entities/Planes/BasePlane.h Scene/Entities/Planes/PlaneC2.cpp Scene/Entities/Planes/PlaneC2.h Mathematics/PointShapes.cpp Mathematics/PointShapes.h)
 
 add_subdirectory(Tests)
 
@@ -157,7 +168,7 @@ target_link_libraries(SmoCAD PRIVATE Qt${QT_VERSION_MAJOR}::Gui)
 target_link_libraries(SmoCAD PRIVATE Qt${QT_VERSION_MAJOR}::3DCore)
 target_link_libraries(SmoCAD PRIVATE Qt${QT_VERSION_MAJOR}::Core)
 
-target_link_libraries(SmoCAD PRIVATE lapack blas)
+#target_link_libraries(SmoCAD PRIVATE lapack blas)
 target_link_libraries(SmoCAD PRIVATE m)
 
 set_target_properties(SmoCAD PROPERTIES

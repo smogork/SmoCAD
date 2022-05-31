@@ -30,5 +30,6 @@ unsigned int IEntity::GetClassID()
 
 IEntity::~IEntity()
 {
+    m_deleted = true;
     emit EntityDeleted(objectID);
 }

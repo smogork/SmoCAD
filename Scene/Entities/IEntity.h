@@ -25,8 +25,9 @@ enum ENTITY_CLASS
     INTERPOLATIONC2_CLASS,
     INVISIBLE_POINT_CLASS,
     MESH_CLASS,
-    PLAINC0_CLASS,
-    PLAIN_CREATOR_CLASS,
+    PLANEC0_CLASS,
+    PLANEC2_CLASS,
+    PLANE_CREATOR_CLASS,
     CLASS_COUNT
 };
 
@@ -35,6 +36,7 @@ class IEntity: public QObject
     Q_OBJECT
 private:
     TypeMap<std::shared_ptr<IComponent>> m_components;
+    bool m_deleted = false;
 
 protected:
     unsigned int objectID;
@@ -57,6 +59,7 @@ public:
 
     unsigned int GetObjectID();
     unsigned int GetClassID();
+    bool IsDeleted () { return m_deleted; }
 
     template <typename C>
     std::weak_ptr<C> GetComponent()

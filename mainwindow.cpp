@@ -12,7 +12,7 @@
 
 #include "Renderer/Options.h"
 #include "Scene/Entities/Curves/InterpolationC2.h"
-#include "Scene/Entities/Plains/PlaneCreator.h"
+#include "Scene/Entities/Planes/PlaneCreator.h"
 
 MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -150,10 +150,41 @@ void MainWindow::on_actionInterpolationC2_triggered()
 
 void MainWindow::on_actionPlaneC0_triggered()
 {
-    std::shared_ptr<PlaneCreator> pcr = std::make_shared<PlaneCreator>("PlaneC0Creator");
+    std::shared_ptr<PlaneCreator> pcr = std::make_shared<PlaneCreator>("PlaneC0Creator", PLANEC0_CLASS);
     if (auto scene = SceneECS::Instance().lock())
         scene->AddObject(pcr);
     ui->sceneWidget->update();
+}
+
+void MainWindow::on_actionPlaneC2_triggered()
+{
+    std::shared_ptr<PlaneCreator> pcr = std::make_shared<PlaneCreator>("PlaneC2Creator", PLANEC2_CLASS);
+    if (auto scene = SceneECS::Instance().lock())
+        scene->AddObject(pcr);
+    ui->sceneWidget->update();
+}
+
+void MainWindow::on_actionNew_triggered()
+{
+
+}
+
+
+void MainWindow::on_actionOpen_triggered()
+{
+
+}
+
+
+void MainWindow::on_actionSave_triggered()
+{
+
+}
+
+
+void MainWindow::on_actionExit_triggered()
+{
+
 }
 #pragma endregion
 
@@ -183,6 +214,9 @@ void MainWindow::on_actionShow_Bezier_mesh_triggered(bool checked)
     Options::DrawPlainMesh = checked;
     ui->sceneWidget->update();
 }
+
+
+
 
 
 

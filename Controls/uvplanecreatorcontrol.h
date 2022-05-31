@@ -3,7 +3,7 @@
 
 #include <QWidget>
 #include "ComponentControl.h"
-#include "Scene/Components/UvPlainCreator.h"
+#include "Scene/Components/UvPlaneCreator.h"
 
 namespace Ui {
 class UVPlaneCreatorControl;

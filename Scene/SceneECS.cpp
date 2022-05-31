@@ -13,8 +13,10 @@
 #include "Scene/Systems/TransformCollectionSystem.h"
 #include "Controls/ComponentControl.h"
 #include "Scene/Systems/ScreenSelectableSystem.h"
-#include "Scene/Entities/Plains/PlaneCreator.h"
+#include "Scene/Entities/Planes/PlaneCreator.h"
 #include "Scene/Systems/UvPlaneCreatorSystem.h"
+#include "Scene/Entities/Curves/BezierC2.h"
+#include "Scene/Entities/Curves/BezierC0.h"
 #include <list>
 
 std::shared_ptr<SceneECS> SceneECS::scene = nullptr;
@@ -69,9 +71,8 @@ void SceneECS::InitUniqueObjects()
 
 void SceneECS::InitSceneObjects()
 {
-
-    auto pCreator = std::make_shared<PlaneCreator>("pcr_test", QVector3D(1, 2, 3));
-    objects.push_back(pCreator);
+    std::shared_ptr<PlaneCreator> pcr = std::make_shared<PlaneCreator>("PlaneC2Creator", PLANEC2_CLASS);
+    scene->AddObjectExplicitPosition(pcr);
 }
 
 void SceneECS::RemoveUniqueObjects()
@@ -84,7 +85,9 @@ void SceneECS::RemoveUniqueObjects()
 
 void SceneECS::RemoveObjectsFromScene()
 {
+    m_cleanup = true;
     objects.clear();
+    m_cleanup = false;
 }
 
 void SceneECS::ClearSystems()
@@ -176,6 +179,11 @@ std::list<std::unique_ptr<ComponentControl>> SceneECS::CreateUIForObject(unsigne
 
 void SceneECS::RemoveObject(unsigned int oid)
 {
+    //Gdy czyscimy cala scene to niektore obiekty maja logike do niszczenia sie przy zmianie elementow
+    //To psuje wewnetrzna logike fukcji clear na mapie, gdy w miedzyczasie sprobujemy susnac jakis element
+    if (m_cleanup)
+        return;
+
     objects.remove_if([&](std::shared_ptr<IEntity> &item)
                       {
                           return item->GetObjectID() == oid;

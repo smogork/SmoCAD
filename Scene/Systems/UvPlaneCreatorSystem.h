@@ -6,7 +6,7 @@
 #define SMOCAD_UVPLANECREATORSYSTEM_H
 
 #include "ISystem.h"
-#include "Scene/Components/UvPlainCreator.h"
+#include "Scene/Components/UvPlaneCreator.h"
 
 class UVPlaneCreatorSystem: public ISystem<UVPlaneCreator>
 {

@@ -2,11 +2,11 @@
 // Created by ksm on 4/22/22.
 //
 
-#include "BernsteinCurve.h"
+#include "BaseCurve.h"
 #include "Scene/Utilities/Utilites.h"
 #include "Renderer/Options.h"
 
-BernsteinCurve::BernsteinCurve(unsigned int cid) : IEntity(cid)
+BaseCurve::BaseCurve(unsigned int cid) : IEntity(cid)
 {
     AddComponent(p_Drawing = DynamicDrawing::CreateRegisteredComponent(objectID));
     AddComponent(p_Collection = TransformCollection::CreateRegisteredComponent(objectID));
@@ -15,19 +15,20 @@ BernsteinCurve::BernsteinCurve(unsigned int cid) : IEntity(cid)
 
     CurveColor = DefaultColor;
     PolylineColor.setBinding([this](){
-        return this->m_bezierPolyline.DrawingColor;
+        return this->m_curvePolyline.DrawingColor;
     });
-    bezierPolylineDrawing = Options::DrawBezierPolygon.addNotifier([this]()
+    curvePolylineDrawing = Options::DrawBezierPolygon.addNotifier([this]()
     {
-        this->m_bezierPolyline.p_Drawing->Enabled = Options::DrawBezierPolygon;
+        this->m_curvePolyline.p_Drawing->Enabled = Options::DrawBezierPolygon;
     });
-    bezierPolylineColor = PolylineColor.addNotifier([this]()
+    curvePolylineColor = PolylineColor.addNotifier([this]()
     {
-       this->m_bezierPolyline.DrawingColor = PolylineColor;
+       this->m_curvePolyline.DrawingColor = PolylineColor;
     });
+
 }
 
-void BernsteinCurve::InitializeDrawing()
+void BaseCurve::InitializeDrawing()
 {
     p_Drawing->SetVertexData({});
     p_Drawing->SetIndexData({});
@@ -35,18 +36,19 @@ void BernsteinCurve::InitializeDrawing()
     if (auto sh = Renderer::GetShader(BEZIER_SHADER).lock())
         p_Drawing->AttachShader(sh);
 
-    p_Drawing->p_renderingFunction = ASSIGN_DRAWING_FUNCTION(&BernsteinCurve::DrawingFunction);
-    p_Drawing->p_uniformFunction = ASSIGN_UNIFORM_FUNCTION(&BernsteinCurve::UniformFunction);
+    p_Drawing->p_renderingFunction = ASSIGN_DRAWING_FUNCTION(&BaseCurve::DrawingFunction);
+    p_Drawing->p_uniformFunction = ASSIGN_UNIFORM_FUNCTION(&BaseCurve::UniformFunction);
 }
 
-void BernsteinCurve::DrawingFunction(QOpenGLContext *context)
+void BaseCurve::DrawingFunction(QOpenGLContext *context)
 {
     Renderer::DrawPatches(context->functions(), GetIndexCount());
 }
 
-void BernsteinCurve::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
+void BaseCurve::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
 {
     shader->SetUniform("u_ObjectColor", ColorToVector4D(CurveColor));
     shader->SetUniform("u_MVP.Model", QMatrix4x4());
+    shader->GetRawProgram()->setPatchVertexCount(4);
 }
 

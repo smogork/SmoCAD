@@ -5,11 +5,11 @@
 #ifndef SMOCAD_INTERPOLATIONC2_H
 #define SMOCAD_INTERPOLATIONC2_H
 
-#include "BernsteinCurve.h"
+#include "BaseCurve.h"
 #include "Scene/Components/Selectable.h"
 #include "Scene/Components/SceneElement.h"
 
-class InterpolationC2: public BernsteinCurve
+class InterpolationC2: public BaseCurve
 {
     Q_OBJECT
 protected:

@@ -34,18 +34,12 @@ VirtualBezierC0::VirtualBezierC0(): IEntity(BEZIERC0_CLASS)
 
 void VirtualBezierC0::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
 {
-    /*shader->SetUniform("m_Chunks",
-            CalculateDrawableChunks(
-                    Renderer::controller.viewport->GetProjectionMatrix(),
-                    Renderer::controller.Camera->GetViewMatrix(),
-                    Renderer::controller.viewport->GetViewportSize()
-                    )
-                );*/
     shader->SetUniform("u_ObjectColor", QVector4D(m_color.redF(),
                                                   m_color.greenF(),
                                                   m_color.blueF(),
                                                   m_color.alphaF()));
     shader->SetUniform("u_MVP.Model", QMatrix4x4());
+    shader->GetRawProgram()->setPatchVertexCount(4);
 }
 
 void VirtualBezierC0::DrawingFunction(QOpenGLContext *context)
@@ -137,5 +131,5 @@ void VirtualBezierC0::OnSinglePointModified(QVector3D pos, unsigned int changedO
     //[TODO] to popsuje C0 kiedy nie jest czescia C2 - wymyslic jak to obejsc
     /*p_Drawing->SetVertexData(GenerateGeometryVertices());
     p_Drawing->SetIndexData(GenerateTopologyIndices());
-    (*m_bezierPolyline.p_Collection) = (*p_Collection);*/
+    (*m_curvePolyline.p_Collection) = (*p_Collection);*/
 }

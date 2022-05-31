@@ -5,7 +5,7 @@
 #include "InterpolationC2.h"
 #include "Mathematics/Interpolation.h"
 
-InterpolationC2::InterpolationC2(const QString& name): BernsteinCurve(INTERPOLATIONC2_CLASS)
+InterpolationC2::InterpolationC2(const QString& name): BaseCurve(INTERPOLATIONC2_CLASS)
 {
     AddComponent(p_Selected = Selectable::CreateRegisteredComponent(objectID));
     AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(objectID, name, p_Selected));
@@ -73,7 +73,7 @@ void InterpolationC2::OnCollectionModified()
         m_bernsteinPoints.clear();
         p_Drawing->SetVertexData({});
         p_Drawing->SetIndexData({});
-        m_bezierPolyline.p_Collection->Clear();
+        m_curvePolyline.p_Collection->Clear();
         return;
     }
 
@@ -93,7 +93,7 @@ void InterpolationC2::OnCollectionModified()
         m_bernsteinPoints.emplace_back(std::move(ip));
     }
 
-    m_bezierPolyline.p_Collection->SetPoints(elements);
+    m_curvePolyline.p_Collection->SetPoints(elements);
     p_Drawing->SetVertexData(GenerateGeometryVertices());
     p_Drawing->SetIndexData(GenerateTopologyIndices());
 }
