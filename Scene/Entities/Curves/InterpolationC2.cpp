@@ -10,6 +10,8 @@ InterpolationC2::InterpolationC2(const QString& name): BaseCurve(INTERPOLATIONC2
     AddComponent(p_Selected = Selectable::CreateRegisteredComponent(objectID));
     AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(objectID, name, p_Selected));
 
+    p_SceneElement->SerializeObject = ASSIGN_SERIALIZER_FUNCTION(&InterpolationC2::SerializingFunction);
+
     PolylineColor = Qt::red;
     QObject::connect(p_Collection.get(), &TransformCollection::PointInCollectionModified,
                      this, &InterpolationC2::OnCollectionModified);
@@ -101,6 +103,15 @@ void InterpolationC2::OnCollectionModified()
 void InterpolationC2::OnSinglePointModified(QVector3D pos, unsigned int changedOID)
 {
     OnCollectionModified();
+}
+
+void InterpolationC2::SerializingFunction(MG1::Scene &scene)
+{
+    MG1::InterpolatedC2 i2;
+    i2.name = p_SceneElement->Name.value().toStdString();
+    CommonSerializeFunction(i2);
+
+    scene.interpolatedC2.push_back(i2);
 }
 
 

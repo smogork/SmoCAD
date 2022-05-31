@@ -25,6 +25,7 @@ private:
     void InitializeDrawing();
     void DrawingFunction(QOpenGLContext* context);
     void UniformFunction(std::shared_ptr<ShaderWrapper> shader);
+    void SerializingFunction(MG1::Scene& scene);
 
     void UVChanged();
     std::vector<float> GenerateGeometryVertices();

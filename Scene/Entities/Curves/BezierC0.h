@@ -13,6 +13,7 @@ class BezierC0: public VirtualBezierC0
 {
 private:
     QPropertyNotifier selectedNotifier;
+    void SerializingFunction(MG1::Scene& scene);
 
 public:
     std::shared_ptr<Selectable> p_Selected;

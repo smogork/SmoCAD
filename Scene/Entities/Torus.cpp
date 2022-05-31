@@ -16,6 +16,8 @@ Torus::Torus(const QString& name, QVector3D position): IEntity(TORUS_CLASS)
     p_UV->UWraps = true;
     p_UV->VWraps = true;
 
+    p_SceneElement->SerializeObject = ASSIGN_SERIALIZER_FUNCTION(&Torus::SerializingFunction);
+
     selectedNotifier = p_Selected->Selected.addNotifier([this]() {
         HandleColors();
     });
@@ -131,6 +133,22 @@ void Torus::HandleColors()
         m_color = CompositeAware::CompositeColor;
     else
         m_color = DefaultColor;
+}
+
+void Torus::SerializingFunction(MG1::Scene &scene)
+{
+    MG1::Torus t;
+    t.SetId(GetObjectID());
+    t.name = p_SceneElement->Name.value().toStdString();
+    t.position = SerializeQVector3D(p_Transform->Position);
+    t.rotation= SerializeQVector3D(p_Transform->Rotation);//[TODO]Przerobic na stopnie!!
+    t.scale = SerializeQVector3D(p_Transform->Scale);
+    t.largeRadius = p_UV->U;//R
+    t.smallRadius = p_UV->V;//r
+    t.samples.x = p_UV->UDensity;//R density
+    t.samples.y = p_UV->VDensity;//r density
+
+    scene.tori.push_back(t);
 }
 
 

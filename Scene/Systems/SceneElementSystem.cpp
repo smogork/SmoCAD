@@ -4,6 +4,7 @@
 
 #include "SceneElementSystem.h"
 #include "Scene/SceneECS.h"
+#include "Scene/Scene.h"
 
 #pragma region QListWidgetSceneElement
 
@@ -41,6 +42,21 @@ bool SceneElementSystem::Unregister(unsigned int oid)
 void SceneElementSystem::AttachItemList(QListWidget *list)
 {
     sceneElementList = list;
+}
+
+void SceneElementSystem::SerializeSceneObjects()
+{
+    auto& sceneSerilizableObject = MG1::Scene::Get();
+    sceneSerilizableObject.Clear();
+
+    for (const auto& wel : components)
+    {
+        if (auto el = wel.second.lock())
+        {
+            el->SerializeObject(sceneSerilizableObject);
+        }
+    }
+    //MG1::Scene::Get();
 }
 
 

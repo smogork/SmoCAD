@@ -52,3 +52,14 @@ void BaseCurve::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
     shader->GetRawProgram()->setPatchVertexCount(4);
 }
 
+void BaseCurve::CommonSerializeFunction(MG1::Bezier b)
+{
+    b.SetId(GetObjectID());
+
+    for (const auto& wel : p_Collection->GetPoints())
+    {
+        if (auto el = wel.lock())
+            b.controlPoints.emplace_back(MG1::PointRef(el->GetAttachedObjectID()));
+    }
+}
+

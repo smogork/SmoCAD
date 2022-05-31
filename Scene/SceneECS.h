@@ -60,27 +60,28 @@ public:
     }
 
     unsigned int MouseClicked(std::shared_ptr<SceneMouseClickEvent> event);
-
     void AddObject(std::shared_ptr<IEntity> obj);
-
     void AddObjectExplicitPosition(std::shared_ptr<IEntity> obj);
-
     void RemoveObject(unsigned int oid);
-
     std::list<std::unique_ptr<ComponentControl>> CreateUIForObject(unsigned int oid);
-
     std::list<std::pair<QString, std::function<void(QListWidgetSceneElement *item)> > >
     CreateContextMenuForSceneElement(unsigned int oid, int selectionCount);
+    void InitializeScene();
+
+    void LoadSceneFromFile(const QString& filename);
+    void SaveSceneToFile(const QString& filename);
+    void CleanScene();
+    void ResetUniqueObjects();
 
     void RemoveObjectsFromScene();
-
     void RemoveUniqueObjects();
-
     void ClearSystems();
+
 
     QString DebugSystemReport();
 
-    void InitializeScene();
+
+
 
 signals:
     void CursorChange(std::shared_ptr<Cursor> cur);

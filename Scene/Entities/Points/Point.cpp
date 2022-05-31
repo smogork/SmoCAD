@@ -4,6 +4,7 @@
 
 #include "Point.h"
 #include "Scene/Utilities/Utilites.h"
+#include "Models/Point.h"
 
 Point::Point(const QString& name, QVector3D pos): IEntity(POINT_CLASS)
 {
@@ -15,6 +16,8 @@ Point::Point(const QString& name, QVector3D pos): IEntity(POINT_CLASS)
     AddComponent(p_CompositeAware = CompositeAware::CreateRegisteredComponent(objectID, p_Transform, p_Drawing));
     AddComponent(p_CollectionAware = CollectionAware::CreateRegisteredComponent(objectID, p_Transform));
     AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(objectID, name, p_Selectable));
+
+    p_SceneElement->SerializeObject = ASSIGN_SERIALIZER_FUNCTION(&Point::SerializingFunction);
 
     selectedNotifier = p_Selectable->Selected.addNotifier([this]() {
        HandleColors();
@@ -62,4 +65,14 @@ void Point::HandleColors()
         m_color = CompositeAware::CompositeColor;
     else
         m_color = DefaultColor;
+}
+
+void Point::SerializingFunction(MG1::Scene& scene)
+{
+    MG1::Point p;
+    p.SetId(GetObjectID());
+    p.name = p_SceneElement->Name.value().toStdString();
+    p.position = SerializeQVector3D(p_Transform->Position);
+
+    scene.points.push_back(p);
 }

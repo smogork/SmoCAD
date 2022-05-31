@@ -27,6 +27,7 @@ private:
     QPropertyNotifier compositeNotifier;
 
     void HandleColors();
+    void SerializingFunction(MG1::Scene& scene);
 
 public:
     std::shared_ptr<Transform> p_Transform;

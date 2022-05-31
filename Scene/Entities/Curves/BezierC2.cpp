@@ -15,6 +15,8 @@ BezierC2::BezierC2(const QString& name): BaseCurve(BEZIERC2_CLASS)
     AddComponent(p_Selected = Selectable::CreateRegisteredComponent(objectID));
     AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(objectID, name, p_Selected));
 
+    p_SceneElement->SerializeObject = ASSIGN_SERIALIZER_FUNCTION(&BezierC2::SerializingFunction);
+
     selectedNotifier = p_Selected->Selected.addNotifier([this](){
         if (p_Selected->Selected)
             CurveColor = QColor::fromRgbF(1.0f, 0.5f, 0.2f, 1.0f);
@@ -168,4 +170,13 @@ void BezierC2::InitializeDrawing()
 {
     if (auto sh = Renderer::GetShader(BEZIERC2_SHADER).lock())
         p_Drawing->AttachShader(sh);
+}
+
+void BezierC2::SerializingFunction(MG1::Scene &scene)
+{
+    MG1::BezierC2 b2;
+    b2.name = p_SceneElement->Name.value().toStdString();
+    CommonSerializeFunction(b2);
+
+    scene.bezierC2.push_back(b2);
 }

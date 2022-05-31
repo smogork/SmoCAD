@@ -15,8 +15,7 @@
 #include "Scene/Systems/ScreenSelectableSystem.h"
 #include "Scene/Entities/Planes/PlaneCreator.h"
 #include "Scene/Systems/UvPlaneCreatorSystem.h"
-#include "Scene/Entities/Curves/BezierC2.h"
-#include "Scene/Entities/Curves/BezierC0.h"
+#include "Serializer.h"
 #include <list>
 
 std::shared_ptr<SceneECS> SceneECS::scene = nullptr;
@@ -71,8 +70,7 @@ void SceneECS::InitUniqueObjects()
 
 void SceneECS::InitSceneObjects()
 {
-    std::shared_ptr<PlaneCreator> pcr = std::make_shared<PlaneCreator>("PlaneC2Creator", PLANEC2_CLASS);
-    scene->AddObjectExplicitPosition(pcr);
+
 }
 
 void SceneECS::RemoveUniqueObjects()
@@ -220,6 +218,37 @@ void SceneECS::InitializeScene()
 {
     InitUniqueObjects();
     InitSceneObjects();
+}
+
+void SceneECS::CleanScene()
+{
+    RemoveObjectsFromScene();
+    ResetUniqueObjects();
+}
+
+void SceneECS::ResetUniqueObjects()
+{
+    //cursor.reset();
+    Renderer::controller.Camera->Reset();
+}
+
+void SceneECS::LoadSceneFromFile(const QString &filename)
+{
+    //Wczytaj dane
+
+    //Wyciagnij z nich dane
+
+    CleanScene();
+}
+
+void SceneECS::SaveSceneToFile(const QString &filename)
+{
+    if (auto sceneElements = GetSystem<SceneElementSystem>().lock())
+    {
+        sceneElements->SerializeSceneObjects();
+        MG1::SceneSerializer ser;
+        ser.SaveScene(filename.toStdString());
+    }
 }
 
 

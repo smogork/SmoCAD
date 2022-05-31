@@ -26,6 +26,9 @@ public:
     bool Unregister(unsigned int oid) override;
 
     void AttachItemList(QListWidget* list);
+
+    //Wpisz do globalnego obiektu serializacyjnego wszystkie SceneElements
+    void SerializeSceneObjects();
 };
 
 

@@ -31,6 +31,7 @@ private:
     std::vector<float> GenerateGeometryVertices() override;
     std::vector<int> GenerateTopologyIndices() override;
     int GetIndexCount() override;
+    void SerializingFunction(MG1::Scene& scene);
 
     void InitializeDrawing() override;
 
