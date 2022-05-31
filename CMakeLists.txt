@@ -13,6 +13,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_compile_definitions(Q_ENABLE_OPENGL_FUNCTIONS_DEBUG)
 
+
+
 #find_package(LAPACK REQUIRED)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
@@ -134,6 +136,7 @@ set(PROJECT_SOURCES
         Scene/Components/UvPlaneCreator.cpp Scene/Components/UvPlaneCreator.h Scene/Entities/Planes/BasePlane.cpp Scene/Entities/Planes/BasePlane.h Scene/Entities/Planes/PlaneC2.cpp Scene/Entities/Planes/PlaneC2.h Mathematics/PointShapes.cpp Mathematics/PointShapes.h)
 
 add_subdirectory(Tests)
+add_subdirectory(ThirdParty/Scene-Serializer/cpp/Serializer)
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(SmoCAD
@@ -162,6 +165,12 @@ else()
     qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
 endif()
 
+#add libraries path
+target_link_directories(${PROJECT_NAME} PRIVATE ${PROJECT_BINARY_DIR}/ThirdParty/Scene-Serializer/cpp/Serializer/)
+
+#add include path
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_BINARY_DIR}/ThirdParty/Scene-Serializer/cpp/Serializer/include/Serializer)
+
 target_link_libraries(SmoCAD PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(SmoCAD PRIVATE Qt${QT_VERSION_MAJOR}::OpenGLWidgets)
 target_link_libraries(SmoCAD PRIVATE Qt${QT_VERSION_MAJOR}::Gui)
@@ -170,6 +179,7 @@ target_link_libraries(SmoCAD PRIVATE Qt${QT_VERSION_MAJOR}::Core)
 
 #target_link_libraries(SmoCAD PRIVATE lapack blas)
 target_link_libraries(SmoCAD PRIVATE m)
+target_link_libraries(SmoCAD PRIVATE MGSerializer)
 
 set_target_properties(SmoCAD PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
