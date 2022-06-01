@@ -59,6 +59,7 @@ void BasePlane::InitObject(bool isPipe, int countU, int countV)
     AddComponent(p_Collection = TransformCollection::CreateRegisteredComponent(GetObjectID()));
     AddComponent(p_UV = UVParams::CreateRegisteredComponent(GetObjectID(), countU, countV));
     p_UV->UWraps = isPipe;
+    m_mesh.IsPipe = isPipe;
 
     InitializeDrawing();
 

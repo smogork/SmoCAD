@@ -199,7 +199,7 @@ void PlaneC2::InitObject(const QString &name, bool isPipe, int countU, int count
     p_SceneElement->SerializeObject = ASSIGN_SERIALIZER_FUNCTION(&PlaneC2::SerializingFunction);
 
     p_Collection->SecondDimension = m_mesh.p_Collection->SecondDimension =
-            isPipe ? countU + 3 : countU;
+            isPipe ? countU : countU + 3;
     if (auto sh = Renderer::GetShader(PLANEC2_SHADER).lock())
         p_Drawing->AttachShader(sh);
 
