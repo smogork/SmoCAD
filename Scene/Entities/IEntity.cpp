@@ -51,6 +51,5 @@ IEntity::IEntity(unsigned int cid, unsigned int explicit_oid)
     classID = cid;
     m_objectId = explicit_oid;
     if (auto scene = SceneECS::Instance().lock())
-        scene->GetNewObjectID();//sztuczne podbicie licznika
-
+        scene->SetMaxOID(explicit_oid);
 }

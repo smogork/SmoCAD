@@ -31,6 +31,7 @@ public:
     ~SceneECS() override;
 
     unsigned int GetNewObjectID();
+    void SetMaxOID(uint oid);
 
     template<typename S>
     std::weak_ptr<S> GetSystem()
@@ -87,10 +88,6 @@ public:
 
 
     QString DebugSystemReport();
-
-
-
-
 signals:
     void CursorChange(std::shared_ptr<Cursor> cur);
 

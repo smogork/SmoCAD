@@ -66,6 +66,11 @@ unsigned int SceneECS::GetNewObjectID()
     return objectCounter++;
 }
 
+void SceneECS::SetMaxOID(uint oid)
+{
+    objectCounter = std::max(oid + 10000, objectCounter);//[TODO] wyjebac tego hacka - problemem jest tworzenie podobiektow i zajmowanie OID (rozne przestrzenie?)
+}
+
 void SceneECS::InitUniqueObjects()
 {
     grid = std::make_unique<Grid>();
@@ -227,6 +232,10 @@ void SceneECS::InitializeScene()
 
 void SceneECS::CleanScene()
 {
+    if (auto sel = GetSystem<SelectableSystem>().lock())
+    {
+        sel->Unselect();
+    }
     RemoveObjectsFromScene();
     ResetUniqueObjects();
 }
@@ -272,6 +281,8 @@ void SceneECS::UpdateObjectId(uint oid, uint new_oid)
         s.second->UpdateObjectId(oid, new_oid);
     }
 }
+
+
 
 
 

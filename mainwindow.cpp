@@ -188,8 +188,11 @@ void MainWindow::on_actionOpen_triggered()
     if (dialog.exec())
     {
         QString fileName = dialog.selectedFiles().first();
+
+        on_actionNew_triggered();
         if (auto scene = SceneECS::Instance().lock())
             scene->LoadSceneFromFile(fileName);
+        ui->sceneWidget->update();
     }
 }
 

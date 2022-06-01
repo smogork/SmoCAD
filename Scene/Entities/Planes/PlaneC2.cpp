@@ -196,6 +196,8 @@ void PlaneC2::InitObject(const QString &name, bool isPipe, int countU, int count
     AddComponent(p_Selected = Selectable::CreateRegisteredComponent(GetObjectID()));
     AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(GetObjectID(), name, p_Selected));
 
+    p_SceneElement->SerializeObject = ASSIGN_SERIALIZER_FUNCTION(&PlaneC2::SerializingFunction);
+
     p_Collection->SecondDimension = m_mesh.p_Collection->SecondDimension =
             isPipe ? countU + 3 : countU;
     if (auto sh = Renderer::GetShader(PLANEC2_SHADER).lock())

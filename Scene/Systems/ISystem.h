@@ -65,7 +65,7 @@ public:
         std::shared_ptr<C> res = std::make_shared<C>(oid);
         if (components.insert(std::make_pair(oid, res)).second)
             return res;
-        return nullptr;
+        throw std::runtime_error("Error while creating component - already exists");
     }
 
     virtual bool RegisterComponent(std::shared_ptr<C> component)
