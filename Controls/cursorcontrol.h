@@ -32,7 +32,7 @@ private slots:
 
 private:
     Ui::CursorControl *ui;
-    std::shared_ptr<Cursor> m_cursor = nullptr;
+    std::weak_ptr<Cursor> m_weak_cursor;
     QPropertyNotifier cursorWorldPosNotifier;
 
     void UpdateFromWorldPosition();

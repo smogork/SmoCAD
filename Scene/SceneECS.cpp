@@ -233,7 +233,8 @@ void SceneECS::CleanScene()
 
 void SceneECS::ResetUniqueObjects()
 {
-    //cursor.reset();
+    cursor.reset();
+    emit CursorChange(nullptr);
     //Renderer::controller.Camera->Reset();
 }
 
