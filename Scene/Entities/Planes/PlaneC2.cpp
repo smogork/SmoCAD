@@ -120,3 +120,38 @@ PlaneC2::CreatePointsForPlane(QVector3D startPos, const QString &name, bool isPi
 
     return res;
 }
+
+void PlaneC2::SerializingFunction(MG1::Scene &scene)
+{
+    MG1::BezierSurfaceC2 p2;
+    p2.SetId(GetObjectID());
+    p2.name = p_SceneElement->Name.value().toStdString();
+    p2.uWrapped = p_UV->UWraps;
+    p2.vWrapped = p_UV->VWraps;
+    p2.size.x = p_UV->U;
+    p2.size.y = p_UV->V;
+
+    auto indices = GenerateTopologyIndices();
+    std::vector<MG1::PointRef> points;
+    for (const auto& wp :  p_Collection->GetPoints())
+        if (auto p = wp.lock())
+            points.emplace_back(MG1::PointRef(p->GetAttachedObjectID()));
+
+    for (int i = 0; i < GetPatchCount(); ++i)
+    {
+        MG1::BezierPatchC2 patch;
+
+        patch.name = p_SceneElement->Name.value().toStdString();//[TODO] dodac inne nazwy dla patchy
+        patch.samples.x = p_UV->UDensity;
+        patch.samples.y = p_UV->VDensity;
+
+        for (int j = 0; j < PATCH_SIZE * PATCH_SIZE; ++j)
+        {
+            patch.controlPoints.emplace_back(points[indices[i * (PATCH_SIZE * PATCH_SIZE) + j]]);
+        }
+
+        p2.patches.emplace_back(patch);
+    }
+
+    scene.surfacesC2.push_back(p2);
+}

@@ -32,8 +32,6 @@ protected:
     void DrawingFunction(QOpenGLContext* context);
     void UniformFunction(std::shared_ptr<ShaderWrapper> shader);
 
-
-
 public:
     std::shared_ptr<DynamicDrawing> p_Drawing;
     std::shared_ptr<TransformCollection> p_Collection;
@@ -43,6 +41,8 @@ public:
 
     BasePlane(uint cid, bool isPipe, int countU, int countV);
     ~BasePlane() override;
+
+    int GetPatchCount();
 };
 
 #endif //SMOCAD_BASEPLANE_H

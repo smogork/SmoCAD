@@ -24,6 +24,7 @@ protected:
     std::vector<float> GenerateGeometryVertices() override;
     std::vector<int> GenerateTopologyIndices() override;
     int GetIndexCount() override;
+    void SerializingFunction(MG1::Scene& scene);
 
 public:
     std::shared_ptr<Selectable> p_Selected;

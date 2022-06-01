@@ -62,3 +62,8 @@ void BasePlane::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
     shader->SetUniform("u_VDensity", p_UV->VDensity);
     shader->GetRawProgram()->setPatchVertexCount(16);
 }
+
+int BasePlane::GetPatchCount()
+{
+    return p_UV->U * p_UV->V;
+}
