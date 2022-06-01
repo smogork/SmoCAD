@@ -29,7 +29,9 @@ protected:
     virtual void InitializeDrawing();
     void DrawingFunction(QOpenGLContext* context);
     void UniformFunction(std::shared_ptr<ShaderWrapper> shader);
+
     void CommonSerializeFunction(MG1::Bezier& b);
+    void CommonDeserializeFunction(const MG1::Bezier& b);
 
     explicit BaseCurve(unsigned int cid);
 

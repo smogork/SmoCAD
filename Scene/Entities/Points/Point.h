@@ -39,8 +39,8 @@ public:
     std::shared_ptr<SceneElement> p_SceneElement;
 
     explicit Point(const QString& name);
+    explicit Point(const MG1::Point& serializedObj);
     Point(const QString& name, QVector3D pos);
-    ~Point() override;
 };
 
 

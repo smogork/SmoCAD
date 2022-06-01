@@ -20,6 +20,7 @@ public:
     std::shared_ptr<SceneElement> p_SceneElement;
 
     explicit BezierC0(const QString& name);
+    explicit BezierC0(const MG1::BezierC0& b0);
 };
 
 

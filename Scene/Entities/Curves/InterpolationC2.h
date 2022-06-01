@@ -30,6 +30,7 @@ public:
     std::shared_ptr<SceneElement> p_SceneElement;
 
     explicit InterpolationC2(const QString& name);
+    explicit InterpolationC2(const MG1::InterpolatedC2& i2);
 };
 
 #endif //SMOCAD_INTERPOLATIONC2_H

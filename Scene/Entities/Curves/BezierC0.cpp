@@ -3,6 +3,9 @@
 //
 
 #include "BezierC0.h"
+#include "Scene/SceneECS.h"
+#include "Scene/Systems/CollectionAwareSystem.h"
+#include "ThirdParty/Scene-Serializer/cpp/Serializer/Serializer/Scene/SerializerException.h"
 
 BezierC0::BezierC0(const QString &name): VirtualBezierC0()
 {
@@ -32,4 +35,21 @@ void BezierC0::SerializingFunction(MG1::Scene &scene)
     }
 
     scene.bezierC0.push_back(b0);
+}
+
+BezierC0::BezierC0(const MG1::BezierC0 &b0): BezierC0(b0.name.c_str())
+{
+    objectID = b0.GetId();
+
+    if (auto scene = SceneECS::Instance().lock())
+    {
+        for (const MG1::PointRef &ref: b0.controlPoints)
+        {
+            if (auto el = scene->GetComponentOfSystem<CollectionAwareSystem, CollectionAware>(ref.GetId()).lock())
+                p_Collection->AddPoint(el);
+            else
+                throw MG1::SerializerException("Unknown point during deserialization of BezierC0");
+        }
+    }
+
 }

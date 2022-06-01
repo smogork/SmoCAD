@@ -180,3 +180,8 @@ void BezierC2::SerializingFunction(MG1::Scene &scene)
 
     scene.bezierC2.push_back(b2);
 }
+
+BezierC2::BezierC2(const MG1::BezierC2 &b2): BezierC2(b2.name.c_str())
+{
+    CommonDeserializeFunction(b2);
+}

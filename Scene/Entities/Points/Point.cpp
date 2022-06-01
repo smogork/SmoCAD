@@ -6,7 +6,7 @@
 #include "Scene/Utilities/Utilites.h"
 #include "Models/Point.h"
 
-Point::Point(const QString& name, QVector3D pos): IEntity(POINT_CLASS)
+Point::Point(const QString &name, QVector3D pos) : IEntity(POINT_CLASS)
 {
     AddComponent(p_Transform = Transform::CreateRegisteredComponent(objectID, pos));
     AddComponent(p_Drawing = StaticDrawing::CreateRegisteredComponent(objectID));
@@ -19,20 +19,19 @@ Point::Point(const QString& name, QVector3D pos): IEntity(POINT_CLASS)
 
     p_SceneElement->SerializeObject = ASSIGN_SERIALIZER_FUNCTION(&Point::SerializingFunction);
 
-    selectedNotifier = p_Selectable->Selected.addNotifier([this]() {
-       HandleColors();
-    });
-    compositeNotifier = p_CompositeAware->InsideComposite.addNotifier([this]() {
-       HandleColors();
-    });
+    selectedNotifier = p_Selectable->Selected.addNotifier(
+            [this]()
+            {
+                HandleColors();
+            });
+    compositeNotifier = p_CompositeAware->InsideComposite.addNotifier(
+            [this]()
+            {
+                HandleColors();
+            });
 }
 
-Point::Point(const QString &name) : Point(name, QVector3D(0, 0, 0))
-{ }
-
-Point::~Point()
-{
-}
+Point::Point(const QString &name) : Point(name, QVector3D(0, 0, 0)) {}
 
 void Point::InitializeDrawing()
 {
@@ -51,8 +50,8 @@ void Point::DrawingFunction(QOpenGLContext *context)
     Renderer::DrawPoints(context->functions(), 1);
 }
 
-
-void Point::UniformFunction(std::shared_ptr<ShaderWrapper> shader) {
+void Point::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
+{
     shader->SetUniform("u_MVP.Model", p_Transform->GetModelMatrix());
     shader->SetUniform("u_ObjectColor", ColorToVector4D(m_color));
 }
@@ -67,7 +66,7 @@ void Point::HandleColors()
         m_color = DefaultColor;
 }
 
-void Point::SerializingFunction(MG1::Scene& scene)
+void Point::SerializingFunction(MG1::Scene &scene)
 {
     MG1::Point p;
     p.SetId(GetObjectID());
@@ -75,4 +74,10 @@ void Point::SerializingFunction(MG1::Scene& scene)
     p.position = SerializeQVector3D(p_Transform->Position);
 
     scene.points.push_back(p);
+}
+
+Point::Point(const MG1::Point &serializedObj) : Point(serializedObj.name.c_str(),
+                                                      DeserializeFloat3(serializedObj.position))
+{
+    objectID = serializedObj.GetId();
 }

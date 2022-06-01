@@ -114,4 +114,9 @@ void InterpolationC2::SerializingFunction(MG1::Scene &scene)
     scene.interpolatedC2.push_back(i2);
 }
 
+InterpolationC2::InterpolationC2(const MG1::InterpolatedC2 &i2): InterpolationC2(i2.name.c_str())
+{
+    CommonDeserializeFunction(i2);
+}
+
 

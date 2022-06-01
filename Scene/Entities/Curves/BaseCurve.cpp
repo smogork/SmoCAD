@@ -5,6 +5,9 @@
 #include "BaseCurve.h"
 #include "Scene/Utilities/Utilites.h"
 #include "Renderer/Options.h"
+#include "Scene/SceneECS.h"
+#include "Scene/Systems/CollectionAwareSystem.h"
+#include "ThirdParty/Scene-Serializer/cpp/Serializer/Serializer/Scene/SerializerException.h"
 
 BaseCurve::BaseCurve(unsigned int cid) : IEntity(cid)
 {
@@ -60,6 +63,22 @@ void BaseCurve::CommonSerializeFunction(MG1::Bezier& b)
     {
         if (auto el = wel.lock())
             b.controlPoints.emplace_back(MG1::PointRef(el->GetAttachedObjectID()));
+    }
+}
+
+void BaseCurve::CommonDeserializeFunction(const MG1::Bezier &b)
+{
+    objectID = b.GetId();
+
+    if (auto scene = SceneECS::Instance().lock())
+    {
+        for (const MG1::PointRef &ref: b.controlPoints)
+        {
+            if (auto el = scene->GetComponentOfSystem<CollectionAwareSystem, CollectionAware>(ref.GetId()).lock())
+                p_Collection->AddPoint(el);
+            else
+                throw MG1::SerializerException("Unknown point during deserialization of Bezier curve");
+        }
     }
 }
 

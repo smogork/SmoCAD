@@ -44,6 +44,7 @@ public:
     std::shared_ptr<SceneElement> p_SceneElement;
 
     explicit Torus(const QString& name);
+    explicit Torus(const MG1::Torus& serializedObj);
     Torus(const QString& name, QVector3D position);
 };
 

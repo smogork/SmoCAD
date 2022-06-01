@@ -5,7 +5,7 @@
 #include "Torus.h"
 #include "Scene/Utilities/Utilites.h"
 
-Torus::Torus(const QString& name, QVector3D position): IEntity(TORUS_CLASS)
+Torus::Torus(const QString &name, QVector3D position) : IEntity(TORUS_CLASS)
 {
     AddComponent(p_Transform = Transform::CreateRegisteredComponent(objectID, position));
     AddComponent(p_Drawing = DynamicDrawing::CreateRegisteredComponent(objectID));
@@ -18,12 +18,14 @@ Torus::Torus(const QString& name, QVector3D position): IEntity(TORUS_CLASS)
 
     p_SceneElement->SerializeObject = ASSIGN_SERIALIZER_FUNCTION(&Torus::SerializingFunction);
 
-    selectedNotifier = p_Selected->Selected.addNotifier([this]() {
-        HandleColors();
-    });
-    compositeNotifier = p_CompositeAware->InsideComposite.addNotifier([this]() {
-        HandleColors();
-    });
+    selectedNotifier = p_Selected->Selected.addNotifier([this]()
+                                                        {
+                                                            HandleColors();
+                                                        });
+    compositeNotifier = p_CompositeAware->InsideComposite.addNotifier([this]()
+                                                                      {
+                                                                          HandleColors();
+                                                                      });
 
     InitializeDrawing();
     uNotifier = p_UV->U.addNotifier(ASSIGN_NOTIFIER_FUNCTION(&Torus::UVChanged));
@@ -32,8 +34,7 @@ Torus::Torus(const QString& name, QVector3D position): IEntity(TORUS_CLASS)
     vdNotifier = p_UV->VDensity.addNotifier(ASSIGN_NOTIFIER_FUNCTION(&Torus::UVChanged));
 }
 
-Torus::Torus(const QString &name) : Torus(name, QVector3D())
-{ }
+Torus::Torus(const QString &name) : Torus(name, QVector3D()) {}
 
 void Torus::UVChanged()
 {
@@ -80,7 +81,7 @@ std::vector<float> Torus::GenerateGeometryVertices()
             QVector4D p = rotY * QVector4D(
                     p_UV->V * cosf(vDegree) + p_UV->U,
                     p_UV->V * sinf(vDegree),
-                    0.0f, 1.0f) ;
+                    0.0f, 1.0f);
 
             res[vIndex] = p.x();
             res[vIndex + 1] = p.y();
@@ -141,7 +142,7 @@ void Torus::SerializingFunction(MG1::Scene &scene)
     t.SetId(GetObjectID());
     t.name = p_SceneElement->Name.value().toStdString();
     t.position = SerializeQVector3D(p_Transform->Position);
-    t.rotation= SerializeQVector3D(p_Transform->Rotation);//[TODO]Przerobic na stopnie!!
+    t.rotation = SerializeQVector3D(p_Transform->Rotation);
     t.scale = SerializeQVector3D(p_Transform->Scale);
     t.largeRadius = p_UV->U;//R
     t.smallRadius = p_UV->V;//r
@@ -149,6 +150,19 @@ void Torus::SerializingFunction(MG1::Scene &scene)
     t.samples.y = p_UV->VDensity;//r density
 
     scene.tori.push_back(t);
+}
+
+Torus::Torus(const MG1::Torus &serializedObj) : Torus(serializedObj.name.c_str(),
+                                                      DeserializeFloat3(serializedObj.position))
+{
+    objectID = serializedObj.GetId();
+
+    p_Transform->Rotation = DeserializeFloat3(serializedObj.rotation);
+    p_Transform->Scale = DeserializeFloat3(serializedObj.scale);
+    p_UV->U = serializedObj.largeRadius;
+    p_UV->V = serializedObj.smallRadius;
+    p_UV->UDensity = serializedObj.samples.x;
+    p_UV->VDensity = serializedObj.samples.y;
 }
 
 

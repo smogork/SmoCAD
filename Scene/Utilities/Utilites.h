@@ -14,7 +14,9 @@
 #define ASSIGN_CONTEXT_FUNCTION(F)  std::bind(F, this, std::placeholders::_1)
 
 QVector4D ColorToVector4D(QColor c);
+
 MG1::Float3 SerializeQVector3D(QVector3D v);
 QVector3D DeserializeFloat3(MG1::Float3 v);
+
 
 #endif //SMOCAD_UTILITES_H
