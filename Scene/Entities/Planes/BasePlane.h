@@ -40,6 +40,8 @@ public:
     QProperty<QColor> PlaneColor;
 
     BasePlane(uint cid, bool isPipe, int countU, int countV);
+    explicit BasePlane(unsigned int cid, uint explicit_oid, bool isPipe, int countU, int countV);
+    void InitObject(bool isPipe, int countU, int countV);
     ~BasePlane() override;
 
     int GetPatchCount();

@@ -16,6 +16,11 @@
 #include "Scene/Entities/Planes/PlaneCreator.h"
 #include "Scene/Systems/UvPlaneCreatorSystem.h"
 #include "Serializer.h"
+#include "Scene/Entities/Torus.h"
+#include "Scene/Entities/Curves/BezierC0.h"
+#include "Scene/Entities/Curves/InterpolationC2.h"
+#include "Scene/Entities/Curves/BezierC2.h"
+#include "Scene/Entities/Planes/PlaneC2.h"
 #include <list>
 
 std::shared_ptr<SceneECS> SceneECS::scene = nullptr;
@@ -229,16 +234,24 @@ void SceneECS::CleanScene()
 void SceneECS::ResetUniqueObjects()
 {
     //cursor.reset();
-    Renderer::controller.Camera->Reset();
+    //Renderer::controller.Camera->Reset();
 }
 
 void SceneECS::LoadSceneFromFile(const QString &filename)
 {
-    //Wczytaj dane
-
-    //Wyciagnij z nich dane
-
     CleanScene();
+
+    MG1::SceneSerializer ser;
+    ser.LoadScene(filename.toStdString());
+    MG1::Scene& scene = MG1::Scene::Get();
+
+    LoadHelper<Point, MG1::Point>(scene.points);
+    LoadHelper<Torus, MG1::Torus>(scene.tori);
+    LoadHelper<BezierC0, MG1::BezierC0>(scene.bezierC0);
+    LoadHelper<BezierC2, MG1::BezierC2>(scene.bezierC2);
+    LoadHelper<InterpolationC2, MG1::InterpolatedC2>(scene.interpolatedC2);
+    LoadHelper<PlaneC0, MG1::BezierSurfaceC0>(scene.surfacesC0);
+    LoadHelper<PlaneC2, MG1::BezierSurfaceC2>(scene.surfacesC2);
 }
 
 void SceneECS::SaveSceneToFile(const QString &filename)
@@ -248,6 +261,14 @@ void SceneECS::SaveSceneToFile(const QString &filename)
         sceneElements->SerializeSceneObjects();
         MG1::SceneSerializer ser;
         ser.SaveScene(filename.toStdString());
+    }
+}
+
+void SceneECS::UpdateObjectId(uint oid, uint new_oid)
+{
+    for (auto s: systems)
+    {
+        s.second->UpdateObjectId(oid, new_oid);
     }
 }
 

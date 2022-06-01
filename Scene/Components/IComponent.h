@@ -26,6 +26,7 @@ public:
     virtual ~IComponent();
     bool Enabled = true;
 
+    void UpdateAttachedObject(uint new_oid);
     unsigned int GetAttachedObjectID();
     unsigned int GetAttachedSystemID();
 };

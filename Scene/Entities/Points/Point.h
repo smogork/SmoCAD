@@ -29,6 +29,8 @@ private:
     void HandleColors();
     void SerializingFunction(MG1::Scene& scene);
 
+    void InitObject(const QString &name, QVector3D pos);
+
 public:
     std::shared_ptr<Transform> p_Transform;
     std::shared_ptr<StaticDrawing> p_Drawing;

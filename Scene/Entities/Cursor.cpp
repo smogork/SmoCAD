@@ -46,8 +46,8 @@ void Cursor::DrawingFunction(QOpenGLContext *context)
 
 Cursor::Cursor(QVector3D position): IEntity(ENTITY_CLASS::CURSOR_CLASS)
 {
-    AddComponent(p_Transform = Transform::CreateRegisteredComponent(objectID, position));
-    AddComponent(p_Drawing = StaticDrawing::CreateRegisteredComponent(objectID));
+    AddComponent(p_Transform = Transform::CreateRegisteredComponent(GetObjectID(), position));
+    AddComponent(p_Drawing = StaticDrawing::CreateRegisteredComponent(GetObjectID()));
 
     InitializeDrawing();
 }

@@ -46,6 +46,7 @@ public:
     explicit Torus(const QString& name);
     explicit Torus(const MG1::Torus& serializedObj);
     Torus(const QString& name, QVector3D position);
+    void InitObject(const QString& name, QVector3D position);
 };
 
 

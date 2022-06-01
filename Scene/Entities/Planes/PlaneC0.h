@@ -30,6 +30,8 @@ protected:
     std::vector<float> GenerateGeometryVertices() override;
     std::vector<int> GenerateTopologyIndices() override;
     int GetIndexCount() override;
+    int GetVertexCount(bool isPipe);
+
     void SerializingFunction(MG1::Scene& scene);
 
 public:
@@ -37,6 +39,8 @@ public:
     std::shared_ptr<SceneElement> p_SceneElement;
 
     PlaneC0(const QString &name, bool isPipe, int countU, int countV);
+    explicit PlaneC0(const MG1::BezierSurfaceC0 &p0);
+    void InitObject(const QString &name, bool isPipe, int countU, int countV);
 
     static std::vector<std::shared_ptr<Point>>
     CreatePointsForPlane(QVector3D startPos, const QString &name, bool isPipe, int U, int V, float width, float height);

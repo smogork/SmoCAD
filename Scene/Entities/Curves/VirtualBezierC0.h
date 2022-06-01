@@ -42,6 +42,8 @@ public:
     QProperty<QColor> CurveColor;
 
     VirtualBezierC0();
+    explicit VirtualBezierC0(uint oid);
+    void InitObject();
 };
 
 

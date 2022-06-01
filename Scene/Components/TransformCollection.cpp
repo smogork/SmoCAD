@@ -169,9 +169,9 @@ void TransformCollection::SetPoints(std::vector<std::shared_ptr<CollectionAware>
     emit PointInCollectionModified();
 }
 
-void TransformCollection::LockContent()
+void TransformCollection::LockContent(bool state)
 {
-    m_locked = true;
+    m_locked = state;
 }
 
 bool TransformCollection::IsContentLocked()

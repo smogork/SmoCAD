@@ -61,12 +61,20 @@ public:
 
     unsigned int MouseClicked(std::shared_ptr<SceneMouseClickEvent> event);
     void AddObject(std::shared_ptr<IEntity> obj);
+    void UpdateObjectId(uint oid, uint new_oid);
     void AddObjectExplicitPosition(std::shared_ptr<IEntity> obj);
     void RemoveObject(unsigned int oid);
     std::list<std::unique_ptr<ComponentControl>> CreateUIForObject(unsigned int oid);
     std::list<std::pair<QString, std::function<void(QListWidgetSceneElement *item)> > >
     CreateContextMenuForSceneElement(unsigned int oid, int selectionCount);
     void InitializeScene();
+
+    template <typename cadObj, typename serObj>
+    void LoadHelper(const std::vector<serObj>& input)
+    {
+        for (const serObj& obj : input)
+            objects.push_back(std::make_shared<cadObj>(obj));
+    }
 
     void LoadSceneFromFile(const QString& filename);
     void SaveSceneToFile(const QString& filename);

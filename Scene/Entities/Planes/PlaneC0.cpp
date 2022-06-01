@@ -7,6 +7,8 @@
 #include "Scene/Utilities/Utilites.h"
 #include "Scene/SceneECS.h"
 #include "Mathematics/PointShapes.h"
+#include "ThirdParty/Scene-Serializer/cpp/Serializer/Serializer/Scene/SerializerException.h"
+#include "Scene/Systems/CollectionAwareSystem.h"
 
 void PlaneC0::OnSinglePointModified(QVector3D pos, unsigned int changedOID)
 {
@@ -75,29 +77,7 @@ int PlaneC0::GetIndexCount()
 PlaneC0::PlaneC0(const QString &name, bool isPipe, int countU, int countV) :
         BasePlane(PLANEC0_CLASS, isPipe, countU, countV)
 {
-    AddComponent(p_Selected = Selectable::CreateRegisteredComponent(objectID));
-    AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(objectID, name, p_Selected));
-
-    p_SceneElement->SerializeObject = ASSIGN_SERIALIZER_FUNCTION(&PlaneC0::SerializingFunction);
-
-    p_Collection->SecondDimension = m_mesh.p_Collection->SecondDimension =
-            isPipe ? (PATCH_SIZE - 1) * countU : (PATCH_SIZE - 1) * countU + 1;
-
-    QObject::connect(p_Collection.get(), &TransformCollection::PointInCollectionModified,
-                     this, &PlaneC0::OnCollectionModified);
-    QObject::connect(p_Collection.get(), &TransformCollection::SinglePointChanged,
-                     this, &PlaneC0::OnSinglePointModified);
-    QObject::connect(p_Collection.get(), &TransformCollection::PointDeleted,
-                     this, &PlaneC0::PointRemovedFromCollection);
-
-    selectedNotifier = p_Selected->Selected.addNotifier([this]()
-                                                        {
-                                                            if (p_Selected->Selected)
-                                                                PlaneColor = Selectable::SelectedColor;
-                                                            else
-                                                                PlaneColor = DefaultColor;
-                                                        });
-    MeshColor = Qt::darkGreen;
+    InitObject(name, isPipe, countU, countV);
 }
 
 std::vector<std::shared_ptr<Point>>
@@ -159,6 +139,85 @@ void PlaneC0::SerializingFunction(MG1::Scene &scene)
     }
 
     scene.surfacesC0.push_back(p0);
+}
+
+PlaneC0::PlaneC0(const MG1::BezierSurfaceC0 &p0): BasePlane(PLANEC0_CLASS, p0.GetId(), p0.uWrapped, p0.size.x, p0.size.y)
+{
+    InitObject(p0.name.c_str(), p0.uWrapped, p0.size.x, p0.size.y);
+
+    p_UV->LockEditUV(false);
+    p_Collection->LockContent(false);
+    p_UV->VWraps = p0.vWrapped;
+
+    if (p0.patches.size() == 0)
+        throw MG1::SerializerException("Error while deserializing Surface without patches");
+
+    p_UV->UDensity = p0.patches[0].samples.x;
+    p_UV->VDensity = p0.patches[0].samples.y;
+    p_UV->LockEditUV();
+
+
+    auto indices = GenerateTopologyIndices();
+    std::vector<std::shared_ptr<CollectionAware>> points(GetVertexCount(p_UV->UWraps));
+
+    if (auto scene = SceneECS::Instance().lock())
+    {
+        for (int i = 0; i < GetPatchCount(); ++i)
+        {
+            MG1::BezierPatchC0 patch = p0.patches[i];
+
+            for (int j = 0; j < PATCH_SIZE * PATCH_SIZE; ++j)
+            {
+                int idx = indices[i * (PATCH_SIZE * PATCH_SIZE) + j];//index punktu w kolekcji punktow
+                if (!points[idx])//jeżeli jeszcze punkt nie został ustalony
+                {
+                    MG1::PointRef ref = patch.controlPoints[j];
+
+                    if (auto el = scene->GetComponentOfSystem<CollectionAwareSystem, CollectionAware>(ref.GetId()).lock())
+                        points[idx] = el;//przypisanie referencji do odpowiedniego miejsca w powierzchni
+                    else
+                        throw MG1::SerializerException("Unknown point during deserialization of SurfaceC0");
+                }
+            }
+        }
+
+        p_Collection->SetPoints(points);
+        p_Collection->LockContent();
+    }
+}
+
+int PlaneC0::GetVertexCount(bool isPipe)
+{
+    if (isPipe)
+        return ((PATCH_SIZE - 1) * p_UV->U) * ((PATCH_SIZE - 1) * p_UV->V + 1);
+   return ((PATCH_SIZE - 1) * p_UV->U + 1) * ((PATCH_SIZE - 1) * p_UV->V + 1);
+}
+
+void PlaneC0::InitObject(const QString &name, bool isPipe, int countU, int countV)
+{
+    AddComponent(p_Selected = Selectable::CreateRegisteredComponent(GetObjectID()));
+    AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(GetObjectID(), name, p_Selected));
+
+    p_SceneElement->SerializeObject = ASSIGN_SERIALIZER_FUNCTION(&PlaneC0::SerializingFunction);
+
+    p_Collection->SecondDimension = m_mesh.p_Collection->SecondDimension =
+            isPipe ? (PATCH_SIZE - 1) * countU : (PATCH_SIZE - 1) * countU + 1;
+
+    QObject::connect(p_Collection.get(), &TransformCollection::PointInCollectionModified,
+                     this, &PlaneC0::OnCollectionModified);
+    QObject::connect(p_Collection.get(), &TransformCollection::SinglePointChanged,
+                     this, &PlaneC0::OnSinglePointModified);
+    QObject::connect(p_Collection.get(), &TransformCollection::PointDeleted,
+                     this, &PlaneC0::PointRemovedFromCollection);
+
+    selectedNotifier = p_Selected->Selected.addNotifier([this]()
+                                                        {
+                                                            if (p_Selected->Selected)
+                                                                PlaneColor = Selectable::SelectedColor;
+                                                            else
+                                                                PlaneColor = DefaultColor;
+                                                        });
+    MeshColor = Qt::darkGreen;
 }
 
 

@@ -41,6 +41,7 @@ public:
 
     explicit BezierC2(const QString& name);
     explicit BezierC2(const MG1::BezierC2& b2);
+    void InitObject(const QString& name);
 };
 
 

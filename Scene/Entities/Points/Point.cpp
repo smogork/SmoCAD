@@ -8,27 +8,7 @@
 
 Point::Point(const QString &name, QVector3D pos) : IEntity(POINT_CLASS)
 {
-    AddComponent(p_Transform = Transform::CreateRegisteredComponent(objectID, pos));
-    AddComponent(p_Drawing = StaticDrawing::CreateRegisteredComponent(objectID));
-    InitializeDrawing();
-    AddComponent(p_Selectable = Selectable::CreateRegisteredComponent(objectID));
-    AddComponent(p_ScreenSelectable = ScreenSelectable::CreateRegisteredComponent(objectID, p_Transform, p_Selectable));
-    AddComponent(p_CompositeAware = CompositeAware::CreateRegisteredComponent(objectID, p_Transform, p_Drawing));
-    AddComponent(p_CollectionAware = CollectionAware::CreateRegisteredComponent(objectID, p_Transform));
-    AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(objectID, name, p_Selectable));
-
-    p_SceneElement->SerializeObject = ASSIGN_SERIALIZER_FUNCTION(&Point::SerializingFunction);
-
-    selectedNotifier = p_Selectable->Selected.addNotifier(
-            [this]()
-            {
-                HandleColors();
-            });
-    compositeNotifier = p_CompositeAware->InsideComposite.addNotifier(
-            [this]()
-            {
-                HandleColors();
-            });
+    InitObject(name, pos);
 }
 
 Point::Point(const QString &name) : Point(name, QVector3D(0, 0, 0)) {}
@@ -76,8 +56,32 @@ void Point::SerializingFunction(MG1::Scene &scene)
     scene.points.push_back(p);
 }
 
-Point::Point(const MG1::Point &serializedObj) : Point(serializedObj.name.c_str(),
-                                                      DeserializeFloat3(serializedObj.position))
+Point::Point(const MG1::Point &serializedObj): IEntity(POINT_CLASS, serializedObj.GetId())
 {
-    objectID = serializedObj.GetId();
+    InitObject(serializedObj.name.c_str(), DeserializeFloat3(serializedObj.position));
+}
+
+void Point::InitObject(const QString &name, QVector3D pos)
+{
+    AddComponent(p_Transform = Transform::CreateRegisteredComponent(GetObjectID(), pos));
+    AddComponent(p_Drawing = StaticDrawing::CreateRegisteredComponent(GetObjectID()));
+    InitializeDrawing();
+    AddComponent(p_Selectable = Selectable::CreateRegisteredComponent(GetObjectID()));
+    AddComponent(p_ScreenSelectable = ScreenSelectable::CreateRegisteredComponent(GetObjectID(), p_Transform, p_Selectable));
+    AddComponent(p_CompositeAware = CompositeAware::CreateRegisteredComponent(GetObjectID(), p_Transform, p_Drawing));
+    AddComponent(p_CollectionAware = CollectionAware::CreateRegisteredComponent(GetObjectID(), p_Transform));
+    AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(GetObjectID(), name, p_Selectable));
+
+    p_SceneElement->SerializeObject = ASSIGN_SERIALIZER_FUNCTION(&Point::SerializingFunction);
+
+    selectedNotifier = p_Selectable->Selected.addNotifier(
+            [this]()
+            {
+                HandleColors();
+            });
+    compositeNotifier = p_CompositeAware->InsideComposite.addNotifier(
+            [this]()
+            {
+                HandleColors();
+            });
 }

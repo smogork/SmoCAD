@@ -31,7 +31,7 @@ public:
     void UnregisterComponent();
 
     bool IsUVLocked();
-    void LockEditUV();
+    void LockEditUV(bool state = true);
 };
 
 

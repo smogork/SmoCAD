@@ -10,33 +10,7 @@
 
 BezierC2::BezierC2(const QString& name): BaseCurve(BEZIERC2_CLASS)
 {
-    InitializeDrawing();
-
-    AddComponent(p_Selected = Selectable::CreateRegisteredComponent(objectID));
-    AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(objectID, name, p_Selected));
-
-    p_SceneElement->SerializeObject = ASSIGN_SERIALIZER_FUNCTION(&BezierC2::SerializingFunction);
-
-    selectedNotifier = p_Selected->Selected.addNotifier([this](){
-        if (p_Selected->Selected)
-            CurveColor = QColor::fromRgbF(1.0f, 0.5f, 0.2f, 1.0f);
-        else
-            CurveColor = QColor::fromRgbF(0.8f, 0.8f, 0.8f, 1.0f);
-    });
-    deBoorPolylineDrawing = Options::DrawDeBoorPolygon.addNotifier([this]()
-       {
-           this->m_deBoorPolyline.p_Drawing->Enabled = Options::DrawDeBoorPolygon;
-       });
-
-    m_deBoorPolyline.DrawingColor = Qt::blue;
-    m_deBoorPolyline.p_Drawing->Enabled = Options::DrawDeBoorPolygon;
-
-    QObject::connect(p_Collection.get(), &TransformCollection::PointInCollectionModified,
-                     this, &BezierC2::OnDeBoorModified);
-    QObject::connect(p_Collection.get(), &TransformCollection::SinglePointChanged,
-                     this, &BezierC2::OnSingleBezierPointModified);
-    QObject::connect(p_Collection.get(), &TransformCollection::SinglePointChanged,
-                     this, &BezierC2::OnDeBoorModified);
+    InitObject(name);
 }
 
 void BezierC2::OnDeBoorModified()
@@ -181,7 +155,39 @@ void BezierC2::SerializingFunction(MG1::Scene &scene)
     scene.bezierC2.push_back(b2);
 }
 
-BezierC2::BezierC2(const MG1::BezierC2 &b2): BezierC2(b2.name.c_str())
+BezierC2::BezierC2(const MG1::BezierC2 &b2): BaseCurve(BEZIERC2_CLASS, b2.GetId())
 {
+    InitObject(b2.name.c_str());
     CommonDeserializeFunction(b2);
+}
+
+void BezierC2::InitObject(const QString &name)
+{
+    InitializeDrawing();
+
+    AddComponent(p_Selected = Selectable::CreateRegisteredComponent(GetObjectID()));
+    AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(GetObjectID(), name, p_Selected));
+
+    p_SceneElement->SerializeObject = ASSIGN_SERIALIZER_FUNCTION(&BezierC2::SerializingFunction);
+
+    selectedNotifier = p_Selected->Selected.addNotifier([this](){
+        if (p_Selected->Selected)
+            CurveColor = QColor::fromRgbF(1.0f, 0.5f, 0.2f, 1.0f);
+        else
+            CurveColor = QColor::fromRgbF(0.8f, 0.8f, 0.8f, 1.0f);
+    });
+    deBoorPolylineDrawing = Options::DrawDeBoorPolygon.addNotifier([this]()
+                                                                   {
+                                                                       this->m_deBoorPolyline.p_Drawing->Enabled = Options::DrawDeBoorPolygon;
+                                                                   });
+
+    m_deBoorPolyline.DrawingColor = Qt::blue;
+    m_deBoorPolyline.p_Drawing->Enabled = Options::DrawDeBoorPolygon;
+
+    QObject::connect(p_Collection.get(), &TransformCollection::PointInCollectionModified,
+                     this, &BezierC2::OnDeBoorModified);
+    QObject::connect(p_Collection.get(), &TransformCollection::SinglePointChanged,
+                     this, &BezierC2::OnSingleBezierPointModified);
+    QObject::connect(p_Collection.get(), &TransformCollection::SinglePointChanged,
+                     this, &BezierC2::OnDeBoorModified);
 }

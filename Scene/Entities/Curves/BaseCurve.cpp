@@ -11,8 +11,18 @@
 
 BaseCurve::BaseCurve(unsigned int cid) : IEntity(cid)
 {
-    AddComponent(p_Drawing = DynamicDrawing::CreateRegisteredComponent(objectID));
-    AddComponent(p_Collection = TransformCollection::CreateRegisteredComponent(objectID));
+    InitObject();
+}
+
+BaseCurve::BaseCurve(unsigned int cid, uint explicit_oid) : IEntity(cid, explicit_oid)
+{
+    InitObject();
+}
+
+void BaseCurve::InitObject()
+{
+    AddComponent(p_Drawing = DynamicDrawing::CreateRegisteredComponent(GetObjectID()));
+    AddComponent(p_Collection = TransformCollection::CreateRegisteredComponent(GetObjectID()));
 
     InitializeDrawing();
 
@@ -21,14 +31,13 @@ BaseCurve::BaseCurve(unsigned int cid) : IEntity(cid)
         return this->m_curvePolyline.DrawingColor;
     });
     curvePolylineDrawing = Options::DrawBezierPolygon.addNotifier([this]()
-    {
-        this->m_curvePolyline.p_Drawing->Enabled = Options::DrawBezierPolygon;
-    });
+                                                                  {
+                                                                      this->m_curvePolyline.p_Drawing->Enabled = Options::DrawBezierPolygon;
+                                                                  });
     curvePolylineColor = PolylineColor.addNotifier([this]()
-    {
-       this->m_curvePolyline.DrawingColor = PolylineColor;
-    });
-
+                                                   {
+                                                       this->m_curvePolyline.DrawingColor = PolylineColor;
+                                                   });
 }
 
 void BaseCurve::InitializeDrawing()
@@ -68,7 +77,7 @@ void BaseCurve::CommonSerializeFunction(MG1::Bezier& b)
 
 void BaseCurve::CommonDeserializeFunction(const MG1::Bezier &b)
 {
-    objectID = b.GetId();
+    SetObjectId(b.GetId());
 
     if (auto scene = SceneECS::Instance().lock())
     {
@@ -81,4 +90,6 @@ void BaseCurve::CommonDeserializeFunction(const MG1::Bezier &b)
         }
     }
 }
+
+
 

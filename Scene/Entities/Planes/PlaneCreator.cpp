@@ -8,10 +8,10 @@
 
 PlaneCreator::PlaneCreator(const QString &name, uint creatingCid, QVector3D pos) : IEntity(PLANE_CREATOR_CLASS)
 {
-    AddComponent(p_Transform = Transform::CreateRegisteredComponent(objectID, pos));
-    AddComponent(p_Selected = Selectable::CreateRegisteredComponent(objectID));
-    AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(objectID, name, p_Selected));
-    AddComponent(p_UVParams = UVPlaneCreator::CreateRegisteredComponent(objectID, p_Transform, creatingCid, 4, 3));
+    AddComponent(p_Transform = Transform::CreateRegisteredComponent(GetObjectID(), pos));
+    AddComponent(p_Selected = Selectable::CreateRegisteredComponent(GetObjectID()));
+    AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(GetObjectID(), name, p_Selected));
+    AddComponent(p_UVParams = UVPlaneCreator::CreateRegisteredComponent(GetObjectID(), p_Transform, creatingCid, 4, 3));
     p_UVParams->UDensity = 4;
     p_UVParams->VDensity = 4;
 

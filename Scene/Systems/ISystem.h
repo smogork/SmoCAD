@@ -82,6 +82,17 @@ public:
     {
         return components.size();
     }
+
+    void UpdateObjectId(uint oid, uint new_oid) override
+    {
+        if (!components.contains(oid))
+            return;
+
+        auto data = components[oid].lock();
+        data->UpdateAttachedObject(new_oid);
+        components.erase(oid);
+        components.insert(std::make_pair(data->GetAttachedObjectID(), data));
+    }
 };
 
 

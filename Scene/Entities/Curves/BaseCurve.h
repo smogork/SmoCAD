@@ -34,6 +34,8 @@ protected:
     void CommonDeserializeFunction(const MG1::Bezier& b);
 
     explicit BaseCurve(unsigned int cid);
+    explicit BaseCurve(unsigned int cid, uint explicit_oid);
+    void InitObject();
 
 public:
     std::shared_ptr<DynamicDrawing> p_Drawing;
