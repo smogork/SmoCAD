@@ -84,6 +84,7 @@ public:
     void SaveSceneToFile(const QString& filename);
     void CleanScene();
     void ResetUniqueObjects();
+    void DestroyComposite();
 
     void RemoveObjectsFromScene();
     void RemoveUniqueObjects();

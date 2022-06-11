@@ -312,6 +312,14 @@ unsigned int SceneECS::UpdateSelectRectangle(std::shared_ptr<SelectRectangleUpda
     return NON_OBJECT_ID;
 }
 
+void SceneECS::DestroyComposite()
+{
+    if (composite)
+    {
+        composite.reset();
+    }
+}
+
 
 
 
