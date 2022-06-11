@@ -15,12 +15,12 @@ IEntity::IEntity(unsigned int cid)
 
     classID = cid;
     if (auto scene = SceneECS::Instance().lock())
-        objectID = scene->GetNewObjectID();
+        m_objectId = scene->GetNewObjectID();
 }
 
 unsigned int IEntity::GetObjectID()
 {
-    return objectID;
+    return m_objectId;
 }
 
 unsigned int IEntity::GetClassID()
@@ -31,5 +31,25 @@ unsigned int IEntity::GetClassID()
 IEntity::~IEntity()
 {
     m_deleted = true;
-    emit EntityDeleted(objectID);
+    emit EntityDeleted(m_objectId);
+}
+
+void IEntity::SetObjectId(uint oid)
+{
+    uint old_oid = m_objectId;
+    m_objectId = oid;
+
+    if (auto scene = SceneECS::Instance().lock())
+        scene->UpdateObjectId(old_oid, oid);
+}
+
+IEntity::IEntity(unsigned int cid, unsigned int explicit_oid)
+{
+    if (cid >= ENTITY_CLASS::CLASS_COUNT)
+        throw std::runtime_error(QString("entity classID %1 unknown").arg(cid).toStdString());
+
+    classID = cid;
+    m_objectId = explicit_oid;
+    if (auto scene = SceneECS::Instance().lock())
+        scene->SetMaxOID(explicit_oid);
 }

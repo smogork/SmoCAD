@@ -5,11 +5,24 @@
 #include "BaseCurve.h"
 #include "Scene/Utilities/Utilites.h"
 #include "Renderer/Options.h"
+#include "Scene/SceneECS.h"
+#include "Scene/Systems/CollectionAwareSystem.h"
+#include "ThirdParty/Scene-Serializer/cpp/Serializer/Serializer/Scene/SerializerException.h"
 
 BaseCurve::BaseCurve(unsigned int cid) : IEntity(cid)
 {
-    AddComponent(p_Drawing = DynamicDrawing::CreateRegisteredComponent(objectID));
-    AddComponent(p_Collection = TransformCollection::CreateRegisteredComponent(objectID));
+    InitObject();
+}
+
+BaseCurve::BaseCurve(unsigned int cid, uint explicit_oid) : IEntity(cid, explicit_oid)
+{
+    InitObject();
+}
+
+void BaseCurve::InitObject()
+{
+    AddComponent(p_Drawing = DynamicDrawing::CreateRegisteredComponent(GetObjectID()));
+    AddComponent(p_Collection = TransformCollection::CreateRegisteredComponent(GetObjectID()));
 
     InitializeDrawing();
 
@@ -18,14 +31,13 @@ BaseCurve::BaseCurve(unsigned int cid) : IEntity(cid)
         return this->m_curvePolyline.DrawingColor;
     });
     curvePolylineDrawing = Options::DrawBezierPolygon.addNotifier([this]()
-    {
-        this->m_curvePolyline.p_Drawing->Enabled = Options::DrawBezierPolygon;
-    });
+                                                                  {
+                                                                      this->m_curvePolyline.p_Drawing->Enabled = Options::DrawBezierPolygon;
+                                                                  });
     curvePolylineColor = PolylineColor.addNotifier([this]()
-    {
-       this->m_curvePolyline.DrawingColor = PolylineColor;
-    });
-
+                                                   {
+                                                       this->m_curvePolyline.DrawingColor = PolylineColor;
+                                                   });
 }
 
 void BaseCurve::InitializeDrawing()
@@ -51,4 +63,33 @@ void BaseCurve::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
     shader->SetUniform("u_MVP.Model", QMatrix4x4());
     shader->GetRawProgram()->setPatchVertexCount(4);
 }
+
+void BaseCurve::CommonSerializeFunction(MG1::Bezier& b)
+{
+    b.SetId(GetObjectID());
+
+    for (const auto& wel : p_Collection->GetPoints())
+    {
+        if (auto el = wel.lock())
+            b.controlPoints.emplace_back(MG1::PointRef(el->GetAttachedObjectID()));
+    }
+}
+
+void BaseCurve::CommonDeserializeFunction(const MG1::Bezier &b)
+{
+    SetObjectId(b.GetId());
+
+    if (auto scene = SceneECS::Instance().lock())
+    {
+        for (const MG1::PointRef &ref: b.controlPoints)
+        {
+            if (auto el = scene->GetComponentOfSystem<CollectionAwareSystem, CollectionAware>(ref.GetId()).lock())
+                p_Collection->AddPoint(el);
+            else
+                throw MG1::SerializerException("Unknown point during deserialization of Bezier curve");
+        }
+    }
+}
+
+
 

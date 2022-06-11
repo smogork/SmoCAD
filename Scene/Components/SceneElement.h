@@ -9,6 +9,10 @@
 #include "IComponent.h"
 #include "Selectable.h"
 
+#include "Scene/Scene.h"
+
+#define ASSIGN_SERIALIZER_FUNCTION(F)  std::bind(F, this, std::placeholders::_1)
+
 class SceneElement: public IComponent
 {
 private:
@@ -20,6 +24,7 @@ public:
     static std::shared_ptr<SceneElement> CreateRegisteredComponent(unsigned int oid,
         const QString& name, std::shared_ptr<Selectable> select);
     void UnregisterComponent();
+    std::function<void(MG1::Scene& scene)> SerializeObject = {};
 
     explicit SceneElement(unsigned int oid);
     ~SceneElement() override;

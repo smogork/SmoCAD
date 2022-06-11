@@ -1,3 +1,4 @@
+#include <QFileDialog>
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 
@@ -13,6 +14,8 @@
 #include "Renderer/Options.h"
 #include "Scene/Entities/Curves/InterpolationC2.h"
 #include "Scene/Entities/Planes/PlaneCreator.h"
+
+#include "Serializer.h"
 
 MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -166,25 +169,52 @@ void MainWindow::on_actionPlaneC2_triggered()
 
 void MainWindow::on_actionNew_triggered()
 {
-
+    if (auto scene = SceneECS::Instance().lock())
+    {
+        scene->CleanScene();
+        componentControls.clear();
+        ui->sceneWidget->update();
+    }
 }
-
 
 void MainWindow::on_actionOpen_triggered()
 {
+    QFileDialog dialog(this, "Open saved scene file");
+    dialog.setFileMode(QFileDialog::ExistingFile);
+    dialog.setNameFilter("Json Files (*.json)");
+    dialog.setViewMode(QFileDialog::Detail);
+    dialog.setAcceptMode(QFileDialog::AcceptOpen);
 
+    if (dialog.exec())
+    {
+        QString fileName = dialog.selectedFiles().first();
+
+        on_actionNew_triggered();
+        if (auto scene = SceneECS::Instance().lock())
+            scene->LoadSceneFromFile(fileName);
+        ui->sceneWidget->update();
+    }
 }
-
 
 void MainWindow::on_actionSave_triggered()
 {
+    QFileDialog dialog(this, "Save scene to file");
+    dialog.setFileMode(QFileDialog::AnyFile);
+    dialog.setNameFilter("Json Files (*.json)");
+    dialog.setViewMode(QFileDialog::Detail);
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
 
+    if (dialog.exec())
+    {
+        QString fileName = dialog.selectedFiles().first();
+        if (auto scene = SceneECS::Instance().lock())
+            scene->SaveSceneToFile(fileName);
+    }
 }
-
 
 void MainWindow::on_actionExit_triggered()
 {
-
+    exit(0);
 }
 #pragma endregion
 

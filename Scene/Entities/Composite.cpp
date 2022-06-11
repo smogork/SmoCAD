@@ -12,7 +12,7 @@ Composite::CompositeElement::CompositeElement(Composite *composite, std::shared_
     compositeTransform = composite->p_Transform;
 
     el->InsideComposite = true;
-    dTransform = Transform::CreateRegisteredComponent(objectID, el->p_Transform->Position - compositeTransform->Position);
+    dTransform = Transform::CreateRegisteredComponent(GetObjectID(), el->p_Transform->Position - compositeTransform->Position);
     dTransform->Rotation = *el->p_Transform->Rotation;
     dTransform->Scale = *el->p_Transform->Scale;
 }
@@ -44,8 +44,8 @@ void Composite::CompositeElement::UpdateServingObject()
 
 Composite::Composite(std::shared_ptr<CompositeAware> startObject): IEntity(COMPOSITE_CLASS)
 {
-    AddComponent(p_Transform = Transform::CreateRegisteredComponent(objectID, startObject->p_Transform->Position));
-    AddComponent(p_Selectable = Selectable::CreateRegisteredComponent(objectID));
+    AddComponent(p_Transform = Transform::CreateRegisteredComponent(GetObjectID(), startObject->p_Transform->Position));
+    AddComponent(p_Selectable = Selectable::CreateRegisteredComponent(GetObjectID()));
     m_center = std::make_unique<Cursor>(p_Transform->Position);
     m_center->p_Transform->Scale = QVector3D(0.33f, 0.33f, 0.33f);
     objects.push_back(std::make_unique<CompositeElement>(this, startObject));

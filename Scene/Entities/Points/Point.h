@@ -27,6 +27,9 @@ private:
     QPropertyNotifier compositeNotifier;
 
     void HandleColors();
+    void SerializingFunction(MG1::Scene& scene);
+
+    void InitObject(const QString &name, QVector3D pos);
 
 public:
     std::shared_ptr<Transform> p_Transform;
@@ -38,8 +41,8 @@ public:
     std::shared_ptr<SceneElement> p_SceneElement;
 
     explicit Point(const QString& name);
+    explicit Point(const MG1::Point& serializedObj);
     Point(const QString& name, QVector3D pos);
-    ~Point() override;
 };
 
 

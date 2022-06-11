@@ -34,6 +34,9 @@ public:
     {
         return {};
     }
+
+    virtual void UpdateObjectId(uint oid, uint new_oid)
+    { }
 };
 
 

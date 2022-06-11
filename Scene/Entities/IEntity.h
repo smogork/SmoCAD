@@ -37,9 +37,10 @@ class IEntity: public QObject
 private:
     TypeMap<std::shared_ptr<IComponent>> m_components;
     bool m_deleted = false;
+    unsigned int m_objectId;
 
 protected:
-    unsigned int objectID;
+
     unsigned int classID;
     static const QColor DefaultColor;
 
@@ -49,12 +50,15 @@ protected:
         m_components.put<C>(std::static_pointer_cast<IComponent>(component));
     }
 
+    void SetObjectId(uint oid);
+
 signals:
     void EntityDeleted(unsigned int oid);
 
 public:
 
     explicit IEntity(unsigned int cid);
+    explicit IEntity(unsigned int cid, unsigned int explicit_oid);
     virtual ~IEntity() override;
 
     unsigned int GetObjectID();

@@ -25,6 +25,7 @@ public:
     QVector3D CenterPoint;
 
     OrbitalCamera(QVector3D centerPoint, float pivotLength);
+    void Reset();
 
     void RotateAroundCenter(float dFi, float dTheta);
     void SetTheta(float theta);

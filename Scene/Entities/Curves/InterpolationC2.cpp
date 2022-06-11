@@ -7,21 +7,7 @@
 
 InterpolationC2::InterpolationC2(const QString& name): BaseCurve(INTERPOLATIONC2_CLASS)
 {
-    AddComponent(p_Selected = Selectable::CreateRegisteredComponent(objectID));
-    AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(objectID, name, p_Selected));
-
-    PolylineColor = Qt::red;
-    QObject::connect(p_Collection.get(), &TransformCollection::PointInCollectionModified,
-                     this, &InterpolationC2::OnCollectionModified);
-    QObject::connect(p_Collection.get(), &TransformCollection::SinglePointChanged,
-                     this, &InterpolationC2::OnSinglePointModified);
-    selectedNotifier = p_Selected->Selected.addNotifier([this]()
-        {
-            if (p_Selected->Selected)
-                CurveColor = Selectable::SelectedColor;
-            else
-                CurveColor = DefaultColor;
-        });
+    InitObject(name);
 }
 
 std::vector<float> InterpolationC2::GenerateGeometryVertices()
@@ -101,6 +87,42 @@ void InterpolationC2::OnCollectionModified()
 void InterpolationC2::OnSinglePointModified(QVector3D pos, unsigned int changedOID)
 {
     OnCollectionModified();
+}
+
+void InterpolationC2::SerializingFunction(MG1::Scene &scene)
+{
+    MG1::InterpolatedC2 i2;
+    i2.name = p_SceneElement->Name.value().toStdString();
+    CommonSerializeFunction(i2);
+
+    scene.interpolatedC2.push_back(i2);
+}
+
+InterpolationC2::InterpolationC2(const MG1::InterpolatedC2 &i2): BaseCurve(INTERPOLATIONC2_CLASS, i2.GetId())
+{
+    InitObject(i2.name.c_str());
+    CommonDeserializeFunction(i2);
+}
+
+void InterpolationC2::InitObject(const QString& name)
+{
+    AddComponent(p_Selected = Selectable::CreateRegisteredComponent(GetObjectID()));
+    AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(GetObjectID(), name, p_Selected));
+
+    p_SceneElement->SerializeObject = ASSIGN_SERIALIZER_FUNCTION(&InterpolationC2::SerializingFunction);
+
+    PolylineColor = Qt::red;
+    QObject::connect(p_Collection.get(), &TransformCollection::PointInCollectionModified,
+                     this, &InterpolationC2::OnCollectionModified);
+    QObject::connect(p_Collection.get(), &TransformCollection::SinglePointChanged,
+                     this, &InterpolationC2::OnSinglePointModified);
+    selectedNotifier = p_Selected->Selected.addNotifier([this]()
+                                                        {
+                                                            if (p_Selected->Selected)
+                                                                CurveColor = Selectable::SelectedColor;
+                                                            else
+                                                                CurveColor = DefaultColor;
+                                                        });
 }
 
 

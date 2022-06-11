@@ -41,9 +41,9 @@ void UVParams::UnregisterComponent()
     }
 }
 
-void UVParams::LockEditUV()
+void UVParams::LockEditUV(bool state)
 {
-    m_locked = true;
+    m_locked = state;
 }
 
 bool UVParams::IsUVLocked()

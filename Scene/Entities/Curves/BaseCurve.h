@@ -10,6 +10,7 @@
 #include "Scene/Components/TransformCollection.h"
 #include "Scene/Entities/Polyline.h"
 #include "Scene/Entities/Points/InvisiblePoint.h"
+#include "Models/Curves/Bezier.h"
 
 //Wirtualna klasa bazowa dla krzywych
 //Utworzenie jej nie ma większego sensu
@@ -29,7 +30,12 @@ protected:
     void DrawingFunction(QOpenGLContext* context);
     void UniformFunction(std::shared_ptr<ShaderWrapper> shader);
 
+    void CommonSerializeFunction(MG1::Bezier& b);
+    void CommonDeserializeFunction(const MG1::Bezier& b);
+
     explicit BaseCurve(unsigned int cid);
+    explicit BaseCurve(unsigned int cid, uint explicit_oid);
+    void InitObject();
 
 public:
     std::shared_ptr<DynamicDrawing> p_Drawing;

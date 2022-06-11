@@ -15,8 +15,12 @@
 #include "Scene/Systems/ScreenSelectableSystem.h"
 #include "Scene/Entities/Planes/PlaneCreator.h"
 #include "Scene/Systems/UvPlaneCreatorSystem.h"
-#include "Scene/Entities/Curves/BezierC2.h"
+#include "Serializer.h"
+#include "Scene/Entities/Torus.h"
 #include "Scene/Entities/Curves/BezierC0.h"
+#include "Scene/Entities/Curves/InterpolationC2.h"
+#include "Scene/Entities/Curves/BezierC2.h"
+#include "Scene/Entities/Planes/PlaneC2.h"
 #include <list>
 
 std::shared_ptr<SceneECS> SceneECS::scene = nullptr;
@@ -62,6 +66,11 @@ unsigned int SceneECS::GetNewObjectID()
     return objectCounter++;
 }
 
+void SceneECS::SetMaxOID(uint oid)
+{
+    objectCounter = std::max(oid + 10000, objectCounter);//[TODO] wyjebac tego hacka - problemem jest tworzenie podobiektow i zajmowanie OID (rozne przestrzenie?)
+}
+
 void SceneECS::InitUniqueObjects()
 {
     grid = std::make_unique<Grid>();
@@ -71,8 +80,7 @@ void SceneECS::InitUniqueObjects()
 
 void SceneECS::InitSceneObjects()
 {
-    std::shared_ptr<PlaneCreator> pcr = std::make_shared<PlaneCreator>("PlaneC2Creator", PLANEC2_CLASS);
-    scene->AddObjectExplicitPosition(pcr);
+
 }
 
 void SceneECS::RemoveUniqueObjects()
@@ -221,6 +229,60 @@ void SceneECS::InitializeScene()
     InitUniqueObjects();
     InitSceneObjects();
 }
+
+void SceneECS::CleanScene()
+{
+    if (auto sel = GetSystem<SelectableSystem>().lock())
+    {
+        sel->Unselect();
+    }
+    RemoveObjectsFromScene();
+    ResetUniqueObjects();
+}
+
+void SceneECS::ResetUniqueObjects()
+{
+    cursor.reset();
+    emit CursorChange(nullptr);
+    //Renderer::controller.Camera->Reset();
+}
+
+void SceneECS::LoadSceneFromFile(const QString &filename)
+{
+    CleanScene();
+
+    MG1::SceneSerializer ser;
+    ser.LoadScene(filename.toStdString());
+    MG1::Scene& scene = MG1::Scene::Get();
+
+    LoadHelper<Point, MG1::Point>(scene.points);
+    LoadHelper<Torus, MG1::Torus>(scene.tori);
+    LoadHelper<BezierC0, MG1::BezierC0>(scene.bezierC0);
+    LoadHelper<BezierC2, MG1::BezierC2>(scene.bezierC2);
+    LoadHelper<InterpolationC2, MG1::InterpolatedC2>(scene.interpolatedC2);
+    LoadHelper<PlaneC0, MG1::BezierSurfaceC0>(scene.surfacesC0);
+    LoadHelper<PlaneC2, MG1::BezierSurfaceC2>(scene.surfacesC2);
+}
+
+void SceneECS::SaveSceneToFile(const QString &filename)
+{
+    if (auto sceneElements = GetSystem<SceneElementSystem>().lock())
+    {
+        sceneElements->SerializeSceneObjects();
+        MG1::SceneSerializer ser;
+        ser.SaveScene(filename.toStdString());
+    }
+}
+
+void SceneECS::UpdateObjectId(uint oid, uint new_oid)
+{
+    for (auto s: systems)
+    {
+        s.second->UpdateObjectId(oid, new_oid);
+    }
+}
+
+
 
 
 

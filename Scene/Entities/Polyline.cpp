@@ -6,8 +6,8 @@
 
 Polyline::Polyline(): IEntity(POLYLINE_CLASS)
 {
-    AddComponent(p_Drawing = DynamicDrawing::CreateRegisteredComponent(objectID));
-    AddComponent(p_Collection = TransformCollection::CreateRegisteredComponent(objectID));
+    AddComponent(p_Drawing = DynamicDrawing::CreateRegisteredComponent(GetObjectID()));
+    AddComponent(p_Collection = TransformCollection::CreateRegisteredComponent(GetObjectID()));
 
     InitializeDrawing();
     QObject::connect(p_Collection.get(), &TransformCollection::PointInCollectionModified,

@@ -7,122 +7,8 @@
 #include "Scene/Utilities/Utilites.h"
 #include "Scene/SceneECS.h"
 #include "Mathematics/PointShapes.h"
-
-/*PlaneC0::PlaneC0(const QString& name, bool isPipe, int width, int height): IEntity(PLANEC0_CLASS)
-{
-    AddComponent(p_Drawing = DynamicDrawing::CreateRegisteredComponent(objectID));
-    AddComponent(p_Collection = TransformCollection::CreateRegisteredComponent(objectID));
-    AddComponent(p_Selected = Selectable::CreateRegisteredComponent(objectID));
-    AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(objectID, name, p_Selected));
-    if (isPipe)
-        AddComponent(p_UV = UVParams::CreateRegisteredComponent(objectID, width/3.0f, (height - 1)/3.0f));
-    else
-        AddComponent(p_UV = UVParams::CreateRegisteredComponent(objectID, (width - 1)/3.0f, (height - 1)/3.0f));
-    p_UV->UWraps = isPipe;
-
-    p_Collection->SecondDimension = m_mesh.p_Collection->SecondDimension = width;//to musi zostac utworzone w roznych typach plaszczyzn
-    InitializeDrawing();
-    QObject::connect(p_Collection.get(), &TransformCollection::PointInCollectionModified,
-                     this, &PlaneC0::OnCollectionModified);
-    QObject::connect(p_Collection.get(), &TransformCollection::SinglePointChanged,
-                     this, &PlaneC0::OnSinglePointModified);
-    QObject::connect(p_Collection.get(), &TransformCollection::PointDeleted,
-                     this, &PlaneC0::PointRemovedFromCollection);
-
-    selectedNotifier = p_Selected->Selected.addNotifier([this]() {//to zostaje
-        if (p_Selected->Selected)
-            PlainColor = Selectable::SelectedColor;
-        else
-            PlainColor = DefaultColor;
-    });
-
-    meshColorNotifier = MeshColor.addNotifier([this]() {
-        this->m_mesh.DrawingColor = MeshColor;
-    });
-    PlainColor = DefaultColor;
-    MeshColor = Qt::darkGreen;//to trzeba ustawic w konkretnych plaszczyznach
-
-    meshDrawingNotifier = Options::DrawPlainMesh.addNotifier([this]()
-    {
-        this->m_mesh.p_Drawing->Enabled = Options::DrawPlainMesh;
-    });
-    m_mesh.p_Drawing->Enabled = Options::DrawPlainMesh;
-}
-
-
-PlaneC0::~PlaneC0()
-{
-}
-
-std::vector<float> PlaneC0::GenerateGeometryVertices()
-{
-    std::vector<float> res (3 * p_Collection->Size());
-
-    int i = 0;
-    for (const std::weak_ptr<Transform>& pw : p_Collection->GetPoints())
-        if (auto p = pw.lock())
-        {
-            res[3 * i] = (*p->Position).x();
-            res[3 * i + 1] = (*p->Position).y();
-            res[3 * i + 2] = (*p->Position).z();
-            i++;
-        }
-
-    return res;
-}
-
-std::vector<int> PlaneC0::GenerateTopologyIndices()
-{
-    std::vector<int> res(GetIndexCount());
-    int res_idx = 0;
-
-    int second_dim = (PATCH_SIZE - 1) * p_UV->U + 1;
-    if (p_UV->UWraps)
-        second_dim--;
-    for (int h = 0; h < p_UV->V; ++h)//height
-        for (int w = 0; w < p_UV->U; ++w)//width
-            for (int i = 0; i < PATCH_SIZE; ++i)//height
-                for (int j = 0; j < PATCH_SIZE; ++j)//width
-                {
-                    int wIdx = w * (PATCH_SIZE - 1) + j;
-                    int hIdx = h * (PATCH_SIZE - 1) + i;
-                    res[res_idx++] = hIdx * second_dim + (wIdx % second_dim);
-                }
-
-    return res;
-}
-
-int PlaneC0::GetIndexCount()
-{
-    return PATCH_SIZE * PATCH_SIZE * p_UV->U * p_UV->V;
-}
-
-void PlaneC0::InitializeDrawing()
-{
-    p_Drawing->SetVertexData(GenerateGeometryVertices());
-    p_Drawing->SetIndexData(GenerateTopologyIndices());
-    p_Drawing->p_bufferLayout.Push<float>(3);//position
-    if (auto sh = Renderer::GetShader(PLANE_SHADER).lock())
-        p_Drawing->AttachShader(sh);
-
-    p_Drawing->p_renderingFunction = ASSIGN_DRAWING_FUNCTION(&PlaneC0::DrawingFunction);
-    p_Drawing->p_uniformFunction = ASSIGN_UNIFORM_FUNCTION(&PlaneC0::UniformFunction);
-}
-
-void PlaneC0::DrawingFunction(QOpenGLContext *context)
-{
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE );
-    Renderer::DrawPatches(context->functions(), GetIndexCount());
-}
-
-void PlaneC0::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
-{
-    shader->SetUniform("u_ObjectColor", ColorToVector4D(PlainColor));
-    shader->SetUniform("u_MVP.Model", QMatrix4x4());
-    shader->SetUniform("u_UDensity", p_UV->UDensity);
-    shader->SetUniform("u_VDensity", p_UV->VDensity);
-    shader->GetRawProgram()->setPatchVertexCount(16);
-}*/
+#include "ThirdParty/Scene-Serializer/cpp/Serializer/Serializer/Scene/SerializerException.h"
+#include "Scene/Systems/CollectionAwareSystem.h"
 
 void PlaneC0::OnSinglePointModified(QVector3D pos, unsigned int changedOID)
 {
@@ -191,27 +77,7 @@ int PlaneC0::GetIndexCount()
 PlaneC0::PlaneC0(const QString &name, bool isPipe, int countU, int countV) :
         BasePlane(PLANEC0_CLASS, isPipe, countU, countV)
 {
-    AddComponent(p_Selected = Selectable::CreateRegisteredComponent(objectID));
-    AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(objectID, name, p_Selected));
-
-    p_Collection->SecondDimension = m_mesh.p_Collection->SecondDimension =
-            isPipe ? (PATCH_SIZE - 1) * countU : (PATCH_SIZE - 1) * countU + 1;
-
-    QObject::connect(p_Collection.get(), &TransformCollection::PointInCollectionModified,
-                     this, &PlaneC0::OnCollectionModified);
-    QObject::connect(p_Collection.get(), &TransformCollection::SinglePointChanged,
-                     this, &PlaneC0::OnSinglePointModified);
-    QObject::connect(p_Collection.get(), &TransformCollection::PointDeleted,
-                     this, &PlaneC0::PointRemovedFromCollection);
-
-    selectedNotifier = p_Selected->Selected.addNotifier([this]()
-                                                        {
-                                                            if (p_Selected->Selected)
-                                                                PlaneColor = Selectable::SelectedColor;
-                                                            else
-                                                                PlaneColor = DefaultColor;
-                                                        });
-    MeshColor = Qt::darkGreen;
+    InitObject(name, isPipe, countU, countV);
 }
 
 std::vector<std::shared_ptr<Point>>
@@ -238,6 +104,120 @@ PlaneC0::CreatePointsForPlane(QVector3D startPos, const QString &name, bool isPi
     }
 
     return res;
+}
+
+void PlaneC0::SerializingFunction(MG1::Scene &scene)
+{
+    MG1::BezierSurfaceC0 p0;
+    p0.SetId(GetObjectID());
+    p0.name = p_SceneElement->Name.value().toStdString();
+    p0.uWrapped = p_UV->UWraps;
+    p0.vWrapped = p_UV->VWraps;
+    p0.size.x = p_UV->U;
+    p0.size.y = p_UV->V;
+
+    auto indices = GenerateTopologyIndices();
+    std::vector<MG1::PointRef> points;
+    for (const auto& wp :  p_Collection->GetPoints())
+        if (auto p = wp.lock())
+            points.emplace_back(MG1::PointRef(p->GetAttachedObjectID()));
+
+    for (int i = 0; i < GetPatchCount(); ++i)
+    {
+        MG1::BezierPatchC0 patch;
+
+        patch.name = p_SceneElement->Name.value().toStdString();//[TODO] dodac inne nazwy dla patchy
+        patch.samples.x = p_UV->UDensity;
+        patch.samples.y = p_UV->VDensity;
+
+        for (int j = 0; j < PATCH_SIZE * PATCH_SIZE; ++j)
+        {
+            patch.controlPoints.emplace_back(points[indices[i * (PATCH_SIZE * PATCH_SIZE) + j]]);
+        }
+
+        p0.patches.emplace_back(patch);
+    }
+
+    scene.surfacesC0.push_back(p0);
+}
+
+PlaneC0::PlaneC0(const MG1::BezierSurfaceC0 &p0): BasePlane(PLANEC0_CLASS, p0.GetId(), p0.uWrapped, p0.size.x, p0.size.y)
+{
+    InitObject(p0.name.c_str(), p0.uWrapped, p0.size.x, p0.size.y);
+
+    p_UV->LockEditUV(false);
+    p_Collection->LockContent(false);
+    p_UV->VWraps = p0.vWrapped;
+
+    if (p0.patches.size() == 0)
+        throw MG1::SerializerException("Error while deserializing Surface without patches");
+
+    p_UV->UDensity = p0.patches[0].samples.x;
+    p_UV->VDensity = p0.patches[0].samples.y;
+    p_UV->LockEditUV();
+
+
+    auto indices = GenerateTopologyIndices();
+    std::vector<std::shared_ptr<CollectionAware>> points(GetVertexCount(p_UV->UWraps));
+
+    if (auto scene = SceneECS::Instance().lock())
+    {
+        for (int i = 0; i < GetPatchCount(); ++i)
+        {
+            MG1::BezierPatchC0 patch = p0.patches[i];
+
+            for (int j = 0; j < PATCH_SIZE * PATCH_SIZE; ++j)
+            {
+                int idx = indices[i * (PATCH_SIZE * PATCH_SIZE) + j];//index punktu w kolekcji punktow
+                if (!points[idx])//jeżeli jeszcze punkt nie został ustalony
+                {
+                    MG1::PointRef ref = patch.controlPoints[j];
+
+                    if (auto el = scene->GetComponentOfSystem<CollectionAwareSystem, CollectionAware>(ref.GetId()).lock())
+                        points[idx] = el;//przypisanie referencji do odpowiedniego miejsca w powierzchni
+                    else
+                        throw MG1::SerializerException("Unknown point during deserialization of SurfaceC0");
+                }
+            }
+        }
+
+        p_Collection->SetPoints(points);
+        p_Collection->LockContent();
+    }
+}
+
+int PlaneC0::GetVertexCount(bool isPipe)
+{
+    if (isPipe)
+        return ((PATCH_SIZE - 1) * p_UV->U) * ((PATCH_SIZE - 1) * p_UV->V + 1);
+   return ((PATCH_SIZE - 1) * p_UV->U + 1) * ((PATCH_SIZE - 1) * p_UV->V + 1);
+}
+
+void PlaneC0::InitObject(const QString &name, bool isPipe, int countU, int countV)
+{
+    AddComponent(p_Selected = Selectable::CreateRegisteredComponent(GetObjectID()));
+    AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(GetObjectID(), name, p_Selected));
+
+    p_SceneElement->SerializeObject = ASSIGN_SERIALIZER_FUNCTION(&PlaneC0::SerializingFunction);
+
+    p_Collection->SecondDimension = m_mesh.p_Collection->SecondDimension =
+            isPipe ? (PATCH_SIZE - 1) * countU : (PATCH_SIZE - 1) * countU + 1;
+
+    QObject::connect(p_Collection.get(), &TransformCollection::PointInCollectionModified,
+                     this, &PlaneC0::OnCollectionModified);
+    QObject::connect(p_Collection.get(), &TransformCollection::SinglePointChanged,
+                     this, &PlaneC0::OnSinglePointModified);
+    QObject::connect(p_Collection.get(), &TransformCollection::PointDeleted,
+                     this, &PlaneC0::PointRemovedFromCollection);
+
+    selectedNotifier = p_Selected->Selected.addNotifier([this]()
+                                                        {
+                                                            if (p_Selected->Selected)
+                                                                PlaneColor = Selectable::SelectedColor;
+                                                            else
+                                                                PlaneColor = DefaultColor;
+                                                        });
+    MeshColor = Qt::darkGreen;
 }
 
 

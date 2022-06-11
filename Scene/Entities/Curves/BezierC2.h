@@ -31,6 +31,7 @@ private:
     std::vector<float> GenerateGeometryVertices() override;
     std::vector<int> GenerateTopologyIndices() override;
     int GetIndexCount() override;
+    void SerializingFunction(MG1::Scene& scene);
 
     void InitializeDrawing() override;
 
@@ -39,6 +40,8 @@ public:
     std::shared_ptr<SceneElement> p_SceneElement;
 
     explicit BezierC2(const QString& name);
+    explicit BezierC2(const MG1::BezierC2& b2);
+    void InitObject(const QString& name);
 };
 
 

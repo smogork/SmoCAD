@@ -8,27 +8,7 @@
 
 BasePlane::BasePlane(uint cid, bool isPipe, int countU, int countV) : IEntity(cid)
 {
-    AddComponent(p_Drawing = DynamicDrawing::CreateRegisteredComponent(objectID));
-    AddComponent(p_Collection = TransformCollection::CreateRegisteredComponent(objectID));
-    AddComponent(p_UV = UVParams::CreateRegisteredComponent(objectID, countU, countV));
-    p_UV->UWraps = isPipe;
-
-    InitializeDrawing();
-
-    PlaneColor = DefaultColor;
-    MeshColor.setBinding([this]()
-    {
-        return this->m_mesh.DrawingColor;
-    });
-    meshDrawingNotifier = Options::DrawPlainMesh.addNotifier([this]()
-    {
-        this->m_mesh.p_Drawing->Enabled = Options::DrawPlainMesh;
-    });
-    meshColorNotifier = MeshColor.addNotifier([this]()
-    {
-        this->m_mesh.DrawingColor = MeshColor;
-    });
-    m_mesh.p_Drawing->Enabled = Options::DrawPlainMesh;
+    InitObject(isPipe, countU, countV);
 }
 
 BasePlane::~BasePlane()
@@ -61,4 +41,40 @@ void BasePlane::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
     shader->SetUniform("u_UDensity", p_UV->UDensity);
     shader->SetUniform("u_VDensity", p_UV->VDensity);
     shader->GetRawProgram()->setPatchVertexCount(16);
+}
+
+int BasePlane::GetPatchCount()
+{
+    return p_UV->U * p_UV->V;
+}
+
+BasePlane::BasePlane(unsigned int cid, uint explicit_oid, bool isPipe, int countU, int countV) : IEntity(cid, explicit_oid)
+{
+    InitObject(isPipe, countU, countV);
+}
+
+void BasePlane::InitObject(bool isPipe, int countU, int countV)
+{
+    AddComponent(p_Drawing = DynamicDrawing::CreateRegisteredComponent(GetObjectID()));
+    AddComponent(p_Collection = TransformCollection::CreateRegisteredComponent(GetObjectID()));
+    AddComponent(p_UV = UVParams::CreateRegisteredComponent(GetObjectID(), countU, countV));
+    p_UV->UWraps = isPipe;
+    m_mesh.IsPipe = isPipe;
+
+    InitializeDrawing();
+
+    PlaneColor = DefaultColor;
+    MeshColor.setBinding([this]()
+                         {
+                             return this->m_mesh.DrawingColor;
+                         });
+    meshDrawingNotifier = Options::DrawPlainMesh.addNotifier([this]()
+                                                             {
+                                                                 this->m_mesh.p_Drawing->Enabled = Options::DrawPlainMesh;
+                                                             });
+    meshColorNotifier = MeshColor.addNotifier([this]()
+                                              {
+                                                  this->m_mesh.DrawingColor = MeshColor;
+                                              });
+    m_mesh.p_Drawing->Enabled = Options::DrawPlainMesh;
 }

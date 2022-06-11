@@ -65,7 +65,7 @@ public:
         std::shared_ptr<C> res = std::make_shared<C>(oid);
         if (components.insert(std::make_pair(oid, res)).second)
             return res;
-        return nullptr;
+        throw std::runtime_error("Error while creating component - already exists");
     }
 
     virtual bool RegisterComponent(std::shared_ptr<C> component)
@@ -81,6 +81,17 @@ public:
     int GetComponentCount() override
     {
         return components.size();
+    }
+
+    void UpdateObjectId(uint oid, uint new_oid) override
+    {
+        if (!components.contains(oid))
+            return;
+
+        auto data = components[oid].lock();
+        data->UpdateAttachedObject(new_oid);
+        components.erase(oid);
+        components.insert(std::make_pair(data->GetAttachedObjectID(), data));
     }
 };
 

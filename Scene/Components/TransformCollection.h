@@ -43,7 +43,7 @@ public:
     int Size();
 
     bool IsContentLocked();
-    void LockContent();
+    void LockContent(bool state = true);
 
     //const std::weak_ptr<Transform>& operator[](std::size_t idx) const;
     TransformCollection& operator=(const TransformCollection& other);

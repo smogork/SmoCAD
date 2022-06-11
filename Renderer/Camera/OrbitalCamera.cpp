@@ -9,10 +9,9 @@
 
 OrbitalCamera::OrbitalCamera(QVector3D centerPoint, float pivotLength)
 {
+    Reset();
     CenterPoint = centerPoint;
     SetPivotLength(pivotLength);
-    fiAngle = 0;
-    thetaAngle = 0;
     UpdateFrontAndRight();
 }
 
@@ -137,6 +136,15 @@ QMatrix4x4 OrbitalCamera::CreateStereoMatrix(bool isLeft)
             Transform::GetYAxis()
         );
     return res;
+}
+
+void OrbitalCamera::Reset()
+{
+    CenterPoint = QVector3D();
+    fiAngle = 0;
+    thetaAngle = M_PIf / 4;
+    SetPivotLength(5);
+    UpdateFrontAndRight();
 }
 
 
