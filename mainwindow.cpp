@@ -66,9 +66,9 @@ void MainWindow::UpdateComponentUI(unsigned int oid)
         componentControls = scene->CreateUIForObject(oid);
         for (const std::unique_ptr<ComponentControl> &widget: componentControls)
         {
-            //for (const std::unique_ptr<ComponentControl> &widget: scene->CreateUIForObject(oid)) {
             widget->setParent(ui->scrollAreaWidgetContents);
             ui->verticalLayout->addWidget(widget.get());
+            
             QObject::connect(widget.get(), &ComponentControl::RequestRepaint,
                              ui->sceneWidget, &GLWidget::RedrawScreen);
             QObject::connect(widget.get(), &ComponentControl::RequestControlsUpdate,
