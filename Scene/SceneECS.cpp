@@ -21,6 +21,7 @@
 #include "Scene/Entities/Curves/InterpolationC2.h"
 #include "Scene/Entities/Curves/BezierC2.h"
 #include "Scene/Entities/Planes/PlaneC2.h"
+#include "Scene/Entities/SelectRectangle.h"
 #include <list>
 
 std::shared_ptr<SceneECS> SceneECS::scene = nullptr;
@@ -80,7 +81,7 @@ void SceneECS::InitUniqueObjects()
 
 void SceneECS::InitSceneObjects()
 {
-
+    //objects.push_back();
 }
 
 void SceneECS::RemoveUniqueObjects()

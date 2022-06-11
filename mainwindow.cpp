@@ -16,6 +16,7 @@
 #include "Scene/Entities/Planes/PlaneCreator.h"
 
 #include "Serializer.h"
+#include "Scene/Entities/SelectRectangle.h"
 
 MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -78,6 +79,8 @@ void MainWindow::MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event)
 {
     if (auto scene = SceneECS::Instance().lock())
     {
+        scene->AddObject(std::make_shared<SelectRectangle>(QRect(100, 100, 100, 100)));
+        
         unsigned int oid = scene->MouseClicked(event);
         UpdateComponentUI(oid);
         ui->sceneWidget->update();

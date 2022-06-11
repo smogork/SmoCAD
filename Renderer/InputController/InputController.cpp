@@ -62,8 +62,11 @@ void InputController::keyReleaseSlot(QKeyEvent *event)
 void InputController::mousePressSlot(QMouseEvent *event)
 {
     int id = translateMouseButton(event->button());
-    if (id != UNDEFINED_ID)
-        mouseButtonStates[id] = KeyState::Pressed;
+    if (id == UNDEFINED_ID)
+        return;
+
+    mouseButtonStates[id] = KeyState::Pressed;
+    mouseButtonStartClick[id] = event->pos();
 
     switch (event->button())
     {
@@ -84,8 +87,8 @@ void InputController::mousePressSlot(QMouseEvent *event)
 void InputController::mouseReleaseSlot(QMouseEvent *event)
 {
     int id = translateMouseButton(event->button());
-    if (id != UNDEFINED_ID)
-        mouseButtonStates[id] = KeyState::Released;
+    if (id == UNDEFINED_ID)
+        return;
 
     switch (event->button())
     {
@@ -95,9 +98,12 @@ void InputController::mouseReleaseSlot(QMouseEvent *event)
         case Qt::MiddleButton:
             break;
         case Qt::RightButton:
-            emit MoveObjectRequested(std::make_shared<ObjectMoveEvent>(event->pos()));
+            //emit MoveObjectRequested(std::make_shared<ObjectMoveEvent>(event->pos()));
             break;
     }
+
+    mouseButtonStates[id] = KeyState::Released;
+    mouseButtonStartClick[id] = {};
 
     if (!(mouseButtonStates[LMOUSE_ID] == KeyState::Released or
           mouseButtonStates[MMOUSE_ID] == KeyState::Released or
@@ -120,10 +126,10 @@ void InputController::mouseMoveSlot(QMouseEvent *event)
     QVector2D dMove = QVector2D(event->pos() - lastCursorPos);
     lastCursorPos = event->pos();
 
-    /*if (mouseButtonStates[RMOUSE_ID])
+    if (mouseButtonStates[RMOUSE_ID] && IsKeyDown(Qt::Key_Control))
     {
         emit MoveObjectRequested(std::make_shared<ObjectMoveEvent>(event->pos()));
-    }*/
+    }
 
 #pragma region Camera movement
     bool cameraChanged = false;
@@ -221,10 +227,10 @@ void InputController::EmitSceneMouseClickedEvent(QPoint screenPoint)
     emit SceneMouseClicked(std::make_shared<SceneMouseClickEvent>(screenPoint));
 }
 
-bool InputController::IsKeyPressed(Qt::Key key)
+bool InputController::IsKeyDown(Qt::Key key)
 {
     if (knownButtons.find(key) != knownButtons.end())
-        return keyStates[key] == KeyState::Pressed;
+        return keyStates[key] == KeyState::Pressed or keyStates[key] == KeyState::Held ;
     return false;
 }
 

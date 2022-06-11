@@ -42,7 +42,7 @@ public:
     std::unique_ptr<OrbitalCamera> Camera;
     std::shared_ptr<Viewport> viewport = nullptr;
 
-    bool IsKeyPressed(Qt::Key key);
+    bool IsKeyDown(Qt::Key key);
     void EmitCursorFromScreenEvent(QPoint screenPoint);
 
 public:
@@ -70,6 +70,7 @@ private:
 
     QPoint lastCursorPos;
     KeyState mouseButtonStates[3];
+    QPoint mouseButtonStartClick[3];
 protected:
 
     virtual void InitlizeKeyStates();

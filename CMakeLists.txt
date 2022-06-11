@@ -44,13 +44,16 @@ set(SHADER_FILES
         Shaders/Planes/planeC2.tess
         Shaders/Planes/planeC2.eval
         Shaders/Planes/planeC2.frag
+        Shaders/select_rect.vert
+        Shaders/select_rect.frag
         )
 
 set(MATH_FILES
         Mathematics/Interpolation.cpp Mathematics/Interpolation.h
         Mathematics/clapack.h
         Mathematics/f2c.h
-        )
+        Mathematics/GeometryRelation.cpp Mathematics/GeometryRelation.h
+        Mathematics/PointShapes.cpp Mathematics/PointShapes.h)
 
 set(CONTROL_SOURCES
         mainwindow.cpp mainwindow.h mainwindow.ui
@@ -133,7 +136,11 @@ set(PROJECT_SOURCES
         Scene/Entities/Mesh.cpp Scene/Entities/Mesh.h
         Scene/Entities/Planes/PlaneCreator.cpp Scene/Entities/Planes/PlaneCreator.h
         Scene/Systems/UvPlaneCreatorSystem.cpp Scene/Systems/UvPlaneCreatorSystem.h
-        Scene/Components/UvPlaneCreator.cpp Scene/Components/UvPlaneCreator.h Scene/Entities/Planes/BasePlane.cpp Scene/Entities/Planes/BasePlane.h Scene/Entities/Planes/PlaneC2.cpp Scene/Entities/Planes/PlaneC2.h Mathematics/PointShapes.cpp Mathematics/PointShapes.h)
+        Scene/Components/UvPlaneCreator.cpp Scene/Components/UvPlaneCreator.h
+        Scene/Entities/Planes/BasePlane.cpp Scene/Entities/Planes/BasePlane.h
+        Scene/Entities/Planes/PlaneC2.cpp Scene/Entities/Planes/PlaneC2.h
+
+        Scene/Entities/SelectRectangle.cpp Scene/Entities/SelectRectangle.h)
 
 add_subdirectory(Tests)
 add_subdirectory(ThirdParty/Scene-Serializer/cpp/Serializer)

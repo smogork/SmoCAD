@@ -55,6 +55,9 @@ void Renderer::UpdateShaders()
 {
     for (auto sh: shaders)
     {
+        if (sh.first == SELECT_RECT_SHADER)
+            continue;
+
         std::shared_ptr<ShaderWrapper> shader = sh.second;
         shader->SetUniform("u_MVP.View", controller.Camera->GetViewMatrix());
         shader->SetUniform("u_MVP.Projection", controller.viewport->GetProjectionMatrix());
@@ -73,6 +76,9 @@ void Renderer::UpdateShadersStereo(bool isLeft)
 {
     for (auto sh: shaders)
     {
+        if (sh.first == SELECT_RECT_SHADER)
+            continue;
+
         std::shared_ptr<ShaderWrapper> shader = sh.second;
         if (isLeft)
         {
