@@ -25,6 +25,7 @@ private:
 private slots:
     void MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event);
     void UpdateComponentUI(unsigned int oid);
+    void UpdateSelectRectangle(std::shared_ptr<SelectRectangleUpdateEvent> event);
 
     void on_actionTorus_triggered();
     void on_actionPoint_triggered();
@@ -44,8 +45,6 @@ private slots:
     void on_actionOpen_triggered();
     void on_actionSave_triggered();
     void on_actionExit_triggered();
-
-
 
 protected:
     void keyPressEvent(QKeyEvent* event) Q_DECL_OVERRIDE { Renderer::controller.keyPressSlot(event); }

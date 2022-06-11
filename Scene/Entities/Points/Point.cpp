@@ -67,8 +67,8 @@ void Point::InitObject(const QString &name, QVector3D pos)
     AddComponent(p_Drawing = StaticDrawing::CreateRegisteredComponent(GetObjectID()));
     InitializeDrawing();
     AddComponent(p_Selectable = Selectable::CreateRegisteredComponent(GetObjectID()));
-    AddComponent(p_ScreenSelectable = ScreenSelectable::CreateRegisteredComponent(GetObjectID(), p_Transform, p_Selectable));
     AddComponent(p_CompositeAware = CompositeAware::CreateRegisteredComponent(GetObjectID(), p_Transform, p_Drawing));
+    AddComponent(p_ScreenSelectable = ScreenSelectable::CreateRegisteredComponent(GetObjectID(), p_Transform, p_Selectable, p_CompositeAware));
     AddComponent(p_CollectionAware = CollectionAware::CreateRegisteredComponent(GetObjectID(), p_Transform));
     AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(GetObjectID(), name, p_Selectable));
 

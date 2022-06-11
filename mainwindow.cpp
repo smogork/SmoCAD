@@ -26,6 +26,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     QObject::connect(&Renderer::controller, &InputController::SceneMouseClicked,
                      this, &MainWindow::MouseRaycastSlot);
+    QObject::connect(&Renderer::controller, &InputController::UpdateSelectRectangle,
+                     this, &MainWindow::UpdateSelectRectangle);
 
     //register signals to cursorControl
     QObject::connect(ui->sceneWidget, &GLWidget::WidgetResized,
@@ -79,9 +81,17 @@ void MainWindow::MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event)
 {
     if (auto scene = SceneECS::Instance().lock())
     {
-        scene->AddObject(std::make_shared<SelectRectangle>(QRect(100, 100, 100, 100)));
-        
         unsigned int oid = scene->MouseClicked(event);
+        UpdateComponentUI(oid);
+        ui->sceneWidget->update();
+    }
+}
+
+void MainWindow::UpdateSelectRectangle(std::shared_ptr<SelectRectangleUpdateEvent> event)
+{
+    if (auto scene = SceneECS::Instance().lock())
+    {
+        unsigned int oid = scene->UpdateSelectRectangle(event);
         UpdateComponentUI(oid);
         ui->sceneWidget->update();
     }
@@ -247,6 +257,8 @@ void MainWindow::on_actionShow_Bezier_mesh_triggered(bool checked)
     Options::DrawPlainMesh = checked;
     ui->sceneWidget->update();
 }
+
+
 
 
 

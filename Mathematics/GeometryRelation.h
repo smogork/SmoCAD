@@ -9,6 +9,7 @@
 
 class GeometryRelation
 {
+public:
     static bool IsPointInsideRect(QPoint p, QRect rect);
 };
 

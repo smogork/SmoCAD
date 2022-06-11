@@ -53,7 +53,8 @@ void SceneElementSystem::SerializeSceneObjects()
     {
         if (auto el = wel.second.lock())
         {
-            el->SerializeObject(sceneSerilizableObject);
+            if (el->SerializeObject)
+                el->SerializeObject(sceneSerilizableObject);
         }
     }
     //MG1::Scene::Get();

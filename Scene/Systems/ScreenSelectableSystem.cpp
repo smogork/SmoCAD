@@ -28,3 +28,25 @@ std::shared_ptr<ScreenSelectable> ScreenSelectableSystem::SelectObject(std::shar
 
     return nullptr;
 }
+
+std::unique_ptr<Composite> ScreenSelectableSystem::GetObjectsFromRectangle(QRect selectRectangle)
+{
+    std::unique_ptr<Composite> res = nullptr;
+    
+    for (const std::pair<unsigned int, std::weak_ptr<ScreenSelectable>> &s : components)
+        if (auto obj = s.second.lock())
+        {
+            if (obj->CanBeInsideComposite() && obj->IsInsideRectangle(selectRectangle))
+            {
+                if (res)
+                    res->AddObject(obj->p_CompositeAware);
+                else
+                    res = std::make_unique<Composite>(obj->p_CompositeAware);
+            }
+        }
+        
+    if (res)
+        res->p_Selectable->Selected = true;
+        
+    return res;
+}

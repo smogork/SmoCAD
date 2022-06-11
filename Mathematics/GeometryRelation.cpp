@@ -3,3 +3,8 @@
 //
 
 #include "GeometryRelation.h"
+
+bool GeometryRelation::IsPointInsideRect(QPoint p, QRect rect)
+{
+    return rect.contains(p);
+}

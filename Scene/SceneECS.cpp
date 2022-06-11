@@ -77,6 +77,7 @@ void SceneECS::InitUniqueObjects()
     grid = std::make_unique<Grid>();
     cursor = nullptr;
     composite = nullptr;
+    selectRect = nullptr;
 }
 
 void SceneECS::InitSceneObjects()
@@ -89,6 +90,7 @@ void SceneECS::RemoveUniqueObjects()
     grid.reset();
     composite.reset();
     cursor.reset();
+    selectRect.reset();
     emit CursorChange(nullptr);
 }
 
@@ -281,6 +283,33 @@ void SceneECS::UpdateObjectId(uint oid, uint new_oid)
     {
         s.second->UpdateObjectId(oid, new_oid);
     }
+}
+
+unsigned int SceneECS::UpdateSelectRectangle(std::shared_ptr<SelectRectangleUpdateEvent> event)
+{
+    if (event->DeleteRectangle)
+    {
+        selectRect.reset();
+        composite.reset();
+        
+        auto screenSelectedSystem = GetSystem<ScreenSelectableSystem>().lock();
+        composite = screenSelectedSystem->GetObjectsFromRectangle(event->SelectedArea);
+        
+        if (composite)
+            return composite->GetObjectID();
+    }
+    else
+    {
+        if (selectRect)
+            selectRect->SelectionArea = event->SelectedArea;
+        else
+            selectRect = std::make_unique<SelectRectangle>(event->SelectedArea);
+        
+    }
+    
+    if (auto& sel = GetSystem<SelectableSystem>().lock()->GetSelectedObject())
+        return sel->GetAttachedObjectID();
+    return NON_OBJECT_ID;
 }
 
 

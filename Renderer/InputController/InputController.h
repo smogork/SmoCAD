@@ -5,6 +5,7 @@
 #include "Renderer/InputController/InputEvents/SceneMouseClickEvent.h"
 #include "Renderer/Camera/Viewport.h"
 #include "Renderer/InputController/InputEvents/ObjectMoveEvent.h"
+#include "Renderer/InputController/InputEvents/SelectRectangleUpdateEvent.h"
 
 #include <QKeyEvent>
 #include <QObject>
@@ -57,6 +58,7 @@ signals:
     void CameraUpdated(std::shared_ptr<CameraUpdateEvent> event);
     void SceneMouseClicked(std::shared_ptr<SceneMouseClickEvent> event);
     void MoveObjectRequested(std::shared_ptr<ObjectMoveEvent> event);
+    void UpdateSelectRectangle(std::shared_ptr<SelectRectangleUpdateEvent> event);
 
 private:
     enum KeyState {
@@ -66,7 +68,7 @@ private:
     };
     std::set<Qt::Key> knownButtons;
     std::map<Qt::Key, KeyState> keyStates;
-    std::map<Qt::Key, QTimer*> keyHeldTimers;
+    std::map<Qt::Key, std::unique_ptr<QTimer>> keyHeldTimers;
 
     QPoint lastCursorPos;
     KeyState mouseButtonStates[3];

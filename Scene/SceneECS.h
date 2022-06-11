@@ -19,6 +19,7 @@
 #include "Controls/ListElements/QListWidgetSceneElement.h"
 #include "Scene/Entities/Mesh.h"
 #include "Scene/Entities/Points/Point.h"
+#include "Scene/Entities/SelectRectangle.h"
 
 class SceneECS : public QObject
 {
@@ -61,6 +62,8 @@ public:
     }
 
     unsigned int MouseClicked(std::shared_ptr<SceneMouseClickEvent> event);
+    unsigned int UpdateSelectRectangle(std::shared_ptr<SelectRectangleUpdateEvent> event);
+    
     void AddObject(std::shared_ptr<IEntity> obj);
     void UpdateObjectId(uint oid, uint new_oid);
     void AddObjectExplicitPosition(std::shared_ptr<IEntity> obj);
@@ -86,7 +89,6 @@ public:
     void RemoveUniqueObjects();
     void ClearSystems();
 
-
     QString DebugSystemReport();
 signals:
     void CursorChange(std::shared_ptr<Cursor> cur);
@@ -101,6 +103,7 @@ private:
     std::unique_ptr<Grid> grid = nullptr;
     std::shared_ptr<Cursor> cursor = nullptr;
     std::unique_ptr<Composite> composite = nullptr;
+    std::unique_ptr<SelectRectangle> selectRect = nullptr;
 
     SceneECS();
 
