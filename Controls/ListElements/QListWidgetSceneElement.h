@@ -14,6 +14,8 @@ class QListWidgetSceneElement: public QListWidgetItem
 private:
     std::weak_ptr<SceneElement> element;
     QPropertyNotifier nameNotifier;
+    QPropertyNotifier selectedNotifier;
+    QPropertyNotifier insideCompositeNotifier;
 
 public:
     QListWidgetSceneElement(QListWidget* parent, std::shared_ptr<SceneElement> element);

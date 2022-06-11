@@ -5,31 +5,31 @@
 #ifndef SMOCAD_SCENEELEMENTSYSTEM_H
 #define SMOCAD_SCENEELEMENTSYSTEM_H
 
-
 #include <QListWidgetItem>
 #include "ISystem.h"
 #include "Scene/Components/SceneElement.h"
 #include "Controls/ListElements/QListWidgetSceneElement.h"
 
-class SceneElementSystem: public ISystem<SceneElement>
+class SceneElementSystem : public ISystem<SceneElement>
 {
 private:
     std::map<unsigned int, std::unique_ptr<QListWidgetSceneElement>> listItems;
-    QListWidget* sceneElementList;
+    QListWidget *sceneElementList;
 
 public:
-    SceneElementSystem(): ISystem(SYSTEM_ID::SCENE_ELEMENT), sceneElementList(nullptr) { }
-
-    const char* GetSystemName() override { return "SceneElementSystem"; }
-    std::shared_ptr<SceneElement> CreateRegistered(unsigned int oid) override;
+    SceneElementSystem() : ISystem(SYSTEM_ID::SCENE_ELEMENT), sceneElementList(nullptr) {}
+    
+    const char *GetSystemName() override { return "SceneElementSystem"; }
+    
+    std::shared_ptr<SceneElement>
+    CreateRegistered(unsigned int oid, std::shared_ptr<Selectable> select, std::shared_ptr<CompositeAware> composite);
     bool RegisterComponent(std::shared_ptr<SceneElement> component) override;
     bool Unregister(unsigned int oid) override;
-
-    void AttachItemList(QListWidget* list);
-
+    
+    void AttachItemList(QListWidget *list);
+    
     //Wpisz do globalnego obiektu serializacyjnego wszystkie SceneElements
     void SerializeSceneObjects();
 };
-
 
 #endif //SMOCAD_SCENEELEMENTSYSTEM_H

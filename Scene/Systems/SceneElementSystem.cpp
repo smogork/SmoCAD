@@ -8,13 +8,15 @@
 
 #pragma region QListWidgetSceneElement
 
-
 #pragma endregion
 
-std::shared_ptr<SceneElement> SceneElementSystem::CreateRegistered(unsigned int oid)
+std::shared_ptr<SceneElement> SceneElementSystem::CreateRegistered(unsigned int oid, std::shared_ptr<Selectable> select,
+                                                                   std::shared_ptr<CompositeAware> composite)
 {
     auto item = ISystem::CreateRegistered(oid);
-
+    item->p_Selected = select;
+    item->p_CompositeAware = composite;
+    
     std::unique_ptr<QListWidgetSceneElement> listItem =
             std::make_unique<QListWidgetSceneElement>(sceneElementList, item);
     listItems.insert(std::make_pair(item->GetAttachedObjectID(), std::move(listItem)));
@@ -46,10 +48,10 @@ void SceneElementSystem::AttachItemList(QListWidget *list)
 
 void SceneElementSystem::SerializeSceneObjects()
 {
-    auto& sceneSerilizableObject = MG1::Scene::Get();
+    auto &sceneSerilizableObject = MG1::Scene::Get();
     sceneSerilizableObject.Clear();
-
-    for (const auto& wel : components)
+    
+    for (const auto &wel: components)
     {
         if (auto el = wel.second.lock())
         {

@@ -6,14 +6,30 @@
 #include "Scene/SceneECS.h"
 
 QListWidgetSceneElement::QListWidgetSceneElement(QListWidget *parent,
-                                                                     std::shared_ptr<SceneElement> element)
+                                                 std::shared_ptr<SceneElement> element)
         : QListWidgetItem(element->Name.value(), parent), element(element)
 {
-    nameNotifier = element->Name.addNotifier([this]()
-                                             {
-                                                 if (auto elem = this->element.lock())
-                                                     this->setText(elem->Name);
-                                             });
+    nameNotifier = element->Name.addNotifier(
+            [this]()
+            {
+                if (auto elem = this->element.lock())
+                    this->setText(elem->Name);
+            });
+    
+    selectedNotifier = element->p_Selected->Selected.addNotifier(
+            [this]()
+            {
+                if (auto elem = this->element.lock())
+                    this->setSelected(elem->p_Selected->Selected);
+            });
+    
+    if (element->p_CompositeAware)
+        insideCompositeNotifier = element->p_CompositeAware->InsideComposite.addNotifier(
+                [this]()
+                {
+                    if (auto elem = this->element.lock())
+                        this->setSelected(elem->p_CompositeAware->InsideComposite);
+                });
 }
 
 void QListWidgetSceneElement::SelectItem()
