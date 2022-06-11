@@ -9,6 +9,7 @@
 #include <QKeyEvent>
 #include <QObject>
 #include <QPoint>
+#include <QTimer>
 #include <set>
 #include <map>
 
@@ -20,6 +21,7 @@
 #define RMOUSE_ID 2
 
 #define MOVE_SENSITIVITY 0.005f
+#define KEYBOARD_MOVE_SENSITIVITY 0.05f
 #define ROTATE_SENSITIVITY 0.005f
 #define ZOOM_SENSITIVITY 0.01f
 
@@ -41,8 +43,8 @@ public:
     std::shared_ptr<Viewport> viewport = nullptr;
 
     bool IsKeyPressed(Qt::Key key);
-
     void EmitCursorFromScreenEvent(QPoint screenPoint);
+
 public:
     virtual void keyPressSlot(QKeyEvent *event);
     virtual void keyReleaseSlot(QKeyEvent *event);
@@ -59,10 +61,12 @@ signals:
 private:
     enum KeyState {
         Released,
-        Pressed
+        Pressed,
+        Held
     };
     std::set<Qt::Key> knownButtons;
     std::map<Qt::Key, KeyState> keyStates;
+    std::map<Qt::Key, QTimer*> keyHeldTimers;
 
     QPoint lastCursorPos;
     KeyState mouseButtonStates[3];
@@ -74,6 +78,9 @@ protected:
 
     void EmitCameraUpdateEvent();
     void EmitSceneMouseClickedEvent(QPoint screenPoint);
+
+protected slots:
+    void KeyboardKeyHeld(Qt::Key key);
 };
 
 #endif // KeyboardMouseHandlerH

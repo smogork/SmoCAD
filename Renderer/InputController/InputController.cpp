@@ -1,10 +1,11 @@
 #include "InputController.h"
 #include "Renderer/InputController/InputEvents/ObjectMoveEvent.h"
 
+
+
 InputController::InputController(std::shared_ptr<Viewport> viewport, QObject *parent)
 : QObject(parent)
 {
-    //[TODO] poprawic tworzenie kamery aby patrzyla na jakis sensowny obiekt
     Camera = std::make_unique<OrbitalCamera>(QVector3D(), 5);
     this->viewport = viewport;
 
@@ -19,16 +20,43 @@ InputController::~InputController()
 
 void InputController::keyPressSlot(QKeyEvent *event)
 {
+    if (event->isAutoRepeat())
+        return;
+
     Qt::Key key = (Qt::Key) event->key();
     if (knownButtons.find(key) != knownButtons.end())
+    {
+        QTimer *timer = new QTimer(this);
+        connect(timer, &QTimer::timeout, [this, key]
+        {
+            keyStates[key] = KeyState::Held;
+            this->KeyboardKeyHeld(key);
+        });
+        timer->start(200);
+        timer->setInterval(30);
+        keyHeldTimers[key] = timer;
+
         keyStates[key] = KeyState::Pressed;
+        //qDebug() << QString("Key %0 pressed").arg(key);
+    }
 }
 
 void InputController::keyReleaseSlot(QKeyEvent *event)
 {
+    if (event->isAutoRepeat())
+        return;
+
     Qt::Key key = (Qt::Key) event->key();
     if (knownButtons.find(key) != knownButtons.end())
+    {
+        QTimer* timer = keyHeldTimers[key];
+        keyHeldTimers.erase(key);
+        timer->stop();
+        delete timer;
+
         keyStates[key] = KeyState::Released;
+        //qDebug() << QString("Key %0 released").arg(key);
+    }
 }
 
 void InputController::mousePressSlot(QMouseEvent *event)
@@ -49,6 +77,8 @@ void InputController::mousePressSlot(QMouseEvent *event)
             //emit MoveObjectRequested(std::make_shared<ObjectMoveEvent>(event->pos()));
             break;
     }
+
+    //qDebug() << QString("Mouse %0 pressed").arg(event->button());
 }
 
 void InputController::mouseReleaseSlot(QMouseEvent *event)
@@ -76,6 +106,8 @@ void InputController::mouseReleaseSlot(QMouseEvent *event)
         lastCursorPos.setX(0);
         lastCursorPos.setY(0);
     }
+
+    //qDebug() << QString("Mouse %0 released").arg(event->button());
 }
 
 void InputController::mouseMoveSlot(QMouseEvent *event)
@@ -88,14 +120,14 @@ void InputController::mouseMoveSlot(QMouseEvent *event)
     QVector2D dMove = QVector2D(event->pos() - lastCursorPos);
     lastCursorPos = event->pos();
 
-    if (mouseButtonStates[RMOUSE_ID])
+    /*if (mouseButtonStates[RMOUSE_ID])
     {
         emit MoveObjectRequested(std::make_shared<ObjectMoveEvent>(event->pos()));
-    }
+    }*/
 
 #pragma region Camera movement
     bool cameraChanged = false;
-    if (IsKeyPressed(Qt::Key_Shift))
+    /*if (IsKeyPressed(Qt::Key_Shift))
     {
         if (IsKeyPressed(Qt::Key_Control))// touchpad - zoom
             Camera->ChangePivotLength(dMove.y() * ZOOM_SENSITIVITY);
@@ -111,20 +143,22 @@ void InputController::mouseMoveSlot(QMouseEvent *event)
     {
         Camera->RotateAroundCenter(dMove.x() * ROTATE_SENSITIVITY, dMove.y() * ROTATE_SENSITIVITY);
         cameraChanged = true;
-    }
+    }*/
 
-    /*if (mousePresses[MMOUSE_ID]) //cad movement
+    if (mouseButtonStates[MMOUSE_ID]) //cad movement
     {
-        if (mousePresses[RMOUSE_ID])
+        if (mouseButtonStates[RMOUSE_ID])
         {
-            camera->RotateAroundCenter(dMove.x() * ROTATE_SENSITIVITY, dMove.y() * ROTATE_SENSITIVITY);
+            Camera->RotateAroundCenter(dMove.x() * ROTATE_SENSITIVITY, dMove.y() * ROTATE_SENSITIVITY);
+            cameraChanged = true;
         }
         else
         {
-            camera->MoveRight(-dMove.x() * MOVE_SENSITIVITY);
-            camera->MoveUp(dMove.y() * MOVE_SENSITIVITY);
+            Camera->MoveRight(-dMove.x() * MOVE_SENSITIVITY);
+            Camera->MoveUp(dMove.y() * MOVE_SENSITIVITY);
+            cameraChanged = true;
         }
-    }*/
+    }
 
     if (cameraChanged)
         EmitCameraUpdateEvent();
@@ -189,12 +223,41 @@ void InputController::EmitSceneMouseClickedEvent(QPoint screenPoint)
 
 bool InputController::IsKeyPressed(Qt::Key key)
 {
-    return keyStates[key] == KeyState::Pressed;
+    if (knownButtons.find(key) != knownButtons.end())
+        return keyStates[key] == KeyState::Pressed;
+    return false;
 }
 
 void InputController::EmitCursorFromScreenEvent(QPoint screenPoint)
 {
     emit SceneMouseClicked(std::make_shared<SceneMouseClickEvent>(screenPoint, false));
+}
+
+void InputController::KeyboardKeyHeld(Qt::Key key)
+{
+    bool cameraChanged = false;
+    switch (key)
+    {
+        case Qt::Key_W:
+            Camera->MoveForward(KEYBOARD_MOVE_SENSITIVITY);
+            cameraChanged = true;
+            break;
+        case Qt::Key_S:
+            Camera->MoveForward(-KEYBOARD_MOVE_SENSITIVITY);
+            cameraChanged = true;
+            break;
+        case Qt::Key_D:
+            Camera->MoveRight(KEYBOARD_MOVE_SENSITIVITY);
+            cameraChanged = true;
+            break;
+        case Qt::Key_A:
+            Camera->MoveRight(-KEYBOARD_MOVE_SENSITIVITY);
+            cameraChanged = true;
+            break;
+    }
+
+    if (cameraChanged)
+        EmitCameraUpdateEvent();
 }
 
 #pragma endregion
