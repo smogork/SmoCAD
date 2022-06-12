@@ -5,6 +5,9 @@
 #include "QListWidgetSceneElement.h"
 #include "Scene/SceneECS.h"
 
+const QBrush QListWidgetSceneElement::DefaultBGColor = Qt::black;
+const QBrush QListWidgetSceneElement::SelectedBGColor = Qt::darkYellow;
+
 QListWidgetSceneElement::QListWidgetSceneElement(QListWidget *parent,
                                                  std::shared_ptr<SceneElement> element)
         : QListWidgetItem(element->Name.value(), parent), element(element)
@@ -19,16 +22,14 @@ QListWidgetSceneElement::QListWidgetSceneElement(QListWidget *parent,
     selectedNotifier = element->p_Selected->Selected.addNotifier(
             [this]()
             {
-                if (auto elem = this->element.lock())
-                    this->setSelected(elem->p_Selected->Selected);
+                    this->setForeground(handleColor());
             });
     
     if (element->p_CompositeAware)
         insideCompositeNotifier = element->p_CompositeAware->InsideComposite.addNotifier(
                 [this]()
                 {
-                    if (auto elem = this->element.lock())
-                        this->setSelected(elem->p_CompositeAware->InsideComposite);
+                        this->setForeground(handleColor());
                 });
 }
 
@@ -58,4 +59,15 @@ const QString QListWidgetSceneElement::GetName()
     if (auto elem = element.lock())
         return elem->Name;
     return "";
+}
+
+QBrush QListWidgetSceneElement::handleColor()
+{
+    if (auto elem = this->element.lock())
+    {
+        if (elem->p_Selected->Selected or (elem->p_CompositeAware && elem->p_CompositeAware->InsideComposite))
+            return Selectable::SelectedColor;
+    }
+    
+    return DefaultBGColor;
 }

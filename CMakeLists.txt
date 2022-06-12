@@ -140,7 +140,7 @@ set(PROJECT_SOURCES
         Scene/Entities/Planes/BasePlane.cpp Scene/Entities/Planes/BasePlane.h
         Scene/Entities/Planes/PlaneC2.cpp Scene/Entities/Planes/PlaneC2.h
 
-        Scene/Entities/SelectRectangle.cpp Scene/Entities/SelectRectangle.h Renderer/InputController/InputEvents/SelectRectangleUpdateEvent.cpp Renderer/InputController/InputEvents/SelectRectangleUpdateEvent.h)
+        Scene/Entities/SelectRectangle.cpp Scene/Entities/SelectRectangle.h Renderer/InputController/InputEvents/SelectRectangleUpdateEvent.cpp Renderer/InputController/InputEvents/SelectRectangleUpdateEvent.h Scene/Systems/MergeSystem.cpp Scene/Systems/MergeSystem.h Scene/Components/Merge.cpp Scene/Components/Merge.h)
 
 add_subdirectory(Tests)
 add_subdirectory(ThirdParty/Scene-Serializer/cpp/Serializer)
