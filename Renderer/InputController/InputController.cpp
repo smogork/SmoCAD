@@ -45,6 +45,14 @@ void InputController::keyReleaseSlot(QKeyEvent *event)
         return;
     
     Qt::Key key = (Qt::Key) event->key();
+    
+    if (IsKeyDown(Qt::Key_Escape))
+    {
+        emit RemoveSelection();
+        EmitCameraUpdateEvent();//Tak na prawde chodzi o zaktualizowanie sceny, ale trudno
+    }
+    
+    
     if (knownButtons.find(key) != knownButtons.end())
     {
         keyHeldTimers[key]->stop();

@@ -11,6 +11,8 @@ SelectableSystem::SelectableSystem(): ISystem(SYSTEM_ID::SELECTABLE)
 {
     QObject::connect(&Renderer::controller, &InputController::MoveObjectRequested,
                      this, &SelectableSystem::OnSelectedMoveRequest);
+    QObject::connect(&Renderer::controller, &InputController::RemoveSelection,
+                     this, &SelectableSystem::OnRemoveSelection);
 }
 
 
@@ -96,6 +98,11 @@ void SelectableSystem::OnSelectedMoveRequest(std::shared_ptr<ObjectMoveEvent> ev
             selectedTransform->SetPosition((event->RaycastDirection * t + event->RaycastStart).toVector3D());
         }
     }
+}
+
+void SelectableSystem::OnRemoveSelection()
+{
+    Unselect();
 }
 
 

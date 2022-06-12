@@ -59,6 +59,7 @@ signals:
     void SceneMouseClicked(std::shared_ptr<SceneMouseClickEvent> event);
     void MoveObjectRequested(std::shared_ptr<ObjectMoveEvent> event);
     void UpdateSelectRectangle(std::shared_ptr<SelectRectangleUpdateEvent> event);
+    void RemoveSelection();
 
 private:
     enum KeyState {
