@@ -10,6 +10,8 @@
 #include "Scene/Entities/Curves/BezierC0.h"
 #include "CollectionAwareSystem.h"
 #include "Scene/Entities/Curves/InterpolationC2.h"
+#include "Controls/EntityContextMenu.h"
+#include "Scene/Utilities/Utilites.h"
 
 #pragma region QListWidgetSceneElement
 
@@ -67,7 +69,7 @@ void SceneElementSystem::SerializeSceneObjects()
     //MG1::Scene::Get();
 }
 
-std::unique_ptr<QMenu> SceneElementSystem::CreateContextMenuForSelection()
+/*std::unique_ptr<QMenu> SceneElementSystem::CreateContextMenuForSelection()
 {
     if (!sceneElementList or sceneElementList->selectedItems().size() == 0)
         return nullptr;
@@ -76,7 +78,7 @@ std::unique_ptr<QMenu> SceneElementSystem::CreateContextMenuForSelection()
     unsigned int oid = item->GetAttachedObjectID();
     
     // Create menu and insert some actions
-    std::unique_ptr<QMenu> myMenu = std::make_unique<QMenu>();
+
     if (auto scene = SceneECS::Instance().lock())
     {
         myMenu->addAction("Remove", this, &SceneElementSystem::onRemoveSceneElement);
@@ -84,8 +86,7 @@ std::unique_ptr<QMenu> SceneElementSystem::CreateContextMenuForSelection()
         if (sceneElementList->selectedItems().size() == 1)
         {
             myMenu->addAction("Rename", this, &SceneElementSystem::onRenameSceneElement);
-        }
-        else if (sceneElementList->selectedItems().size() > 1)
+        } else if (sceneElementList->selectedItems().size() > 1)
         {
             //[TODO] wyprowadzic to do systemu z kolekcjami - wymag aprzebudowania sposobu przekazywania zaznaczonych obiektów
             myMenu->addAction("Create BezierC0 from points", this, &SceneElementSystem::CreateBezierC0);
@@ -115,30 +116,12 @@ std::unique_ptr<QMenu> SceneElementSystem::CreateContextMenuForSelection()
 
 void SceneElementSystem::onRemoveSceneElement()
 {
-    if (auto scene = SceneECS::Instance().lock())
-    {
-        for (QListWidgetItem *gElem: sceneElementList->selectedItems())
-        {
-            auto item = (QListWidgetSceneElement *) gElem;
-            scene->RemoveObject(item->GetAttachedObjectID());
-        }
-    }
-    
-    emit RequestControlsUpdate(SceneECS::NON_OBJECT_ID);
-    emit RequestRepaint();
+
 }
 
 void SceneElementSystem::onRenameSceneElement()
 {
-    auto item = (QListWidgetSceneElement *) (*sceneElementList->selectedItems().begin());
-    
-    bool ok;
-    QString newName = QInputDialog::getText(nullptr, "Rename object", "Insert new name of object", QLineEdit::Normal,
-                                            item->GetName(), &ok);
-    if (!ok)
-        return;
-    
-    item->Rename(newName);
+
 }
 
 void SceneElementSystem::CreateBezierC0()
@@ -226,6 +209,107 @@ void SceneElementSystem::CreateInterpolationC2()
             emit RequestRepaint();
         }
     }
+}*/
+
+std::vector<unsigned int> SceneElementSystem::GetSelectedItemsOnList()
+{
+    std::vector<unsigned int> res;
+    
+    for (const auto &el: sceneElementList->selectedItems())
+    {
+        auto item = (QListWidgetSceneElement *) el;
+        res.push_back(item->GetAttachedObjectID());
+    }
+    
+    return res;
 }
+
+std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids)> > >
+SceneElementSystem::CreateContextMenuItemsForScene(const std::vector<unsigned int> &selectedOids)
+{
+    std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids)> > > res;
+    auto filteredObjects = FilterObjects(selectedOids);
+    
+    if (filteredObjects.empty())
+        return res;
+    
+    if (filteredObjects.size() == 1)
+        res.push_back(
+                std::make_pair(
+                        "Rename object",
+                        [this](const std::vector<unsigned int> &selectedOids)
+                        {
+                            auto filteredObjects = FilterObjects(selectedOids);
+                            RenameSceneElement(filteredObjects[0]);
+                        }));
+    
+    if (!filteredObjects.empty())
+        std::make_pair(
+                "Remove objects",
+                ASSIGN_CONTEXT_SCENE_FUNCTION(&SceneElementSystem::RemoveSceneElement));
+    
+    return res;
+}
+
+std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids,
+                                                const std::vector<unsigned int> &listContextOids)> > >
+SceneElementSystem::CreateContextMenuItemsForSceneList(const std::vector<unsigned int> &selectedOids,
+                                                       const std::vector<unsigned int> &listContextOids)
+{
+    std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids,
+                                                    const std::vector<unsigned int> &listContextOids)> > > res;
+    auto filteredObjects = FilterObjects(listContextOids);
+    
+    if (filteredObjects.empty())
+        return res;
+    
+    if (filteredObjects.size() == 1)
+        res.push_back(
+                std::make_pair(
+                        "Rename object",
+                        [this](const std::vector<unsigned int> &selectedOids,
+                               const std::vector<unsigned int> &listContextOids)
+                        {
+                            auto filteredObjects = FilterObjects(listContextOids);
+                            RenameSceneElement(filteredObjects[0]);
+                        }));
+    
+    if (!filteredObjects.empty())
+        res.push_back(
+                std::make_pair(
+                        "Remove objects",
+                        [this](const std::vector<unsigned int> &selectedOids,
+                               const std::vector<unsigned int> &listContextOids)
+                        {
+                            RemoveSceneElement(listContextOids);
+                        }));
+    
+    return res;
+}
+
+void SceneElementSystem::RemoveSceneElement(const std::vector<unsigned int> &items)
+{
+    auto filteredObjects = FilterObjectIds(items);
+    if (auto scene = SceneECS::Instance().lock())
+    {
+        for (unsigned int oid: filteredObjects)
+            scene->RemoveObject(oid);
+    }
+    
+    EntityContextMenu::MakeControlsUpdate(SceneECS::NON_OBJECT_ID);
+    EntityContextMenu::MakeRepaint();
+}
+
+void SceneElementSystem::RenameSceneElement(std::shared_ptr<SceneElement> toRename)
+{
+    bool ok;
+    QString newName = QInputDialog::getText(nullptr, "Rename object", "Insert new name of object", QLineEdit::Normal,
+                                            toRename->Name, &ok);
+    if (!ok)
+        return;
+    toRename->Name = newName;
+}
+
+
 
 

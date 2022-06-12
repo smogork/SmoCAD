@@ -71,6 +71,7 @@ void Point::InitObject(const QString &name, QVector3D pos)
     AddComponent(p_ScreenSelectable = ScreenSelectable::CreateRegisteredComponent(GetObjectID(), p_Transform, p_Selectable, p_CompositeAware));
     AddComponent(p_CollectionAware = CollectionAware::CreateRegisteredComponent(GetObjectID(), p_Transform));
     AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(GetObjectID(), name, p_Selectable, p_CompositeAware));
+    AddComponent(p_Merge = Merge::CreateRegisteredComponent(GetObjectID(), p_Transform, p_CollectionAware));
 
     p_SceneElement->SerializeObject = ASSIGN_SERIALIZER_FUNCTION(&Point::SerializingFunction);
 

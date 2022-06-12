@@ -16,6 +16,8 @@ public:
     const char* GetSystemName() override { return "TransformCollectionSystem"; }
 
     std::unique_ptr<ComponentControl> PrepareUIForObject(unsigned int oid) override;
+    
+    void ReplaceObjectInCollections(std::shared_ptr<CollectionAware> toReplace, std::shared_ptr<CollectionAware> newElement);
 };
 
 

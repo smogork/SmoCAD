@@ -94,6 +94,32 @@ public:
         components.erase(oid);
         components.insert(std::make_pair(data->GetAttachedObjectID(), data));
     }
+    
+    std::vector<std::shared_ptr<C>> FilterObjects(const std::vector<unsigned int> &oids)
+    {
+        std::vector<std::shared_ptr<C>> res;
+        
+        for (unsigned int oid : oids)
+        {
+            if (auto comp = GetComponent(oid).lock())
+                res.push_back(comp);
+        }
+        
+        return res;
+    }
+    
+    std::vector<unsigned int> FilterObjectIds(const std::vector<unsigned int> &oids)
+    {
+        std::vector<unsigned int> res;
+        
+        for (unsigned int oid : oids)
+        {
+            if (GetComponent(oid).lock())
+                res.push_back(oid);
+        }
+        
+        return res;
+    }
 };
 
 

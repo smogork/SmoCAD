@@ -15,11 +15,11 @@ public:
     { }
 
     const char* GetSystemName() override { return "MergeSystem"; }
-    std::list<std::pair<QString, std::function<void(QListWidgetSceneElement* item)> > >
-    CreateContextMenuForSceneElement(unsigned int contextOid, unsigned int selectedOid, int selectionCount) override;
+    std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids)> > >
+    CreateContextMenuItemsForScene(const std::vector<unsigned int> &selectedOids) override;
     
 protected:
-    void MergeElements(QListWidgetSceneElement * elem);
+    void MergeElements(const std::vector<unsigned int> &selectedOids);
 };
 
 #endif //SMOCAD_MERGESYSTEM_H

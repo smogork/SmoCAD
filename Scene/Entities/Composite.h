@@ -50,6 +50,7 @@ public:
     ~Composite() override;
 
     void AddObject(std::shared_ptr<CompositeAware> newObject);
+    std::vector<unsigned int> GetObjectsInside();
 
 };
 

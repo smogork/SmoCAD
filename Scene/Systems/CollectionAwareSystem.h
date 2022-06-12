@@ -15,11 +15,20 @@ public:
     { }
     const char* GetSystemName() override { return "CollectionAwareSystem"; }
 
-    std::list<std::pair<QString, std::function<void(QListWidgetSceneElement* item)> > >
-    CreateContextMenuForSceneElement(unsigned int contextOid, unsigned int selectedOid, int selectionCount) override;
+    std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids)> > >
+    CreateContextMenuItemsForScene(const std::vector<unsigned int> &selectedOids) override;
+    std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids,
+                                                    const std::vector<unsigned int> &listContextOids)> > >
+    CreateContextMenuItemsForSceneList(const std::vector<unsigned int> &selectedOids,
+                                       const std::vector<unsigned int> &listContextOids) override;
 
 protected:
-    void AddObjectToCollection(QListWidgetSceneElement * elem);
+    void AddObjectToCollection(const std::vector<unsigned int>& items);
+    void CreateAndAddPointToCollection(const std::vector<unsigned int>& items);
+    
+    void CreateBezierC0(const std::vector<unsigned int>& items);
+    void CreateBezierC2(const std::vector<unsigned int>& items);
+    void CreateInterpolationC2(const std::vector<unsigned int>& items);
 };
 
 

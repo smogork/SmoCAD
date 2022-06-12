@@ -15,7 +15,7 @@ public:
     std::shared_ptr<Transform> p_Transform;
     
     static std::shared_ptr<Merge>
-    CreateRegisteredComponent(unsigned int oid, std::shared_ptr<Transform> trans, std::shared_ptr<CollectionAware> col = nullptr);
+    CreateRegisteredComponent(unsigned int oid, std::shared_ptr<Transform> trans, std::shared_ptr<CollectionAware> col);
     void UnregisterComponent();
     
     explicit Merge(unsigned int oid);

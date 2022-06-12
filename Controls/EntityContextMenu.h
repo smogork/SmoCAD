@@ -5,13 +5,29 @@
 #ifndef SMOCAD_ENTITYCONTEXTMENU_H
 #define SMOCAD_ENTITYCONTEXTMENU_H
 
-class EntityContextMenu
+#include <QMenu>
+
+class EntityContextMenu: public QObject
 {
-    void onRemoveSceneElement();
-    void onRenameSceneElement();
-    void CreateBezierC0();
-    void CreateBezierC2();
-    void CreateInterpolationC2();
+    Q_OBJECT
+private:
+    EntityContextMenu();
+    static std::shared_ptr<EntityContextMenu> instance;
+    
+    void EmitRepaint();
+    void EmitControlsUpdate(unsigned int oid);
+    
+public:
+    static std::unique_ptr<QMenu> CreateMenuForScene();
+    static std::unique_ptr<QMenu> CreateMenuForSceneList();
+    
+    static void MakeRepaint();
+    static void MakeControlsUpdate(unsigned int oid);
+    static std::shared_ptr<EntityContextMenu> GetInstance();
+
+signals:
+    void RequestRepaint();
+    void RequestControlsUpdate(unsigned int oid);
 };
 
 #endif //SMOCAD_ENTITYCONTEXTMENU_H

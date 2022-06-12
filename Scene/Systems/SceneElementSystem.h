@@ -14,16 +14,12 @@
 
 class SceneElementSystem : public ISystem<SceneElement>
 {
-    Q_OBJECT
 private:
     std::map<unsigned int, std::unique_ptr<QListWidgetSceneElement>> listItems;
     QListWidget *sceneElementList;
     
-    void onRemoveSceneElement();
-    void onRenameSceneElement();
-    void CreateBezierC0();
-    void CreateBezierC2();
-    void CreateInterpolationC2();
+    void RemoveSceneElement(const std::vector<unsigned int>& items);//przynajmniej jeden element
+    void RenameSceneElement(std::shared_ptr<SceneElement> toRename);//tylko jeden element
 
 public:
     SceneElementSystem() : ISystem(SYSTEM_ID::SCENE_ELEMENT), sceneElementList(nullptr) {}
@@ -35,15 +31,19 @@ public:
     bool RegisterComponent(std::shared_ptr<SceneElement> component) override;
     bool Unregister(unsigned int oid) override;
     
+    std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids)> > >
+    CreateContextMenuItemsForScene(const std::vector<unsigned int> &selectedOids) override;
+    std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids,
+                                                    const std::vector<unsigned int> &listContextOids)> > >
+    CreateContextMenuItemsForSceneList(const std::vector<unsigned int> &selectedOids,
+                                       const std::vector<unsigned int> &listContextOids) override;
+    
     void AttachItemList(QListWidget *list);
-    std::unique_ptr<QMenu> CreateContextMenuForSelection();
+    std::vector<unsigned int> GetSelectedItemsOnList();
     
     //Wpisz do globalnego obiektu serializacyjnego wszystkie SceneElements
     void SerializeSceneObjects();
-
-signals:
-    void RequestRepaint();
-    void RequestControlsUpdate(unsigned int oid);
+    
 };
 
 #endif //SMOCAD_SCENEELEMENTSYSTEM_H

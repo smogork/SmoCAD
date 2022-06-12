@@ -69,9 +69,16 @@ public:
     void AddObjectExplicitPosition(std::shared_ptr<IEntity> obj);
     void RemoveObject(unsigned int oid);
     std::list<std::unique_ptr<ComponentControl>> CreateUIForObject(unsigned int oid);
-    std::list<std::pair<QString, std::function<void(QListWidgetSceneElement *item)> > >
-    CreateContextMenuForSceneElement(unsigned int oid, int selectionCount);
+    std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids)> > >
+    GenerateContextMenuItemsForScene();
+    std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids,
+                                                    const std::vector<unsigned int> &listContextOids)> > >
+    GenerateContextMenuItemsForSceneList();
+    std::vector<unsigned int> GetSelectedObjects();
+    std::vector<unsigned int> GetListContextObjects();
+    
     void InitializeScene();
+    void ConnectSignalsToSystems(QObject* mainWindow, QObject* sceneWindow);
 
     template <typename cadObj, typename serObj>
     void LoadHelper(const std::vector<serObj>& input)
@@ -112,6 +119,7 @@ private:
     void InitSceneObjects();
 
     void UpdateCursorObject(QVector3D cursorPos);
+
 };
 
 

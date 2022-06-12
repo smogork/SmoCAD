@@ -110,4 +110,14 @@ void Composite::PointFromCompositeHasBeenDeleted()
         scene->DestroyComposite();
 }
 
+std::vector<unsigned int> Composite::GetObjectsInside()
+{
+    std::vector<unsigned int> res;
+    
+    for (const auto& el : objects)
+        res.push_back(el->servingObjectID);
+    
+    return res;
+}
+
 

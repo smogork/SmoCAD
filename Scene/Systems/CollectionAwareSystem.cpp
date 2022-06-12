@@ -8,7 +8,7 @@
 #include "SelectableSystem.h"
 #include "Scene/Utilities/Utilites.h"
 
-std::list<std::pair<QString, std::function<void(QListWidgetSceneElement *item)> > >
+/*std::list<std::pair<QString, std::function<void(QListWidgetSceneElement *item)> > >
 CollectionAwareSystem::CreateContextMenuForSceneElement(unsigned int contextOid, unsigned int selectedOid, int selectionCount)
 {
     std::list<std::pair<QString, std::function<void(QListWidgetSceneElement *item)> > > res;
@@ -36,7 +36,7 @@ CollectionAwareSystem::CreateContextMenuForSceneElement(unsigned int contextOid,
     return res;
 }
 
-void CollectionAwareSystem::AddObjectToCollection(QListWidgetSceneElement *elem)
+void CollectionAwareSystem::AddObjectToCollection(const std::vector<unsigned int>& items)
 {
     if (auto awareElement = GetComponent(elem->GetAttachedObjectID()).lock())
     {
@@ -51,4 +51,33 @@ void CollectionAwareSystem::AddObjectToCollection(QListWidgetSceneElement *elem)
                     selectedObj->GetAttachedObjectID()).lock()->AddPoint(awareElement);
         }
     }
+}*/
+
+std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids,
+                                                const std::vector<unsigned int> &listContextOids)> > >
+CollectionAwareSystem::CreateContextMenuItemsForSceneList(const std::vector<unsigned int> &selectedOids,
+                                                          const std::vector<unsigned int> &listContextOids)
+{
+    return IAbstractSystem::CreateContextMenuItemsForSceneList(selectedOids, listContextOids);
+}
+
+std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids)> > >
+CollectionAwareSystem::CreateContextMenuItemsForScene(const std::vector<unsigned int> &selectedOids)
+{
+    return IAbstractSystem::CreateContextMenuItemsForScene(selectedOids);
+}
+
+void CollectionAwareSystem::CreateBezierC0(const std::vector<unsigned int> &items)
+{
+
+}
+
+void CollectionAwareSystem::CreateBezierC2(const std::vector<unsigned int> &items)
+{
+
+}
+
+void CollectionAwareSystem::CreateInterpolationC2(const std::vector<unsigned int> &items)
+{
+
 }

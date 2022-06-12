@@ -2,6 +2,7 @@
 #include "glwidget.h"
 #include "Scene/Systems/DrawingSystem.h"
 #include "Scene/SceneECS.h"
+#include "Controls/EntityContextMenu.h"
 
 GLWidget::GLWidget(QWidget *pWidget)
         : QOpenGLWidget(pWidget)
@@ -120,7 +121,7 @@ void GLWidget::showObjectListContextMenu(const QPoint &pos)
     if (auto scene = SceneECS::Instance().lock())
         if (auto elSys = scene->GetSystem<SceneElementSystem>().lock())
         {
-            std::unique_ptr<QMenu> menu = elSys->CreateContextMenuForSelection();
+            std::unique_ptr<QMenu> menu = EntityContextMenu::CreateMenuForScene();
             if (menu)
                 menu->exec(globalPos);
         }

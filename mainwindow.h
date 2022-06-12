@@ -22,9 +22,11 @@ private:
     std::list<std::unique_ptr<ComponentControl>> componentControls;
     std::unique_ptr<QSpacerItem> componentSpacer;
 
+public slots:
+    void UpdateComponentUI(unsigned int oid);
+    
 private slots:
     void MouseRaycastSlot(std::shared_ptr<SceneMouseClickEvent> event);
-    void UpdateComponentUI(unsigned int oid);
     void UpdateSelectRectangle(std::shared_ptr<SelectRectangleUpdateEvent> event);
 
     void on_actionTorus_triggered();

@@ -7,6 +7,7 @@
 #include "Scene/Entities/Curves/BezierC2.h"
 #include "Scene/Entities/Curves/InterpolationC2.h"
 #include "Scene/Systems/CompositeAwareSystem.h"
+#include "Controls/EntityContextMenu.h"
 
 #include <QMenu>
 #include <QInputDialog>
@@ -35,16 +36,9 @@ void SceneElementsList::showObjectListContextMenu(const QPoint &pos)
 {
     QPoint globalPos = ui->listSceneElements->mapToGlobal(pos);
     
-    if (auto scene = SceneECS::Instance().lock())
-        if (auto elSys = scene->GetSystem<SceneElementSystem>().lock())
-        {
-            std::unique_ptr<QMenu> menu = elSys->CreateContextMenuForSelection();
-            if (menu)
-                menu->exec(globalPos);
-        }
-    
-    // Show context menu at handling position
-    //myMenu.exec(globalPos);
+    std::unique_ptr<QMenu> menu = EntityContextMenu::CreateMenuForSceneList();
+    if (menu)
+        menu->exec(globalPos);
 }
 
 void SceneElementsList::on_listSceneElements_itemClicked(QListWidgetItem *item)

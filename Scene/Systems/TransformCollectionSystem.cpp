@@ -11,3 +11,13 @@ std::unique_ptr<ComponentControl> TransformCollectionSystem::PrepareUIForObject(
         return std::move(std::make_unique<TransformCollectionControl>(collection));
     return nullptr;
 }
+
+void TransformCollectionSystem::ReplaceObjectInCollections(std::shared_ptr<CollectionAware> toReplace,
+                                                           std::shared_ptr<CollectionAware> newElement)
+{
+    for (auto& wcol : components)
+    {
+        if (auto col = wcol.second.lock())
+            col->ReplaceObject(toReplace->GetAttachedObjectID(), newElement);
+    }
+}

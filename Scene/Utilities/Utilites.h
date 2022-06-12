@@ -11,7 +11,8 @@
 #include "Utils/Float3.h"
 
 #define ASSIGN_NOTIFIER_FUNCTION(F)  std::bind(F, this)
-#define ASSIGN_CONTEXT_FUNCTION(F)  std::bind(F, this, std::placeholders::_1)
+#define ASSIGN_CONTEXT_SCENE_FUNCTION(F)  std::bind(F, this, std::placeholders::_1)
+#define ASSIGN_CONTEXT_LIST_FUNCTION(F)  std::bind(F, this, std::placeholders::_1, std::placeholders::_2)
 
 QVector4D ColorToVector4D(QColor c);
 
