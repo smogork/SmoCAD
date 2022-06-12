@@ -29,6 +29,8 @@ MainWindow::MainWindow(QWidget *parent)
                      this, &MainWindow::MouseRaycastSlot);
     QObject::connect(&Renderer::controller, &InputController::UpdateSelectRectangle,
                      this, &MainWindow::UpdateSelectRectangle);
+    QObject::connect(&Renderer::controller, &InputController::RequestControlsUpdate,
+                     this, &MainWindow::UpdateComponentUI);
     
     //register signals to cursorControl
     QObject::connect(ui->sceneWidget, &GLWidget::WidgetResized,

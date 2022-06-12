@@ -25,6 +25,7 @@ void InputController::keyPressSlot(QKeyEvent *event)
     if (knownButtons.find(key) != knownButtons.end())
     {
         QTimer *timer = new QTimer(this);
+        keyHeldTimers[key] = std::unique_ptr<QTimer>(timer);
         connect(timer, &QTimer::timeout, [this, key]
         {
             keyStates[key] = KeyState::Held;
@@ -32,7 +33,7 @@ void InputController::keyPressSlot(QKeyEvent *event)
         });
         timer->start(200);
         timer->setInterval(30);
-        keyHeldTimers[key] = std::unique_ptr<QTimer>(timer);
+
         
         keyStates[key] = KeyState::Pressed;
         //qDebug() << QString("Key %0 pressed").arg(key);
@@ -50,13 +51,17 @@ void InputController::keyReleaseSlot(QKeyEvent *event)
     {
         emit RemoveSelection();
         EmitCameraUpdateEvent();//Tak na prawde chodzi o zaktualizowanie sceny, ale trudno
+        emit RequestControlsUpdate(0);
     }
     
     
     if (knownButtons.find(key) != knownButtons.end())
     {
-        keyHeldTimers[key]->stop();
-        keyHeldTimers.erase(key);
+        if (keyHeldTimers.contains(key))
+        {
+            keyHeldTimers[key]->stop();
+            keyHeldTimers.erase(key);
+        }
         
         keyStates[key] = KeyState::Released;
         //qDebug() << QString("Key %0 released").arg(key);

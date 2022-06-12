@@ -60,6 +60,7 @@ signals:
     void MoveObjectRequested(std::shared_ptr<ObjectMoveEvent> event);
     void UpdateSelectRectangle(std::shared_ptr<SelectRectangleUpdateEvent> event);
     void RemoveSelection();
+    void RequestControlsUpdate(unsigned int oid);
 
 private:
     enum KeyState {

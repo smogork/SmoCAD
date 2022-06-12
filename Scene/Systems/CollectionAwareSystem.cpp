@@ -60,6 +60,8 @@ CollectionAwareSystem::CreateContextMenuItemsForSceneList(const std::vector<unsi
             if (filteredCols.size() == 1)
             {
                 std::shared_ptr<TransformCollection> col = filteredCols[0];
+                
+                if (!col->IsContentLocked())
                 res.push_back(
                         std::make_pair(
                                 "Add to selected collection",

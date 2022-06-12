@@ -46,6 +46,8 @@ TransformCollectionSystem::CreateContextMenuItemsForScene(const std::vector<unsi
     if (filteredObjects.size() == 1)
     {
         std::shared_ptr<TransformCollection> col = filteredObjects[0];
+    
+        if (!col->IsContentLocked())
         res.push_back(
                 std::make_pair(
                         "Create and add point to colletion",
