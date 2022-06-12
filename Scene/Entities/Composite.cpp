@@ -3,6 +3,7 @@
 //
 
 #include "Composite.h"
+#include "Scene/SceneECS.h"
 
 #pragma region CompositeElement
 Composite::CompositeElement::CompositeElement(Composite *composite, std::shared_ptr<CompositeAware> el): IEntity(COMPOSITE_ELEM_CLASS)
@@ -62,6 +63,13 @@ Composite::Composite(std::shared_ptr<CompositeAware> startObject): IEntity(COMPO
         {
           UpdateCompositeElements();
         });
+    selectNotiifer = p_Selectable->Selected.addNotifier([this]{
+        if (!p_Selectable->Selected)
+            if (auto scene = SceneECS::Instance().lock())
+                scene->DestroyComposite();
+    });
+    
+    connect(startObject.get(), &IComponent::ComponentDeleted, this, &Composite::PointFromCompositeHasBeenDeleted);
 }
 
 Composite::~Composite()
@@ -82,6 +90,8 @@ void Composite::AddObject(std::shared_ptr<CompositeAware> newObject)
 
     for (const std::unique_ptr<CompositeElement>& el : objects)
         el->UpdateDTransform();
+    
+    connect(newObject.get(), &IComponent::ComponentDeleted, this, &Composite::PointFromCompositeHasBeenDeleted);
 }
 
 void Composite::UpdateCompositeElements()
@@ -92,6 +102,22 @@ void Composite::UpdateCompositeElements()
 
     for (auto& obj : objects)
         obj->UpdateServingObject();
+}
+
+void Composite::PointFromCompositeHasBeenDeleted()
+{
+    if (auto scene = SceneECS::Instance().lock())
+        scene->DestroyComposite();
+}
+
+std::vector<unsigned int> Composite::GetObjectsInside()
+{
+    std::vector<unsigned int> res;
+    
+    for (const auto& el : objects)
+        res.push_back(el->servingObjectID);
+    
+    return res;
 }
 
 

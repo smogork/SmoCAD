@@ -30,6 +30,7 @@ public slots:
 
     void UpdateCameraSlot(std::shared_ptr<CameraUpdateEvent> event);
     void RedrawScreen();
+    void showObjectListContextMenu(const QPoint &pos);
 
 #pragma region QOpenGLWidget overrides
     void paintGL() Q_DECL_OVERRIDE;

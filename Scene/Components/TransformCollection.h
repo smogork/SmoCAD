@@ -39,6 +39,7 @@ public:
     void SetPoints(std::vector<std::shared_ptr<CollectionAware>> newPoints);
     void AddPoint(std::shared_ptr<CollectionAware> newObject);
     void RemovePoint(unsigned int oid);
+    void ReplaceObject(unsigned int toReplace, std::shared_ptr<CollectionAware> newElement);
     void Clear();
     int Size();
 

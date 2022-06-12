@@ -15,6 +15,7 @@
 #include "Scene/Components/CollectionAware.h"
 #include "Scene/Components/ScreenSelectable.h"
 #include "Scene/Components/SceneElement.h"
+#include "Scene/Components/Merge.h"
 
 class Point: public IEntity
 {
@@ -39,6 +40,7 @@ public:
     std::shared_ptr<CompositeAware> p_CompositeAware;
     std::shared_ptr<CollectionAware> p_CollectionAware;
     std::shared_ptr<SceneElement> p_SceneElement;
+    std::shared_ptr<Merge> p_Merge;
 
     explicit Point(const QString& name);
     explicit Point(const MG1::Point& serializedObj);

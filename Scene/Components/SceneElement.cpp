@@ -7,14 +7,14 @@
 #include "Scene/Systems/SceneElementSystem.h"
 
 std::shared_ptr<SceneElement>
-SceneElement::CreateRegisteredComponent(unsigned int oid, const QString& name, std::shared_ptr<Selectable> select)
+SceneElement::CreateRegisteredComponent(unsigned int oid, const QString& name, std::shared_ptr<Selectable> select, std::shared_ptr<CompositeAware> composite)
 
 {
     if (auto scene = SceneECS::Instance().lock())
     {
         auto system = scene->GetSystem<SceneElementSystem>().lock();
-        auto item = system->CreateRegistered(oid);
-        item->p_Selected = select;
+        auto item = system->CreateRegistered(oid, select, composite);
+        //item->p_Selected = select;
         item->Name = name;
         return item;
     }

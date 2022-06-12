@@ -35,6 +35,7 @@ public:
     float Pivotlength();
     void MoveUp(float moveValue);
     void MoveRight(float moveValue);
+    void MoveForward(float moveValue);
     QVector3D GetPivotVector();
 
     QVector3D GetPosition();

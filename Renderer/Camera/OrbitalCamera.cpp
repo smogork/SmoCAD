@@ -147,4 +147,11 @@ void OrbitalCamera::Reset()
     UpdateFrontAndRight();
 }
 
+void OrbitalCamera::MoveForward(float moveValue)
+{
+    QVector3D front = (-GetPivotVector());
+    front.setY(0);
+    CenterPoint += moveValue * front.normalized() * r;
+}
+
 

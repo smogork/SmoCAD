@@ -15,10 +15,20 @@ void DrawingSystem::Render(QOpenGLContext* context)
 
 void DrawingSystem::PlainRender(QOpenGLContext* context)
 {
+    std::list<std::shared_ptr<Drawing>> transparent;
+    
     for (const std::pair<unsigned int, std::weak_ptr<Drawing>> &p : components)
         if (auto obj = p.second.lock())
-            if (obj->Enabled)
-                obj->Render(context);
+            if (obj->Enabled )
+            {
+                if (obj->IsTransparent)
+                    transparent.push_back(obj);
+                else
+                    obj->Render(context);
+            }
+            
+    for (const auto& obj : transparent)
+        obj->Render(context);
 }
 
 void DrawingSystem::StereoscopyRender(QOpenGLContext* context)

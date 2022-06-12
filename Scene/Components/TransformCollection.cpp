@@ -25,8 +25,7 @@ void TransformCollection::UnregisterComponent()
     }
 }
 
-TransformCollection::TransformCollection(unsigned int oid) : IComponent(oid, TRANSFORM_COLLECTION)
-{ }
+TransformCollection::TransformCollection(unsigned int oid) : IComponent(oid, TRANSFORM_COLLECTION) {}
 
 TransformCollection::~TransformCollection()
 {
@@ -47,19 +46,19 @@ void TransformCollection::ConnectSignals(std::shared_ptr<Transform> p)
 {
     if (pointNotifiers.contains(p->GetAttachedObjectID()))
         return;
-
+    
     std::weak_ptr<Transform> weakP = p;
     pointNotifiers.insert(std::make_pair(p->GetAttachedObjectID(),
-    p->Position.addNotifier([this, weakP]()
-    {
-       if (auto p = weakP.lock())
-       {
-           emit this->SinglePointChanged(
-                   p->Position,
-                   p->GetAttachedObjectID());
-       }
-    })));
-
+                                         p->Position.addNotifier([this, weakP]()
+                                                                 {
+                                                                     if (auto p = weakP.lock())
+                                                                     {
+                                                                         emit this->SinglePointChanged(
+                                                                                 p->Position,
+                                                                                 p->GetAttachedObjectID());
+                                                                     }
+                                                                 })));
+    
     connect(p.get(), &IComponent::ComponentDeleted, this, &TransformCollection::PointFromCollectionHasBeenDeleted);
 }
 
@@ -67,7 +66,7 @@ void TransformCollection::Clear()
 {
     if (points.size() == 0)
         return;
-
+    
     pointNotifiers.clear();
     points.clear();
     //disconnect(nullptr, &IComponent::ComponentDeleted, this, &TransformCollection::PointFromCollectionHasBeenDeleted);
@@ -94,7 +93,7 @@ TransformCollection &TransformCollection::operator=(const TransformCollection &o
     pointNotifiers.clear();
     points.clear();
     //disconnect(nullptr, &IComponent::ComponentDeleted, this, &TransformCollection::PointFromCollectionHasBeenDeleted);
-
+    
     for (const std::weak_ptr<Transform> &el_weak: other.points)
     {
         if (auto el = el_weak.lock())
@@ -103,22 +102,23 @@ TransformCollection &TransformCollection::operator=(const TransformCollection &o
             ConnectSignals(el);
         }
     }
-
+    
     emit PointInCollectionModified();
     return *this;
 }
 
 void TransformCollection::RemovePoint(unsigned int oid)
 {
-    auto weak_item = std::find_if(points.begin(), points.end(),[oid](std::weak_ptr<Transform> wp)
+    auto weak_item = std::find_if(points.begin(), points.end(), [oid](std::weak_ptr<Transform> wp)
     {
         if (auto p = wp.lock())
             return p->GetAttachedObjectID() == oid;
         return false;
     });
     if (auto item = (*weak_item).lock())
-        disconnect(item.get(), &IComponent::ComponentDeleted, this, &TransformCollection::PointFromCollectionHasBeenDeleted);
-
+        disconnect(item.get(), &IComponent::ComponentDeleted, this,
+                   &TransformCollection::PointFromCollectionHasBeenDeleted);
+    
     points.remove_if([oid](std::weak_ptr<Transform> wp)
                      {
                          if (auto p = wp.lock())
@@ -126,24 +126,14 @@ void TransformCollection::RemovePoint(unsigned int oid)
                          return true;
                      });
     pointNotifiers.erase(oid);
-
+    
     emit PointInCollectionModified();
 }
 
 void TransformCollection::PointFromCollectionHasBeenDeleted(unsigned int deletedOid)
 {
     auto oid = deletedOid;
-    //RemovePoint(deletedOid);
-    //emit PointInCollectionModified();
-    /*auto weak_item = std::find_if(points.begin(), points.end(),[oid](std::weak_ptr<Transform> wp)
-    {
-        if (auto p = wp.lock())
-            return p->GetAttachedObjectID() == oid;
-        return false;
-    });*/
-    /*if (auto item = (*weak_item).lock())
-        disconnect(item.get(), &IComponent::ComponentDeleted, this, &TransformCollection::PointFromCollectionHasBeenDeleted);*/
-
+    
     points.remove_if([oid](std::weak_ptr<Transform> wp)
                      {
                          if (auto p = wp.lock())
@@ -159,13 +149,13 @@ void TransformCollection::SetPoints(std::vector<std::shared_ptr<CollectionAware>
 {
     pointNotifiers.clear();
     points.clear();
-
+    
     for (const std::shared_ptr<CollectionAware> &el: newPoints)
     {
         points.push_back(el->p_Transform);
         ConnectSignals(el->p_Transform);
     }
-
+    
     emit PointInCollectionModified();
 }
 
@@ -177,4 +167,42 @@ void TransformCollection::LockContent(bool state)
 bool TransformCollection::IsContentLocked()
 {
     return m_locked;
+}
+
+void TransformCollection::ReplaceObject(unsigned int toReplace, std::shared_ptr<CollectionAware> newElement)
+{
+    if (points.empty())
+        return;
+    
+    auto weak_item = std::find_if(points.begin(), points.end(), [toReplace](std::weak_ptr<Transform> wp)
+    {
+        if (auto p = wp.lock())
+            return p->GetAttachedObjectID() == toReplace;
+        return false;
+    });
+    if (weak_item == points.end())
+        return;
+    
+    auto item = weak_item->lock();
+    if (!item)
+        return;
+    
+    //Usuniecie sygnalu o osunieciu obiektu ze sceny
+    disconnect(item.get(), &IComponent::ComponentDeleted, this,
+               &TransformCollection::PointFromCollectionHasBeenDeleted);
+    pointNotifiers.erase(toReplace);
+    
+    //podmiana polozenia w liscie punktow
+    std::replace_if(points.begin(), points.end(),
+                    [toReplace](std::weak_ptr<Transform> wp)
+                    {
+                        if (auto p = wp.lock())
+                            return p->GetAttachedObjectID() == toReplace;
+                        return false;
+                    },
+                    newElement->p_Transform
+    );
+    
+    //Podlaczenie sygnalow dla nowo dodawanego obiektu
+    ConnectSignals(newElement->p_Transform);
 }

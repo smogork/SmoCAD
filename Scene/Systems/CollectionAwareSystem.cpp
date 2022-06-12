@@ -3,52 +3,161 @@
 //
 
 #include "CollectionAwareSystem.h"
-#include "TransformCollectionSystem.h"
 #include "Scene/SceneECS.h"
-#include "SelectableSystem.h"
 #include "Scene/Utilities/Utilites.h"
+#include "Scene/Entities/Curves/BezierC0.h"
+#include "Scene/Entities/Curves/BezierC2.h"
+#include "Scene/Entities/Curves/InterpolationC2.h"
+#include "Controls/EntityContextMenu.h"
+#include "TransformCollectionSystem.h"
 
-std::list<std::pair<QString, std::function<void(QListWidgetSceneElement *item)> > >
-CollectionAwareSystem::CreateContextMenuForSceneElement(unsigned int contextOid, unsigned int selectedOid, int selectionCount)
+std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids,
+                                                const std::vector<unsigned int> &listContextOids)> > >
+CollectionAwareSystem::CreateContextMenuItemsForSceneList(const std::vector<unsigned int> &selectedOids,
+                                                          const std::vector<unsigned int> &listContextOids)
 {
-    std::list<std::pair<QString, std::function<void(QListWidgetSceneElement *item)> > > res;
-
-    auto aware = GetComponent(contextOid).lock();
-    if (!aware)
+    std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids,
+                                                    const std::vector<unsigned int> &listContextOids)> > > res;
+    auto filteredObjects = FilterObjects(listContextOids);
+    
+    if (filteredObjects.empty())
         return res;
-
-    //Tymczasowe zabezpieczenie przed dodawaniem wielu punktów jednoczesnie
-    //Wymaga przebudowania przekazywanych obiektów do tej funkcji aby zaimplementowane prawidlowo
-    if (selectionCount != 1)
-        return res;
-
+    
+    if (filteredObjects.size() > 1)
+        res.push_back(
+                std::make_pair(
+                        "Create BezierC0",
+                        [this](const std::vector<unsigned int> &selectedOids,
+                               const std::vector<unsigned int> &listContextOids)
+                        {
+                            CreateBezierC0(listContextOids);
+                        }));
+    if (filteredObjects.size() > 3)
+        res.push_back(
+                std::make_pair(
+                        "Create BezierC2",
+                        [this](const std::vector<unsigned int> &selectedOids,
+                               const std::vector<unsigned int> &listContextOids)
+                        {
+                            CreateBezierC2(listContextOids);
+                        }));
+    
+    if (filteredObjects.size() > 1)
+        res.push_back(
+                std::make_pair(
+                        "Create InterpolationC2",
+                        [this](const std::vector<unsigned int> &selectedOids,
+                               const std::vector<unsigned int> &listContextOids)
+                        {
+                            CreateInterpolationC2(listContextOids);
+                        }));
+    
     if (auto scene = SceneECS::Instance().lock())
     {
-        if (auto col = scene->GetComponentOfSystem<TransformCollectionSystem, TransformCollection>(selectedOid).lock())
+        if (auto cols = scene->GetSystem<TransformCollectionSystem>().lock())
         {
-            if (!col->IsContentLocked())
-                res.emplace_back(std::make_pair("Add object to collection",
-                                                ASSIGN_CONTEXT_FUNCTION(
-                                                        &CollectionAwareSystem::AddObjectToCollection)));
+            auto filteredCols = cols->FilterObjects(selectedOids);
+            if (filteredCols.size() == 1)
+            {
+                std::shared_ptr<TransformCollection> col = filteredCols[0];
+                
+                if (!col->IsContentLocked())
+                res.push_back(
+                        std::make_pair(
+                                "Add to selected collection",
+                                [this, col](const std::vector<unsigned int> &selectedOids,
+                                            const std::vector<unsigned int> &listContextOids)
+                                {
+                                    AddObjectToCollection(col, listContextOids);
+                                }));
+            }
         }
     }
-
+    
     return res;
 }
 
-void CollectionAwareSystem::AddObjectToCollection(QListWidgetSceneElement *elem)
+std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids)> > >
+CollectionAwareSystem::CreateContextMenuItemsForScene(const std::vector<unsigned int> &selectedOids)
 {
-    if (auto awareElement = GetComponent(elem->GetAttachedObjectID()).lock())
-    {
-        if (auto scene = SceneECS::Instance().lock())
-        {
-            auto selectedSystem = scene->GetSystem<SelectableSystem>().lock();
-            auto selectedObj = selectedSystem->GetSelectedObject();
-            if (selectedObj == nullptr)
-                return;
+    std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids)> > > res;
+    auto filteredObjects = FilterObjects(selectedOids);
+    
+    if (filteredObjects.empty())
+        return res;
+    
+    if (filteredObjects.size() > 1)
+        res.push_back(
+                std::make_pair(
+                        "Create BezierC0",
+                        ASSIGN_CONTEXT_SCENE_FUNCTION(&CollectionAwareSystem::CreateBezierC0)));
+    if (filteredObjects.size() > 3)
+        res.push_back(
+                std::make_pair(
+                        "Create BezierC2",
+                        ASSIGN_CONTEXT_SCENE_FUNCTION(&CollectionAwareSystem::CreateBezierC2)));
+    if (filteredObjects.size() > 1)
+        res.push_back(
+                std::make_pair(
+                        "Create InterpolationC2",
+                        ASSIGN_CONTEXT_SCENE_FUNCTION(&CollectionAwareSystem::CreateInterpolationC2)));
+    
+    return res;
+}
 
-            scene->GetComponentOfSystem<TransformCollectionSystem, TransformCollection>(
-                    selectedObj->GetAttachedObjectID()).lock()->AddPoint(awareElement);
-        }
+void CollectionAwareSystem::CreateBezierC0(const std::vector<unsigned int> &items)
+{
+    auto filteredObjects = FilterObjects(items);
+    
+    if (auto scene = SceneECS::Instance().lock())
+    {
+        std::shared_ptr<BezierC0> b0 = std::make_shared<BezierC0>("NewBezierC0");
+        b0->p_Collection->SetPoints(filteredObjects);
+        scene->AddObject(b0);
+        b0->p_Selected->Selected = true;
+        
+        EntityContextMenu::MakeControlsUpdate(b0->GetObjectID());
+        EntityContextMenu::MakeRepaint();
     }
+}
+
+void CollectionAwareSystem::CreateBezierC2(const std::vector<unsigned int> &items)
+{
+    auto filteredObjects = FilterObjects(items);
+    
+    if (auto scene = SceneECS::Instance().lock())
+    {
+        std::shared_ptr<BezierC2> b2 = std::make_shared<BezierC2>("NewBezierC2");
+        b2->p_Collection->SetPoints(filteredObjects);
+        scene->AddObject(b2);
+        b2->p_Selected->Selected = true;
+        
+        EntityContextMenu::MakeControlsUpdate(b2->GetObjectID());
+        EntityContextMenu::MakeRepaint();
+    }
+}
+
+void CollectionAwareSystem::CreateInterpolationC2(const std::vector<unsigned int> &items)
+{
+    auto filteredObjects = FilterObjects(items);
+    
+    if (auto scene = SceneECS::Instance().lock())
+    {
+        std::shared_ptr<InterpolationC2> i2 = std::make_shared<InterpolationC2>("NewInterpolationC2");
+        i2->p_Collection->SetPoints(filteredObjects);
+        scene->AddObject(i2);
+        i2->p_Selected->Selected = true;
+        
+        EntityContextMenu::MakeControlsUpdate(i2->GetObjectID());
+        EntityContextMenu::MakeRepaint();
+    }
+}
+
+void CollectionAwareSystem::AddObjectToCollection(std::shared_ptr<TransformCollection> col,
+                                                  const std::vector<unsigned int> &items)
+{
+    auto filteredObjects = FilterObjects(items);
+    for (const auto &elem: filteredObjects)
+        col->AddPoint(elem);
+    EntityContextMenu::MakeRepaint();
 }

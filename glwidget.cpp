@@ -2,6 +2,7 @@
 #include "glwidget.h"
 #include "Scene/Systems/DrawingSystem.h"
 #include "Scene/SceneECS.h"
+#include "Controls/EntityContextMenu.h"
 
 GLWidget::GLWidget(QWidget *pWidget)
         : QOpenGLWidget(pWidget)
@@ -15,6 +16,9 @@ GLWidget::GLWidget(QWidget *pWidget)
 
     QObject::connect(&Renderer::controller, &InputController::CameraUpdated,
                      this, &GLWidget::UpdateCameraSlot);
+    this->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, &GLWidget::customContextMenuRequested, this,
+            &GLWidget::showObjectListContextMenu);
 }
 
 void GLWidget::initializeGL()
@@ -49,7 +53,7 @@ void GLWidget::resizeGL(int w, int h)
 void GLWidget::paintGL()
 {
     // set the background color = clear color
-    glBlendFunc(GL_ONE, GL_ZERO);
+    glBlendFunc(GL_ONE, GL_SRC_ALPHA);
     glColorMask(true, true, true, true);
     glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -101,10 +105,25 @@ void GLWidget::LoadShaders()
     Renderer::AddShader(PLANEC2_SHADER,
                         std::make_shared<ShaderWrapper>("Shaders/Planes/planeC2.vert", "Shaders/Planes/planeC2.frag",
                                                         "Shaders/Planes/planeC2.tess", "Shaders/Planes/planeC2.eval"));
+    Renderer::AddShader(SELECT_RECT_SHADER,
+                        std::make_shared<ShaderWrapper>("Shaders/select_rect.vert", "Shaders/select_rect.frag"));
 }
 
 void GLWidget::RedrawScreen()
 {
     update();
+}
+
+void GLWidget::showObjectListContextMenu(const QPoint &pos)
+{
+    QPoint globalPos = mapToGlobal(pos);
+    
+    if (auto scene = SceneECS::Instance().lock())
+        if (auto elSys = scene->GetSystem<SceneElementSystem>().lock())
+        {
+            std::unique_ptr<QMenu> menu = EntityContextMenu::CreateMenuForScene();
+            if (menu)
+                menu->exec(globalPos);
+        }
 }
 

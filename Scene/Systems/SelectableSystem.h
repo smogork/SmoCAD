@@ -20,6 +20,7 @@ private:
 
 protected slots:
     void OnSelectedMoveRequest(std::shared_ptr<ObjectMoveEvent> event);
+    void OnRemoveSelection();
 
 public:
     SelectableSystem();

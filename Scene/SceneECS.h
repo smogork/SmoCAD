@@ -19,6 +19,7 @@
 #include "Controls/ListElements/QListWidgetSceneElement.h"
 #include "Scene/Entities/Mesh.h"
 #include "Scene/Entities/Points/Point.h"
+#include "Scene/Entities/SelectRectangle.h"
 
 class SceneECS : public QObject
 {
@@ -61,14 +62,23 @@ public:
     }
 
     unsigned int MouseClicked(std::shared_ptr<SceneMouseClickEvent> event);
+    unsigned int UpdateSelectRectangle(std::shared_ptr<SelectRectangleUpdateEvent> event);
+    
     void AddObject(std::shared_ptr<IEntity> obj);
     void UpdateObjectId(uint oid, uint new_oid);
     void AddObjectExplicitPosition(std::shared_ptr<IEntity> obj);
     void RemoveObject(unsigned int oid);
     std::list<std::unique_ptr<ComponentControl>> CreateUIForObject(unsigned int oid);
-    std::list<std::pair<QString, std::function<void(QListWidgetSceneElement *item)> > >
-    CreateContextMenuForSceneElement(unsigned int oid, int selectionCount);
+    std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids)> > >
+    GenerateContextMenuItemsForScene();
+    std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids,
+                                                    const std::vector<unsigned int> &listContextOids)> > >
+    GenerateContextMenuItemsForSceneList();
+    std::vector<unsigned int> GetSelectedObjects();
+    std::vector<unsigned int> GetListContextObjects();
+    
     void InitializeScene();
+    void ConnectSignalsToSystems(QObject* mainWindow, QObject* sceneWindow);
 
     template <typename cadObj, typename serObj>
     void LoadHelper(const std::vector<serObj>& input)
@@ -81,11 +91,11 @@ public:
     void SaveSceneToFile(const QString& filename);
     void CleanScene();
     void ResetUniqueObjects();
+    void DestroyComposite();
 
     void RemoveObjectsFromScene();
     void RemoveUniqueObjects();
     void ClearSystems();
-
 
     QString DebugSystemReport();
 signals:
@@ -101,6 +111,7 @@ private:
     std::unique_ptr<Grid> grid = nullptr;
     std::shared_ptr<Cursor> cursor = nullptr;
     std::unique_ptr<Composite> composite = nullptr;
+    std::unique_ptr<SelectRectangle> selectRect = nullptr;
 
     SceneECS();
 
@@ -108,6 +119,7 @@ private:
     void InitSceneObjects();
 
     void UpdateCursorObject(QVector3D cursorPos);
+
 };
 
 
