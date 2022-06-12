@@ -34,49 +34,17 @@ SceneElementsList::~SceneElementsList()
 void SceneElementsList::showObjectListContextMenu(const QPoint &pos)
 {
     QPoint globalPos = ui->listSceneElements->mapToGlobal(pos);
-    if (ui->listSceneElements->selectedItems().size() == 0)
-        return;
-
-    auto item = (QListWidgetSceneElement *) (*ui->listSceneElements->selectedItems().begin());
-    unsigned int oid = item->GetAttachedObjectID();
-
-    // Create menu and insert some actions
-    QMenu myMenu;
+    
     if (auto scene = SceneECS::Instance().lock())
-    {
-        myMenu.addAction("Remove", this, &SceneElementsList::onRemoveSceneElement);
-
-        if (ui->listSceneElements->selectedItems().size() == 1)
+        if (auto elSys = scene->GetSystem<SceneElementSystem>().lock())
         {
-            myMenu.addAction("Rename", this, &SceneElementsList::onRenameSceneElement);
+            std::unique_ptr<QMenu> menu = elSys->CreateContextMenuForSelection();
+            if (menu)
+                menu->exec(globalPos);
         }
-        else if (ui->listSceneElements->selectedItems().size() > 1)
-        {
-            //[TODO] wyprowadzic to do systemu z kolekcjami - wymag aprzebudowania sposobu przekazywania zaznaczonych obiektów
-            myMenu.addAction("Create BezierC0 from points", this, &SceneElementsList::CreateBezierC0);
-            myMenu.addAction("Create BezierC2 from points", this, &SceneElementsList::CreateBezierC2);
-            myMenu.addAction("Create InterpolationC2 from points", this, &SceneElementsList::CreateInterpolationC2);
-        }
-
-        auto menu_items = scene->CreateContextMenuForSceneElement(oid, ui->listSceneElements->selectedItems().size());
-        for (const std::pair<QString, std::function<void(QListWidgetSceneElement *item)> > &menu_item: menu_items)
-        {
-            const std::function<void(QListWidgetSceneElement *item)> &func = menu_item.second;
-            myMenu.addAction(menu_item.first, this, [func, this]()
-            {
-                auto item = (QListWidgetSceneElement *) (*ui->listSceneElements->selectedItems().begin());
-
-                if (func)
-                    func(item);
-
-                //emit RequestControlsUpdate(item->GetAttachedObjectID());
-                emit RequestRepaint();
-            });
-        }
-    }
-
+    
     // Show context menu at handling position
-    myMenu.exec(globalPos);
+    //myMenu.exec(globalPos);
 }
 
 void SceneElementsList::on_listSceneElements_itemClicked(QListWidgetItem *item)

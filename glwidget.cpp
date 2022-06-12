@@ -15,6 +15,9 @@ GLWidget::GLWidget(QWidget *pWidget)
 
     QObject::connect(&Renderer::controller, &InputController::CameraUpdated,
                      this, &GLWidget::UpdateCameraSlot);
+    this->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, &GLWidget::customContextMenuRequested, this,
+            &GLWidget::showObjectListContextMenu);
 }
 
 void GLWidget::initializeGL()
@@ -108,5 +111,18 @@ void GLWidget::LoadShaders()
 void GLWidget::RedrawScreen()
 {
     update();
+}
+
+void GLWidget::showObjectListContextMenu(const QPoint &pos)
+{
+    QPoint globalPos = mapToGlobal(pos);
+    
+    if (auto scene = SceneECS::Instance().lock())
+        if (auto elSys = scene->GetSystem<SceneElementSystem>().lock())
+        {
+            std::unique_ptr<QMenu> menu = elSys->CreateContextMenuForSelection();
+            if (menu)
+                menu->exec(globalPos);
+        }
 }
 

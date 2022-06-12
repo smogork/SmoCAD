@@ -44,6 +44,16 @@ MainWindow::MainWindow(QWidget *parent)
     //Register signals to AnaglyphsConfig control
     QObject::connect(ui->anaglyphWidget, &StereoscopicConfig::RequestRepaint,
                      ui->sceneWidget, &GLWidget::RedrawScreen);
+    
+    //RegisterSignalsForSceneElementsSystem
+    if (auto scene = SceneECS::Instance().lock())
+        if (auto elSys = scene->GetSystem<SceneElementSystem>().lock())
+        {
+            QObject::connect(elSys.get(), &SceneElementSystem::RequestRepaint,
+                             ui->sceneWidget, &GLWidget::RedrawScreen);
+            QObject::connect(elSys.get(), &SceneElementSystem::RequestControlsUpdate,
+                             this, &MainWindow::UpdateComponentUI);
+        }
 
     componentSpacer.reset();
     componentSpacer = std::make_unique<QSpacerItem>(40, 20, QSizePolicy::Minimum, QSizePolicy::Expanding);

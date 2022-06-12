@@ -68,7 +68,7 @@ set(CONTROL_SOURCES
         Controls/ListElements/QListWidgetCollectionElement.cpp Controls/ListElements/QListWidgetCollectionElement.h
         Controls/stereoscopicconfig.h Controls/stereoscopicconfig.cpp Controls/stereoscopicconfig.ui
         Controls/uvplanecreatorcontrol.h Controls/uvplanecreatorcontrol.cpp Controls/uvplanecreatorcontrol.ui
-    )
+        Controls/EntityContextMenu.cpp Controls/EntityContextMenu.h)
 
 set(PROJECT_SOURCES
         main.cpp
