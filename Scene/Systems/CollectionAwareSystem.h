@@ -7,6 +7,7 @@
 
 #include "ISystem.h"
 #include "Scene/Components/CollectionAware.h"
+#include "Scene/Components/TransformCollection.h"
 
 class CollectionAwareSystem: public ISystem<CollectionAware>
 {
@@ -23,8 +24,7 @@ public:
                                        const std::vector<unsigned int> &listContextOids) override;
 
 protected:
-    void AddObjectToCollection(const std::vector<unsigned int>& items);
-    void CreateAndAddPointToCollection(const std::vector<unsigned int>& items);
+    void AddObjectToCollection(std::shared_ptr<TransformCollection> col, const std::vector<unsigned int>& items);
     
     void CreateBezierC0(const std::vector<unsigned int>& items);
     void CreateBezierC2(const std::vector<unsigned int>& items);

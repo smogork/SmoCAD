@@ -13,6 +13,7 @@
 #define ASSIGN_NOTIFIER_FUNCTION(F)  std::bind(F, this)
 #define ASSIGN_CONTEXT_SCENE_FUNCTION(F)  std::bind(F, this, std::placeholders::_1)
 #define ASSIGN_CONTEXT_LIST_FUNCTION(F)  std::bind(F, this, std::placeholders::_1, std::placeholders::_2)
+#define ASSIGN_CONTEXT_LIST_FUNCTION_IGNORE_SELECTION(F)  std::bind(F, this, std::placeholders::_1)
 
 QVector4D ColorToVector4D(QColor c);
 
