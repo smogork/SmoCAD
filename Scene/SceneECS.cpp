@@ -287,7 +287,12 @@ void SceneECS::UpdateObjectId(uint oid, uint new_oid)
 
 unsigned int SceneECS::UpdateSelectRectangle(std::shared_ptr<SelectRectangleUpdateEvent> event)
 {
-    if (event->DeleteRectangle)
+    if (!event->SelectItems)
+    {
+        if (selectRect)
+            selectRect.reset();
+    }
+    else if (event->DeleteRectangle)
     {
         selectRect.reset();
         composite.reset();

@@ -5,8 +5,8 @@
 #include "SelectRectangleUpdateEvent.h"
 
 
-SelectRectangleUpdateEvent::SelectRectangleUpdateEvent(QPoint startPoint, QPoint currentPoint, bool finish) :
-    QEvent(QEvent::User), DeleteRectangle(finish)
+SelectRectangleUpdateEvent::SelectRectangleUpdateEvent(QPoint startPoint, QPoint currentPoint, bool finish, bool select) :
+    QEvent(QEvent::User), DeleteRectangle(finish), SelectItems(select)
 {
     SelectedArea = QRect(startPoint, currentPoint).normalized();
 }

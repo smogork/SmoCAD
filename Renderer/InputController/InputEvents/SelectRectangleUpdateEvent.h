@@ -12,10 +12,11 @@
 class SelectRectangleUpdateEvent: public QEvent
 {
 public:
-    SelectRectangleUpdateEvent(QPoint startPoint, QPoint currentPoint, bool finish = false);
+    SelectRectangleUpdateEvent(QPoint startPoint, QPoint currentPoint, bool finish = false, bool select = true);
     
     QRect SelectedArea;
     bool DeleteRectangle;
+    bool SelectItems;
 };
 
 #endif //SMOCAD_SELECTRECTANGLEUPDATEEVENT_H

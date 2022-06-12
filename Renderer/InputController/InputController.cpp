@@ -96,7 +96,8 @@ void InputController::mouseReleaseSlot(QMouseEvent *event)
         switch (event->button())
         {
             case Qt::LeftButton:
-                EmitSceneMouseClickedEvent(event->pos());
+                if (!IsKeyDown(Qt::Key_Shift))
+                    EmitSceneMouseClickedEvent(event->pos());
                 break;
             case Qt::MiddleButton:
                 break;
@@ -108,8 +109,16 @@ void InputController::mouseReleaseSlot(QMouseEvent *event)
         switch (event->button())
         {
             case Qt::LeftButton:
-                emit UpdateSelectRectangle(
-                        std::make_shared<SelectRectangleUpdateEvent>(mouseButtonStartClick[LMOUSE_ID], event->pos(), true));
+                if (!IsKeyDown(Qt::Key_Shift))
+                        emit UpdateSelectRectangle(
+                            std::make_shared<SelectRectangleUpdateEvent>(mouseButtonStartClick[LMOUSE_ID], event->pos(),
+                                                                         true));
+                else
+                {
+                    emit UpdateSelectRectangle(
+                            std::make_shared<SelectRectangleUpdateEvent>(mouseButtonStartClick[LMOUSE_ID], event->pos(),
+                                                                         true, false));
+                }
                 break;
             case Qt::MiddleButton:
                 break;
@@ -141,23 +150,12 @@ void InputController::mouseMoveSlot(QMouseEvent *event)
     }
     QVector2D dMove = QVector2D(event->pos() - lastCursorPos);
     lastCursorPos = event->pos();
-    
-    if (mouseButtonStates[RMOUSE_ID] && IsKeyDown(Qt::Key_Shift))
-    {
-        emit MoveObjectRequested(std::make_shared<ObjectMoveEvent>(event->pos()));
-    }
-    
-    if (mouseButtonStates[LMOUSE_ID] == KeyState::Held)
-    {
-        emit UpdateSelectRectangle(
-                std::make_shared<SelectRectangleUpdateEvent>(mouseButtonStartClick[LMOUSE_ID], event->pos()));
-    }
 
 #pragma region Camera movement
     bool cameraChanged = false;
-    if (mouseButtonStates[MMOUSE_ID]) //cad movement
+    if (mouseButtonStates[MMOUSE_ID]) //freecad movement
     {
-        if (mouseButtonStates[RMOUSE_ID])
+        if (mouseButtonStates[LMOUSE_ID])
         {
             Camera->RotateAroundCenter(dMove.x() * ROTATE_SENSITIVITY, dMove.y() * ROTATE_SENSITIVITY);
             cameraChanged = true;
@@ -167,6 +165,17 @@ void InputController::mouseMoveSlot(QMouseEvent *event)
             Camera->MoveUp(dMove.y() * MOVE_SENSITIVITY);
             cameraChanged = true;
         }
+    } else if (IsKeyDown(Qt::Key_Shift))
+    {
+        if (mouseButtonStates[LMOUSE_ID])
+        {
+            //mouseButtonStates[LMOUSE_ID] = KeyState::Pressed;
+            emit MoveObjectRequested(std::make_shared<ObjectMoveEvent>(event->pos()));
+        }
+    } else if (mouseButtonStates[LMOUSE_ID] == KeyState::Held)
+    {
+        emit UpdateSelectRectangle(
+                std::make_shared<SelectRectangleUpdateEvent>(mouseButtonStartClick[LMOUSE_ID], event->pos()));
     }
     
     if (cameraChanged)
