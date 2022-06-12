@@ -19,6 +19,9 @@ std::unique_ptr<QMenu> EntityContextMenu::CreateMenuForScene()
     if (auto scene = SceneECS::Instance().lock())
     {
         auto menu_items = scene->GenerateContextMenuItemsForScene();
+        if (menu_items.empty())
+            return nullptr;
+        
         auto selectedObjs = scene->GetSelectedObjects();
         
         for (const std::pair<QString, std::function<void(
@@ -44,6 +47,9 @@ std::unique_ptr<QMenu> EntityContextMenu::CreateMenuForSceneList()
     if (auto scene = SceneECS::Instance().lock())
     {
         auto menu_items = scene->GenerateContextMenuItemsForSceneList();
+        if (menu_items.empty())
+            return nullptr;
+        
         auto selectedObjs = scene->GetSelectedObjects();
         auto contextObjs = scene->GetListContextObjects();
         
