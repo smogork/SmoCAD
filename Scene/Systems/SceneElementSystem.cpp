@@ -91,6 +91,10 @@ SceneElementSystem::CreateContextMenuItemsForScene(const std::vector<unsigned in
     if (filteredObjects.empty())
         return res;
     
+    res.push_back(std::make_pair(
+            "Remove objects",
+            ASSIGN_CONTEXT_SCENE_FUNCTION(&SceneElementSystem::RemoveSceneElement)));
+    
     if (filteredObjects.size() == 1)
         res.push_back(
                 std::make_pair(
@@ -100,11 +104,6 @@ SceneElementSystem::CreateContextMenuItemsForScene(const std::vector<unsigned in
                             auto filteredObjects = FilterObjects(selectedOids);
                             RenameSceneElement(filteredObjects[0]);
                         }));
-    
-    if (!filteredObjects.empty())
-        std::make_pair(
-                "Remove objects",
-                ASSIGN_CONTEXT_SCENE_FUNCTION(&SceneElementSystem::RemoveSceneElement));
     
     return res;
 }
