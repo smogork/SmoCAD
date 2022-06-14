@@ -75,32 +75,42 @@ std::vector<QVector3D> PointShapes::CreateFillPlanePoints(std::vector<QVector3D>
         centerInnerPoints.push_back((2 * QPoints[i] + centerPoint) / 3);
     
     //Wyznaczenie nieszczesnych punktow 7 i 8
+    std::vector<QVector3D> sevens(planeNum), eights(planeNum);
+    for (int i = 0; i < planeNum; ++i)
+        sevens[i] = centerInnerPoints[i] + (edgeDoubles[(i + 1) % planeNum].first[2] - centerInnerPoints[i]) / 4.0f;
+    
+    for (int i = 0; i < planeNum; ++i)
+        eights[i] = 2 * centerInnerPoints[(i + 1) % planeNum] - sevens[(i + 1) % planeNum];
     
     //Ulozenie punktow do kolekcji wyjsciowej
     for (int i = 0; i < planeNum; ++i)
     {
         //pierwsza warstwa
-        for (int j = 0; j < 4; ++j)
+        for (int j = 0; j <= 3; ++j)
             res.push_back(edgeDoubles[i].second[j]);
         
         //druga warstwa
-        for (int j = 0; j < 3; ++j)
-            res.push_back(innerEdgePoints[i].second[j]);
+        res.push_back(innerEdgePoints[i].second[0]);
+        res.push_back(innerEdgePoints[i].second[1]);
+        res.push_back(innerEdgePoints[i].second[1]);
+        res.push_back(innerEdgePoints[i].second[2]);
         res.push_back(innerEdgePoints[(i + 1) % planeNum].first[1]);
         res.push_back(edgeDoubles[(i + 1) % planeNum].first[1]);
         
         //trzecia warstwa
         res.push_back(centerInnerPoints[i]);
-        res.push_back(centerInnerPoints[i] + (edgeDoubles[(i + 1) % planeNum].first[2] - centerInnerPoints[i]) / 4.0f);//[TODO] Nieszczesny punkt 7
-        res.push_back(centerInnerPoints[(i + 1) % planeNum] + (edgeDoubles[i].second[1] - centerInnerPoints[(i + 1) % planeNum]) / 4.0f);//[TODO] Nieszczesny punkt 8
+        res.push_back(sevens[i]);
+        res.push_back(eights[i]);
+        res.push_back(innerEdgePoints[(i + 1) % planeNum].first[2]);
         res.push_back(innerEdgePoints[(i + 1) % planeNum].first[2]);
         res.push_back(edgeDoubles[(i + 1) % planeNum].first[2]);
         
-        //czwarta warstwa powinn abyc z kolejnego platka (offset o 14 przy tworzeniu punktow na platki)
+        //czwarta warstwa
+        res.push_back(centerPoint);
+        res.push_back(centerInnerPoints[(i + 1) % planeNum]);
+        res.push_back(innerEdgePoints[(i + 1) % planeNum].first[3]);
+        res.push_back(edgeDoubles[(i + 1) % planeNum].first[3]);
     }
-    //Punkt centralny na samym koncu
-    res.push_back(centerPoint);
     
-    //Wynik powinien miec rozmiar 14*n + 1,gdzie n - liczba platkowe ktore wyznaczaja zzalepiana dziure
     return res;
 }

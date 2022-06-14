@@ -149,7 +149,7 @@ set(PROJECT_SOURCES
         Scene/Components/Merge.cpp Scene/Components/Merge.h
         Scene/Systems/FillAwareSystem.cpp Scene/Systems/FillAwareSystem.h
         Scene/Components/FillAware.cpp Scene/Components/FillAware.h
-        Scene/Entities/Planes/FillPlane.cpp Scene/Entities/Planes/FillPlane.h)
+        Scene/Entities/Planes/FillPlane.cpp Scene/Entities/Planes/FillPlane.h Scene/Entities/Planes/GregoryMesh.cpp Scene/Entities/Planes/GregoryMesh.h)
 
 add_subdirectory(Tests)
 add_subdirectory(ThirdParty/Scene-Serializer/cpp/Serializer)

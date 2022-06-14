@@ -7,6 +7,7 @@
 
 #include "BasePlane.h"
 #include "Scene/Components/FillAware.h"
+#include "GregoryMesh.h"
 
 class FillPlane: public BasePlane
 {
@@ -18,7 +19,7 @@ private slots:
 
 protected:
     QPropertyNotifier selectedNotifier;
-    //dodac specjalny uogolniony mesh
+    GregoryMesh m_gmesh;
     
     std::vector<float> GenerateGeometryVertices() override;
     std::vector<int> GenerateTopologyIndices() override;

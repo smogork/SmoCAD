@@ -29,7 +29,7 @@ vec4[4] loadControlPoints(int idx, vec4[16] inArray)
 {
     vec4 outArray[4];
     for (int i = 0; i < 4; ++i)
-    outArray[i] = gl_in[idx + i].gl_Position;
+    outArray[i] = inArray[idx + i];
 
     return outArray;
 }
@@ -37,20 +37,24 @@ vec4[4] loadControlPoints(int idx, vec4[16] inArray)
 vec4[16] gregory_to_bernstein(float u, float v, vec4[20] gregoryPoints)
 {
     vec4 bernsteinPoints[16];
+    const float eps = 0.0001;
 
-    //Przepisanie zewnetrznych punktow
-    for (int i = 0; i <= 4; ++i)
-        bernsteinPoints[i] = gregoryPoints[i];
-    bernsteinPoints[7] = gregoryPoints[9];
-    bernsteinPoints[8] = gregoryPoints[10];
-    for (int i = 11; i <= 15; ++i)
-        bernsteinPoints[i] = gregoryPoints[i + 4];
-
-    //Wyznaczenie wewnetrznych punktow
-    bernsteinPoints[5] = (u * gregoryPoints[6] + v * gregoryPoints[5]) / (u + v + 1e-6);
-    bernsteinPoints[6] = ((1 - u) * gregoryPoints[7] + v * gregoryPoints[8] ) / (1 - u + v+ 1e-6);
-    bernsteinPoints[7] = ((1 - u) * gregoryPoints[13] + (1 - v) * gregoryPoints[14]) / (2 - u - v + 1e-6);
-    bernsteinPoints[8] = (u * gregoryPoints[12] + (1 - v) * gregoryPoints[11]) / (1 + u - v + 1e-6);
+    bernsteinPoints[0] = gregoryPoints[0];
+    bernsteinPoints[1] = gregoryPoints[4];
+    bernsteinPoints[2] = gregoryPoints[10];
+    bernsteinPoints[3] = gregoryPoints[16];
+    bernsteinPoints[4] = gregoryPoints[1];
+    bernsteinPoints[5] =((1 - u) * gregoryPoints[13] + (1 - v) * gregoryPoints[14]) / (2 - u - v + eps);
+    bernsteinPoints[6] = (u * gregoryPoints[12] + (1 - v) * gregoryPoints[11]) / (1 + u - v + eps);
+    bernsteinPoints[7] = gregoryPoints[17];
+    bernsteinPoints[8] = gregoryPoints[2];
+    bernsteinPoints[9] = ((1 - u) * gregoryPoints[7] + v * gregoryPoints[8]) / (1 - u + v + eps);
+    bernsteinPoints[10] =  (u * gregoryPoints[6] + v * gregoryPoints[5]) / (u + v + eps);
+    bernsteinPoints[11] = gregoryPoints[18];
+    bernsteinPoints[12] = gregoryPoints[3];
+    bernsteinPoints[13] = gregoryPoints[9];
+    bernsteinPoints[14] = gregoryPoints[15];
+    bernsteinPoints[15] = gregoryPoints[19];
 
     return bernsteinPoints;
 }
@@ -68,6 +72,11 @@ void main()
 
     vec4[16] bernsteinPoints = gregory_to_bernstein(u, v, inData);
 
+    /*vec4 pos = mix(
+    mix(bernsteinPoints[5], bernsteinPoints[6], u),
+    mix(bernsteinPoints[9], bernsteinPoints[10], u),
+    v);*/
+
     controlPoints = loadControlPoints(0, bernsteinPoints);
     midValue[0] = bezier(u, controlPoints);
     controlPoints = loadControlPoints(4, bernsteinPoints);
@@ -78,5 +87,6 @@ void main()
     midValue[3] = bezier(u, controlPoints);
 
     vec4 pos = bezier(v, midValue);
+
     gl_Position = u_MVP.Projection * u_MVP.View * u_MVP.Model * pos;
 }

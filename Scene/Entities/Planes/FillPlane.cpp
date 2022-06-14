@@ -6,7 +6,7 @@
 #include "Scene/SceneECS.h"
 #include "Mathematics/PointShapes.h"
 
-FillPlane::FillPlane(const QString &name, const std::vector<std::shared_ptr<FillAware>>& edgePlanes)
+FillPlane::FillPlane(const QString &name, const std::vector<std::shared_ptr<FillAware>> &edgePlanes)
         : BasePlane(FILL_PLANE_CLASS, false, edgePlanes.size(), 1)
 {
     AddComponent(p_Selected = Selectable::CreateRegisteredComponent(GetObjectID()));
@@ -23,32 +23,38 @@ FillPlane::FillPlane(const QString &name, const std::vector<std::shared_ptr<Fill
     QObject::connect(p_Collection.get(), &TransformCollection::PointDeleted,
                      this, &FillPlane::PointRemovedFromCollection);
     
-    selectedNotifier = p_Selected->Selected.addNotifier([this]()
-                                                        {
-                                                            if (p_Selected->Selected)
-                                                                PlaneColor = Selectable::SelectedColor;
-                                                            else
-                                                                PlaneColor = DefaultColor;
-                                                        });
-    //MeshColor = Qt::darkRed;
+    selectedNotifier = p_Selected->Selected.addNotifier(
+            [this]()
+            {
+                if (p_Selected->Selected)
+                    PlaneColor = Selectable::SelectedColor;
+                else
+                    PlaneColor = DefaultColor;
+            });
+    m_mesh.p_Drawing->Enabled = false;
     
     FillCollection(edgePlanes);
     p_Drawing->SetIndexData(GenerateTopologyIndices());
     p_Collection->LockContent();
+    m_gmesh.DrawingColor = Qt::darkRed;
 }
 
 std::vector<float> FillPlane::GenerateGeometryVertices()
 {
     std::vector<QVector3D> edgeCoords = p_Collection->GetVectorCoords();
     
+    if (edgeCoords.size() < 24)
+        return {};
+    
     std::vector<QVector3D> coords = PointShapes::CreateFillPlanePoints(edgeCoords);
     
     std::vector<float> res(3 * coords.size());
     
     //jbc to tutaj mozna stworzyc punkty aby obejrzec co wyszlo
+    m_gmesh.SetGregoryPoints(coords);
     
     int i = 0;
-    for (const QVector3D& p:  coords)
+    for (const QVector3D &p: coords)
     {
         res[3 * i] = p.x();
         res[3 * i + 1] = p.y();
@@ -63,27 +69,8 @@ std::vector<int> FillPlane::GenerateTopologyIndices()
 {
     std::vector<int> res(GetIndexCount());
     
-    const int indexOffset = 20;
-    const int vertexOffset = 14;
-    const int vertexSize = vertexOffset * p_UV->U;
-    
-    for (int i = 0; i < p_UV->U; ++i)
-    {
-        for (int j = 0; j <= 5; ++j)
-            res[indexOffset * i + j] = (vertexOffset * i + j) % vertexSize;
-        
-        for (int j = 6; j <= 13; ++j)
-            res[indexOffset * i + j] = (vertexOffset * i + j - 1) % vertexSize;
-        
-        res[indexOffset * i + 14] = (vertexOffset * i + 12) % vertexSize;
-        res[indexOffset * i + 15] = (vertexOffset * i + 13) % vertexSize;
-    
-        res[indexOffset * i + 16] = vertexSize; // punkt centralny
-    
-        res[indexOffset * i + 17] = (vertexOffset * i + 23) % vertexSize;//tu bierzemy juz z znastepnego platka
-        res[indexOffset * i + 18] = (vertexOffset * i + 18) % vertexSize;
-        res[indexOffset * i + 19] = (vertexOffset * i + 14) % vertexSize;
-    }
+    for (int i = 0; i < GetIndexCount(); ++i)
+        res[i] = i;
     
     return res;
 }
@@ -122,13 +109,13 @@ void FillPlane::FillCollection(const std::vector<std::shared_ptr<FillAware>> &ed
     
     //ustaw punkty aby tworzyly jeden ciag
     if (one_points[3]->GetAttachedObjectID() == three_points[3]->GetAttachedObjectID() or
-            one_points[3]->GetAttachedObjectID() == three_points[0]->GetAttachedObjectID())
+        one_points[3]->GetAttachedObjectID() == three_points[0]->GetAttachedObjectID())
         for (int i = 0; i < 2; ++i)
         {
             std::swap(one_points[i], one_points[3 - i]);
             std::swap(one_points[i + 4], one_points[3 - i + 4]);
         }
-        
+    
     if (one_points[3]->GetAttachedObjectID() == two_points[3]->GetAttachedObjectID())//dwojka jest w zla strone
         for (int i = 0; i < 2; ++i)
         {
