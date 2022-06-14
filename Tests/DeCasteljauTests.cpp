@@ -77,4 +77,21 @@ TEST_F(DeCasteljauTests, StepsIn1div4)
     delete [] steps;
 }
 
+TEST_F(DeCasteljauTests, DoubleFunction)
+{
+    std::vector<QVector3D> knots = {
+            {0, 3, 2},
+            {1, 2, 3},
+            {4, 3, 2},
+            {1, 1, 1}
+    };
+    
+    auto doubles = Polynomials::deCasteljauDouble(0.5f, knots);
+    
+    EXPECT_TRUE(QVector3DAlmostEquals(knots[0], Polynomials::deCasteljau(0, doubles.first)));
+    EXPECT_TRUE(QVector3DAlmostEquals(knots[3], Polynomials::deCasteljau(1, doubles.second)));
+    EXPECT_TRUE(QVector3DAlmostEquals(Polynomials::deCasteljau(0.25f, knots), Polynomials::deCasteljau(0.5f, doubles.first)));
+    EXPECT_TRUE(QVector3DAlmostEquals(Polynomials::deCasteljau(0.75f, knots), Polynomials::deCasteljau(0.5f, doubles.second)));
+}
+
 

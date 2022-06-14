@@ -3,6 +3,11 @@
 //
 
 #include "FillAwareSystem.h"
+#include "Mathematics/PointShapes.h"
+#include "Scene/Entities/Points/Point.h"
+#include "Scene/SceneECS.h"
+
+#include <QString>
 
 std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids,
                                                 const std::vector<unsigned int> &listContextOids)> > >
@@ -50,9 +55,23 @@ void FillAwareSystem::CreateFillPlane(const std::vector<unsigned int> &listConte
         }
     
     
-    //Stworz zbior 3 x 20 punktow reprezentujacych platki gregoriego (w czesci matematycznej)
+    //[TODO] Tutaj stworz obiekt ktory wciagnie tylko te 3 * 8 punktow i on juz sam zajmie sie ustawianiem pozostalyhc punktow wewnatrz
     
+    //Wyzancz punkty budujace platki gregoriego
+    std::vector<QVector3D> coords = PointShapes::CreateFillPlanePoints({one_points, two_points, three_points});
     
+    //To juz we wnetrzu obiektu z gregorimi
+    std::vector<std::shared_ptr<Point>> points;
+    int counter = 0;
+    if (auto scene = SceneECS::Instance().lock())
+    {
+        for (const QVector3D &coord: coords)
+        {
+            std::shared_ptr<Point> p = std::make_shared<Point>(QString("GreagoryPlanePoint%0").arg(counter++), coord);
+            scene->AddObjectExplicitPosition(p);
+            points.push_back(p);
+        }
+    }
 }
 
 bool FillAwareSystem::IsHoleToFill(const std::vector<std::shared_ptr<FillAware>> &awares)

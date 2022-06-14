@@ -3,6 +3,7 @@
 //
 
 #include "PointShapes.h"
+#include "Polynomials.h"
 
 std::vector<QVector3D> PointShapes::CreateRect(QVector3D startPos, float width, float height, int wPoints, int hPoints)
 {
@@ -24,5 +25,81 @@ std::vector<QVector3D> PointShapes::CreateTube(QVector3D startPos, float radius,
             res[i * rPoints + j] = QVector3D(radius * cos(2 * M_PIf * j / rPoints), radius * sin(2 * M_PIf * j / rPoints),
                                              (float) i  * length / (lPoints - 1))+ startPos;
 
+    return res;
+}
+
+std::vector<QVector3D> PointShapes::CreateFillPlanePoints(std::vector<std::vector<QVector3D>> edgePoints)
+{
+    if (edgePoints.size() < 3)
+        throw std::runtime_error("We can only fill hole with at least 3 edges");
+    std::vector<QVector3D> res;
+    
+    std::vector<std::pair<std::vector<QVector3D>, std::vector<QVector3D>>> edgeDoubles, deeperDoubles;
+    int size = edgePoints[0].size() / 2;
+    
+    //Wyznaczenie funkcji dzielacych krawedzie na pol
+    for (int i = 0; i < edgePoints.size(); ++i)
+    {
+        edgeDoubles.push_back(Polynomials::deCasteljauDouble(0.5f, edgePoints[i].data(), size));
+        deeperDoubles.push_back(Polynomials::deCasteljauDouble(0.5f, edgePoints[i].data() + size, size));
+    }
+    
+    //Wyznaczenie punktow dla platkow przy krawedzi
+    std::vector<std::pair<std::vector<QVector3D>, std::vector<QVector3D>>> innerEdgePoints;
+    for (int i = 0; i < edgePoints.size(); ++i)
+    {
+        std::vector<QVector3D> firstInnerPoints, secondInnerPoints;
+        
+        for (int j = 0; j < 4; ++j)
+        {
+            firstInnerPoints.push_back(2 * edgeDoubles[i].first[j] - deeperDoubles[i].first[j]);
+            secondInnerPoints.push_back(2 * edgeDoubles[i].second[j] - deeperDoubles[i].second[j]);
+        }
+        
+        innerEdgePoints.push_back(std::make_pair(firstInnerPoints, secondInnerPoints));
+    }
+    
+    //Wyznaczenie punktow na "krzyzaku" laczacego platki
+    
+    QVector3D centerPoint;
+    std::vector<QVector3D> QPoints, centerInnerPoints;
+    for (int i = 0; i < innerEdgePoints.size(); ++i)
+    {
+        QPoints.push_back(edgeDoubles[i].second[0] + 3 * (innerEdgePoints[i].second[0] - edgeDoubles[i].second[0]) / 2);
+        centerPoint += QPoints.back();
+    }
+    centerPoint /= innerEdgePoints.size();
+    
+    for (int i = 0; i < innerEdgePoints.size(); ++i)
+        centerInnerPoints.push_back(2 * (QPoints[i] + centerPoint) / 3);
+    
+    //Wyznaczenie nieszczesnych punktow 7 i 8
+    
+    //Ulozenie punktow do kolekcji wyjsciowej
+    for (int i = 0; i < edgePoints.size(); ++i)
+    {
+        //pierwsza warstwa
+        for (int j = 0; j < 4; ++j)
+            res.push_back(edgeDoubles[i].second[j]);
+        
+        //druga warstwa
+        for (int j = 0; j < 3; ++j)
+            res.push_back(innerEdgePoints[i].second[j]);
+        res.push_back(innerEdgePoints[(i + 1) % edgePoints.size()].first[1]);
+        res.push_back(edgeDoubles[(i + 1) % edgePoints.size()].first[1]);
+        
+        //trzecia warstwa
+        res.push_back(centerInnerPoints[i]);
+        //Nieszczesny punkt 7
+        //Nieszczesny punkt 8
+        res.push_back(innerEdgePoints[(i + 1) % edgePoints.size()].first[2]);
+        res.push_back(edgeDoubles[(i + 1) % edgePoints.size()].first[2]);
+        
+        //czwarta warstwa powinn abyc z kolejnego platak (offset o 14 przy tworzeniu punktow na platki)
+    }
+    //Punkt centralny na samym koncu
+    res.push_back(centerPoint);
+    
+    //Wynik powinien miec rozmiar 14*n + 1,gdzie n - liczba platkowe ktore wyznaczaja zzalepiana dziure
     return res;
 }

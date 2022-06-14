@@ -15,6 +15,7 @@
 #include "Scene/Entities/Points/Point.h"
 #include "Scene/Components/UVParams.h"
 #include "BasePlane.h"
+#include "Scene/Components/FillAware.h"
 
 class PlaneC0 : public BasePlane
 {
@@ -37,6 +38,7 @@ protected:
 public:
     std::shared_ptr<Selectable> p_Selected;
     std::shared_ptr<SceneElement> p_SceneElement;
+    std::shared_ptr<FillAware> p_FillAware;
 
     PlaneC0(const QString &name, bool isPipe, int countU, int countV);
     explicit PlaneC0(const MG1::BezierSurfaceC0 &p0);

@@ -19,6 +19,8 @@ class PointShapes
 public:
     static std::vector<QVector3D> CreateRect(QVector3D startPos, float width, float height, int wPoints, int hPoints);
     static std::vector<QVector3D> CreateTube(QVector3D startPos, float radius, float length, int rPoints, int lPoints);
+    
+    static std::vector<QVector3D> CreateFillPlanePoints(std::vector<std::vector<QVector3D>> edgePoints);
 };
 
 #endif //SMOCAD_POINTSHAPES_H
