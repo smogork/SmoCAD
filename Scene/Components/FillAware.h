@@ -40,7 +40,7 @@ public:
     
     CrossingPoint GetCrossingPointWith(const std::shared_ptr<FillAware>& other);
     FillEdge GetFillEdgeWith(const std::shared_ptr<FillAware>& one, const std::shared_ptr<FillAware>& two);
-    std::vector<QVector3D> GetPointsFromEdge(FillEdge edge);
+    std::vector<std::shared_ptr<CollectionAware>> GetPointsFromEdge(FillEdge edge);
 };
 
 #endif //SMOCAD_FILLAWARE_H

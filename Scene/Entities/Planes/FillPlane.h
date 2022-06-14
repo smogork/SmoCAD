@@ -1,0 +1,37 @@
+//
+// Created by ksm on 6/14/22.
+//
+
+#ifndef SMOCAD_FILLPLANE_H
+#define SMOCAD_FILLPLANE_H
+
+#include "BasePlane.h"
+#include "Scene/Components/FillAware.h"
+
+class FillPlane: public BasePlane
+{
+Q_OBJECT
+private slots:
+    void OnCollectionModified();
+    void OnSinglePointModified(QVector3D pos, unsigned int changedOID);
+    void PointRemovedFromCollection();
+
+protected:
+    QPropertyNotifier selectedNotifier;
+    //dodac specjalny uogolniony mesh
+    
+    std::vector<float> GenerateGeometryVertices() override;
+    std::vector<int> GenerateTopologyIndices() override;
+    int GetIndexCount() override;
+    void UniformFunction(std::shared_ptr<ShaderWrapper> shader);
+    
+    void FillCollection(const std::vector<std::shared_ptr<FillAware>>& edgePlanes);
+
+public:
+    std::shared_ptr<Selectable> p_Selected;
+    std::shared_ptr<SceneElement> p_SceneElement;
+    
+    FillPlane(const QString& name, const std::vector<std::shared_ptr<FillAware>>& edgePlanes);
+};
+
+#endif //SMOCAD_FILLPLANE_H

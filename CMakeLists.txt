@@ -43,6 +43,10 @@ set(SHADER_FILES
         Shaders/Planes/planeC2.tess
         Shaders/Planes/planeC2.eval
         Shaders/Planes/planeC2.frag
+        Shaders/Planes/gregory_plane.vert
+        Shaders/Planes/gregory_plane.tess
+        Shaders/Planes/gregory_plane.eval
+        Shaders/Planes/gregory_plane.frag
         Shaders/select_rect.vert
         Shaders/select_rect.frag
         )
@@ -145,7 +149,7 @@ set(PROJECT_SOURCES
         Scene/Components/Merge.cpp Scene/Components/Merge.h
         Scene/Systems/FillAwareSystem.cpp Scene/Systems/FillAwareSystem.h
         Scene/Components/FillAware.cpp Scene/Components/FillAware.h
-        )
+        Scene/Entities/Planes/FillPlane.cpp Scene/Entities/Planes/FillPlane.h)
 
 add_subdirectory(Tests)
 add_subdirectory(ThirdParty/Scene-Serializer/cpp/Serializer)

@@ -6,6 +6,8 @@
 #include "Scene/SceneECS.h"
 #include "Scene/Systems/TransformCollectionSystem.h"
 
+#include <ranges>
+
 std::shared_ptr<TransformCollection> TransformCollection::CreateRegisteredComponent(unsigned int oid)
 {
     if (auto scene = SceneECS::Instance().lock())
@@ -37,7 +39,7 @@ TransformCollection::~TransformCollection()
 void TransformCollection::AddPoint(std::shared_ptr<CollectionAware> newObject)
 {
     ConnectSignals(newObject->p_Transform);
-    points.push_back(newObject->p_Transform);
+    points.push_back(newObject);
     emit PointInCollectionModified();
 }
 
@@ -78,9 +80,14 @@ void TransformCollection::CollectionElementTransformChanged(QVector3D val)
     emit PointInCollectionModified();
 }
 
-const std::list<std::weak_ptr<Transform>> &TransformCollection::GetPoints()
+const std::list<std::weak_ptr<Transform>> TransformCollection::GetPoints()
 {
-    return points;
+    std::list<std::weak_ptr<Transform>> res;
+    
+    for (const auto &el: points)
+        res.push_back(el.lock()->p_Transform);
+    
+    return res;
 }
 
 int TransformCollection::Size()
@@ -94,12 +101,12 @@ TransformCollection &TransformCollection::operator=(const TransformCollection &o
     points.clear();
     //disconnect(nullptr, &IComponent::ComponentDeleted, this, &TransformCollection::PointFromCollectionHasBeenDeleted);
     
-    for (const std::weak_ptr<Transform> &el_weak: other.points)
+    for (const std::weak_ptr<CollectionAware> &el_weak: other.points)
     {
         if (auto el = el_weak.lock())
         {
             points.push_back(el);
-            ConnectSignals(el);
+            ConnectSignals(el->p_Transform);
         }
     }
     
@@ -109,7 +116,7 @@ TransformCollection &TransformCollection::operator=(const TransformCollection &o
 
 void TransformCollection::RemovePoint(unsigned int oid)
 {
-    auto weak_item = std::find_if(points.begin(), points.end(), [oid](std::weak_ptr<Transform> wp)
+    auto weak_item = std::find_if(points.begin(), points.end(), [oid](std::weak_ptr<CollectionAware> wp)
     {
         if (auto p = wp.lock())
             return p->GetAttachedObjectID() == oid;
@@ -119,7 +126,7 @@ void TransformCollection::RemovePoint(unsigned int oid)
         disconnect(item.get(), &IComponent::ComponentDeleted, this,
                    &TransformCollection::PointFromCollectionHasBeenDeleted);
     
-    points.remove_if([oid](std::weak_ptr<Transform> wp)
+    points.remove_if([oid](std::weak_ptr<CollectionAware> wp)
                      {
                          if (auto p = wp.lock())
                              return p->GetAttachedObjectID() == oid;
@@ -134,7 +141,7 @@ void TransformCollection::PointFromCollectionHasBeenDeleted(unsigned int deleted
 {
     auto oid = deletedOid;
     
-    points.remove_if([oid](std::weak_ptr<Transform> wp)
+    points.remove_if([oid](std::weak_ptr<CollectionAware> wp)
                      {
                          if (auto p = wp.lock())
                              return p->GetAttachedObjectID() == oid;
@@ -152,7 +159,7 @@ void TransformCollection::SetPoints(std::vector<std::shared_ptr<CollectionAware>
     
     for (const std::shared_ptr<CollectionAware> &el: newPoints)
     {
-        points.push_back(el->p_Transform);
+        points.push_back(el);
         ConnectSignals(el->p_Transform);
     }
     
@@ -174,7 +181,7 @@ void TransformCollection::ReplaceObject(unsigned int toReplace, std::shared_ptr<
     if (points.empty())
         return;
     
-    auto weak_item = std::find_if(points.begin(), points.end(), [toReplace](std::weak_ptr<Transform> wp)
+    auto weak_item = std::find_if(points.begin(), points.end(), [toReplace](std::weak_ptr<CollectionAware> wp)
     {
         if (auto p = wp.lock())
             return p->GetAttachedObjectID() == toReplace;
@@ -194,20 +201,31 @@ void TransformCollection::ReplaceObject(unsigned int toReplace, std::shared_ptr<
     
     //podmiana polozenia w liscie punktow
     std::replace_if(points.begin(), points.end(),
-                    [toReplace](std::weak_ptr<Transform> wp)
+                    [toReplace](std::weak_ptr<CollectionAware> wp)
                     {
                         if (auto p = wp.lock())
                             return p->GetAttachedObjectID() == toReplace;
                         return false;
                     },
-                    newElement->p_Transform
+                    newElement
     );
     
     //Podlaczenie sygnalow dla nowo dodawanego obiektu
     ConnectSignals(newElement->p_Transform);
 }
 
-std::vector<std::weak_ptr<Transform>> TransformCollection::GetVectorPoints()
+std::vector<std::weak_ptr<CollectionAware>> TransformCollection::GetVectorAwares()
 {
-    return std::vector<std::weak_ptr<Transform>>(points.begin(), points.end());
+    return std::vector<std::weak_ptr<CollectionAware>>(points.begin(), points.end());
+}
+
+std::vector<QVector3D> TransformCollection::GetVectorCoords()
+{
+    std::vector<QVector3D> res(points.size());
+    
+    int counter = 0;
+    for (const auto& el : points)
+        res[counter++] = el.lock()->p_Transform->Position.value();
+    
+    return res;
 }

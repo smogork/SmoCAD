@@ -26,7 +26,6 @@ void PlaneC0::OnCollectionModified()
 
 void PlaneC0::PointRemovedFromCollection()
 {
-
     if (auto scene = SceneECS::Instance().lock())
         scene->RemoveObject(GetObjectID());
 }

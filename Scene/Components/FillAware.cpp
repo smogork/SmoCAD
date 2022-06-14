@@ -48,13 +48,13 @@ CrossingPoint FillAware::GetCrossingPointWith(const std::shared_ptr<FillAware> &
     if (p_Collection->Size() != 16 or other->p_Collection->Size() != 16)
         return CrossingPoint::NONE;
     
-    auto one_points = p_Collection->GetVectorPoints();
-    auto two_points = other->p_Collection->GetVectorPoints();
+    auto one_points = p_Collection->GetVectorAwares();
+    auto two_points = other->p_Collection->GetVectorAwares();
     
-    std::vector<std::shared_ptr<Transform>> one_corners = {one_points[0].lock(), one_points[3].lock(),
-                                                           one_points[15].lock(), one_points[12].lock()};
-    std::vector<std::shared_ptr<Transform>> two_corners = {two_points[0].lock(), two_points[3].lock(),
-                                                           two_points[15].lock(), two_points[12].lock()};
+    std::vector<std::shared_ptr<CollectionAware>> one_corners = {one_points[0].lock(), one_points[3].lock(),
+                                                                 one_points[15].lock(), one_points[12].lock()};
+    std::vector<std::shared_ptr<CollectionAware>> two_corners = {two_points[0].lock(), two_points[3].lock(),
+                                                                 two_points[15].lock(), two_points[12].lock()};
     
     for (int one_i = 0; one_i < 4; ++one_i)
     {
@@ -91,28 +91,27 @@ FillEdge FillAware::GetFillEdgeWith(const std::shared_ptr<FillAware> &one, const
     return FillEdge::NONE;
 }
 
-std::vector<QVector3D> FillAware::GetPointsFromEdge(FillEdge edge)
+std::vector<std::shared_ptr<CollectionAware>> FillAware::GetPointsFromEdge(FillEdge edge)
 {
-    auto points = p_Collection->GetVectorPoints();
+    auto points = p_Collection->GetVectorAwares();
     if (edge == FillEdge::ZERO)
-        return {points[0].lock()->Position, points[1].lock()->Position, points[2].lock()->Position,
-                points[3].lock()->Position, points[4].lock()->Position, points[5].lock()->Position,
-                points[6].lock()->Position, points[7].lock()->Position,};
+        return {points[0].lock(), points[1].lock(), points[2].lock(), points[3].lock(),
+                points[4].lock(), points[5].lock(), points[6].lock(), points[7].lock(),};
     
     if (edge == FillEdge::ONE)
-        return {points[3].lock()->Position, points[7].lock()->Position, points[11].lock()->Position,
-                points[15].lock()->Position, points[2].lock()->Position, points[6].lock()->Position,
-                points[10].lock()->Position, points[14].lock()->Position};
+        return {points[3].lock(), points[7].lock(), points[11].lock(),
+                points[15].lock(), points[2].lock(), points[6].lock(),
+                points[10].lock(), points[14].lock()};
     
     if (edge == FillEdge::TWO)
-        return {points[12].lock()->Position, points[13].lock()->Position, points[14].lock()->Position,
-                points[15].lock()->Position, points[8].lock()->Position, points[9].lock()->Position,
-                points[10].lock()->Position, points[11].lock()->Position};
+        return {points[12].lock(), points[13].lock(), points[14].lock(),
+                points[15].lock(), points[8].lock(), points[9].lock(),
+                points[10].lock(), points[11].lock()};
     
     if (edge == FillEdge::THREE)
-        return {points[0].lock()->Position, points[4].lock()->Position, points[8].lock()->Position,
-                points[12].lock()->Position, points[1].lock()->Position, points[5].lock()->Position,
-                points[9].lock()->Position, points[13].lock()->Position};
+        return {points[0].lock(), points[4].lock(), points[8].lock(),
+                points[12].lock(), points[1].lock(), points[5].lock(),
+                points[9].lock(), points[13].lock()};
     
     throw std::runtime_error("Cannot get points for edge none");
 }

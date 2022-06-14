@@ -32,6 +32,7 @@ void BasePlane::DrawingFunction(QOpenGLContext *context)
 {
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE );//rysowanie wireframow trojkatow wygenerowanych w shaderze teselacji
     Renderer::DrawPatches(context->functions(), GetIndexCount());
+    
 }
 
 void BasePlane::UniformFunction(std::shared_ptr<ShaderWrapper> shader)

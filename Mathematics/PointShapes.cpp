@@ -28,25 +28,26 @@ std::vector<QVector3D> PointShapes::CreateTube(QVector3D startPos, float radius,
     return res;
 }
 
-std::vector<QVector3D> PointShapes::CreateFillPlanePoints(std::vector<std::vector<QVector3D>> edgePoints)
+std::vector<QVector3D> PointShapes::CreateFillPlanePoints(std::vector<QVector3D> edgePoints)
 {
-    if (edgePoints.size() < 3)
+    int planeNum = edgePoints.size() / 8;
+    if (planeNum < 3)
         throw std::runtime_error("We can only fill hole with at least 3 edges");
     std::vector<QVector3D> res;
     
     std::vector<std::pair<std::vector<QVector3D>, std::vector<QVector3D>>> edgeDoubles, deeperDoubles;
-    int size = edgePoints[0].size() / 2;
+    int size = 4;
     
     //Wyznaczenie funkcji dzielacych krawedzie na pol
-    for (int i = 0; i < edgePoints.size(); ++i)
+    for (int i = 0; i < planeNum; ++i)
     {
-        edgeDoubles.push_back(Polynomials::deCasteljauDouble(0.5f, edgePoints[i].data(), size));
-        deeperDoubles.push_back(Polynomials::deCasteljauDouble(0.5f, edgePoints[i].data() + size, size));
+        edgeDoubles.push_back(Polynomials::deCasteljauDouble(0.5f, edgePoints.data() + 8 * i, size));
+        deeperDoubles.push_back(Polynomials::deCasteljauDouble(0.5f, edgePoints.data() + 8 * i + size, size));
     }
     
     //Wyznaczenie punktow dla platkow przy krawedzi
     std::vector<std::pair<std::vector<QVector3D>, std::vector<QVector3D>>> innerEdgePoints;
-    for (int i = 0; i < edgePoints.size(); ++i)
+    for (int i = 0; i < planeNum; ++i)
     {
         std::vector<QVector3D> firstInnerPoints, secondInnerPoints;
         
@@ -63,20 +64,20 @@ std::vector<QVector3D> PointShapes::CreateFillPlanePoints(std::vector<std::vecto
     
     QVector3D centerPoint;
     std::vector<QVector3D> QPoints, centerInnerPoints;
-    for (int i = 0; i < innerEdgePoints.size(); ++i)
+    for (int i = 0; i < planeNum; ++i)
     {
         QPoints.push_back(edgeDoubles[i].second[0] + 3 * (innerEdgePoints[i].second[0] - edgeDoubles[i].second[0]) / 2);
         centerPoint += QPoints.back();
     }
-    centerPoint /= innerEdgePoints.size();
+    centerPoint /= planeNum;
     
-    for (int i = 0; i < innerEdgePoints.size(); ++i)
-        centerInnerPoints.push_back(2 * (QPoints[i] + centerPoint) / 3);
+    for (int i = 0; i < QPoints.size(); ++i)
+        centerInnerPoints.push_back((2 * QPoints[i] + centerPoint) / 3);
     
     //Wyznaczenie nieszczesnych punktow 7 i 8
     
     //Ulozenie punktow do kolekcji wyjsciowej
-    for (int i = 0; i < edgePoints.size(); ++i)
+    for (int i = 0; i < planeNum; ++i)
     {
         //pierwsza warstwa
         for (int j = 0; j < 4; ++j)
@@ -85,17 +86,17 @@ std::vector<QVector3D> PointShapes::CreateFillPlanePoints(std::vector<std::vecto
         //druga warstwa
         for (int j = 0; j < 3; ++j)
             res.push_back(innerEdgePoints[i].second[j]);
-        res.push_back(innerEdgePoints[(i + 1) % edgePoints.size()].first[1]);
-        res.push_back(edgeDoubles[(i + 1) % edgePoints.size()].first[1]);
+        res.push_back(innerEdgePoints[(i + 1) % planeNum].first[1]);
+        res.push_back(edgeDoubles[(i + 1) % planeNum].first[1]);
         
         //trzecia warstwa
         res.push_back(centerInnerPoints[i]);
-        //Nieszczesny punkt 7
-        //Nieszczesny punkt 8
-        res.push_back(innerEdgePoints[(i + 1) % edgePoints.size()].first[2]);
-        res.push_back(edgeDoubles[(i + 1) % edgePoints.size()].first[2]);
+        res.push_back(centerInnerPoints[i] + (edgeDoubles[(i + 1) % planeNum].first[2] - centerInnerPoints[i]) / 4.0f);//[TODO] Nieszczesny punkt 7
+        res.push_back(centerInnerPoints[(i + 1) % planeNum] + (edgeDoubles[i].second[1] - centerInnerPoints[(i + 1) % planeNum]) / 4.0f);//[TODO] Nieszczesny punkt 8
+        res.push_back(innerEdgePoints[(i + 1) % planeNum].first[2]);
+        res.push_back(edgeDoubles[(i + 1) % planeNum].first[2]);
         
-        //czwarta warstwa powinn abyc z kolejnego platak (offset o 14 przy tworzeniu punktow na platki)
+        //czwarta warstwa powinn abyc z kolejnego platka (offset o 14 przy tworzeniu punktow na platki)
     }
     //Punkt centralny na samym koncu
     res.push_back(centerPoint);
