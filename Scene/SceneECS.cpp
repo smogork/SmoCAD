@@ -25,6 +25,7 @@
 #include "mainwindow.h"
 #include "glwidget.h"
 #include "Scene/Systems/MergeSystem.h"
+#include "Scene/Systems/FillAwareSystem.h"
 #include <list>
 
 std::shared_ptr<SceneECS> SceneECS::scene = nullptr;
@@ -60,6 +61,8 @@ SceneECS::SceneECS()
             std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<UVPlaneCreatorSystem>()));
     systems.put<MergeSystem>(
             std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<MergeSystem>()));
+    systems.put<FillAwareSystem>(
+            std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<FillAwareSystem>()));
 }
 
 SceneECS::~SceneECS()

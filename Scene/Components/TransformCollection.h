@@ -36,6 +36,7 @@ public:
     ~TransformCollection() override;
 
     const std::list<std::weak_ptr<Transform>>& GetPoints();
+    std::vector<std::weak_ptr<Transform>> GetVectorPoints();
     void SetPoints(std::vector<std::shared_ptr<CollectionAware>> newPoints);
     void AddPoint(std::shared_ptr<CollectionAware> newObject);
     void RemovePoint(unsigned int oid);

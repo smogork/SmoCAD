@@ -206,3 +206,8 @@ void TransformCollection::ReplaceObject(unsigned int toReplace, std::shared_ptr<
     //Podlaczenie sygnalow dla nowo dodawanego obiektu
     ConnectSignals(newElement->p_Transform);
 }
+
+std::vector<std::weak_ptr<Transform>> TransformCollection::GetVectorPoints()
+{
+    return std::vector<std::weak_ptr<Transform>>(points.begin(), points.end());
+}

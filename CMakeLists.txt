@@ -14,7 +14,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_compile_definitions(Q_ENABLE_OPENGL_FUNCTIONS_DEBUG)
 
 
-
 #find_package(LAPACK REQUIRED)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
@@ -53,7 +52,8 @@ set(MATH_FILES
         Mathematics/clapack.h
         Mathematics/f2c.h
         Mathematics/GeometryRelation.cpp Mathematics/GeometryRelation.h
-        Mathematics/PointShapes.cpp Mathematics/PointShapes.h)
+        Mathematics/PointShapes.cpp Mathematics/PointShapes.h
+        Mathematics/Polynomials.cpp Mathematics/Polynomials.h)
 
 set(CONTROL_SOURCES
         mainwindow.cpp mainwindow.h mainwindow.ui
@@ -139,38 +139,43 @@ set(PROJECT_SOURCES
         Scene/Components/UvPlaneCreator.cpp Scene/Components/UvPlaneCreator.h
         Scene/Entities/Planes/BasePlane.cpp Scene/Entities/Planes/BasePlane.h
         Scene/Entities/Planes/PlaneC2.cpp Scene/Entities/Planes/PlaneC2.h
-
-        Scene/Entities/SelectRectangle.cpp Scene/Entities/SelectRectangle.h Renderer/InputController/InputEvents/SelectRectangleUpdateEvent.cpp Renderer/InputController/InputEvents/SelectRectangleUpdateEvent.h Scene/Systems/MergeSystem.cpp Scene/Systems/MergeSystem.h Scene/Components/Merge.cpp Scene/Components/Merge.h)
+        Scene/Entities/SelectRectangle.cpp Scene/Entities/SelectRectangle.h
+        Renderer/InputController/InputEvents/SelectRectangleUpdateEvent.cpp Renderer/InputController/InputEvents/SelectRectangleUpdateEvent.h
+        Scene/Systems/MergeSystem.cpp Scene/Systems/MergeSystem.h
+        Scene/Components/Merge.cpp Scene/Components/Merge.h
+        Scene/Systems/FillAwareSystem.cpp Scene/Systems/FillAwareSystem.h
+        Scene/Components/FillAware.cpp Scene/Components/FillAware.h
+        )
 
 add_subdirectory(Tests)
 add_subdirectory(ThirdParty/Scene-Serializer/cpp/Serializer)
 
-if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
+if (${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(SmoCAD
-        MANUAL_FINALIZATION
-        ${PROJECT_SOURCES}
-    )
-# Define target properties for Android with Qt 6 as:
-#    set_property(TARGET SmoCAD APPEND PROPsERTY QT_ANDROID_PACKAGE_SOURCE_DIR
-#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
-# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
+            MANUAL_FINALIZATION
+            ${PROJECT_SOURCES}
+            )
+    # Define target properties for Android with Qt 6 as:
+    #    set_property(TARGET SmoCAD APPEND PROPsERTY QT_ANDROID_PACKAGE_SOURCE_DIR
+    #                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
+    # For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
 
     qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
-else()
-    if(ANDROID)
+else ()
+    if (ANDROID)
         add_library(SmoCAD SHARED
-            ${PROJECT_SOURCES}
-        )
-# Define properties for Android with Qt 5 after find_package() calls as:
-#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
-    else()
+                ${PROJECT_SOURCES}
+                )
+        # Define properties for Android with Qt 5 after find_package() calls as:
+        #    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
+    else ()
         add_executable(SmoCAD
-            ${PROJECT_SOURCES}
-        )
-    endif()
+                ${PROJECT_SOURCES}
+                )
+    endif ()
 
     qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
-endif()
+endif ()
 
 #add libraries path
 target_link_directories(${PROJECT_NAME} PRIVATE ${PROJECT_BINARY_DIR}/ThirdParty/Scene-Serializer/cpp/Serializer/)
@@ -189,22 +194,22 @@ target_link_libraries(SmoCAD PRIVATE m)
 target_link_libraries(SmoCAD PRIVATE MGSerializer)
 
 set_target_properties(SmoCAD PROPERTIES
-    MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
-    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-    MACOSX_BUNDLE TRUE
-    WIN32_EXECUTABLE TRUE
-)
+        MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
+        MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+        MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+        MACOSX_BUNDLE TRUE
+        WIN32_EXECUTABLE TRUE
+        )
 
 # Copy shaders
-foreach( shader_file ${SHADER_FILES})
+foreach (shader_file ${SHADER_FILES})
     add_custom_command(
             TARGET SmoCAD POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_SOURCE_DIR}/${shader_file}
             ${CMAKE_CURRENT_BINARY_DIR}/${shader_file})
-endforeach( shader_file )
+endforeach (shader_file)
 
-if(QT_VERSION_MAJOR EQUAL 6)
+if (QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(SmoCAD)
-endif()
+endif ()
