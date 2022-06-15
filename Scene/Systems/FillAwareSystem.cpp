@@ -70,6 +70,7 @@ bool FillAwareSystem::IsHoleToFill(const std::vector<std::shared_ptr<FillAware>>
     return true;*/
     
     int test = FindFillLoops(awares).size();
+    qDebug() << "Found " << test << " holes";
     return test > 0;
 }
 
@@ -136,7 +137,7 @@ FillAwareSystem::StartSearchFrom(NGraph::Graph &g, int v, const std::vector<std:
         if (current.second > 6)//przekroczylismy odzwolona dlugosc
             continue;
         
-        if (current.second != 0 && current.first == v)//znaleziono cykl
+        if (current.second == 6 && current.first == v)//znaleziono cykl
         {
             found = true;
             break;
