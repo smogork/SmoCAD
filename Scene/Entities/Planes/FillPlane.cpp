@@ -5,9 +5,10 @@
 #include "FillPlane.h"
 #include "Scene/SceneECS.h"
 #include "Mathematics/PointShapes.h"
+#include "Scene/Systems/FillAwareSystem.h"
 
-FillPlane::FillPlane(const QString &name, const std::vector<std::shared_ptr<FillAware>> &edgePlanes)
-        : BasePlane(FILL_PLANE_CLASS, false, edgePlanes.size(), 1)
+FillPlane::FillPlane(const QString &name, const FillLoop& planeLoop)
+        : BasePlane(FILL_PLANE_CLASS, false, planeLoop.loop.size(), 1)
 {
     AddComponent(p_Selected = Selectable::CreateRegisteredComponent(GetObjectID()));
     AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(GetObjectID(), name, p_Selected));
@@ -33,10 +34,10 @@ FillPlane::FillPlane(const QString &name, const std::vector<std::shared_ptr<Fill
             });
     m_mesh.p_Drawing->Enabled = false;
     
-    FillCollection(edgePlanes);
+    p_Collection->SetPoints(planeLoop.GetNormalizedLoopPoints());
     p_Drawing->SetIndexData(GenerateTopologyIndices());
     p_Collection->LockContent();
-    m_gmesh.DrawingColor = Qt::darkRed;
+    m_gmesh.DrawingColor = Qt::red;
 }
 
 std::vector<float> FillPlane::GenerateGeometryVertices()
@@ -97,45 +98,6 @@ void FillPlane::PointRemovedFromCollection()
 {
     if (auto scene = SceneECS::Instance().lock())
         scene->RemoveObject(GetObjectID());
-}
-
-void FillPlane::FillCollection(const std::vector<std::shared_ptr<FillAware>> &edgePlanes)
-{
-    //[TODO] przerobic to na wiecej niz 3 plaszczyzny
-    
-    auto one_points = edgePlanes[0]->GetPointsFromEdge(edgePlanes[0]->GetFillEdgeWith(edgePlanes[1], edgePlanes[2]));
-    auto two_points = edgePlanes[1]->GetPointsFromEdge(edgePlanes[1]->GetFillEdgeWith(edgePlanes[0], edgePlanes[2]));
-    auto three_points = edgePlanes[2]->GetPointsFromEdge(edgePlanes[2]->GetFillEdgeWith(edgePlanes[0], edgePlanes[1]));
-    
-    //ustaw punkty aby tworzyly jeden ciag
-    if (one_points[3]->GetAttachedObjectID() == three_points[3]->GetAttachedObjectID() or
-        one_points[3]->GetAttachedObjectID() == three_points[0]->GetAttachedObjectID())
-        for (int i = 0; i < 2; ++i)
-        {
-            std::swap(one_points[i], one_points[3 - i]);
-            std::swap(one_points[i + 4], one_points[3 - i + 4]);
-        }
-    
-    if (one_points[3]->GetAttachedObjectID() == two_points[3]->GetAttachedObjectID())//dwojka jest w zla strone
-        for (int i = 0; i < 2; ++i)
-        {
-            std::swap(two_points[i], two_points[3 - i]);
-            std::swap(two_points[i + 4], two_points[3 - i + 4]);
-        }
-    
-    if (two_points[3]->GetAttachedObjectID() == three_points[3]->GetAttachedObjectID())//trojka jest w zla strone
-        for (int i = 0; i < 2; ++i)
-        {
-            std::swap(three_points[i], three_points[3 - i]);
-            std::swap(three_points[i + 4], three_points[3 - i + 4]);
-        }
-    
-    std::vector<std::shared_ptr<CollectionAware>> res;
-    for (int j = 0; j < one_points.size(); ++j) res.push_back(one_points[j]);
-    for (int j = 0; j < two_points.size(); ++j) res.push_back(two_points[j]);
-    for (int j = 0; j < three_points.size(); ++j) res.push_back(three_points[j]);
-    
-    p_Collection->SetPoints(res);
 }
 
 void FillPlane::UniformFunction(std::shared_ptr<ShaderWrapper> shader)

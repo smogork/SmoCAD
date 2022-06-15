@@ -7,6 +7,16 @@
 
 #include "ISystem.h"
 #include "Scene/Components/FillAware.h"
+#include "ThirdParty/ngraph.hpp"
+
+class FillLoop
+{
+public:
+    std::vector<std::pair<std::shared_ptr<FillAware>, FillEdge>> loop;
+    bool empty() { return loop.empty(); }
+    
+    std::vector<std::shared_ptr<CollectionAware>> GetNormalizedLoopPoints() const;
+};
 
 class FillAwareSystem: public ISystem<FillAware>
 {
@@ -22,8 +32,10 @@ public:
     
 protected:
     void CreateFillPlane(const std::vector<unsigned int> &listContextOids);
-    
     bool IsHoleToFill(const std::vector<std::shared_ptr<FillAware>>& awares);
+    std::vector<FillLoop> FindFillLoops(const std::vector<std::shared_ptr<FillAware>>& awares);
+    
+    FillLoop StartSearchFrom(NGraph::Graph& g, int v, const std::vector<std::shared_ptr<FillAware>>& patches);
 };
 
 #endif //SMOCAD_FILLAWARESYSTEM_H

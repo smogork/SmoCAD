@@ -8,6 +8,7 @@
 #include "BasePlane.h"
 #include "Scene/Components/FillAware.h"
 #include "GregoryMesh.h"
+#include "Scene/Systems/FillAwareSystem.h"
 
 class FillPlane: public BasePlane
 {
@@ -25,14 +26,12 @@ protected:
     std::vector<int> GenerateTopologyIndices() override;
     int GetIndexCount() override;
     void UniformFunction(std::shared_ptr<ShaderWrapper> shader);
-    
-    void FillCollection(const std::vector<std::shared_ptr<FillAware>>& edgePlanes);
 
 public:
     std::shared_ptr<Selectable> p_Selected;
     std::shared_ptr<SceneElement> p_SceneElement;
     
-    FillPlane(const QString& name, const std::vector<std::shared_ptr<FillAware>>& edgePlanes);
+    FillPlane(const QString& name, const FillLoop& planeLoop);
 };
 
 #endif //SMOCAD_FILLPLANE_H

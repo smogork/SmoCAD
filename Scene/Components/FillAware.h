@@ -19,7 +19,6 @@ enum class FillEdge
 
 enum class CrossingPoint
 {
-    NONE,
     ZERO,//0
     ONE,//3
     TWO,//15
@@ -38,9 +37,10 @@ public:
     explicit FillAware(unsigned int oid);
     ~FillAware() override;
     
-    CrossingPoint GetCrossingPointWith(const std::shared_ptr<FillAware>& other);
-    FillEdge GetFillEdgeWith(const std::shared_ptr<FillAware>& one, const std::shared_ptr<FillAware>& two);
+    std::vector<std::pair<CrossingPoint, CrossingPoint>> GetCrossingPointsWith(const std::shared_ptr<FillAware>& other);
     std::vector<std::shared_ptr<CollectionAware>> GetPointsFromEdge(FillEdge edge);
+    
+    static FillEdge MapPointsToEdges(CrossingPoint u, CrossingPoint v);
 };
 
 #endif //SMOCAD_FILLAWARE_H
