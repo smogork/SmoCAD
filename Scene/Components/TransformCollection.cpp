@@ -195,7 +195,7 @@ void TransformCollection::ReplaceObject(unsigned int toReplace, std::shared_ptr<
         return;
     
     //Usuniecie sygnalu o osunieciu obiektu ze sceny
-    disconnect(item.get(), &IComponent::ComponentDeleted, this,
+    disconnect(item->p_Transform.get(), &IComponent::ComponentDeleted, this,
                &TransformCollection::PointFromCollectionHasBeenDeleted);
     pointNotifiers.erase(toReplace);
     
