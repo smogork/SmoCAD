@@ -53,8 +53,7 @@ void GLWidget::resizeGL(int w, int h)
 void GLWidget::paintGL()
 {
     // set the background color = clear color
-    glBlendFunc(GL_ONE, GL_SRC_ALPHA);//[TODO] poprawic aby nie bylo przeswietlenia
-    //glBlendFunc(GL_ONE, GL_ZERO);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glColorMask(true, true, true, true);
     glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
