@@ -6,8 +6,9 @@
 #include "Scene/SceneECS.h"
 #include "Mathematics/PointShapes.h"
 #include "Scene/Systems/FillAwareSystem.h"
+#include "Renderer/Options.h"
 
-FillPlane::FillPlane(const QString &name, const FillLoop& planeLoop)
+FillPlane::FillPlane(const QString &name, const FillLoop &planeLoop)
         : BasePlane(FILL_PLANE_CLASS, false, planeLoop.loop.size(), 1)
 {
     AddComponent(p_Selected = Selectable::CreateRegisteredComponent(GetObjectID()));
@@ -32,12 +33,21 @@ FillPlane::FillPlane(const QString &name, const FillLoop& planeLoop)
                 else
                     PlaneColor = DefaultColor;
             });
+    gmeshShowNotifier = Options::DrawPlainMesh.addNotifier(
+            [this]()
+            {
+                this->m_gmesh.p_Drawing->Enabled = Options::DrawPlainMesh;
+            });
+    
     m_mesh.p_Drawing->Enabled = false;
+    this->m_gmesh.p_Drawing->Enabled = Options::DrawPlainMesh;
     
     p_Collection->SetPoints(planeLoop.GetNormalizedLoopPoints());
     p_Drawing->SetIndexData(GenerateTopologyIndices());
     
     p_Collection->LockContent();
+    p_UV->UDensity = 4;
+    p_UV->VDensity = 4;
     p_UV->LockEditUV();
     
     m_gmesh.DrawingColor = Qt::red;

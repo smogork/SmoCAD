@@ -20,6 +20,7 @@ private slots:
 
 protected:
     QPropertyNotifier selectedNotifier;
+    QPropertyNotifier gmeshShowNotifier;
     GregoryMesh m_gmesh;
     
     std::vector<float> GenerateGeometryVertices() override;
