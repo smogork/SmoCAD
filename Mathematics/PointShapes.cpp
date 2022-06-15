@@ -53,8 +53,8 @@ std::vector<QVector3D> PointShapes::CreateFillPlanePoints(std::vector<QVector3D>
         
         for (int j = 0; j < 4; ++j)
         {
-            firstInnerPoints.push_back(2 * edgeDoubles[i].first[j] - deeperDoubles[i].first[j]);
-            secondInnerPoints.push_back(2 * edgeDoubles[i].second[j] - deeperDoubles[i].second[j]);
+            firstInnerPoints.push_back(edgeDoubles[i].first[j]  + (edgeDoubles[i].first[j]- deeperDoubles[i].first[j]) / 3);
+            secondInnerPoints.push_back(edgeDoubles[i].second[j] + (edgeDoubles[i].second[j] - deeperDoubles[i].second[j]) / 3);
         }
         
         innerEdgePoints.push_back(std::make_pair(firstInnerPoints, secondInnerPoints));
