@@ -36,8 +36,12 @@ FillPlane::FillPlane(const QString &name, const FillLoop& planeLoop)
     
     p_Collection->SetPoints(planeLoop.GetNormalizedLoopPoints());
     p_Drawing->SetIndexData(GenerateTopologyIndices());
+    
     p_Collection->LockContent();
+    p_UV->LockEditUV();
+    
     m_gmesh.DrawingColor = Qt::red;
+    //[TODO] dodac przelaczanie siatki w opcjach
 }
 
 std::vector<float> FillPlane::GenerateGeometryVertices()

@@ -56,19 +56,6 @@ void FillAwareSystem::CreateFillPlane(const std::vector<unsigned int> &listConte
 
 bool FillAwareSystem::IsHoleToFill(const std::vector<std::shared_ptr<FillAware>> &awares)
 {
-    /*if (awares.size() != 3)
-        return false;
-    
-    for (int i = 0; i < 3; ++i)
-        for (int j = 0; j < 3; ++j)
-        {
-            if (i != j and awares[i]->GetCrossingPointWith(awares[j]) == CrossingPoint::NONE)
-                return false;
-                
-        }
-        
-    return true;*/
-    
     int test = FindFillLoops(awares).size();
     qDebug() << "Found " << test << " holes";
     return test > 0;
@@ -81,6 +68,9 @@ std::vector<FillLoop> FillAwareSystem::FindFillLoops(const std::vector<std::shar
     for (const auto &p: awares)
         if (p->p_Collection->Size() == 16)
             patches.push_back(p);
+    
+    if (patches.size() != 3)//tak na wszelki wypadek
+        return {};
     
     //zbuduj graf krawedzi
     NGraph::Graph patchesEdges;
