@@ -21,6 +21,9 @@ TransformCollectionControl::TransformCollectionControl(std::weak_ptr<TransformCo
     {
         connect(c.get(), &TransformCollection::PointInCollectionModified,
                 this, &TransformCollectionControl::UpdateElementsList);
+
+        if (c->IsContentLocked())
+            ui->listWidgetPoints->setEnabled(false);
     }
 }
 

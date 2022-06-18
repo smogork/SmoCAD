@@ -5,7 +5,6 @@
 #ifndef SMOCAD_COLLECTIONAWARE_H
 #define SMOCAD_COLLECTIONAWARE_H
 
-
 #include "IComponent.h"
 #include "Transform.h"
 

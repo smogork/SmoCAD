@@ -11,6 +11,7 @@
 #include "Scene/Components/TransformCollection.h"
 #include "Scene/Entities/Polyline.h"
 
+//[TODO] Ta klasa jest obsolete - trzeba ja usunac
 class VirtualBezierC0: public IEntity
 {
     Q_OBJECT
@@ -41,6 +42,8 @@ public:
     QProperty<QColor> CurveColor;
 
     VirtualBezierC0();
+    explicit VirtualBezierC0(uint oid);
+    void InitObject();
 };
 
 

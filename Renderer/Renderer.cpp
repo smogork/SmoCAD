@@ -6,6 +6,7 @@
 
 std::map<int, std::shared_ptr<ShaderWrapper>> Renderer::shaders;
 InputController Renderer::controller(std::make_shared<Viewport>(QSize(), 60));
+QProperty<double> Renderer::EyeSeparation(0.1f);
 
 void Renderer::DrawTriangles(QOpenGLFunctions *functions, unsigned int count)
 {
@@ -54,18 +55,40 @@ void Renderer::UpdateShaders()
 {
     for (auto sh: shaders)
     {
+        if (sh.first == SELECT_RECT_SHADER)
+            continue;
+
         std::shared_ptr<ShaderWrapper> shader = sh.second;
         shader->SetUniform("u_MVP.View", controller.Camera->GetViewMatrix());
         shader->SetUniform("u_MVP.Projection", controller.viewport->GetProjectionMatrix());
 
-        if (sh.first == BEZIER_SHADER)
+        if (sh.first == BEZIER_SHADER || sh.first == BEZIERC2_SHADER)
         {
             shader->SetUniform("u_viewportSize", controller.viewport->GetViewportSize());
-            //shader->SetUniform("u_viewportSize", QVector2D(controller.viewport->GetViewportSize().width(),
-            //                                               controller.viewport->GetViewportSize().height()));
         }
 
         //qDebug() << "Camera space (0,0,0) " << controls->Camera->GetViewMatrix() * QVector4D(0, 0, 0, 1);
         //qDebug() << "NDC space (0,0,0) " << controls->viewport->GetProjectionMatrix() * controls->Camera->GetViewMatrix() * QVector4D(0, 0, 0, 1);
+    }
+}
+
+void Renderer::UpdateShadersStereo(bool isLeft)
+{
+    for (auto sh: shaders)
+    {
+        if (sh.first == SELECT_RECT_SHADER)
+            continue;
+
+        std::shared_ptr<ShaderWrapper> shader = sh.second;
+        if (isLeft)
+        {
+            shader->SetUniform("u_MVP.View", controller.Camera->GetLeftEyeViewMatrix());
+            shader->SetUniform("u_MVP.Projection", controller.viewport->GetLeftEyeProjectionMatrix());
+        }
+        else
+        {
+            shader->SetUniform("u_MVP.View", controller.Camera->GetRightEyeViewMatrix());
+            shader->SetUniform("u_MVP.Projection", controller.viewport->GetRightEyeProjectionMatrix());
+        }
     }
 }

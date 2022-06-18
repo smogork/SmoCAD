@@ -9,7 +9,7 @@ list(TRANSFORM MATH_FILES PREPEND ${CMAKE_SOURCE_DIR}/)
 
 set(TEST_FILES
         InterpolationC2Test.cpp InterpolationC2Test.h
-        test_main.cpp)
+        test_main.cpp DeCasteljauTests.cpp DeCasteljauTests.h)
 
 add_executable(SmoCAD_Tests ${TEST_FILES} ${MATH_FILES})
 

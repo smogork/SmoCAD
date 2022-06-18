@@ -14,6 +14,13 @@ class QListWidgetSceneElement: public QListWidgetItem
 private:
     std::weak_ptr<SceneElement> element;
     QPropertyNotifier nameNotifier;
+    QPropertyNotifier selectedNotifier;
+    QPropertyNotifier insideCompositeNotifier;
+    
+    static const QBrush DefaultBGColor;
+    static const QBrush SelectedBGColor;
+    
+    QBrush handleColor();
 
 public:
     QListWidgetSceneElement(QListWidget* parent, std::shared_ptr<SceneElement> element);

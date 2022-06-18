@@ -21,6 +21,9 @@ enum SYSTEM_ID
     COLLECTION_AWARE,
     SCREEN_SELECTABLE,
     SCENE_ELEMENT,
+    UV_PLANE_CREATOR,
+    MERGE,
+    FILL_AWARE,
     SYSTEM_COUNT
 };
 
@@ -64,7 +67,7 @@ public:
         std::shared_ptr<C> res = std::make_shared<C>(oid);
         if (components.insert(std::make_pair(oid, res)).second)
             return res;
-        return nullptr;
+        throw std::runtime_error("Error while creating component - already exists");
     }
 
     virtual bool RegisterComponent(std::shared_ptr<C> component)
@@ -80,6 +83,43 @@ public:
     int GetComponentCount() override
     {
         return components.size();
+    }
+
+    void UpdateObjectId(uint oid, uint new_oid) override
+    {
+        if (!components.contains(oid))
+            return;
+
+        auto data = components[oid].lock();
+        data->UpdateAttachedObject(new_oid);
+        components.erase(oid);
+        components.insert(std::make_pair(data->GetAttachedObjectID(), data));
+    }
+    
+    std::vector<std::shared_ptr<C>> FilterObjects(const std::vector<unsigned int> &oids)
+    {
+        std::vector<std::shared_ptr<C>> res;
+        
+        for (unsigned int oid : oids)
+        {
+            if (auto comp = GetComponent(oid).lock())
+                res.push_back(comp);
+        }
+        
+        return res;
+    }
+    
+    std::vector<unsigned int> FilterObjectIds(const std::vector<unsigned int> &oids)
+    {
+        std::vector<unsigned int> res;
+        
+        for (unsigned int oid : oids)
+        {
+            if (GetComponent(oid).lock())
+                res.push_back(oid);
+        }
+        
+        return res;
     }
 };
 

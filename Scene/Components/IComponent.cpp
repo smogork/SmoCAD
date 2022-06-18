@@ -22,3 +22,7 @@ unsigned int IComponent::GetAttachedSystemID()
     return attachedSystemId;
 }
 
+void IComponent::UpdateAttachedObject(uint new_oid)
+{
+    attachedObjectId = new_oid;
+}

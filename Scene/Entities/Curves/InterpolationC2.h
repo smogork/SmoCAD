@@ -5,11 +5,11 @@
 #ifndef SMOCAD_INTERPOLATIONC2_H
 #define SMOCAD_INTERPOLATIONC2_H
 
-#include "BernsteinCurve.h"
+#include "BaseCurve.h"
 #include "Scene/Components/Selectable.h"
 #include "Scene/Components/SceneElement.h"
 
-class InterpolationC2: public BernsteinCurve
+class InterpolationC2: public BaseCurve
 {
     Q_OBJECT
 protected:
@@ -19,6 +19,7 @@ protected:
     std::vector<float> GenerateGeometryVertices() override;
     std::vector<int> GenerateTopologyIndices() override;
     int GetIndexCount() override;
+    void SerializingFunction(MG1::Scene& scene);
 
 protected slots:
     void OnCollectionModified();
@@ -29,6 +30,8 @@ public:
     std::shared_ptr<SceneElement> p_SceneElement;
 
     explicit InterpolationC2(const QString& name);
+    explicit InterpolationC2(const MG1::InterpolatedC2& i2);
+    void InitObject(const QString& name);
 };
 
 #endif //SMOCAD_INTERPOLATIONC2_H

@@ -38,6 +38,7 @@ public:
     BufferLayout p_bufferLayout;
     std::function<void(QOpenGLContext* context)> p_renderingFunction = {};
     std::function<void(std::shared_ptr<ShaderWrapper> shader)> p_uniformFunction = {};
+    bool IsTransparent;
 
     //static std::shared_ptr<Drawing> CreateRegisteredComponent(unsigned int oid);
     void UnregisterComponent();

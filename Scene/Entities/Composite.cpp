@@ -3,6 +3,7 @@
 //
 
 #include "Composite.h"
+#include "Scene/SceneECS.h"
 
 #pragma region CompositeElement
 Composite::CompositeElement::CompositeElement(Composite *composite, std::shared_ptr<CompositeAware> el): IEntity(COMPOSITE_ELEM_CLASS)
@@ -12,7 +13,7 @@ Composite::CompositeElement::CompositeElement(Composite *composite, std::shared_
     compositeTransform = composite->p_Transform;
 
     el->InsideComposite = true;
-    dTransform = Transform::CreateRegisteredComponent(objectID, el->p_Transform->Position - compositeTransform->Position);
+    dTransform = Transform::CreateRegisteredComponent(GetObjectID(), el->p_Transform->Position - compositeTransform->Position);
     dTransform->Rotation = *el->p_Transform->Rotation;
     dTransform->Scale = *el->p_Transform->Scale;
 }
@@ -44,8 +45,8 @@ void Composite::CompositeElement::UpdateServingObject()
 
 Composite::Composite(std::shared_ptr<CompositeAware> startObject): IEntity(COMPOSITE_CLASS)
 {
-    AddComponent(p_Transform = Transform::CreateRegisteredComponent(objectID, startObject->p_Transform->Position));
-    AddComponent(p_Selectable = Selectable::CreateRegisteredComponent(objectID));
+    AddComponent(p_Transform = Transform::CreateRegisteredComponent(GetObjectID(), startObject->p_Transform->Position));
+    AddComponent(p_Selectable = Selectable::CreateRegisteredComponent(GetObjectID()));
     m_center = std::make_unique<Cursor>(p_Transform->Position);
     m_center->p_Transform->Scale = QVector3D(0.33f, 0.33f, 0.33f);
     objects.push_back(std::make_unique<CompositeElement>(this, startObject));
@@ -62,6 +63,13 @@ Composite::Composite(std::shared_ptr<CompositeAware> startObject): IEntity(COMPO
         {
           UpdateCompositeElements();
         });
+    selectNotiifer = p_Selectable->Selected.addNotifier([this]{
+        if (!p_Selectable->Selected)
+            if (auto scene = SceneECS::Instance().lock())
+                scene->DestroyComposite();
+    });
+    
+    connect(startObject.get(), &IComponent::ComponentDeleted, this, &Composite::PointFromCompositeHasBeenDeleted);
 }
 
 Composite::~Composite()
@@ -82,16 +90,34 @@ void Composite::AddObject(std::shared_ptr<CompositeAware> newObject)
 
     for (const std::unique_ptr<CompositeElement>& el : objects)
         el->UpdateDTransform();
+    
+    connect(newObject.get(), &IComponent::ComponentDeleted, this, &Composite::PointFromCompositeHasBeenDeleted);
 }
 
 void Composite::UpdateCompositeElements()
 {
-    m_center->p_Transform->Position = p_Transform->Position.value();
+    m_center->p_Transform->SetPosition(p_Transform->Position.value());
     m_center->p_Transform->Rotation = p_Transform->Rotation.value();
     m_center->p_Transform->Scale = p_Transform->Scale.value() / 3;
 
     for (auto& obj : objects)
         obj->UpdateServingObject();
+}
+
+void Composite::PointFromCompositeHasBeenDeleted()
+{
+    if (auto scene = SceneECS::Instance().lock())
+        scene->DestroyComposite();
+}
+
+std::vector<unsigned int> Composite::GetObjectsInside()
+{
+    std::vector<unsigned int> res;
+    
+    for (const auto& el : objects)
+        res.push_back(el->servingObjectID);
+    
+    return res;
 }
 
 

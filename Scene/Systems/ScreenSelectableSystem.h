@@ -8,6 +8,7 @@
 #include "ISystem.h"
 #include "Scene/Components/ScreenSelectable.h"
 #include "Renderer/InputController/InputEvents/SceneMouseClickEvent.h"
+#include "Scene/Entities/Composite.h"
 
 class ScreenSelectableSystem: public ISystem<ScreenSelectable>
 {
@@ -18,6 +19,7 @@ public:
     const char* GetSystemName() override { return "ScreenSelectableSystem"; }
 
     std::shared_ptr<ScreenSelectable> SelectObject(std::shared_ptr<SceneMouseClickEvent> event);
+    std::unique_ptr<Composite> GetObjectsFromRectangle(QRect selectRectangle);
 };
 
 

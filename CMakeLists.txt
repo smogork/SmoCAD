@@ -13,7 +13,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_compile_definitions(Q_ENABLE_OPENGL_FUNCTIONS_DEBUG)
 
-find_package(LAPACK REQUIRED)
+
+#find_package(LAPACK REQUIRED)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools REQUIRED)
@@ -26,17 +27,37 @@ set(SHADER_FILES
         Shaders/buffer_color.vert
         Shaders/uniform_color.vert
         Shaders/simple_color.frag
-        Shaders/bezier.vert
-        Shaders/bezier.tess
-        Shaders/bezier.eval
-        Shaders/bezier.frag
+        Shaders/Curves/bezier.vert
+        Shaders/Curves/bezier.tess
+        Shaders/Curves/bezier.eval
+        Shaders/Curves/bezier.frag
+        Shaders/Curves/bezierC2.vert
+        Shaders/Curves/bezierC2.tess
+        Shaders/Curves/bezierC2.eval
+        Shaders/Curves/bezierC2.frag
+        Shaders/Planes/plane.vert
+        Shaders/Planes/plane.tess
+        Shaders/Planes/plane.eval
+        Shaders/Planes/plane.frag
+        Shaders/Planes/planeC2.vert
+        Shaders/Planes/planeC2.tess
+        Shaders/Planes/planeC2.eval
+        Shaders/Planes/planeC2.frag
+        Shaders/Planes/gregory_plane.vert
+        Shaders/Planes/gregory_plane.tess
+        Shaders/Planes/gregory_plane.eval
+        Shaders/Planes/gregory_plane.frag
+        Shaders/select_rect.vert
+        Shaders/select_rect.frag
         )
 
 set(MATH_FILES
         Mathematics/Interpolation.cpp Mathematics/Interpolation.h
         Mathematics/clapack.h
         Mathematics/f2c.h
-        )
+        Mathematics/GeometryRelation.cpp Mathematics/GeometryRelation.h
+        Mathematics/PointShapes.cpp Mathematics/PointShapes.h
+        Mathematics/Polynomials.cpp Mathematics/Polynomials.h)
 
 set(CONTROL_SOURCES
         mainwindow.cpp mainwindow.h mainwindow.ui
@@ -49,7 +70,9 @@ set(CONTROL_SOURCES
         Controls/sceneelementslist.h Controls/sceneelementslist.cpp Controls/sceneelementslist.ui
         Controls/ListElements/QListWidgetSceneElement.cpp Controls/ListElements/QListWidgetSceneElement.h
         Controls/ListElements/QListWidgetCollectionElement.cpp Controls/ListElements/QListWidgetCollectionElement.h
-    )
+        Controls/stereoscopicconfig.h Controls/stereoscopicconfig.cpp Controls/stereoscopicconfig.ui
+        Controls/uvplanecreatorcontrol.h Controls/uvplanecreatorcontrol.cpp Controls/uvplanecreatorcontrol.ui
+        Controls/EntityContextMenu.cpp Controls/EntityContextMenu.h)
 
 set(PROJECT_SOURCES
         main.cpp
@@ -107,41 +130,63 @@ set(PROJECT_SOURCES
         Scene/Systems/SceneElementSystem.cpp Scene/Systems/SceneElementSystem.h
         Scene/Entities/Curves/BezierC0.cpp Scene/Entities/Curves/BezierC0.h
         Renderer/Options.cpp Renderer/Options.h
-        Scene/Entities/Curves/BernsteinCurve.cpp Scene/Entities/Curves/BernsteinCurve.h
+        Scene/Entities/Curves/BaseCurve.cpp Scene/Entities/Curves/BaseCurve.h
         Scene/Entities/Curves/InterpolationC2.cpp Scene/Entities/Curves/InterpolationC2.h
         Scene/Entities/Points/InvisiblePoint.cpp Scene/Entities/Points/InvisiblePoint.h
         Renderer/InputController/InputEvents/ObjectMoveEvent.cpp Renderer/InputController/InputEvents/ObjectMoveEvent.h
         Controls/CustomQListWidget.cpp Controls/CustomQListWidget.h
-        )
+        Renderer/Camera/StereoscopicParameters.cpp Renderer/Camera/StereoscopicParameters.h
+        Scene/Entities/Planes/PlaneC0.cpp Scene/Entities/Planes/PlaneC0.h
+        Scene/Entities/Mesh.cpp Scene/Entities/Mesh.h
+        Scene/Entities/Planes/PlaneCreator.cpp Scene/Entities/Planes/PlaneCreator.h
+        Scene/Systems/UvPlaneCreatorSystem.cpp Scene/Systems/UvPlaneCreatorSystem.h
+        Scene/Components/UvPlaneCreator.cpp Scene/Components/UvPlaneCreator.h
+        Scene/Entities/Planes/BasePlane.cpp Scene/Entities/Planes/BasePlane.h
+        Scene/Entities/Planes/PlaneC2.cpp Scene/Entities/Planes/PlaneC2.h
+        Scene/Entities/SelectRectangle.cpp Scene/Entities/SelectRectangle.h
+        Renderer/InputController/InputEvents/SelectRectangleUpdateEvent.cpp Renderer/InputController/InputEvents/SelectRectangleUpdateEvent.h
+        Scene/Systems/MergeSystem.cpp Scene/Systems/MergeSystem.h
+        Scene/Components/Merge.cpp Scene/Components/Merge.h
+        Scene/Systems/FillAwareSystem.cpp Scene/Systems/FillAwareSystem.h
+        Scene/Components/FillAware.cpp Scene/Components/FillAware.h
+        Scene/Entities/Planes/FillPlane.cpp Scene/Entities/Planes/FillPlane.h Scene/Entities/Planes/GregoryMesh.cpp Scene/Entities/Planes/GregoryMesh.h
+        ThirdParty/set_ops.hpp ThirdParty/ngraph.hpp)
 
 add_subdirectory(Tests)
+add_subdirectory(ThirdParty/Scene-Serializer/cpp/Serializer)
 
-if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
+if (${QT_VERSION_MAJOR} GREATER_EQUAL 6)
     qt_add_executable(SmoCAD
-        MANUAL_FINALIZATION
-        ${PROJECT_SOURCES}
-    )
-# Define target properties for Android with Qt 6 as:
-#    set_property(TARGET SmoCAD APPEND PROPsERTY QT_ANDROID_PACKAGE_SOURCE_DIR
-#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
-# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
+            MANUAL_FINALIZATION
+            ${PROJECT_SOURCES}
+            )
+    # Define target properties for Android with Qt 6 as:
+    #    set_property(TARGET SmoCAD APPEND PROPsERTY QT_ANDROID_PACKAGE_SOURCE_DIR
+    #                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
+    # For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
 
     qt_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
-else()
-    if(ANDROID)
+else ()
+    if (ANDROID)
         add_library(SmoCAD SHARED
-            ${PROJECT_SOURCES}
-        )
-# Define properties for Android with Qt 5 after find_package() calls as:
-#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
-    else()
+                ${PROJECT_SOURCES}
+                )
+        # Define properties for Android with Qt 5 after find_package() calls as:
+        #    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
+    else ()
         add_executable(SmoCAD
-            ${PROJECT_SOURCES}
-        )
-    endif()
+                ${PROJECT_SOURCES}
+                )
+    endif ()
 
     qt5_create_translation(QM_FILES ${CMAKE_SOURCE_DIR} ${TS_FILES})
-endif()
+endif ()
+
+#add libraries path
+target_link_directories(${PROJECT_NAME} PRIVATE ${PROJECT_BINARY_DIR}/ThirdParty/Scene-Serializer/cpp/Serializer/)
+
+#add include path
+target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_BINARY_DIR}/ThirdParty/Scene-Serializer/cpp/Serializer/include/Serializer)
 
 target_link_libraries(SmoCAD PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(SmoCAD PRIVATE Qt${QT_VERSION_MAJOR}::OpenGLWidgets)
@@ -149,26 +194,27 @@ target_link_libraries(SmoCAD PRIVATE Qt${QT_VERSION_MAJOR}::Gui)
 target_link_libraries(SmoCAD PRIVATE Qt${QT_VERSION_MAJOR}::3DCore)
 target_link_libraries(SmoCAD PRIVATE Qt${QT_VERSION_MAJOR}::Core)
 
-target_link_libraries(SmoCAD PRIVATE lapack blas)
+#target_link_libraries(SmoCAD PRIVATE lapack blas)
 target_link_libraries(SmoCAD PRIVATE m)
+target_link_libraries(SmoCAD PRIVATE MGSerializer)
 
 set_target_properties(SmoCAD PROPERTIES
-    MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
-    MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
-    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-    MACOSX_BUNDLE TRUE
-    WIN32_EXECUTABLE TRUE
-)
+        MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
+        MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
+        MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+        MACOSX_BUNDLE TRUE
+        WIN32_EXECUTABLE TRUE
+        )
 
 # Copy shaders
-foreach( shader_file ${SHADER_FILES})
+foreach (shader_file ${SHADER_FILES})
     add_custom_command(
             TARGET SmoCAD POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_SOURCE_DIR}/${shader_file}
             ${CMAKE_CURRENT_BINARY_DIR}/${shader_file})
-endforeach( shader_file )
+endforeach (shader_file)
 
-if(QT_VERSION_MAJOR EQUAL 6)
+if (QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(SmoCAD)
-endif()
+endif ()

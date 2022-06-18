@@ -20,19 +20,19 @@ Transform::Transform(unsigned int oid, QVector3D position, QVector3D rotation, Q
 
 QMatrix4x4 Transform::GetModelMatrix()
 {
-    //[TODO] cos tu nie gra z tymi przeksztalceniami
     QMatrix4x4 result;
     result.setToIdentity();
     result.translate(Position);
-    result.rotate((*Rotation).x(), Transform::GetXAxis());
-    result.rotate((*Rotation).y(), Transform::GetYAxis());
-    result.rotate((*Rotation).z(), Transform::GetZAxis());
+    result.rotate(QQuaternion::fromEulerAngles(Rotation));
     result.scale(Scale);
     return result;
 }
 
 void Transform::DecomposeTransformations(QMatrix4x4 transform)
 {
+    if (Locked)
+        return;
+
     Qt3DCore::QTransform test;
     test.setMatrix(transform);
     Position = test.translation();
@@ -66,6 +66,13 @@ std::shared_ptr<Transform>  Transform::CreateRegisteredComponent(unsigned int oi
         }
     }
     return nullptr;
+}
+
+void Transform::SetPosition(QVector3D pos)
+{
+    if (Locked)
+        return;
+    Position = pos;
 }
 
 

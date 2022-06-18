@@ -15,6 +15,11 @@ enum SHADERS
     DEFAULT_SHADER,
     CURSOR_SHADER,
     BEZIER_SHADER,
+    BEZIERC2_SHADER,
+    PLANE_SHADER,
+    PLANEC2_SHADER,
+    SELECT_RECT_SHADER,
+    FILL_PLANE_SHADER,
     SHADERS_COUNT
 };
 
@@ -25,9 +30,12 @@ private:
 
 public:
     static InputController controller;
+    static QProperty<double> EyeSeparation;
+
     static void AddShader(SHADERS id, std::shared_ptr<ShaderWrapper> sh);
     static std::weak_ptr<ShaderWrapper> GetShader(SHADERS id);
     static void UpdateShaders();
+    static void UpdateShadersStereo(bool isLeft);
     static void DeleteShaders();
 
 #pragma region Draw primitives

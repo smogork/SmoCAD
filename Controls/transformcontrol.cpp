@@ -108,7 +108,7 @@ void TransformControl::UpdatePosition()
         return;
 
     ignoreNotifier = true;
-    m_transform->Position = QVector3D(ui->spinPosX->value(), ui->spinPosY->value(), ui->spinPosZ->value());
+    m_transform->SetPosition(QVector3D(ui->spinPosX->value(), ui->spinPosY->value(), ui->spinPosZ->value()));
     ignoreNotifier = false;
     emit RequestRepaint();
 }

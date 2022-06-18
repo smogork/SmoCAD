@@ -25,6 +25,7 @@ private:
     void InitializeDrawing();
     void DrawingFunction(QOpenGLContext* context);
     void UniformFunction(std::shared_ptr<ShaderWrapper> shader);
+    void SerializingFunction(MG1::Scene& scene);
 
     void UVChanged();
     std::vector<float> GenerateGeometryVertices();
@@ -43,7 +44,9 @@ public:
     std::shared_ptr<SceneElement> p_SceneElement;
 
     explicit Torus(const QString& name);
+    explicit Torus(const MG1::Torus& serializedObj);
     Torus(const QString& name, QVector3D position);
+    void InitObject(const QString& name, QVector3D position);
 };
 
 

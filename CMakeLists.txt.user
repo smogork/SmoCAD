@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 7.0.0, 2022-04-24T00:13:57. -->
+<!-- Written by QtCreator 7.0.2, 2022-06-11T20:46:33. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -73,6 +73,7 @@
     <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/InterpolationC2Test.cpp:CollinearDistinctPointsY">Checked</value>
     <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/InterpolationC2Test.cpp:CollinearDistinctPointsZ">Checked</value>
     <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/InterpolationC2Test.cpp:DistinctPoints">Checked</value>
+    <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/InterpolationC2Test.cpp:DistinctPoints2">Checked</value>
     <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/InterpolationC2Test.cpp:InterpolationC2Test">Checked</value>
     <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/InterpolationC2Test.cpp:RepeatedFirstPointC0">Checked</value>
     <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/InterpolationC2Test.cpp:RepeatedFirstPointC1">Checked</value>
@@ -204,7 +205,24 @@
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
     <value type="QString" key="RunConfiguration.WorkingDirectory.default">/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/build-SmoCAD-Desktop-Debug/Tests</value>
    </valuemap>
-   <value type="qlonglong" key="ProjectExplorer.Target.RunConfigurationCount">2</value>
+   <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.2">
+    <value type="bool" key="Analyzer.Perf.Settings.UseGlobalSettings">true</value>
+    <value type="bool" key="Analyzer.QmlProfiler.Settings.UseGlobalSettings">true</value>
+    <value type="bool" key="Analyzer.Valgrind.Settings.UseGlobalSettings">true</value>
+    <valuelist type="QVariantList" key="CustomOutputParsers"/>
+    <value type="int" key="PE.EnvironmentAspect.Base">2</value>
+    <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">MGSandbox</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.MGSandbox</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">MGSandbox</value>
+    <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
+    <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
+    <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
+    <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
+    <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory.default">/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/build-SmoCAD-Desktop-Debug/ThirdParty/Scene-Serializer/cpp/Serializer</value>
+   </valuemap>
+   <value type="qlonglong" key="ProjectExplorer.Target.RunConfigurationCount">3</value>
   </valuemap>
  </data>
  <data>

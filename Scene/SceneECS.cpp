@@ -5,21 +5,27 @@
 #include "SceneECS.h"
 #include "Scene/Systems/DrawingSystem.h"
 #include "Scene/Systems/TransformSystem.h"
-#include "Scene/Entities/Points/Point.h"
-#include "Scene/Entities/Cube.h"
 #include "Scene/Systems/UVParamsSystem.h"
-#include "Scene/Entities/Torus.h"
 #include "Scene/Entities/Cursor.h"
 #include "Scene/Systems/SelectableSystem.h"
 #include "Scene/Systems/CompositeAwareSystem.h"
 #include "Scene/Systems/CollectionAwareSystem.h"
 #include "Scene/Systems/TransformCollectionSystem.h"
-#include "Scene/Entities/Polyline.h"
-#include "Scene/Entities/Curves/VirtualBezierC0.h"
-#include "Scene/Entities/Curves/BezierC2.h"
 #include "Controls/ComponentControl.h"
 #include "Scene/Systems/ScreenSelectableSystem.h"
+#include "Scene/Entities/Planes/PlaneCreator.h"
+#include "Scene/Systems/UvPlaneCreatorSystem.h"
+#include "Serializer.h"
+#include "Scene/Entities/Torus.h"
+#include "Scene/Entities/Curves/BezierC0.h"
 #include "Scene/Entities/Curves/InterpolationC2.h"
+#include "Scene/Entities/Curves/BezierC2.h"
+#include "Scene/Entities/Planes/PlaneC2.h"
+#include "Scene/Entities/SelectRectangle.h"
+#include "mainwindow.h"
+#include "glwidget.h"
+#include "Scene/Systems/MergeSystem.h"
+#include "Scene/Systems/FillAwareSystem.h"
 #include <list>
 
 std::shared_ptr<SceneECS> SceneECS::scene = nullptr;
@@ -36,7 +42,7 @@ std::weak_ptr<SceneECS> SceneECS::Instance()
 SceneECS::SceneECS()
 {
     objectCounter = NON_OBJECT_ID + 1;
-
+    
     systems.put<TransformSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<TransformSystem>()));
     systems.put<DrawingSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<DrawingSystem>()));
     systems.put<UVParamsSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<UVParamsSystem>()));
@@ -51,6 +57,12 @@ SceneECS::SceneECS()
             std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<TransformCollectionSystem>()));
     systems.put<SceneElementSystem>(
             std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<SceneElementSystem>()));
+    systems.put<UVPlaneCreatorSystem>(
+            std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<UVPlaneCreatorSystem>()));
+    systems.put<MergeSystem>(
+            std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<MergeSystem>()));
+    systems.put<FillAwareSystem>(
+            std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<FillAwareSystem>()));
 }
 
 SceneECS::~SceneECS()
@@ -63,66 +75,23 @@ unsigned int SceneECS::GetNewObjectID()
     return objectCounter++;
 }
 
+void SceneECS::SetMaxOID(uint oid)
+{
+    objectCounter = std::max(oid + 10000,
+                             objectCounter);//[TODO] wyjebac tego hacka - problemem jest tworzenie podobiektow i zajmowanie OID (rozne przestrzenie?)
+}
+
 void SceneECS::InitUniqueObjects()
 {
     grid = std::make_unique<Grid>();
     cursor = nullptr;
     composite = nullptr;
+    selectRect = nullptr;
 }
 
 void SceneECS::InitSceneObjects()
 {
-    auto p1 = std::make_shared<Point>("P1", QVector3D(0, 0, 0));
-    auto p2 = std::make_shared<Point>("P2", QVector3D(1, 1, 0));
-    auto p3 = std::make_shared<Point>("P3", QVector3D(2, 0, 0));
-    auto p4 = std::make_shared<Point>("P4", QVector3D(3, -1, 0));
-    auto p5 = std::make_shared<Point>("P5", QVector3D(4, 0, 0));
-    auto p6 = std::make_shared<Point>("P6", QVector3D(5, 1, 0));
-    auto p7 = std::make_shared<Point>("P7", QVector3D(6, 0, 0));
-    auto p8 = std::make_shared<Point>("P8", QVector3D(7, -1, 0));
-    auto p9 = std::make_shared<Point>("P9", QVector3D(8, 0, 0));
-    objects.push_back(p1);
-    objects.push_back(p2);
-    objects.push_back(p3);
-    objects.push_back(p4);
-    objects.push_back(p5);
-    objects.push_back(p6);
-    objects.push_back(p7);
-    objects.push_back(p8);
-    objects.push_back(p9);
-    objects.push_back(std::make_shared<Cube>("Cube1", QVector3D(2, 2, 0)));
-    objects.push_back(std::make_shared<Cube>("Cube2", QVector3D(2, 4, 0)));
-    objects.push_back(std::make_shared<Cube>("Cube3", QVector3D(2, 6, 2)));
-    objects.push_back(std::make_shared<Torus>("Torus1", QVector3D(10, 1, 10)));
-
-
-    auto polyline = std::make_shared<InterpolationC2>("InterpolationC2Test");
-    polyline->p_Collection->AddPoint(p1->p_CollectionAware);
-    polyline->p_Collection->AddPoint(p2->p_CollectionAware);
-    polyline->p_Collection->AddPoint(p3->p_CollectionAware);
-    polyline->p_Collection->AddPoint(p4->p_CollectionAware);
-    polyline->p_Collection->AddPoint(p5->p_CollectionAware);
-    polyline->p_Collection->AddPoint(p6->p_CollectionAware);
-    polyline->p_Collection->AddPoint(p7->p_CollectionAware);
-    polyline->p_Collection->AddPoint(p8->p_CollectionAware);
-    polyline->p_Collection->AddPoint(p9->p_CollectionAware);
-    objects.push_back(polyline);
-
-    /*auto c2 = std::make_shared<BezierC2>("BezeierC2WithMultipleKnots");
-    c2->p_Collection->AddPoint(p6->p_CollectionAware);
-    c2->p_Collection->AddPoint(p1->p_CollectionAware);
-    c2->p_Collection->AddPoint(p2->p_CollectionAware);
-    c2->p_Collection->AddPoint(p2->p_CollectionAware);
-    c2->p_Collection->AddPoint(p3->p_CollectionAware);
-    c2->p_Collection->AddPoint(p5->p_CollectionAware);
-    objects.push_back(c2);*/
-    //p5->p_Transform->Position = QVector3D(-3, -3, 0);
-
-
-    //composite = std::make_unique<Composite>(p1->p_CompositeAware);
-    //composite->AddObject(p2->p_CompositeAware);
-
-    //composite->p_Transform->Rotation.setX(90);
+    //objects.push_back();
 }
 
 void SceneECS::RemoveUniqueObjects()
@@ -130,12 +99,15 @@ void SceneECS::RemoveUniqueObjects()
     grid.reset();
     composite.reset();
     cursor.reset();
+    selectRect.reset();
     emit CursorChange(nullptr);
 }
 
 void SceneECS::RemoveObjectsFromScene()
 {
+    m_cleanup = true;
     objects.clear();
+    m_cleanup = false;
 }
 
 void SceneECS::ClearSystems()
@@ -163,7 +135,7 @@ unsigned int SceneECS::MouseClicked(std::shared_ptr<SceneMouseClickEvent> event)
                 return item->GetAttachedObjectID();
         }
     }
-
+    
     UpdateCursorObject(event->ClickCenterPlainPoint);
     if (auto select = GetSystem<SelectableSystem>().lock())
     {
@@ -171,7 +143,7 @@ unsigned int SceneECS::MouseClicked(std::shared_ptr<SceneMouseClickEvent> event)
         if (auto sObj = select->GetSelectedObject())
             return sObj->GetAttachedObjectID();
     }
-
+    
     return NON_OBJECT_ID;
 }
 
@@ -188,6 +160,9 @@ void SceneECS::UpdateCursorObject(QVector3D cursorPos)
 
 void SceneECS::AddObject(std::shared_ptr<IEntity> obj)
 {
+    if (!obj)
+        return;
+    
     auto t = obj->GetComponent<Transform>().lock();
     if (t)
     {
@@ -200,25 +175,35 @@ void SceneECS::AddObject(std::shared_ptr<IEntity> obj)
         objects.push_back(obj);
 }
 
+void SceneECS::AddObjectExplicitPosition(std::shared_ptr<IEntity> obj)
+{
+    objects.push_back(obj);
+}
+
 std::list<std::unique_ptr<ComponentControl>> SceneECS::CreateUIForObject(unsigned int oid)
 {
     std::list<std::unique_ptr<ComponentControl>> res;
-
+    
     if (oid == NON_OBJECT_ID)
         return res;
-
+    
     for (auto s: systems)
     {
         std::unique_ptr<ComponentControl> elem = s.second->PrepareUIForObject(oid);
         if (elem)
             res.push_back(std::move(elem));
     }
-
+    
     return res;
 }
 
 void SceneECS::RemoveObject(unsigned int oid)
 {
+    //Gdy czyscimy cala scene to niektore obiekty maja logike do niszczenia sie przy zmianie elementow
+    //To psuje wewnetrzna logike fukcji clear na mapie, gdy w miedzyczasie sprobujemy susnac jakis element
+    if (m_cleanup)
+        return;
+    
     objects.remove_if([&](std::shared_ptr<IEntity> &item)
                       {
                           return item->GetObjectID() == oid;
@@ -226,34 +211,160 @@ void SceneECS::RemoveObject(unsigned int oid)
     );
 }
 
-std::list<std::pair<QString, std::function<void(QListWidgetSceneElement *item)> > >
-SceneECS::CreateContextMenuForSceneElement(unsigned int oid, int selectionCount)
-{
-    std::list<std::pair<QString, std::function<void(QListWidgetSceneElement *item)> > > res;
-
-    if (oid == NON_OBJECT_ID)
-        return res;
-
-    auto selectedSystem = GetSystem<SelectableSystem>().lock();
-    auto selectedObj = selectedSystem->GetSelectedObject();
-    if (selectedObj == nullptr)
-        return res;
-
-    for (auto s: systems)
-    {
-        std::list<std::pair<QString, std::function<void(QListWidgetSceneElement *item)> > > inner = s.second
-                ->CreateContextMenuForSceneElement(
-                        oid, selectedObj->GetAttachedObjectID(), selectionCount);
-        for (auto item: inner)
-            res.push_back(item);
-    }
-
-    return res;
-}
-
 void SceneECS::InitializeScene()
 {
     InitUniqueObjects();
     InitSceneObjects();
 }
+
+void SceneECS::CleanScene()
+{
+    if (auto sel = GetSystem<SelectableSystem>().lock())
+    {
+        sel->Unselect();
+    }
+    RemoveObjectsFromScene();
+    ResetUniqueObjects();
+}
+
+void SceneECS::ResetUniqueObjects()
+{
+    cursor.reset();
+    emit CursorChange(nullptr);
+    //Renderer::controller.Camera->Reset();
+}
+
+void SceneECS::LoadSceneFromFile(const QString &filename)
+{
+    CleanScene();
+    
+    MG1::SceneSerializer ser;
+    ser.LoadScene(filename.toStdString());
+    MG1::Scene &scene = MG1::Scene::Get();
+    
+    LoadHelper<Point, MG1::Point>(scene.points);
+    LoadHelper<Torus, MG1::Torus>(scene.tori);
+    LoadHelper<BezierC0, MG1::BezierC0>(scene.bezierC0);
+    LoadHelper<BezierC2, MG1::BezierC2>(scene.bezierC2);
+    LoadHelper<InterpolationC2, MG1::InterpolatedC2>(scene.interpolatedC2);
+    LoadHelper<PlaneC0, MG1::BezierSurfaceC0>(scene.surfacesC0);
+    LoadHelper<PlaneC2, MG1::BezierSurfaceC2>(scene.surfacesC2);
+}
+
+void SceneECS::SaveSceneToFile(const QString &filename)
+{
+    if (auto sceneElements = GetSystem<SceneElementSystem>().lock())
+    {
+        sceneElements->SerializeSceneObjects();
+        MG1::SceneSerializer ser;
+        ser.SaveScene(filename.toStdString());
+    }
+}
+
+void SceneECS::UpdateObjectId(uint oid, uint new_oid)
+{
+    for (auto s: systems)
+    {
+        s.second->UpdateObjectId(oid, new_oid);
+    }
+}
+
+unsigned int SceneECS::UpdateSelectRectangle(std::shared_ptr<SelectRectangleUpdateEvent> event)
+{
+    if (!event->SelectItems)
+    {
+        if (selectRect)
+            selectRect.reset();
+    } else if (event->DeleteRectangle)
+    {
+        selectRect.reset();
+        composite.reset();
+        
+        auto screenSelectedSystem = GetSystem<ScreenSelectableSystem>().lock();
+        composite = screenSelectedSystem->GetObjectsFromRectangle(event->SelectedArea);
+        
+        if (composite)
+            return composite->GetObjectID();
+    } else
+    {
+        if (selectRect)
+            selectRect->SelectionArea = event->SelectedArea;
+        else
+            selectRect = std::make_unique<SelectRectangle>(event->SelectedArea);
+        
+    }
+    
+    if (auto &sel = GetSystem<SelectableSystem>().lock()->GetSelectedObject())
+        return sel->GetAttachedObjectID();
+    return NON_OBJECT_ID;
+}
+
+void SceneECS::DestroyComposite()
+{
+    if (composite)
+    {
+        composite.reset();
+    }
+}
+
+std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids)> > >
+SceneECS::GenerateContextMenuItemsForScene()
+{
+    std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids)> > > res;
+    
+    for (auto s: systems)
+    {
+        std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids)> > > inner = s
+                .second
+                ->CreateContextMenuItemsForScene(GetSelectedObjects());
+        for (auto item: inner)
+            res.push_back(item);
+    }
+    
+    return res;
+}
+
+std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids,
+                                                const std::vector<unsigned int> &listContextOids)> > >
+SceneECS::GenerateContextMenuItemsForSceneList()
+{
+    std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids,
+                                                    const std::vector<unsigned int> &listContextOids)> > > res;
+    
+    for (auto s: systems)
+    {
+        std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids,
+                                                        const std::vector<unsigned int> &listContextOids)> > > inner = s
+                .second
+                ->CreateContextMenuItemsForSceneList(GetSelectedObjects(), GetListContextObjects());
+        for (auto item: inner)
+            res.push_back(item);
+    }
+    
+    return res;
+}
+
+std::vector<unsigned int> SceneECS::GetSelectedObjects()
+{
+    auto selectedSystem = GetSystem<SelectableSystem>().lock();
+    auto selectedObj = selectedSystem->GetSelectedObject();
+    if (selectedObj == nullptr)
+        return {};
+    
+    if (composite && selectedObj->GetAttachedObjectID() == composite->GetObjectID())
+        return composite->GetObjectsInside();
+    
+    return {selectedObj->GetAttachedObjectID()};
+}
+
+std::vector<unsigned int> SceneECS::GetListContextObjects()
+{
+    auto elSystem = GetSystem<SceneElementSystem>().lock();
+    return elSystem->GetSelectedItemsOnList();
+}
+
+
+
+
+
 

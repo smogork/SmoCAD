@@ -27,13 +27,20 @@ CursorControl::~CursorControl()
 
 void CursorControl::UpdateCursor(std::shared_ptr<Cursor> cur)
 {
-    m_cursor = cur;
+    m_weak_cursor = cur;
+
+    std::shared_ptr<Cursor> m_cursor = cur;
+
     ui->groupBoxCursor->setEnabled(cur != nullptr);
     if (cur)
     {
         cursorWorldPosNotifier = cur->p_Transform->Position.addNotifier([this]()
         {
             if (this->ignoreNotifier) return;
+
+            std::shared_ptr<Cursor> m_cursor = m_weak_cursor.lock();
+            if (!m_cursor)
+                return;
 
             UPDATE_UI_IGNORING_VALUE_CHANGED(
                     ui->spinCurPosX->setValue(m_cursor->p_Transform->Position.value().x());
@@ -55,6 +62,10 @@ void CursorControl::UpdateCursor(std::shared_ptr<Cursor> cur)
 
 void CursorControl::SetScreenPosFromWorldPos()
 {
+    std::shared_ptr<Cursor> m_cursor = m_weak_cursor.lock();
+    if (!m_cursor)
+        return;
+
     QPoint vPos = GetCursorViewPosition(m_cursor->p_Transform->Position);
     UPDATE_UI_IGNORING_VALUE_CHANGED(
             ui->spinCurViewPosX->setValue(vPos.x());
@@ -64,12 +75,19 @@ void CursorControl::SetScreenPosFromWorldPos()
 
 void CursorControl::CameraUpdated(std::shared_ptr<CameraUpdateEvent> event)
 {
-    if (m_cursor)
-        SetScreenPosFromWorldPos();
+    std::shared_ptr<Cursor> m_cursor = m_weak_cursor.lock();
+    if (!m_cursor)
+        return;
+
+    SetScreenPosFromWorldPos();
 }
 
 void CursorControl::ViewportResized(QSize size)
 {
+    std::shared_ptr<Cursor> m_cursor = m_weak_cursor.lock();
+    if (!m_cursor)
+        return;
+
     ui->spinCurViewPosX->setMaximum(size.width());
     ui->spinCurViewPosY->setMaximum(size.height());
     if (m_cursor)
@@ -103,6 +121,10 @@ void CursorControl::on_spinCurViewPosY_valueChanged(int arg1)
 
 void CursorControl::UpdateFromWorldPosition()
 {
+    std::shared_ptr<Cursor> m_cursor = m_weak_cursor.lock();
+    if (!m_cursor)
+        return;
+
     UPDATE_VALUE_IGNORING_NOTIFIER_NOREPAINT(
             m_cursor->p_Transform->Position = QVector3D(ui->spinCurPosX->value(), ui->spinCurPosY->value(),
                                                         ui->spinCurPosZ->value())
@@ -127,5 +149,6 @@ QPoint CursorControl::GetCursorViewPosition(QVector3D worldPos)
             QRect(QPoint(0.0f, 0.0f), Renderer::controller.viewport->GetViewportSize()));
     return QPoint(vPoint.x(), Renderer::controller.viewport->GetViewportSize().height() - vPoint.y());
 }
+
 
 

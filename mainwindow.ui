@@ -19,6 +19,9 @@
   <property name="mouseTracking">
    <bool>true</bool>
   </property>
+  <property name="focusPolicy">
+   <enum>Qt::NoFocus</enum>
+  </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
@@ -51,15 +54,43 @@
        <enum>QLayout::SetDefaultConstraint</enum>
       </property>
       <item>
-       <widget class="CursorControl" name="cursorPosWidget" native="true"/>
+       <widget class="CursorControl" name="cursorPosWidget" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>100</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="StereoscopicConfig" name="anaglyphWidget" native="true"/>
       </item>
       <item>
        <widget class="QScrollArea" name="scrollArea">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+         <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>350</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Plain</enum>
+        </property>
+        <property name="lineWidth">
+         <number>1</number>
+        </property>
+        <property name="verticalScrollBarPolicy">
+         <enum>Qt::ScrollBarAsNeeded</enum>
         </property>
         <property name="horizontalScrollBarPolicy">
          <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -70,24 +101,40 @@
         <property name="widgetResizable">
          <bool>true</bool>
         </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTop|Qt::AlignTrailing</set>
-        </property>
         <widget class="QWidget" name="scrollAreaWidgetContents">
          <property name="geometry">
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>68</width>
-           <height>724</height>
+           <width>348</width>
+           <height>518</height>
           </rect>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout"/>
         </widget>
        </widget>
       </item>
       <item>
-       <widget class="SceneElementsList" name="sceneElementsWIdget" native="true"/>
+       <widget class="SceneElementsList" name="sceneElementsWIdget" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>100</height>
+         </size>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
@@ -104,22 +151,13 @@
    </property>
    <widget class="QMenu" name="menuObjects">
     <property name="title">
-     <string>Objects</string>
+     <string>Scene</string>
     </property>
-    <widget class="QMenu" name="menuAdd">
-     <property name="title">
-      <string>Add</string>
-     </property>
-     <addaction name="actionTorus"/>
-     <addaction name="actionPoint"/>
-     <addaction name="actionCube"/>
-     <addaction name="separator"/>
-     <addaction name="actionBezierC0"/>
-     <addaction name="actionBezierC2"/>
-     <addaction name="actionInterpolationC2"/>
-    </widget>
-    <addaction name="menuAdd"/>
+    <addaction name="actionNew"/>
+    <addaction name="actionOpen"/>
+    <addaction name="actionSave"/>
     <addaction name="separator"/>
+    <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuOptions">
     <property name="title">
@@ -127,8 +165,43 @@
     </property>
     <addaction name="actionShow_Bezier_polygon"/>
     <addaction name="actionShow_BSpline_polygon"/>
+    <addaction name="actionShow_Bezier_mesh"/>
+    <addaction name="separator"/>
+    <addaction name="actionAnaglyphic_3D_view"/>
+   </widget>
+   <widget class="QMenu" name="menuObjects_2">
+    <property name="title">
+     <string>Objects</string>
+    </property>
+    <widget class="QMenu" name="menuPoints_2">
+     <property name="title">
+      <string>Points</string>
+     </property>
+     <addaction name="actionPoint"/>
+     <addaction name="actionTorus"/>
+     <addaction name="actionCube"/>
+    </widget>
+    <widget class="QMenu" name="menuCurves_2">
+     <property name="title">
+      <string>Curves</string>
+     </property>
+     <addaction name="actionBezierC0"/>
+     <addaction name="actionBezierC2"/>
+     <addaction name="actionInterpolationC2"/>
+    </widget>
+    <widget class="QMenu" name="menuPlanes_2">
+     <property name="title">
+      <string>Planes</string>
+     </property>
+     <addaction name="actionPlaneC0"/>
+     <addaction name="actionPlaneC2"/>
+    </widget>
+    <addaction name="menuPoints_2"/>
+    <addaction name="menuCurves_2"/>
+    <addaction name="menuPlanes_2"/>
    </widget>
    <addaction name="menuObjects"/>
+   <addaction name="menuObjects_2"/>
    <addaction name="menuOptions"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -142,19 +215,9 @@
     <string>Point</string>
    </property>
   </action>
-  <action name="actionDelete">
-   <property name="text">
-    <string>Delete</string>
-   </property>
-  </action>
   <action name="actionCube">
    <property name="text">
     <string>Cube</string>
-   </property>
-  </action>
-  <action name="actionRename">
-   <property name="text">
-    <string>Rename</string>
    </property>
   </action>
   <action name="actionBezierC0">
@@ -191,6 +254,61 @@
     <string>InterpolationC2</string>
    </property>
   </action>
+  <action name="actionAnaglyphic_3D_view">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Anaglyphic 3D view</string>
+   </property>
+  </action>
+  <action name="actionShow_Bezier_mesh">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show Bezier mesh</string>
+   </property>
+  </action>
+  <action name="actionPlaneC0">
+   <property name="text">
+    <string>PlaneC0</string>
+   </property>
+  </action>
+  <action name="actionNew">
+   <property name="text">
+    <string>New</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionOpen">
+   <property name="text">
+    <string>Open...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="text">
+    <string>Save...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionPlaneC2">
+   <property name="text">
+    <string>PlaneC2</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
@@ -209,6 +327,12 @@
    <class>SceneElementsList</class>
    <extends>QWidget</extends>
    <header>Controls/sceneelementslist.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>StereoscopicConfig</class>
+   <extends>QWidget</extends>
+   <header>Controls/stereoscopicconfig.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

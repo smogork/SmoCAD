@@ -14,6 +14,12 @@ UVControl::UVControl(std::shared_ptr<UVParams> uv, QWidget *parent) :
     this->ui->spinParamVDens->setValue(m_uv->VDensity);
     ignoreValueChanged = false;
 
+    if (m_uv->IsUVLocked())
+    {
+        this->ui->spinParamU->setEnabled(false);
+        this->ui->spinParamV->setEnabled(false);
+    }
+
     m_uNotifier = m_uv->U.addNotifier([this]() {if (this->ignoreNotifier) return; this->ui->spinParamU->setValue(m_uv->U); });
     m_vNotifier = m_uv->V.addNotifier([this]() {if (this->ignoreNotifier) return; this->ui->spinParamV->setValue(m_uv->V); });
     m_udNotifier = m_uv->UDensity.addNotifier([this]() {if (this->ignoreNotifier) return; this->ui->spinParamUDens->setValue(m_uv->UDensity); });

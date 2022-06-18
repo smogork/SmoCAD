@@ -6,12 +6,12 @@
 
 VirtualPoint::VirtualPoint(QVector3D pos): IEntity(VIRTUAL_POINT_CLASS)
 {
-    AddComponent(p_Transform = Transform::CreateRegisteredComponent(objectID, pos));
-    AddComponent(p_Drawing = StaticDrawing::CreateRegisteredComponent(objectID));
+    AddComponent(p_Transform = Transform::CreateRegisteredComponent(GetObjectID(), pos));
+    AddComponent(p_Drawing = StaticDrawing::CreateRegisteredComponent(GetObjectID()));
     InitializeDrawing();
-    AddComponent(p_Selectable = Selectable::CreateRegisteredComponent(objectID));
-    AddComponent(p_ScreenSelectable = ScreenSelectable::CreateRegisteredComponent(objectID, p_Transform, p_Selectable));
-    AddComponent(p_CollectionAware = CollectionAware::CreateRegisteredComponent(objectID, p_Transform));
+    AddComponent(p_Selectable = Selectable::CreateRegisteredComponent(GetObjectID()));
+    AddComponent(p_ScreenSelectable = ScreenSelectable::CreateRegisteredComponent(GetObjectID(), p_Transform, p_Selectable, nullptr));
+    AddComponent(p_CollectionAware = CollectionAware::CreateRegisteredComponent(GetObjectID(), p_Transform));
 
     selectedNotifier = p_Selectable->Selected.addNotifier([this]() {
         if (p_Selectable->Selected)

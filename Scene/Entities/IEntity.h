@@ -24,6 +24,13 @@ enum ENTITY_CLASS
     VIRTUAL_POINT_CLASS,
     INTERPOLATIONC2_CLASS,
     INVISIBLE_POINT_CLASS,
+    MESH_CLASS,
+    PLANEC0_CLASS,
+    PLANEC2_CLASS,
+    PLANE_CREATOR_CLASS,
+    SELECT_RECT_CLASS,
+    FILL_PLANE_CLASS,
+    GREGORY_MESH,
     CLASS_COUNT
 };
 
@@ -32,9 +39,11 @@ class IEntity: public QObject
     Q_OBJECT
 private:
     TypeMap<std::shared_ptr<IComponent>> m_components;
+    bool m_deleted = false;
+    unsigned int m_objectId;
 
 protected:
-    unsigned int objectID;
+
     unsigned int classID;
     static const QColor DefaultColor;
 
@@ -44,16 +53,20 @@ protected:
         m_components.put<C>(std::static_pointer_cast<IComponent>(component));
     }
 
+    void SetObjectId(uint oid);
+
 signals:
     void EntityDeleted(unsigned int oid);
 
 public:
 
     explicit IEntity(unsigned int cid);
+    explicit IEntity(unsigned int cid, unsigned int explicit_oid);
     virtual ~IEntity() override;
 
     unsigned int GetObjectID();
     unsigned int GetClassID();
+    bool IsDeleted () { return m_deleted; }
 
     template <typename C>
     std::weak_ptr<C> GetComponent()

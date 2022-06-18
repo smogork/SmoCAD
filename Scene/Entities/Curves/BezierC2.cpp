@@ -6,45 +6,24 @@
 #include "BezierC2.h"
 
 #include "Renderer/Options.h"
+#include "Scene/Entities/Points/Point.h"
 
-BezierC2::BezierC2(const QString& name): IEntity(BEZIERC2_CLASS)
+BezierC2::BezierC2(const QString& name): BaseCurve(BEZIERC2_CLASS)
 {
-    AddComponent(p_Collection = TransformCollection::CreateRegisteredComponent(objectID));
-    AddComponent(p_Selected = Selectable::CreateRegisteredComponent(objectID));
-    AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(objectID, name, p_Selected));
-
-    selectedNotifier = p_Selected->Selected.addNotifier([this](){
-        if (p_Selected->Selected)
-            m_bezier.CurveColor = QColor::fromRgbF(1.0f, 0.5f, 0.2f, 1.0f);
-        else
-            m_bezier.CurveColor = QColor::fromRgbF(0.8f, 0.8f, 0.8f, 1.0f);
-    });
-    deBoorPolylineDrawing = Options::DrawDeBoorPolygon.addNotifier([this]()
-       {
-           this->m_deBoorPolyline.p_Drawing->Enabled = Options::DrawDeBoorPolygon;
-       });
-
-    m_bezier.PolylineColor = Qt::red;
-    m_deBoorPolyline.DrawingColor = Qt::blue;
-    m_deBoorPolyline.p_Drawing->Enabled = Options::DrawDeBoorPolygon;
-
-    QObject::connect(p_Collection.get(), &TransformCollection::PointInCollectionModified,
-                     this, &BezierC2::OnDeBoorModified);
-    QObject::connect(m_bezier.p_Collection.get(), &TransformCollection::SinglePointChanged,
-                     this, &BezierC2::OnSingleBezierPointModified);
-    QObject::connect(p_Collection.get(), &TransformCollection::SinglePointChanged,
-                     this, &BezierC2::OnDeBoorModified);
+    InitObject(name);
 }
 
 void BezierC2::OnDeBoorModified()
 {
-    (*m_deBoorPolyline.p_Collection) = (*p_Collection);
-    CalculateBezierPoints();
+    /*(*m_deBoorPolyline.p_Collection) = (*p_Collection);
+    CalculateBezierPoints();*/
+    p_Drawing->SetVertexData(GenerateGeometryVertices());
+    p_Drawing->SetIndexData(GenerateTopologyIndices());
 }
 
 void BezierC2::CalculateBezierPoints()
 {
-    m_bezier.p_Collection->Clear();
+    //m_bezier.p_Collection->Clear();
     bezierPoints.clear();
 
     if (p_Collection->Size() < 4)
@@ -79,14 +58,14 @@ void BezierC2::CalculateBezierPoints()
     for (int i = 2; i < result.size() - 2; ++i)
     {
         auto p = std::make_unique<VirtualPoint>(result[i]);
-        m_bezier.p_Collection->AddPoint(p->p_CollectionAware);
+        //m_bezier.p_Collection->AddPoint(p->p_CollectionAware);
         bezierPoints.push_back(std::move(p));
     }
 }
 
 void BezierC2::OnSingleBezierPointModified(QVector3D pos, unsigned int changedOID)
 {
-    int i = 0;
+    /*int i = 0;
     QVector3D oldPos;
 
     for (auto p : m_bezier.p_Collection->GetPoints())
@@ -109,5 +88,106 @@ void BezierC2::OnSingleBezierPointModified(QVector3D pos, unsigned int changedOI
         QVector3D deBoorPosition = deBoor->Position;
         deBoor->Position = deBoorPosition + transformConst * dPos;
     }
-    //CalculateBezierPoints();
+    //CalculateBezierPoints();*/
+}
+
+std::vector<float> BezierC2::GenerateGeometryVertices()
+{
+    if (GetIndexCount() == 0)
+        return {};
+
+    std::vector<float> res (4 * p_Collection->Size());
+
+    int i = 0;
+    for (const std::weak_ptr<Transform>& wp : p_Collection->GetPoints())
+    {
+        if (auto ip = wp.lock())
+        {
+            res[4 * i] = (*ip->Position).x();
+            res[4 * i + 1] = (*ip->Position).y();
+            res[4 * i + 2] = (*ip->Position).z();
+            res[4 * i + 3] = 1.0f;
+            i++;
+        }
+    }
+
+    return res;
+}
+
+std::vector<int> BezierC2::GenerateTopologyIndices()
+{
+    std::vector<int> res (GetIndexCount());
+    if (GetIndexCount() == 0)
+        return {};
+
+    int groups = p_Collection->Size() - 3;
+    for (int i = 0; i < groups; ++i)
+    {
+        res[4 * i] = i;
+        res[4 * i + 1] = i + 1;
+        res[4 * i + 2] = i + 2;
+        res[4 * i + 3] = i + 3;
+    }
+
+    return res;
+}
+
+int BezierC2::GetIndexCount()
+{
+    if (p_Collection->Size() < 4)
+        return 0;
+
+    return 4 * (p_Collection->Size() - 3);
+}
+
+void BezierC2::InitializeDrawing()
+{
+    if (auto sh = Renderer::GetShader(BEZIERC2_SHADER).lock())
+        p_Drawing->AttachShader(sh);
+}
+
+void BezierC2::SerializingFunction(MG1::Scene &scene)
+{
+    MG1::BezierC2 b2;
+    b2.name = p_SceneElement->Name.value().toStdString();
+    CommonSerializeFunction(b2);
+
+    scene.bezierC2.push_back(b2);
+}
+
+BezierC2::BezierC2(const MG1::BezierC2 &b2): BaseCurve(BEZIERC2_CLASS, b2.GetId())
+{
+    InitObject(b2.name.c_str());
+    CommonDeserializeFunction(b2);
+}
+
+void BezierC2::InitObject(const QString &name)
+{
+    InitializeDrawing();
+
+    AddComponent(p_Selected = Selectable::CreateRegisteredComponent(GetObjectID()));
+    AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(GetObjectID(), name, p_Selected));
+
+    p_SceneElement->SerializeObject = ASSIGN_SERIALIZER_FUNCTION(&BezierC2::SerializingFunction);
+
+    selectedNotifier = p_Selected->Selected.addNotifier([this](){
+        if (p_Selected->Selected)
+            CurveColor = QColor::fromRgbF(1.0f, 0.5f, 0.2f, 1.0f);
+        else
+            CurveColor = QColor::fromRgbF(0.8f, 0.8f, 0.8f, 1.0f);
+    });
+    deBoorPolylineDrawing = Options::DrawDeBoorPolygon.addNotifier([this]()
+                                                                   {
+                                                                       this->m_deBoorPolyline.p_Drawing->Enabled = Options::DrawDeBoorPolygon;
+                                                                   });
+
+    m_deBoorPolyline.DrawingColor = Qt::blue;
+    m_deBoorPolyline.p_Drawing->Enabled = Options::DrawDeBoorPolygon;
+
+    QObject::connect(p_Collection.get(), &TransformCollection::PointInCollectionModified,
+                     this, &BezierC2::OnDeBoorModified);
+    QObject::connect(p_Collection.get(), &TransformCollection::SinglePointChanged,
+                     this, &BezierC2::OnSingleBezierPointModified);
+    QObject::connect(p_Collection.get(), &TransformCollection::SinglePointChanged,
+                     this, &BezierC2::OnDeBoorModified);
 }

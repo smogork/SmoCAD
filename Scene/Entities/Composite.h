@@ -35,8 +35,13 @@ private:
     QPropertyNotifier compositePositionNotifier;
     QPropertyNotifier compositeRotationNotifier;
     QPropertyNotifier compositeScaleNotifier;
+    QPropertyNotifier selectNotiifer;
 
     void UpdateCompositeElements();
+    
+protected slots:
+    void PointFromCompositeHasBeenDeleted();
+
 public:
     std::shared_ptr<Transform> p_Transform;
     std::shared_ptr<Selectable> p_Selectable;
@@ -45,6 +50,7 @@ public:
     ~Composite() override;
 
     void AddObject(std::shared_ptr<CompositeAware> newObject);
+    std::vector<unsigned int> GetObjectsInside();
 
 };
 

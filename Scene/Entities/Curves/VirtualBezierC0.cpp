@@ -9,43 +9,17 @@
 
 VirtualBezierC0::VirtualBezierC0(): IEntity(BEZIERC0_CLASS)
 {
-    AddComponent(p_Drawing = DynamicDrawing::CreateRegisteredComponent(objectID));
-    AddComponent(p_Collection = TransformCollection::CreateRegisteredComponent(objectID));
-
-    InitializeDrawing();
-    QObject::connect(p_Collection.get(), &TransformCollection::PointInCollectionModified,
-                     this, &VirtualBezierC0::OnCollectionModified);
-
-
-    polylineColorNotify = PolylineColor.addNotifier([this]() {
-        this->m_bezierPolyline.DrawingColor = PolylineColor;
-    });
-    curveColorNotify = CurveColor.addNotifier([this](){
-        this->m_color = CurveColor;
-    });
-    CurveColor = QColor::fromRgbF(0.8f, 0.8f, 0.8f, 1.0f);
-
-    bezierPolylineDrawing = Options::DrawBezierPolygon.addNotifier([this]()
-       {
-        this->m_bezierPolyline.p_Drawing->Enabled = Options::DrawBezierPolygon;
-       });
-    m_bezierPolyline.p_Drawing->Enabled = Options::DrawBezierPolygon;
+    InitObject();
 }
 
 void VirtualBezierC0::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
 {
-    /*shader->SetUniform("m_Chunks",
-            CalculateDrawableChunks(
-                    Renderer::controller.viewport->GetProjectionMatrix(),
-                    Renderer::controller.Camera->GetViewMatrix(),
-                    Renderer::controller.viewport->GetViewportSize()
-                    )
-                );*/
     shader->SetUniform("u_ObjectColor", QVector4D(m_color.redF(),
                                                   m_color.greenF(),
                                                   m_color.blueF(),
                                                   m_color.alphaF()));
     shader->SetUniform("u_MVP.Model", QMatrix4x4());
+    shader->GetRawProgram()->setPatchVertexCount(4);
 }
 
 void VirtualBezierC0::DrawingFunction(QOpenGLContext *context)
@@ -134,8 +108,39 @@ int VirtualBezierC0::CalculateDrawableChunks(QMatrix4x4 proj, QMatrix4x4 view, Q
 
 void VirtualBezierC0::OnSinglePointModified(QVector3D pos, unsigned int changedOID)
 {
-    //[TODO] to popsuje C0 kiedy nie jest czescia C2 - wymyslic jak to obejsc
-    /*p_Drawing->SetVertexData(GenerateGeometryVertices());
+    p_Drawing->SetVertexData(GenerateGeometryVertices());
     p_Drawing->SetIndexData(GenerateTopologyIndices());
-    (*m_bezierPolyline.p_Collection) = (*p_Collection);*/
+    (*m_bezierPolyline.p_Collection) = (*p_Collection);
+}
+
+VirtualBezierC0::VirtualBezierC0(uint oid) : IEntity(BEZIERC0_CLASS, oid)
+{
+    InitObject();
+}
+
+void VirtualBezierC0::InitObject()
+{
+    AddComponent(p_Drawing = DynamicDrawing::CreateRegisteredComponent(GetObjectID()));
+    AddComponent(p_Collection = TransformCollection::CreateRegisteredComponent(GetObjectID()));
+
+    InitializeDrawing();
+    QObject::connect(p_Collection.get(), &TransformCollection::PointInCollectionModified,
+                     this, &VirtualBezierC0::OnCollectionModified);
+    QObject::connect(p_Collection.get(), &TransformCollection::SinglePointChanged,
+                     this, &VirtualBezierC0::OnSinglePointModified);
+
+
+    polylineColorNotify = PolylineColor.addNotifier([this]() {
+        this->m_bezierPolyline.DrawingColor = PolylineColor;
+    });
+    curveColorNotify = CurveColor.addNotifier([this](){
+        this->m_color = CurveColor;
+    });
+    CurveColor = QColor::fromRgbF(0.8f, 0.8f, 0.8f, 1.0f);
+
+    bezierPolylineDrawing = Options::DrawBezierPolygon.addNotifier([this]()
+                                                                   {
+                                                                       this->m_bezierPolyline.p_Drawing->Enabled = Options::DrawBezierPolygon;
+                                                                   });
+    m_bezierPolyline.p_Drawing->Enabled = Options::DrawBezierPolygon;
 }
