@@ -26,7 +26,6 @@ void PlaneC0::OnCollectionModified()
 
 void PlaneC0::PointRemovedFromCollection()
 {
-
     if (auto scene = SceneECS::Instance().lock())
         scene->RemoveObject(GetObjectID());
 }
@@ -197,6 +196,7 @@ void PlaneC0::InitObject(const QString &name, bool isPipe, int countU, int count
 {
     AddComponent(p_Selected = Selectable::CreateRegisteredComponent(GetObjectID()));
     AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(GetObjectID(), name, p_Selected));
+    AddComponent(p_FillAware = FillAware::CreateRegisteredComponent(GetObjectID(), p_Collection));
 
     p_SceneElement->SerializeObject = ASSIGN_SERIALIZER_FUNCTION(&PlaneC0::SerializingFunction);
 

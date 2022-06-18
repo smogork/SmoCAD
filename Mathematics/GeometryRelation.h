@@ -11,6 +11,7 @@ class GeometryRelation
 {
 public:
     static bool IsPointInsideRect(QPoint p, QRect rect);
+    //static bool
 };
 
 #endif //SMOCAD_GEOMETRYRELATION_H

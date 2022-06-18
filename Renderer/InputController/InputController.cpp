@@ -122,7 +122,7 @@ void InputController::mouseReleaseSlot(QMouseEvent *event)
         switch (event->button())
         {
             case Qt::LeftButton:
-                if (!IsKeyDown(Qt::Key_Shift))
+                if (!IsKeyDown(Qt::Key_Shift) && !mouseButtonStates[MMOUSE_ID])
                         emit UpdateSelectRectangle(
                             std::make_shared<SelectRectangleUpdateEvent>(mouseButtonStartClick[LMOUSE_ID], event->pos(),
                                                                          true));

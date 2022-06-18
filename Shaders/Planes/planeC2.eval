@@ -29,7 +29,7 @@ vec4[4] loadControlPoints(int idx, vec4[16] inArray)
 {
     vec4 outArray[4];
     for (int i = 0; i < 4; ++i)
-        outArray[i] = gl_in[idx + i].gl_Position;
+        outArray[i] = inArray[idx + i];
 
     return outArray;
 }

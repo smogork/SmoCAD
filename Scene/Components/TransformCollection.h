@@ -17,7 +17,7 @@ class TransformCollection: public IComponent
     Q_OBJECT
 private:
     bool m_locked = false;
-    std::list<std::weak_ptr<Transform>> points;
+    std::list<std::weak_ptr<CollectionAware>> points;
     std::map<unsigned int, QPropertyNotifier> pointNotifiers;
 
     void ConnectSignals(std::shared_ptr<Transform> p);
@@ -35,7 +35,9 @@ public:
     explicit TransformCollection(unsigned int oid);
     ~TransformCollection() override;
 
-    const std::list<std::weak_ptr<Transform>>& GetPoints();
+    const std::list<std::weak_ptr<Transform>> GetPoints();
+    std::vector<std::weak_ptr<CollectionAware>> GetVectorAwares();
+    std::vector<QVector3D> GetVectorCoords();
     void SetPoints(std::vector<std::shared_ptr<CollectionAware>> newPoints);
     void AddPoint(std::shared_ptr<CollectionAware> newObject);
     void RemovePoint(unsigned int oid);

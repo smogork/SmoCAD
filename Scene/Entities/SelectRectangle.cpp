@@ -25,6 +25,7 @@ void SelectRectangle::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
 
 void SelectRectangle::DrawingFunction(QOpenGLContext *context)
 {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     Renderer::DrawTriangles(context->functions(), 6);
 }
 
