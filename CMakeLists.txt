@@ -21,6 +21,8 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS OpenGLWidgets REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS 3DCore REQUIRED)
+#find_package(GSL REQUIRED)    # See below (2)
+
 
 set(TS_FILES SmoCAD_en_GB.ts)
 set(SHADER_FILES
@@ -57,7 +59,8 @@ set(MATH_FILES
         Mathematics/f2c.h
         Mathematics/GeometryRelation.cpp Mathematics/GeometryRelation.h
         Mathematics/PointShapes.cpp Mathematics/PointShapes.h
-        Mathematics/Polynomials.cpp Mathematics/Polynomials.h)
+        Mathematics/Polynomials.cpp Mathematics/Polynomials.h
+        Mathematics/Optimization.cpp Mathematics/Optimization.h)
 
 set(CONTROL_SOURCES
         mainwindow.cpp mainwindow.h mainwindow.ui
@@ -150,7 +153,7 @@ set(PROJECT_SOURCES
         Scene/Systems/FillAwareSystem.cpp Scene/Systems/FillAwareSystem.h
         Scene/Components/FillAware.cpp Scene/Components/FillAware.h
         Scene/Entities/Planes/FillPlane.cpp Scene/Entities/Planes/FillPlane.h Scene/Entities/Planes/GregoryMesh.cpp Scene/Entities/Planes/GregoryMesh.h
-        ThirdParty/set_ops.hpp ThirdParty/ngraph.hpp)
+        ThirdParty/set_ops.hpp ThirdParty/ngraph.hpp )
 
 add_subdirectory(Tests)
 add_subdirectory(ThirdParty/Scene-Serializer/cpp/Serializer)
@@ -197,6 +200,7 @@ target_link_libraries(SmoCAD PRIVATE Qt${QT_VERSION_MAJOR}::Core)
 #target_link_libraries(SmoCAD PRIVATE lapack blas)
 target_link_libraries(SmoCAD PRIVATE m)
 target_link_libraries(SmoCAD PRIVATE MGSerializer)
+#target_link_libraries(SmoCAD PRIVATE GSL::gsl GSL::gslcblas)
 
 set_target_properties(SmoCAD PROPERTIES
         MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com

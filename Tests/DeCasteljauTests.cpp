@@ -5,13 +5,6 @@
 #include "DeCasteljauTests.h"
 #include "Mathematics/Polynomials.h"
 
-bool DeCasteljauTests::QVector3DAlmostEquals(QVector3D one, QVector3D two)
-{
-    return (std::abs(one.x() - two.x()) < feps) and
-           (std::abs(one.y() - two.y()) < feps) and
-           (std::abs(one.z() - two.z()) < feps);
-}
-
 TEST_F(DeCasteljauTests, ValueIn0)
 {
     std::vector<QVector3D> knots = {
