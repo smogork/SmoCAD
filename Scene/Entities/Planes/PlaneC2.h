@@ -25,8 +25,15 @@ protected:
     std::vector<int> GenerateTopologyIndices() override;
     int GetIndexCount() override;
     int GetVertexCount(bool isPipe);
+    void GetIndexesOfPatch(int uPatch, int vPatch, std::vector<int>& indices);
 
     void SerializingFunction(MG1::Scene& scene);
+    void InitializeUV();
+    static std::vector<QVector3D> FromBSplineToBernstein(const std::vector<QVector3D>& bspline);
+    
+    QVector3D PlaneC2Func(QVector2D uv);
+    QVector3D PlaneC2FuncDerU(QVector2D uv);
+    QVector3D PlaneC2FuncDerV(QVector2D uv);
 
 public:
     std::shared_ptr<Selectable> p_Selected;

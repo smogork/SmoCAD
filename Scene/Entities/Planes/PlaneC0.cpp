@@ -215,6 +215,8 @@ void PlaneC0::InitObject(const QString &name, bool isPipe, int countU, int count
                                                                 PlaneColor = DefaultColor;
                                                         });
     MeshColor = Qt::darkGreen;
+    
+    InitializeUV();
 }
 
 void PlaneC0::InitializeUV()
@@ -271,13 +273,13 @@ QVector3D PlaneC0::PlaneC0FuncDerU(QVector2D uv)
     
     for (int i = 0; i < 4; ++i)
     {
-        Polynomials::LoadControlPointsCoL(i, patch_points, control_points);
+        Polynomials::LoadControlPointsCol(i, patch_points, control_points);
         mid_values[i] = Polynomials::deCasteljau(v, control_points);
     }
     auto derUPoly = Polynomials::deCasteljauDerK(1, mid_values);
     QVector3D derU = Polynomials::deCasteljau(u, derUPoly);
     
-    return derV;
+    return derU;
 }
 
 QVector3D PlaneC0::PlaneC0FuncDerV(QVector2D uv)
