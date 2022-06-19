@@ -29,7 +29,7 @@ public:
     }
     
     template <typename T>
-    static T deCasteljau(float t, std::vector<T> points)
+    static T deCasteljau(float t, std::vector<T>& points)
     {
         return deCasteljau(t, points.data(), (int)points.size());
     }
@@ -49,7 +49,7 @@ public:
     }
     
     template <typename T>
-    static std::pair<std::vector<T>, std::vector<T>> deCasteljauDouble(float t, std::vector<T> points)
+    static std::pair<std::vector<T>, std::vector<T>> deCasteljauDouble(float t, std::vector<T>& points)
     {
         return deCasteljauDouble(t, points.data(), points.size());
     }
@@ -58,7 +58,7 @@ public:
     static std::pair<std::vector<T>, std::vector<T>> deCasteljauDouble(float t, T *points, int size)
     {
         T** steps = new T*[size];
-        for (size_t i = 0; i < 4; ++i) steps[i] = new T[size];
+        for (size_t i = 0; i < size; ++i) steps[i] = new T[size];
     
         deCasteljauSteps(t, points, steps, size);
     
@@ -74,6 +74,57 @@ public:
         delete [] steps;
     
         return std::make_pair(res1, res2);
+    }
+    
+    template <typename T>
+    static std::vector<T> deCasteljauDerK(int k, std::vector<T>& points)
+    {
+        return deCasteljauDerK(k, points.data(), points.size());
+    }
+    
+    template <typename T>
+    static std::vector<T> deCasteljauDerK(int k, T* points, int size)
+    {
+        T* data = new T[size];
+    
+        for (int i = 0; i < size; ++i)
+            data[i] = points[i];
+    
+        for (int h = 1; h <= k ; ++h)
+            for (int i = 0; i < size - h ;  i++)
+                data[i] = -3.0f * data[i] +  3.0f * data[i + 1];
+        
+        std::vector<T> res(size - k);
+        for (int i = 0; i < size - k; ++i)
+            res[i] = data[i];
+        
+        return res;
+    }
+    
+    template <typename T>
+    static void LoadControlPointsRow(int rowId, std::vector<T>& inArray, std::vector<T>& outArray)
+    {
+        LoadControlPointsRow(rowId, inArray.data(), outArray.data(), outArray.size());
+    }
+    
+    template <typename T>
+    static void LoadControlPointsRow(int rowId, T* inArray, T* outArray, int size)
+    {
+        for (int i = 0; i < size; ++i)
+            outArray[i] = inArray[rowId * size + i];
+    }
+    
+    template <typename T>
+    static void LoadControlPointsCol(int colId, std::vector<T>& inArray, std::vector<T>& outArray)
+    {
+        LoadControlPointsCol(colId, inArray.data(), outArray.data(), outArray.size());
+    }
+    
+    template <typename T>
+    static void LoadControlPointsCol(int colId, T* inArray, T* outArray, int size)
+    {
+        for (int i = 0; i < size; ++i)
+            outArray[i] = inArray[i * size + colId];
     }
 
 };

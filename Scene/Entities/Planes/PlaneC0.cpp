@@ -7,6 +7,7 @@
 #include "Scene/Utilities/Utilites.h"
 #include "Scene/SceneECS.h"
 #include "Mathematics/PointShapes.h"
+#include "Mathematics/Polynomials.h"
 #include "ThirdParty/Scene-Serializer/cpp/Serializer/Serializer/Scene/SerializerException.h"
 #include "Scene/Systems/CollectionAwareSystem.h"
 
@@ -51,20 +52,16 @@ std::vector<int> PlaneC0::GenerateTopologyIndices()
 {
     std::vector<int> res(GetIndexCount());
     int res_idx = 0;
-
-    int index_width = (PATCH_SIZE - 1) * p_UV->U + 1;
-    if (p_UV->UWraps)
-        index_width--;
+    
+    std::vector<int> patch_indices(16);
     for (int h = 0; h < p_UV->V; ++h)//height
         for (int w = 0; w < p_UV->U; ++w)//width
-            for (int i = 0; i < PATCH_SIZE; ++i)//height
-                for (int j = 0; j < PATCH_SIZE; ++j)//width
-                {
-                    int wIdx = w * (PATCH_SIZE - 1) + j;
-                    int hIdx = h * (PATCH_SIZE - 1) + i;
-                    res[res_idx++] = hIdx * index_width + (wIdx % index_width);
-                }
-
+        {
+            GetIndexesOfPatch(w, h, patch_indices);
+            for (int idx : patch_indices)
+                res[res_idx++] = idx;
+        }
+        
     return res;
 }
 
@@ -219,5 +216,113 @@ void PlaneC0::InitObject(const QString &name, bool isPipe, int countU, int count
                                                         });
     MeshColor = Qt::darkGreen;
 }
+
+void PlaneC0::InitializeUV()
+{
+    p_UV->SceneFunction = ASSIGN_UV_FUNCTION(&PlaneC0::PlaneC0Func);
+    p_UV->SceneFunctionDerU = ASSIGN_UV_FUNCTION(&PlaneC0::PlaneC0FuncDerU);
+    p_UV->SceneFunctionDerV = ASSIGN_UV_FUNCTION(&PlaneC0::PlaneC0FuncDerV);
+}
+
+QVector3D PlaneC0::PlaneC0Func(QVector2D uv)
+{
+    int planeNumU = (int)uv.x();
+    int planeNumV = (int)uv.y();
+    
+    float u = fmodf(uv.x(), 1);
+    float v = fmodf(uv.y(), 1);
+    
+    std::vector<int> patch_indices(16);
+    std::vector<QVector3D> patch_points(16);
+    std::vector<QVector3D> control_points(4), mid_values(4);
+    GetIndexesOfPatch(planeNumU, planeNumV, patch_indices);
+    
+    auto points = p_Collection->GetVectorCoords();
+    for (int i = 0; i < 16; ++i)
+        patch_points[i] = points[patch_indices[i]];
+    
+    for (int i = 0; i < 4; ++i)
+    {
+        Polynomials::LoadControlPointsRow(i, patch_points, control_points);
+        mid_values[i] = Polynomials::deCasteljau(u, control_points);
+    }
+    QVector3D pos = Polynomials::deCasteljau(v, mid_values);
+    
+    return pos;
+}
+
+
+QVector3D PlaneC0::PlaneC0FuncDerU(QVector2D uv)
+{
+    int planeNumU = (int)uv.x();
+    int planeNumV = (int)uv.y();
+    
+    float u = fmodf(uv.x(), 1);
+    float v = fmodf(uv.y(), 1);
+    
+    std::vector<int> patch_indices(16);
+    std::vector<QVector3D> patch_points(16);
+    std::vector<QVector3D> control_points(4), mid_values(4);
+    GetIndexesOfPatch(planeNumU, planeNumV, patch_indices);
+    
+    auto points = p_Collection->GetVectorCoords();
+    for (int i = 0; i < 16; ++i)
+        patch_points[i] = points[patch_indices[i]];
+    
+    for (int i = 0; i < 4; ++i)
+    {
+        Polynomials::LoadControlPointsCoL(i, patch_points, control_points);
+        mid_values[i] = Polynomials::deCasteljau(v, control_points);
+    }
+    auto derUPoly = Polynomials::deCasteljauDerK(1, mid_values);
+    QVector3D derU = Polynomials::deCasteljau(u, derUPoly);
+    
+    return derV;
+}
+
+QVector3D PlaneC0::PlaneC0FuncDerV(QVector2D uv)
+{
+    int planeNumU = (int)uv.x();
+    int planeNumV = (int)uv.y();
+    
+    float u = fmodf(uv.x(), 1);
+    float v = fmodf(uv.y(), 1);
+    
+    std::vector<int> patch_indices(16);
+    std::vector<QVector3D> patch_points(16);
+    std::vector<QVector3D> control_points(4), mid_values(4);
+    GetIndexesOfPatch(planeNumU, planeNumV, patch_indices);
+    
+    auto points = p_Collection->GetVectorCoords();
+    for (int i = 0; i < 16; ++i)
+        patch_points[i] = points[patch_indices[i]];
+    
+    for (int i = 0; i < 4; ++i)
+    {
+        Polynomials::LoadControlPointsRow(i, patch_points, control_points);
+        mid_values[i] = Polynomials::deCasteljau(u, control_points);
+    }
+    auto derVPoly = Polynomials::deCasteljauDerK(1, mid_values);
+    QVector3D derV = Polynomials::deCasteljau(v, derVPoly);
+    
+    return derV;
+}
+
+void PlaneC0::GetIndexesOfPatch(int uPatch, int vPatch, std::vector<int>& indices)
+{
+    int index_width = (PATCH_SIZE - 1) * p_UV->U + 1;
+    if (p_UV->UWraps)
+        index_width--;
+    
+    int idx_counter = 0;
+    for (int i = 0; i < PATCH_SIZE; ++i)//height
+        for (int j = 0; j < PATCH_SIZE; ++j)//width
+        {
+            int wIdx = uPatch * (PATCH_SIZE - 1) + j;
+            int hIdx = vPatch * (PATCH_SIZE - 1) + i;
+            indices[idx_counter++] = hIdx * index_width + (wIdx % index_width);
+        }
+}
+
 
 
