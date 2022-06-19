@@ -153,7 +153,7 @@ set(PROJECT_SOURCES
         Scene/Systems/Awares/FillAwareSystem.cpp Scene/Systems/Awares/FillAwareSystem.h
         Scene/Components/Awares/FillAware.cpp Scene/Components/Awares/FillAware.h
         Scene/Entities/Planes/FillPlane.cpp Scene/Entities/Planes/FillPlane.h Scene/Entities/Planes/GregoryMesh.cpp Scene/Entities/Planes/GregoryMesh.h
-        ThirdParty/set_ops.hpp ThirdParty/ngraph.hpp Scene/Systems/Awares/IntersectionAwareSystem.cpp Scene/Systems/Awares/IntersectionAwareSystem.h Scene/Components/Awares/IntersectionAware.cpp Scene/Components/Awares/IntersectionAware.h)
+        ThirdParty/set_ops.hpp ThirdParty/ngraph.hpp Scene/Systems/Awares/IntersectionAwareSystem.cpp Scene/Systems/Awares/IntersectionAwareSystem.h Scene/Components/Awares/IntersectionAware.cpp Scene/Components/Awares/IntersectionAware.h Scene/Entities/Curves/IntersectionCurve.cpp Scene/Entities/Curves/IntersectionCurve.h)
 
 add_subdirectory(Tests)
 add_subdirectory(ThirdParty/Scene-Serializer/cpp/Serializer)
