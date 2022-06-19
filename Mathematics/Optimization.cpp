@@ -38,7 +38,28 @@ QVector4D Optimization::InverseGradientMethod(QVector4D startPoint, std::functio
 }
 
 QVector4D Optimization::NewtonRaphsonMethod(QVector4D startPoint, std::function<QVector4D(QVector4D)> function,
-                                            std::function<QMatrix4x4(QVector4D)> derivative)
+                                            std::function<QMatrix4x4(QVector4D)> derivative,
+                                            float eps, int max_iter)
 {
-    return QVector4D();
+    QVector4D lastPoint, curPoint = startPoint;
+    QMatrix4x4 der;
+    bool inrevertible;
+    
+    int iter_count = 0;
+    do {
+        //przepisanie aktualnej wartosci jako starej
+        lastPoint = curPoint;
+        
+        der = derivative(lastPoint);
+        curPoint = lastPoint - function(lastPoint) * der.inverted(&inrevertible);
+        
+        if (inrevertible)
+            return {NAN, NAN, NAN, NAN};
+        
+        iter_count++;
+    } while ((lastPoint - curPoint).length() > eps && iter_count < max_iter);
+    
+    if (iter_count >= max_iter)
+        return {NAN, NAN, NAN, NAN};
+    return curPoint;
 }

@@ -6,6 +6,7 @@
 #define SMOCAD_OPTIMIZATION_H
 
 #include <QVector4D>
+#include <QMatrix4x4>
 
 class Optimization
 {
@@ -22,7 +23,8 @@ public:
     // Zwaraca argument, gdzie osiągane jest miejsce zerowe dla zadanego punktu początkowego.
     // Jeżeli w wyniku werktor zawiera NANy, to miejsce zerowe nie zostało osiągnięte.
     static QVector4D NewtonRaphsonMethod(QVector4D startPoint, std::function<QVector4D(QVector4D args)> function,
-                                         std::function<QMatrix4x4(QVector4D args)> derivative);
+                                         std::function<QMatrix4x4(QVector4D args)> derivative,
+                                         float eps = 1e-4, int max_iter = 1000);
 };
 
 #endif //SMOCAD_OPTIMIZATION_H
