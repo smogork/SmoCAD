@@ -5,10 +5,14 @@
 #ifndef SMOCAD_UVPARAMS_H
 #define SMOCAD_UVPARAMS_H
 
+#define ASSIGN_UV_FUNCTION(F)  std::bind(F, this, std::placeholders::_1)
+
 #include <QProperty>
 
 #include "IComponent.h"
 #include "Scene/Events/SystemEvents/UVParamsChanged.h"
+
+
 
 class UVParams: public IComponent
 {
@@ -23,6 +27,9 @@ public:
     QProperty<int> UDensity;
     QProperty<int> VDensity;
     QProperty<bool> UWraps, VWraps;
+    std::function<QVector3D(QVector2D uv)> SceneFunction;
+    std::function<QVector3D(QVector2D uv)> SceneFunctionDerU;
+    std::function<QVector3D(QVector2D uv)> SceneFunctionDerV;
 
     explicit UVParams(unsigned int);
     ~UVParams() override;

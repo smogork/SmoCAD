@@ -25,7 +25,7 @@ void Torus::InitializeDrawing()
     p_Drawing->p_bufferLayout.Push<float>(3);//position
     if (auto sh = Renderer::GetShader(DEFAULT_SHADER).lock())
         p_Drawing->AttachShader(sh);
-
+    
     p_Drawing->p_renderingFunction = ASSIGN_DRAWING_FUNCTION(&Torus::DrawingFunction);
     p_Drawing->p_uniformFunction = ASSIGN_UNIFORM_FUNCTION(&Torus::UniformFunction);
 }
@@ -44,40 +44,41 @@ void Torus::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
 std::vector<float> Torus::GenerateGeometryVertices()
 {
     std::vector<float> res(3 * p_UV->VDensity * p_UV->UDensity);
-
+    
     int vIndex = 0;
     for (int u = 0; u < p_UV->UDensity; ++u)
     {
         float uDegree = u * 2.0f * M_PI / p_UV->UDensity;
-        QMatrix4x4 rotY;
-        rotY.rotate(uDegree * 180 / M_PI, Transform::GetYAxis());
+        /*QMatrix4x4 rotY;
+        rotY.rotate(uDegree * 180 / M_PI, Transform::GetYAxis());*/
         for (int v = 0; v < p_UV->VDensity; ++v)
         {
             float vDegree = v * 2.0f * M_PI / p_UV->VDensity;
-            QVector4D p = rotY * QVector4D(
+            /*QVector4D p = rotY * QVector4D(
                     p_UV->V * cosf(vDegree) + p_UV->U,
                     p_UV->V * sinf(vDegree),
-                    0.0f, 1.0f);
-
+                    0.0f, 1.0f);*/
+            QVector3D p = TorusFunc({uDegree, vDegree});
+            
             res[vIndex] = p.x();
             res[vIndex + 1] = p.y();
             res[vIndex + 2] = p.z();
             vIndex += 3;
         }
     }
-
+    
     return res;
 }
 
 std::vector<int> Torus::GenerateTopologyIndices()
 {
     std::vector<int> res(GetIndexCount());
-
+    
     int eIndex = 0;
     for (int u = 0; u < p_UV->UDensity; ++u)
     {
         int uOffset = u * p_UV->VDensity;
-
+        
         //Mały okrąg
         for (int v = 0; v < p_UV->VDensity; ++v)
         {
@@ -85,7 +86,7 @@ std::vector<int> Torus::GenerateTopologyIndices()
             res[eIndex + 1] = uOffset + ((v + 1) % p_UV->VDensity);
             eIndex += 2;
         }
-
+        
         //Połaczenie z kolejnym okręgiem modulo
         for (int v = 0; v < p_UV->VDensity; ++v)
         {
@@ -124,14 +125,14 @@ void Torus::SerializingFunction(MG1::Scene &scene)
     t.smallRadius = p_UV->V;//r
     t.samples.x = p_UV->UDensity;//R density
     t.samples.y = p_UV->VDensity;//r density
-
+    
     scene.tori.push_back(t);
 }
 
 Torus::Torus(const MG1::Torus &serializedObj) : IEntity(TORUS_CLASS, serializedObj.GetId())
 {
     InitObject(serializedObj.name.c_str(), DeserializeFloat3(serializedObj.position));
-
+    
     p_Transform->Rotation = DeserializeFloat3(serializedObj.rotation);
     p_Transform->Scale = DeserializeFloat3(serializedObj.scale);
     p_UV->U = serializedObj.largeRadius;
@@ -148,25 +149,61 @@ void Torus::InitObject(const QString &name, QVector3D position)
     AddComponent(p_CompositeAware = CompositeAware::CreateRegisteredComponent(GetObjectID(), p_Transform, p_Drawing));
     AddComponent(p_Selected = Selectable::CreateRegisteredComponent(GetObjectID()));
     AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(GetObjectID(), name, p_Selected));
+    
+    p_SceneElement->SerializeObject = ASSIGN_SERIALIZER_FUNCTION(&Torus::SerializingFunction);
+    
+    selectedNotifier = p_Selected->Selected.addNotifier(
+            [this]()
+            {
+                HandleColors();
+            });
+    compositeNotifier = p_CompositeAware->InsideComposite.addNotifier(
+            [this]()
+            {
+                HandleColors();
+            });
+    
+    InitializeDrawing();
+    InitializeUV();
+}
+
+void Torus::InitializeUV()
+{
+    p_UV->SceneFunction = ASSIGN_UV_FUNCTION(&Torus::TorusFunc);
+    p_UV->SceneFunctionDerU = ASSIGN_UV_FUNCTION(&Torus::TorusFuncDerU);
+    p_UV->SceneFunctionDerV = ASSIGN_UV_FUNCTION(&Torus::TorusFuncDerV);
+    
     p_UV->UWraps = true;
     p_UV->VWraps = true;
-
-    p_SceneElement->SerializeObject = ASSIGN_SERIALIZER_FUNCTION(&Torus::SerializingFunction);
-
-    selectedNotifier = p_Selected->Selected.addNotifier([this]()
-                                                        {
-                                                            HandleColors();
-                                                        });
-    compositeNotifier = p_CompositeAware->InsideComposite.addNotifier([this]()
-                                                                      {
-                                                                          HandleColors();
-                                                                      });
-
-    InitializeDrawing();
+    
     uNotifier = p_UV->U.addNotifier(ASSIGN_NOTIFIER_FUNCTION(&Torus::UVChanged));
     vNotifier = p_UV->V.addNotifier(ASSIGN_NOTIFIER_FUNCTION(&Torus::UVChanged));
     udNotifier = p_UV->UDensity.addNotifier(ASSIGN_NOTIFIER_FUNCTION(&Torus::UVChanged));
     vdNotifier = p_UV->VDensity.addNotifier(ASSIGN_NOTIFIER_FUNCTION(&Torus::UVChanged));
+}
+
+QVector3D Torus::TorusFunc(QVector2D uv)
+{
+    return QVector3D(
+            (p_UV->U + p_UV->V * cos(uv.y())) * cos(uv.x()),
+            p_UV->V * sin(uv.y()),
+            (p_UV->U + p_UV->V * cos(uv.y())) * sin(uv.x()));
+}
+
+QVector3D Torus::TorusFuncDerU(QVector2D uv)
+{
+    return QVector3D(
+            -(p_UV->U + p_UV->V * cos(uv.y())) * sin(uv.x()),
+            p_UV->V * sin(uv.y()),
+            (p_UV->U + p_UV->V * cos(uv.y())) * cos(uv.x()));
+}
+
+QVector3D Torus::TorusFuncDerV(QVector2D uv)
+{
+    return QVector3D(
+            - p_UV->V * sin(uv.y()) * cos(uv.x()),
+            p_UV->V * cos(uv.y()),
+            - p_UV->V * sin(uv.y()) * sin(uv.x()));
 }
 
 

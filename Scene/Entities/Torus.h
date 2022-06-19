@@ -23,6 +23,7 @@ private:
     void HandleColors();
     int GetIndexCount();
     void InitializeDrawing();
+    void InitializeUV();
     void DrawingFunction(QOpenGLContext* context);
     void UniformFunction(std::shared_ptr<ShaderWrapper> shader);
     void SerializingFunction(MG1::Scene& scene);
@@ -34,6 +35,11 @@ private:
     QPropertyNotifier vNotifier;
     QPropertyNotifier udNotifier;
     QPropertyNotifier vdNotifier;
+    
+    //u - wiekszy promien [0, 2PI), v - mniejszy promien [0, 2PI)
+    QVector3D TorusFunc(QVector2D uv);
+    QVector3D TorusFuncDerU(QVector2D uv);
+    QVector3D TorusFuncDerV(QVector2D uv);
 
 public:
     std::shared_ptr<Transform> p_Transform;
