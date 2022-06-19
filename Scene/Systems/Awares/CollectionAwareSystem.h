@@ -5,8 +5,8 @@
 #ifndef SMOCAD_COLLECTIONAWARESYSTEM_H
 #define SMOCAD_COLLECTIONAWARESYSTEM_H
 
-#include "ISystem.h"
-#include "Scene/Components/CollectionAware.h"
+#include "Scene/Systems/ISystem.h"
+#include "Scene/Components/Awares/CollectionAware.h"
 #include "Scene/Components/TransformCollection.h"
 
 class CollectionAwareSystem: public ISystem<CollectionAware>

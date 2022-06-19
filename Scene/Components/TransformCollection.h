@@ -7,7 +7,7 @@
 
 #include "IComponent.h"
 #include "Transform.h"
-#include "CollectionAware.h"
+#include "Scene/Components/Awares/CollectionAware.h"
 #include <vector>
 
 //Komponent przedstawiajacy zbior pewnych punktów (transformacji) w przestrzeni

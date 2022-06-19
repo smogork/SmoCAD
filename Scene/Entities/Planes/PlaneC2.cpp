@@ -6,7 +6,7 @@
 #include "Scene/SceneECS.h"
 #include "Mathematics/PointShapes.h"
 #include "ThirdParty/Scene-Serializer/cpp/Serializer/Serializer/Scene/SerializerException.h"
-#include "Scene/Systems/CollectionAwareSystem.h"
+#include "Scene/Systems/Awares/CollectionAwareSystem.h"
 #include "Mathematics/Polynomials.h"
 
 void PlaneC2::OnSinglePointModified(QVector3D pos, unsigned int changedOID)
@@ -192,6 +192,7 @@ void PlaneC2::InitObject(const QString &name, bool isPipe, int countU, int count
 {
     AddComponent(p_Selected = Selectable::CreateRegisteredComponent(GetObjectID()));
     AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(GetObjectID(), name, p_Selected));
+    AddComponent(p_Intersection = IntersectionAware::CreateRegisteredComponent(GetObjectID(), p_UV));
 
     p_SceneElement->SerializeObject = ASSIGN_SERIALIZER_FUNCTION(&PlaneC2::SerializingFunction);
 

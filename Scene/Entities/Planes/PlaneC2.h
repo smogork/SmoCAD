@@ -9,6 +9,7 @@
 #include "Scene/Components/Selectable.h"
 #include "Scene/Components/SceneElement.h"
 #include "Scene/Entities/Points/Point.h"
+#include "Scene/Components/Awares/IntersectionAware.h"
 
 class PlaneC2: public BasePlane
 {
@@ -38,6 +39,7 @@ protected:
 public:
     std::shared_ptr<Selectable> p_Selected;
     std::shared_ptr<SceneElement> p_SceneElement;
+    std::shared_ptr<IntersectionAware> p_Intersection;
 
     PlaneC2(const QString& name, bool isPipe, int countU, int countV);
     explicit PlaneC2(const MG1::BezierSurfaceC2 &p2);

@@ -149,6 +149,7 @@ void Torus::InitObject(const QString &name, QVector3D position)
     AddComponent(p_CompositeAware = CompositeAware::CreateRegisteredComponent(GetObjectID(), p_Transform, p_Drawing));
     AddComponent(p_Selected = Selectable::CreateRegisteredComponent(GetObjectID()));
     AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(GetObjectID(), name, p_Selected));
+    AddComponent(p_Intersection = IntersectionAware::CreateRegisteredComponent(GetObjectID(), p_UV));
     
     p_SceneElement->SerializeObject = ASSIGN_SERIALIZER_FUNCTION(&Torus::SerializingFunction);
     

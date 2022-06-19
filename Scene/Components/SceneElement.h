@@ -10,7 +10,7 @@
 #include "Selectable.h"
 
 #include "Scene/Scene.h"
-#include "CompositeAware.h"
+#include "Scene/Components/Awares/CompositeAware.h"
 
 #define ASSIGN_SERIALIZER_FUNCTION(F)  std::bind(F, this, std::placeholders::_1)
 

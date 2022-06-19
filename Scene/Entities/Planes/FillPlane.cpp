@@ -5,7 +5,7 @@
 #include "FillPlane.h"
 #include "Scene/SceneECS.h"
 #include "Mathematics/PointShapes.h"
-#include "Scene/Systems/FillAwareSystem.h"
+#include "Scene/Systems/Awares/FillAwareSystem.h"
 #include "Renderer/Options.h"
 
 FillPlane::FillPlane(const QString &name, const FillLoop &planeLoop)
