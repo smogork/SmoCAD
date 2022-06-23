@@ -25,7 +25,7 @@ TEST_F(GradientMethodTests, ParaboloidAtMinimum)
     float alpha = 0.05;
     float eps = feps * 1e-2;//aby uzyskac feps nalezy obnizyc dokladnosc o 2 rzedy wielkosci
     
-    auto res = Optimization::InverseGradientMethod(
+    auto res = Optimization::SimpleGradientMethod(
             QVector4D(),
             std::bind(&GradientMethodTests::Paraboloid, std::placeholders::_1, a, b),
             std::bind(&GradientMethodTests::ParaboloidGrad, std::placeholders::_1, a, b), alpha, eps);
@@ -39,7 +39,7 @@ TEST_F(GradientMethodTests, ParaboloidSimple)
     float alpha = 0.05;
     float eps = feps * 1e-2;//aby uzyskac feps nalezy obnizyc dokladnosc o 2 rzedy wielkosci
     
-    auto res = Optimization::InverseGradientMethod(
+    auto res = Optimization::SimpleGradientMethod(
             {3, 4, 0, 0},
             std::bind(&GradientMethodTests::Paraboloid, std::placeholders::_1, a, b),
             std::bind(&GradientMethodTests::ParaboloidGrad, std::placeholders::_1, a, b), alpha, eps);

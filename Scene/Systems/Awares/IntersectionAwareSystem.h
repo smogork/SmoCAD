@@ -22,6 +22,8 @@ public:
     
 protected:
     void CreateIntersectionCurveBetween(std::shared_ptr<IntersectionAware> one, std::shared_ptr<IntersectionAware> two);
+    
+    QVector4D FindClosestPoints(std::shared_ptr<IntersectionAware> one, std::shared_ptr<IntersectionAware> two);
 };
 
 #endif //SMOCAD_INTERSECTIONAWARESYSTEM_H

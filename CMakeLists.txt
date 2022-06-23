@@ -75,7 +75,9 @@ set(CONTROL_SOURCES
         Controls/ListElements/QListWidgetCollectionElement.cpp Controls/ListElements/QListWidgetCollectionElement.h
         Controls/stereoscopicconfig.h Controls/stereoscopicconfig.cpp Controls/stereoscopicconfig.ui
         Controls/uvplanecreatorcontrol.h Controls/uvplanecreatorcontrol.cpp Controls/uvplanecreatorcontrol.ui
-        Controls/EntityContextMenu.cpp Controls/EntityContextMenu.h)
+        Controls/EntityContextMenu.cpp Controls/EntityContextMenu.h
+        Controls/Dialogs/intersectiondialog.h Controls/Dialogs/intersectiondialog.cpp Controls/Dialogs/intersectiondialog.ui
+        )
 
 set(PROJECT_SOURCES
         main.cpp
@@ -153,7 +155,10 @@ set(PROJECT_SOURCES
         Scene/Systems/Awares/FillAwareSystem.cpp Scene/Systems/Awares/FillAwareSystem.h
         Scene/Components/Awares/FillAware.cpp Scene/Components/Awares/FillAware.h
         Scene/Entities/Planes/FillPlane.cpp Scene/Entities/Planes/FillPlane.h Scene/Entities/Planes/GregoryMesh.cpp Scene/Entities/Planes/GregoryMesh.h
-        ThirdParty/set_ops.hpp ThirdParty/ngraph.hpp Scene/Systems/Awares/IntersectionAwareSystem.cpp Scene/Systems/Awares/IntersectionAwareSystem.h Scene/Components/Awares/IntersectionAware.cpp Scene/Components/Awares/IntersectionAware.h Scene/Entities/Curves/IntersectionCurve.cpp Scene/Entities/Curves/IntersectionCurve.h)
+        ThirdParty/set_ops.hpp ThirdParty/ngraph.hpp
+        Scene/Systems/Awares/IntersectionAwareSystem.cpp Scene/Systems/Awares/IntersectionAwareSystem.h
+        Scene/Components/Awares/IntersectionAware.cpp Scene/Components/Awares/IntersectionAware.h
+        Scene/Entities/Curves/IntersectionCurve.cpp Scene/Entities/Curves/IntersectionCurve.h)
 
 add_subdirectory(Tests)
 add_subdirectory(ThirdParty/Scene-Serializer/cpp/Serializer)

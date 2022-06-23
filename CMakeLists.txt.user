@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 7.0.2, 2022-06-11T20:46:33. -->
+<!-- Written by QtCreator 7.0.2, 2022-06-19T20:33:57. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -68,6 +68,17 @@
     <value type="bool" key="AutoTest.Framework.QtTest">true</value>
    </valuemap>
    <valuemap type="QVariantMap" key="AutoTest.CheckStates">
+    <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/DeCasteljauTests.cpp:DeCasteljauTests">Checked</value>
+    <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/DeCasteljauTests.cpp:DoubleFunction">Checked</value>
+    <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/DeCasteljauTests.cpp:FirstDerivative">Checked</value>
+    <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/DeCasteljauTests.cpp:SecondDerivative">Checked</value>
+    <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/DeCasteljauTests.cpp:StepsIn1div4">Checked</value>
+    <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/DeCasteljauTests.cpp:ValueIn0">Checked</value>
+    <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/DeCasteljauTests.cpp:ValueIn1">Checked</value>
+    <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/DeCasteljauTests.cpp:ValueIn1div4">Checked</value>
+    <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/GradientMethodTests.cpp:GradientMethodTests">Checked</value>
+    <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/GradientMethodTests.cpp:ParaboloidAtMinimum">Checked</value>
+    <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/GradientMethodTests.cpp:ParaboloidSimple">Checked</value>
     <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/InterpolationC2Test.cpp:CollinearDistinctPointsX">Checked</value>
     <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/InterpolationC2Test.cpp:CollinearDistinctPointsXYZ">Checked</value>
     <value type="Qt::CheckState" key="1@/home/ksm/Documents/MINI/cadcam/sem1/mg1/SmoCAD/SmoCAD/Tests/InterpolationC2Test.cpp:CollinearDistinctPointsY">Checked</value>

@@ -5,9 +5,9 @@
 #include "Optimization.h"
 #include <cmath>
 
-QVector4D Optimization::InverseGradientMethod(QVector4D startPoint, std::function<float(QVector4D)> function,
-                                              std::function<QVector4D(QVector4D)> gradient, float alpha, float eps,
-                                              int max_iter)
+QVector4D Optimization::SimpleGradientMethod(QVector4D startPoint, std::function<float(QVector4D)> function,
+                                             std::function<QVector4D(QVector4D)> gradient, float alpha, float eps,
+                                             int max_iter)
 {
     QVector4D lastPoint, curPoint = startPoint;
     float lastValue, curValue = function(startPoint);
