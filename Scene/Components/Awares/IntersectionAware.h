@@ -11,6 +11,7 @@
 class IntersectionAware: public IComponent
 {
 public:
+    //[TODO] dodac ograniczenia na zakesy parametrow
     std::shared_ptr<UVParams> p_UV;
     
     static std::shared_ptr<IntersectionAware> CreateRegisteredComponent(unsigned int oid, std::shared_ptr<UVParams> uv);

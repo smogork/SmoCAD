@@ -82,5 +82,6 @@ void IntersectionAwareSystem::CreateIntersectionCurveBetween(std::shared_ptr<Int
 QVector4D IntersectionAwareSystem::FindClosestPoints(std::shared_ptr<IntersectionAware> one,
                                                      std::shared_ptr<IntersectionAware> two)
 {
+    //[TODO] zaimplementowac
     return QVector4D();
 }
