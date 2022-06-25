@@ -62,7 +62,8 @@ QVector4D Optimization::NewtonRaphsonMethod(QVector4D startPoint, std::function<
         if (!domainCheckFunction(curPoint))
         {
             edgeEnd = true;
-            return domainClampFunction(curPoint, lastPoint);
+            auto res = domainClampFunction(curPoint, lastPoint);
+            return res;
         }
 
         val = function(curPoint);

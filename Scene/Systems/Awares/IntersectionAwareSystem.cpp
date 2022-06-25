@@ -119,6 +119,25 @@ IntersectionAwareSystem::FindFurtherPointsOfIntersection(QVector4D P0, float dis
     std::list<QVector4D> res;
     edgeEnd = false;
 
+    auto domainCheck = [one, two](QVector4D args) -> bool
+    {
+        return one->ArgumentsInsideDomain({args.x(), args.y()}) &&
+               two->ArgumentsInsideDomain({args.z(), args.w()});
+    };
+
+    auto domainClamp = [one, two](QVector4D args, QVector4D last) -> QVector4D
+    {
+        QVector4D delta = args - last;
+        float minChange = 1.0f;
+
+        if (delta.x()) minChange = std::min(minChange, (std::clamp<float>(args.x(), one->UMin, one->UMax) - last.x()) / delta.x());
+        if (delta.y()) minChange = std::min(minChange, (std::clamp<float>(args.y(), one->VMin, one->VMax) - last.y()) / delta.y());
+        if (delta.z()) minChange = std::min(minChange, (std::clamp<float>(args.z(), two->UMin, two->UMax) - last.z()) / delta.z());
+        if (delta.w()) minChange = std::min(minChange, (std::clamp<float>(args.w(), two->VMin, two->VMax) - last.w()) / delta.w());
+
+        return last + delta * minChange;
+    };
+
     do
     {
         //przepisanie aktualnej wartosci jako starej
@@ -127,12 +146,12 @@ IntersectionAwareSystem::FindFurtherPointsOfIntersection(QVector4D P0, float dis
 
         //obliczenie wektora wzdluz ktorego bedziemy szukac punktu
 
-        auto nf =QVector3D::crossProduct(
-                        one->SceneFunctionDerU({last_point.x(), last_point.y()}),
-                        one->SceneFunctionDerV({last_point.x(), last_point.y()}));
-        auto ng =QVector3D::crossProduct(
-                        two->SceneFunctionDerU({last_point.z(), last_point.w()}),
-                        two->SceneFunctionDerV({last_point.z(), last_point.w()}));
+        auto nf = QVector3D::crossProduct(
+                one->SceneFunctionDerU({last_point.x(), last_point.y()}),
+                one->SceneFunctionDerV({last_point.x(), last_point.y()}));
+        auto ng = QVector3D::crossProduct(
+                two->SceneFunctionDerU({last_point.z(), last_point.w()}),
+                two->SceneFunctionDerV({last_point.z(), last_point.w()}));
 
         QVector3D N = QVector3D::crossProduct(nf, ng).normalized();
         if (direction)
@@ -166,22 +185,10 @@ IntersectionAwareSystem::FindFurtherPointsOfIntersection(QVector4D P0, float dis
             };
         };
 
-        auto domainCheck = [one, two](QVector4D args) -> bool
-        {
-            return one->ArgumentsInsideDomain({args.x(), args.y()}) &&
-                two->ArgumentsInsideDomain({args.z(), args.w()});
-        };
-
-        auto domainClamp = [one, two, &N](QVector4D args, QVector4D last) -> QVector4D
-        {
-            //[TODO] przyciac na lini pomiedzy last a args
-            return args;
-        };
-
 
         //znalezienie nowego punktu na przecieciu
-        cur_point = Optimization::NewtonRaphsonMethod(last_point, func, der, domainCheck, domainClamp, edgeEnd, 1e-3, 200);
-
+        cur_point = Optimization::NewtonRaphsonMethod(last_point, func, der, domainCheck, domainClamp, edgeEnd, 1e-3,
+                                                      200);
 
         if (cur_point.x() == NAN)
         {
