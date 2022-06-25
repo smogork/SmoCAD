@@ -189,7 +189,6 @@ void Torus::InitializeUV()
 
 QVector3D Torus::TorusFunc(QVector2D uv)
 {
-
     return (p_Transform->GetModelMatrix() *
             QVector4D(
             (p_UV->U + p_UV->V * cos(uv.y())) * cos(uv.x()),

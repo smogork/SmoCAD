@@ -239,6 +239,10 @@ QVector3D PlaneC0::PlaneC0Func(QVector2D uv)
 {
     int planeNumU = (int)uv.x();
     int planeNumV = (int)uv.y();
+
+    if (planeNumU < p_Intersection->UMin || planeNumU > p_Intersection->UMax ||
+        planeNumV < p_Intersection->VMin || planeNumV > p_Intersection->VMax)
+        return {0, 0, 0};
     
     float u = fmodf(uv.x(), 1);
     float v = fmodf(uv.y(), 1);
@@ -267,6 +271,10 @@ QVector3D PlaneC0::PlaneC0FuncDerU(QVector2D uv)
 {
     int planeNumU = (int)uv.x();
     int planeNumV = (int)uv.y();
+
+    if (planeNumU < p_Intersection->UMin || planeNumU > p_Intersection->UMax ||
+        planeNumV < p_Intersection->VMin || planeNumV > p_Intersection->VMax)
+        return {0, 0, 0};
     
     float u = fmodf(uv.x(), 1);
     float v = fmodf(uv.y(), 1);
@@ -295,6 +303,10 @@ QVector3D PlaneC0::PlaneC0FuncDerV(QVector2D uv)
 {
     int planeNumU = (int)uv.x();
     int planeNumV = (int)uv.y();
+
+    if (planeNumU < p_Intersection->UMin || planeNumU > p_Intersection->UMax ||
+        planeNumV < p_Intersection->VMin || planeNumV > p_Intersection->VMax)
+        return {0, 0, 0};
     
     float u = fmodf(uv.x(), 1);
     float v = fmodf(uv.y(), 1);
