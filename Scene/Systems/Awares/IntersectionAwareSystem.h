@@ -27,7 +27,7 @@ protected:
     QVector4D
     FindFirstPointOfIntersection(std::shared_ptr<IntersectionAware> one, std::shared_ptr<IntersectionAware> two);
     std::list<QVector4D>
-    FindFurtherPointsOfIntersection(QVector4D P0, bool direction, std::shared_ptr<IntersectionAware> one,
+    FindFurtherPointsOfIntersection(QVector4D P0, float dist, bool direction, bool& edgeEnd, std::shared_ptr<IntersectionAware> one,
                                     std::shared_ptr<IntersectionAware> two);
 
 };

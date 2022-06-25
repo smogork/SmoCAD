@@ -189,26 +189,33 @@ void Torus::InitializeUV()
 
 QVector3D Torus::TorusFunc(QVector2D uv)
 {
-    return QVector3D(
+
+    return (p_Transform->GetModelMatrix() *
+            QVector4D(
             (p_UV->U + p_UV->V * cos(uv.y())) * cos(uv.x()),
             p_UV->V * sin(uv.y()),
-            (p_UV->U + p_UV->V * cos(uv.y())) * sin(uv.x()));
+            (p_UV->U + p_UV->V * cos(uv.y())) * sin(uv.x()),
+            1)).toVector3D();
 }
 
 QVector3D Torus::TorusFuncDerU(QVector2D uv)
 {
-    return QVector3D(
+    return (p_Transform->GetModelMatrix() *
+            QVector4D(
             -(p_UV->U + p_UV->V * cos(uv.y())) * sin(uv.x()),
             p_UV->V * sin(uv.y()),
-            (p_UV->U + p_UV->V * cos(uv.y())) * cos(uv.x()));
+            (p_UV->U + p_UV->V * cos(uv.y())) * cos(uv.x()),
+            0)).toVector3D();
 }
 
 QVector3D Torus::TorusFuncDerV(QVector2D uv)
 {
-    return QVector3D(
+    return (p_Transform->GetModelMatrix() *
+            QVector4D(
             - p_UV->V * sin(uv.y()) * cos(uv.x()),
             p_UV->V * cos(uv.y()),
-            - p_UV->V * sin(uv.y()) * sin(uv.x()));
+            - p_UV->V * sin(uv.y()) * sin(uv.x()),
+            0)).toVector3D();
 }
 
 

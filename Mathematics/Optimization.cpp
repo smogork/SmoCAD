@@ -39,11 +39,15 @@ QVector4D Optimization::SimpleGradientMethod(QVector4D startPoint, std::function
 
 QVector4D Optimization::NewtonRaphsonMethod(QVector4D startPoint, std::function<QVector4D(QVector4D)> function,
                                             std::function<QMatrix4x4(QVector4D)> derivative,
+                                            std::function<bool(QVector4D args)> domainCheckFunction,
+                                            std::function<QVector4D(QVector4D args, QVector4D lastPoint)> domainClampFunction,
+                                            bool &edgeEnd,
                                             float eps, int max_iter)
 {
-    QVector4D lastPoint, curPoint = startPoint;
+    QVector4D val, lastPoint, curPoint = startPoint;
     QMatrix4x4 der;
-    bool inrevertible;
+    bool invertible;
+    edgeEnd = false;
     
     int iter_count = 0;
     do {
@@ -51,10 +55,17 @@ QVector4D Optimization::NewtonRaphsonMethod(QVector4D startPoint, std::function<
         lastPoint = curPoint;
         
         der = derivative(lastPoint);
-        curPoint = lastPoint - function(lastPoint) * der.inverted(&inrevertible);
-        
-        if (inrevertible)
+        curPoint = lastPoint - der.inverted(&invertible) * function(lastPoint);
+        if (!invertible)
             return {NAN, NAN, NAN, NAN};
+
+        if (!domainCheckFunction(curPoint))
+        {
+            edgeEnd = true;
+            return domainClampFunction(curPoint, lastPoint);
+        }
+
+        val = function(curPoint);
         
         iter_count++;
     } while ((lastPoint - curPoint).length() > eps && iter_count < max_iter);
