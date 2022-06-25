@@ -29,7 +29,7 @@ protected:
     void GetIndexesOfPatch(int uPatch, int vPatch, std::vector<int>& indices);
 
     void SerializingFunction(MG1::Scene& scene);
-    void InitializeUV();
+    void InitializeUV(bool isPipe);
     static std::vector<QVector3D> FromBSplineToBernstein(const std::vector<QVector3D>& bspline);
     
     QVector3D PlaneC2Func(QVector2D uv);

@@ -104,8 +104,8 @@ void PlaneC2::SerializingFunction(MG1::Scene &scene)
     MG1::BezierSurfaceC2 p2;
     p2.SetId(GetObjectID());
     p2.name = p_SceneElement->Name.value().toStdString();
-    p2.uWrapped = p_UV->UWraps;
-    p2.vWrapped = p_UV->VWraps;
+    p2.uWrapped = p_Intersection->UWraps;
+    p2.vWrapped = p_Intersection->VWraps;
     p2.size.x = p_UV->U;
     p2.size.y = p_UV->V;
 
@@ -141,7 +141,7 @@ PlaneC2::PlaneC2(const MG1::BezierSurfaceC2 &p2): BasePlane(PLANEC2_CLASS, p2.Ge
 
     p_UV->LockEditUV(false);
     p_Collection->LockContent(false);
-    p_UV->VWraps = p2.vWrapped;
+    p_Intersection->VWraps = p2.vWrapped;
 
     if (p2.patches.size() == 0)
         throw MG1::SerializerException("Error while deserializing Surface without patches");
@@ -152,7 +152,7 @@ PlaneC2::PlaneC2(const MG1::BezierSurfaceC2 &p2): BasePlane(PLANEC2_CLASS, p2.Ge
 
 
     auto indices = GenerateTopologyIndices();
-    std::vector<std::shared_ptr<CollectionAware>> points(GetVertexCount(p_UV->UWraps));
+    std::vector<std::shared_ptr<CollectionAware>> points(GetVertexCount(p_Intersection->UWraps));
 
     //[TODO] zrobic wspolna deserializacje patchy na podstawie tablicy indeksow oraz punktow
     if (auto scene = SceneECS::Instance().lock())
@@ -193,6 +193,7 @@ void PlaneC2::InitObject(const QString &name, bool isPipe, int countU, int count
     AddComponent(p_Selected = Selectable::CreateRegisteredComponent(GetObjectID()));
     AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(GetObjectID(), name, p_Selected));
     AddComponent(p_Intersection = IntersectionAware::CreateRegisteredComponent(GetObjectID(), p_UV));
+    InitializeUV(isPipe);
 
     p_SceneElement->SerializeObject = ASSIGN_SERIALIZER_FUNCTION(&PlaneC2::SerializingFunction);
 
@@ -216,13 +217,13 @@ void PlaneC2::InitObject(const QString &name, bool isPipe, int countU, int count
     });
     MeshColor = Qt::darkYellow;
     
-    InitializeUV();
+
 }
 
 void PlaneC2::GetIndexesOfPatch(int uPatch, int vPatch, std::vector<int> &indices)
 {
     int index_width =  p_UV->U + (PATCH_SIZE - 1);
-    if (p_UV->UWraps)
+    if (p_Intersection->UWraps)
         index_width -= PATCH_SIZE - 1;
     
     int idx_counter = 0;
@@ -235,11 +236,19 @@ void PlaneC2::GetIndexesOfPatch(int uPatch, int vPatch, std::vector<int> &indice
         }
 }
 
-void PlaneC2::InitializeUV()
+void PlaneC2::InitializeUV(bool isPipe)
 {
-    p_UV->SceneFunction = ASSIGN_UV_FUNCTION(&PlaneC2::PlaneC2Func);
-    p_UV->SceneFunctionDerU = ASSIGN_UV_FUNCTION(&PlaneC2::PlaneC2FuncDerU);
-    p_UV->SceneFunctionDerV = ASSIGN_UV_FUNCTION(&PlaneC2::PlaneC2FuncDerV);
+    p_Intersection->SceneFunction = ASSIGN_UV_FUNCTION(&PlaneC2::PlaneC2Func);
+    p_Intersection->SceneFunctionDerU = ASSIGN_UV_FUNCTION(&PlaneC2::PlaneC2FuncDerU);
+    p_Intersection->SceneFunctionDerV = ASSIGN_UV_FUNCTION(&PlaneC2::PlaneC2FuncDerV);
+
+
+    p_Intersection->UWraps = isPipe;
+    p_Intersection->VWraps = false;
+    p_Intersection->UMin = 0;
+    p_Intersection->VMin = 0;
+    p_Intersection->UMax = p_UV->U.value();
+    p_Intersection->VMax = p_UV->V.value();
 }
 
 QVector3D PlaneC2::PlaneC2Func(QVector2D uv)

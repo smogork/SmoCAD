@@ -170,13 +170,17 @@ void Torus::InitObject(const QString &name, QVector3D position)
 
 void Torus::InitializeUV()
 {
-    p_UV->SceneFunction = ASSIGN_UV_FUNCTION(&Torus::TorusFunc);
-    p_UV->SceneFunctionDerU = ASSIGN_UV_FUNCTION(&Torus::TorusFuncDerU);
-    p_UV->SceneFunctionDerV = ASSIGN_UV_FUNCTION(&Torus::TorusFuncDerV);
-    
-    p_UV->UWraps = true;
-    p_UV->VWraps = true;
-    
+    p_Intersection->SceneFunction = ASSIGN_UV_FUNCTION(&Torus::TorusFunc);
+    p_Intersection->SceneFunctionDerU = ASSIGN_UV_FUNCTION(&Torus::TorusFuncDerU);
+    p_Intersection->SceneFunctionDerV = ASSIGN_UV_FUNCTION(&Torus::TorusFuncDerV);
+
+    p_Intersection->UWraps = true;
+    p_Intersection->VWraps = true;
+    p_Intersection->UMin = 0.0f;
+    p_Intersection->UMax = 2 * M_PIf;
+    p_Intersection->VMin = 0.0f;
+    p_Intersection->VMax = 2 * M_PIf;
+
     uNotifier = p_UV->U.addNotifier(ASSIGN_NOTIFIER_FUNCTION(&Torus::UVChanged));
     vNotifier = p_UV->V.addNotifier(ASSIGN_NOTIFIER_FUNCTION(&Torus::UVChanged));
     udNotifier = p_UV->UDensity.addNotifier(ASSIGN_NOTIFIER_FUNCTION(&Torus::UVChanged));

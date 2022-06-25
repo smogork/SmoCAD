@@ -8,22 +8,28 @@
 #include "Scene/Components/Awares/IntersectionAware.h"
 #include "Scene/Systems/ISystem.h"
 
-class IntersectionAwareSystem: public ISystem<IntersectionAware>
+class IntersectionAwareSystem : public ISystem<IntersectionAware>
 {
 public:
-    IntersectionAwareSystem(): ISystem(SYSTEM_ID::INTERSECTION_AWARE)
-    { }
-    const char* GetSystemName() override { return "IntersectionAwareSystem"; }
-    
+    IntersectionAwareSystem() : ISystem(SYSTEM_ID::INTERSECTION_AWARE)
+    {}
+
+    const char *GetSystemName() override
+    { return "IntersectionAwareSystem"; }
+
     std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids,
                                                     const std::vector<unsigned int> &listContextOids)> > >
     CreateContextMenuItemsForSceneList(const std::vector<unsigned int> &selectedOids,
                                        const std::vector<unsigned int> &listContextOids) override;
-    
+
 protected:
     void CreateIntersectionCurveBetween(std::shared_ptr<IntersectionAware> one, std::shared_ptr<IntersectionAware> two);
-    
-    QVector4D FindClosestPoints(std::shared_ptr<IntersectionAware> one, std::shared_ptr<IntersectionAware> two);
+    QVector4D
+    FindFirstPointOfIntersection(std::shared_ptr<IntersectionAware> one, std::shared_ptr<IntersectionAware> two);
+    std::list<QVector4D>
+    FindFurtherPointsOfIntersection(QVector4D P0, bool direction, std::shared_ptr<IntersectionAware> one,
+                                    std::shared_ptr<IntersectionAware> two);
+
 };
 
 #endif //SMOCAD_INTERSECTIONAWARESYSTEM_H

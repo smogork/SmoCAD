@@ -36,7 +36,7 @@ protected:
     void GetIndexesOfPatch(int uPatch, int vPatch, std::vector<int>& indices);
 
     void SerializingFunction(MG1::Scene& scene);
-    void InitializeUV();
+    void InitializeUV(bool isPipe);
     
     QVector3D PlaneC0Func(QVector2D uv);
     QVector3D PlaneC0FuncDerU(QVector2D uv);
