@@ -6,6 +6,7 @@
 #include "Controls/Dialogs/intersectiondialog.h"
 #include "Mathematics/Optimization.h"
 #include "Scene/SceneECS.h"
+#include "Scene/Entities/Curves/IntersectionCurve.h"
 
 std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids,
                                                 const std::vector<unsigned int> &listContextOids)> > >
@@ -51,16 +52,17 @@ void IntersectionAwareSystem::CreateIntersectionCurveBetween(std::shared_ptr<Int
     QVector4D P0 = FindFirstPointOfIntersection(one, two);
 
     bool edgeEnd;
-    std::list<QVector4D> negative_points, positive_points = FindFurtherPointsOfIntersection(P0,
-                                                                                            dialog->PointsSceneDistance(),
-                                                                                            true,
-                                                                                            edgeEnd, one, two);
+    std::list<QVector4D> negative_points;
+    std::list<QVector4D> positive_points = FindFurtherPointsOfIntersection(P0, dialog->PointsSceneDistance(),
+                                                                           true, edgeEnd, one, two);
     if (edgeEnd)//puszczamy w druga strone tylko jesli nie trafilismy na cykl
         negative_points = FindFurtherPointsOfIntersection(P0, dialog->PointsSceneDistance(), false,
                                                           edgeEnd, one, two);
 
     if (auto scene = SceneECS::Instance().lock())
     {
+
+        /*
         scene->AddObjectExplicitPosition(
                 std::make_shared<Point>("IntertsectionP0", one->SceneFunction(P0.toVector2D())));
 
@@ -71,6 +73,17 @@ void IntersectionAwareSystem::CreateIntersectionCurveBetween(std::shared_ptr<Int
         for (const auto &params: negative_points)
             scene->AddObjectExplicitPosition(std::make_shared<Point>(QString("NegativePoints%0").arg(i++),
                                                                      one->SceneFunction(params.toVector2D())));
+                                                                     */
+        std::vector<QVector2D> intersectionArgs;
+        intersectionArgs.reserve(positive_points.size() + negative_points.size() + 1);
+
+        for (auto it = positive_points.rbegin(); it != positive_points.rend(); ++it)
+            intersectionArgs.push_back((*it).toVector2D());
+        intersectionArgs.push_back(P0.toVector2D());
+        for (const auto& arg : negative_points)
+            intersectionArgs.push_back(arg.toVector2D());
+
+        scene->AddObject(std::make_shared<IntersectionCurve>("IntersectionCurve", intersectionArgs, one->SceneFunction));
     }
 }
 
@@ -130,10 +143,14 @@ IntersectionAwareSystem::FindFurtherPointsOfIntersection(QVector4D P0, float dis
         QVector4D delta = args - last;
         float minChange = 1.0f;
 
-        if (delta.x()) minChange = std::min(minChange, (std::clamp<float>(args.x(), one->UMin, one->UMax) - last.x()) / delta.x());
-        if (delta.y()) minChange = std::min(minChange, (std::clamp<float>(args.y(), one->VMin, one->VMax) - last.y()) / delta.y());
-        if (delta.z()) minChange = std::min(minChange, (std::clamp<float>(args.z(), two->UMin, two->UMax) - last.z()) / delta.z());
-        if (delta.w()) minChange = std::min(minChange, (std::clamp<float>(args.w(), two->VMin, two->VMax) - last.w()) / delta.w());
+        if (delta.x())
+            minChange = std::min(minChange, (std::clamp<float>(args.x(), one->UMin, one->UMax) - last.x()) / delta.x());
+        if (delta.y())
+            minChange = std::min(minChange, (std::clamp<float>(args.y(), one->VMin, one->VMax) - last.y()) / delta.y());
+        if (delta.z())
+            minChange = std::min(minChange, (std::clamp<float>(args.z(), two->UMin, two->UMax) - last.z()) / delta.z());
+        if (delta.w())
+            minChange = std::min(minChange, (std::clamp<float>(args.w(), two->VMin, two->VMax) - last.w()) / delta.w());
 
         return last + delta * minChange;
     };
@@ -203,7 +220,7 @@ IntersectionAwareSystem::FindFurtherPointsOfIntersection(QVector4D P0, float dis
             break;
 
         res.push_back(cur_point);
-        qDebug() << "Found next point H(" << cur_point << ") = " << one->SceneFunction({cur_point.x(), cur_point.y()});
+        //qDebug() << "Found next point H(" << cur_point << ") = " << one->SceneFunction({cur_point.x(), cur_point.y()});
     } while (!edgeEnd);
 
     qDebug() << "Found " << res.size() << "points";

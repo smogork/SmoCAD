@@ -9,30 +9,35 @@
 #include "Scene/Components/Drawing/DynamicDrawing.h"
 #include "Scene/Entities/IEntity.h"
 
-class IntersectionCurve: public IEntity
+class IntersectionCurve : public IEntity
 {
-    Q_OBJECT
+Q_OBJECT
 /*private slots:
     void OnCollectionModified();
     void OnSinglePointModified(QVector3D pos, unsigned int changedOID);
     void PointRemovedFromCollection();*/
-    
+
 protected:
     int m_pointCount;
-    
-    std::vector<float> GenerateGeometryVertices( const std::vector<QVector3D>& points);
-    void InitializeDrawing( const std::vector<QVector3D>& points);
-    void DrawingFunction(QOpenGLContext* context);
+    std::vector<QVector2D> m_paramPoints;
+    std::function<QVector3D(QVector2D args)> m_sceneFunction;
+
+    QPropertyNotifier selectedNotifier;
+
+    std::vector<float> GenerateGeometryVertices();
+    void InitializeDrawing();
+    void DrawingFunction(QOpenGLContext *context);
     void UniformFunction(std::shared_ptr<ShaderWrapper> shader);
-    
+
 public:
     std::shared_ptr<SceneElement> p_SceneElement;
     std::shared_ptr<Selectable> p_Selected;
     std::shared_ptr<DynamicDrawing> p_Drawing;
     QColor DrawingColor = DefaultColor;
-    
-    IntersectionCurve(const QString& name, const std::vector<QVector3D>& intersectionPoints);
-    
+
+    IntersectionCurve(const QString &name, const std::vector<QVector2D> &intersectionPoints,
+                      std::function<QVector3D(QVector2D args)> sceneFunction);
+
 };
 
 #endif //SMOCAD_INTERSECTIONCURVE_H
