@@ -30,6 +30,7 @@ public:
     QVector4D FindClosestPoints(std::shared_ptr<IntersectionAware> other, int density = 10);
     QVector2D FindClosestPoints(QVector3D pos, int density = 10);
     bool ArgumentsInsideDomain(QVector2D args);
+    QVector2D WrapArgumentsAround(QVector2D args);
 };
 
 #endif //SMOCAD_INTERSECTIONAWARE_H

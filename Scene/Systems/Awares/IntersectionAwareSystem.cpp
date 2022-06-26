@@ -7,6 +7,7 @@
 #include "Mathematics/Optimization.h"
 #include "Scene/SceneECS.h"
 #include "Scene/Entities/Curves/IntersectionCurve.h"
+#include "Controls/EntityContextMenu.h"
 
 std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids,
                                                 const std::vector<unsigned int> &listContextOids)> > >
@@ -51,29 +52,19 @@ void IntersectionAwareSystem::CreateIntersectionCurveBetween(std::shared_ptr<Int
 
     QVector4D P0 = FindFirstPointOfIntersection(one, two);
 
-    bool edgeEnd;
+    bool edgeEndP, edgeEndN;
     std::list<QVector4D> negative_points;
     std::list<QVector4D> positive_points = FindFurtherPointsOfIntersection(P0, dialog->PointsSceneDistance(),
-                                                                           true, edgeEnd, one, two);
-    if (edgeEnd)//puszczamy w druga strone tylko jesli nie trafilismy na cykl
+                                                                           true, edgeEndP, one, two);
+    if (edgeEndP)//puszczamy w druga strone tylko jesli nie trafilismy na cykl
         negative_points = FindFurtherPointsOfIntersection(P0, dialog->PointsSceneDistance(), false,
-                                                          edgeEnd, one, two);
+                                                          edgeEndN, one, two);
+
+    qDebug() << "Found P0:" << P0 << ", positives:" << positive_points.size() << ", negatives:" << negative_points.size();
+    qDebug() << "edgeEndP:" << edgeEndP << ", edgeEndN:" << edgeEndN;
 
     if (auto scene = SceneECS::Instance().lock())
     {
-
-        /*
-        scene->AddObjectExplicitPosition(
-                std::make_shared<Point>("IntertsectionP0", one->SceneFunction(P0.toVector2D())));
-
-        int i = 0;
-        for (const auto &params: positive_points)
-            scene->AddObjectExplicitPosition(std::make_shared<Point>(QString("PositivePoints%0").arg(i++),
-                                                                     one->SceneFunction(params.toVector2D())));
-        for (const auto &params: negative_points)
-            scene->AddObjectExplicitPosition(std::make_shared<Point>(QString("NegativePoints%0").arg(i++),
-                                                                     one->SceneFunction(params.toVector2D())));
-                                                                     */
         std::vector<QVector2D> intersectionArgs;
         intersectionArgs.reserve(positive_points.size() + negative_points.size() + 1);
 
@@ -83,7 +74,13 @@ void IntersectionAwareSystem::CreateIntersectionCurveBetween(std::shared_ptr<Int
         for (const auto& arg : negative_points)
             intersectionArgs.push_back(arg.toVector2D());
 
-        scene->AddObject(std::make_shared<IntersectionCurve>("IntersectionCurve", intersectionArgs, one->SceneFunction));
+        auto curve = std::make_shared<IntersectionCurve>("IntersectionCurve", intersectionArgs, one->SceneFunction, !edgeEndP && !edgeEndN);
+        curve->p_Selected->Selected = true;
+
+        scene->AddObject(curve);
+
+        EntityContextMenu::MakeControlsUpdate(curve->GetObjectID());
+        EntityContextMenu::MakeRepaint();
     }
 }
 
@@ -110,10 +107,8 @@ QVector4D IntersectionAwareSystem::FindFirstPointOfIntersection(std::shared_ptr<
     };
 
     QVector4D startPoint = one->FindClosestPoints(two);
-    qDebug() << "Found startPoint " << startPoint;
-
     QVector4D P0_params = Optimization::SimpleGradientMethod(startPoint, func, grad);
-    qDebug() << "Found P0_params " << P0_params;
+
     if (P0_params.x() == NAN or !one->ArgumentsInsideDomain(P0_params.toVector2D()) or
         !two->ArgumentsInsideDomain({P0_params.z(), startPoint.w()}))
         qDebug() << "Error with result " << P0_params;
@@ -213,17 +208,15 @@ IntersectionAwareSystem::FindFurtherPointsOfIntersection(QVector4D P0, float dis
             break;
         }
 
+        auto temp1 = one->SceneFunction(cur_point.toVector2D());
+        auto temp2 = one->SceneFunction(P0.toVector2D());
         //Liczymy doc zasu jak nie zblizymy sie zbyt do punktu startowego na scenie oraz w dziedzinie parametrow
-        if (one->SceneFunction(cur_point.toVector2D()).distanceToPoint(
-                two->SceneFunction({cur_point.z(), cur_point.w()})) < dist &&
-            (cur_point - P0).length() < params_dist)
+        if (temp1.distanceToPoint(temp2) < dist * 0.7f) /*&&
+            (cur_point - P0).length() < params_dist)*/
             break;
 
         res.push_back(cur_point);
-        //qDebug() << "Found next point H(" << cur_point << ") = " << one->SceneFunction({cur_point.x(), cur_point.y()});
     } while (!edgeEnd);
 
-    qDebug() << "Found " << res.size() << "points";
-    qDebug() << "EdgeEnd:" << edgeEnd;
     return res;
 }

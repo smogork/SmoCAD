@@ -6,7 +6,7 @@
 #include "Scene/Utilities/Utilites.h"
 
 IntersectionCurve::IntersectionCurve(const QString &name, const std::vector<QVector2D> &intersectionPoints,
-                                     std::function<QVector3D(QVector2D args)> sceneFunction) : IEntity(
+                                     std::function<QVector3D(QVector2D args)> sceneFunction, bool isCycle) : IEntity(
         INTERSECTION_CURVE_CLASS)
 {
     AddComponent(p_Drawing = DynamicDrawing::CreateRegisteredComponent(GetObjectID()));
@@ -14,8 +14,8 @@ IntersectionCurve::IntersectionCurve(const QString &name, const std::vector<QVec
     AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(GetObjectID(), name, p_Selected));
 
     m_paramPoints = intersectionPoints;
-    m_pointCount = intersectionPoints.size();
     m_sceneFunction = sceneFunction;
+    m_cycle = isCycle;
 
     InitializeDrawing();
 
@@ -43,7 +43,7 @@ void IntersectionCurve::InitializeDrawing()
 
 void IntersectionCurve::DrawingFunction(QOpenGLContext *context)
 {
-    Renderer::DrawLineStrip(context->functions(), m_pointCount);
+    Renderer::DrawLineStrip(context->functions(), GetIndexCount());
 }
 
 void IntersectionCurve::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
@@ -65,5 +65,19 @@ std::vector<float> IntersectionCurve::GenerateGeometryVertices()
         res.push_back(p.z());
     }
 
+    if (m_cycle)
+    {
+        auto p = m_sceneFunction(m_paramPoints.front());
+        res.push_back(p.x());
+        res.push_back(p.y());
+        res.push_back(p.z());
+    }
+
     return res;
+}
+
+int IntersectionCurve::GetIndexCount()
+{
+    int res = m_paramPoints.size();
+    return m_cycle ? res + 1 : res;
 }

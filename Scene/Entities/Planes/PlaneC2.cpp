@@ -253,12 +253,13 @@ void PlaneC2::InitializeUV(bool isPipe)
 
 QVector3D PlaneC2::PlaneC2Func(QVector2D uv)
 {
+    if (!p_Intersection->ArgumentsInsideDomain(uv))
+        return {0, 0, 0};
+
+    uv = p_Intersection->WrapArgumentsAround(uv);
+
     int planeNumU = (int)uv.x();
     int planeNumV = (int)uv.y();
-
-    if (planeNumU < p_Intersection->UMin || planeNumU > p_Intersection->UMax ||
-        planeNumV < p_Intersection->VMin || planeNumV > p_Intersection->VMax)
-        return {0, 0, 0};
     
     float u = fmodf(uv.x(), 1);
     float v = fmodf(uv.y(), 1);
@@ -286,12 +287,13 @@ QVector3D PlaneC2::PlaneC2Func(QVector2D uv)
 
 QVector3D PlaneC2::PlaneC2FuncDerU(QVector2D uv)
 {
+    if (!p_Intersection->ArgumentsInsideDomain(uv))
+        return {0, 0, 0};
+
+    uv = p_Intersection->WrapArgumentsAround(uv);
+
     int planeNumU = (int)uv.x();
     int planeNumV = (int)uv.y();
-
-    if (planeNumU < p_Intersection->UMin || planeNumU > p_Intersection->UMax ||
-            planeNumV < p_Intersection->VMin || planeNumV > p_Intersection->VMax)
-        return {0, 0, 0};
     
     float u = fmodf(uv.x(), 1);
     float v = fmodf(uv.y(), 1);
@@ -320,12 +322,13 @@ QVector3D PlaneC2::PlaneC2FuncDerU(QVector2D uv)
 
 QVector3D PlaneC2::PlaneC2FuncDerV(QVector2D uv)
 {
+    if (!p_Intersection->ArgumentsInsideDomain(uv))
+        return {0, 0, 0};
+
+    uv = p_Intersection->WrapArgumentsAround(uv);
+
     int planeNumU = (int)uv.x();
     int planeNumV = (int)uv.y();
-
-    if (planeNumU < p_Intersection->UMin || planeNumU > p_Intersection->UMax ||
-        planeNumV < p_Intersection->VMin || planeNumV > p_Intersection->VMax)
-        return {0, 0, 0};
     
     float u = fmodf(uv.x(), 1);
     float v = fmodf(uv.y(), 1);

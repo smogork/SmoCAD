@@ -5,6 +5,7 @@
 #include "IntersectionAware.h"
 #include "Scene/SceneECS.h"
 #include "Scene/Systems/Awares/IntersectionAwareSystem.h"
+#include "Scene/Utilities/Utilites.h"
 
 std::shared_ptr<IntersectionAware>
 IntersectionAware::CreateRegisteredComponent(unsigned int oid, std::shared_ptr<UVParams> uv)
@@ -95,5 +96,16 @@ QVector2D IntersectionAware::FindClosestPoints(QVector3D pos, int density)
 
 bool IntersectionAware::ArgumentsInsideDomain(QVector2D args)
 {
-    return args.x() >= UMin and args.x() <= UMax and args.y() >= VMin and args.y() <= VMax;
+    args = WrapArgumentsAround(args);
+    float u = args.x(), v = args.y();
+
+    return u >= UMin and u <= UMax and v >= VMin and v <= VMax;
+}
+
+QVector2D IntersectionAware::WrapArgumentsAround(QVector2D args)
+{
+    float u = UWraps ? wrap(args.x(), UMin, UMax) : args.x();
+    float v = VWraps ? wrap(args.y(), VMin, VMax) : args.y();
+
+    return {u, v};
 }
