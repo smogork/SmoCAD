@@ -77,6 +77,7 @@ set(CONTROL_SOURCES
         Controls/uvplanecreatorcontrol.h Controls/uvplanecreatorcontrol.cpp Controls/uvplanecreatorcontrol.ui
         Controls/EntityContextMenu.cpp Controls/EntityContextMenu.h
         Controls/Dialogs/intersectiondialog.h Controls/Dialogs/intersectiondialog.cpp Controls/Dialogs/intersectiondialog.ui
+        Controls/Dialogs/parametersintersectiondialog.h Controls/Dialogs/parametersintersectiondialog.cpp Controls/Dialogs/parametersintersectiondialog.ui
         )
 
 set(PROJECT_SOURCES

@@ -30,6 +30,9 @@ protected:
     FindFurtherPointsOfIntersection(QVector4D P0, float dist, bool direction, bool& edgeEnd, std::shared_ptr<IntersectionAware> one,
                                     std::shared_ptr<IntersectionAware> two);
 
+    QVector4D WrapPointAround(const QVector4D& p, std::shared_ptr<IntersectionAware> one,
+    std::shared_ptr<IntersectionAware> two);
+
 };
 
 #endif //SMOCAD_INTERSECTIONAWARESYSTEM_H

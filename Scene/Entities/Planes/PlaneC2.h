@@ -27,6 +27,7 @@ protected:
     int GetIndexCount() override;
     int GetVertexCount(bool isPipe);
     void GetIndexesOfPatch(int uPatch, int vPatch, std::vector<int>& indices);
+    void DrawingFunction(QOpenGLContext* context);
 
     void SerializingFunction(MG1::Scene& scene);
     void InitializeUV(bool isPipe);

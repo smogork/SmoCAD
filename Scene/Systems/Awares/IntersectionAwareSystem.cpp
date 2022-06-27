@@ -4,6 +4,7 @@
 
 #include "IntersectionAwareSystem.h"
 #include "Controls/Dialogs/intersectiondialog.h"
+#include "Controls/Dialogs/parametersintersectiondialog.h"
 #include "Mathematics/Optimization.h"
 #include "Scene/SceneECS.h"
 #include "Scene/Entities/Curves/IntersectionCurve.h"
@@ -65,22 +66,33 @@ void IntersectionAwareSystem::CreateIntersectionCurveBetween(std::shared_ptr<Int
 
     if (auto scene = SceneECS::Instance().lock())
     {
-        std::vector<QVector2D> intersectionArgs;
+        std::vector<QVector4D> intersectionArgs;
         intersectionArgs.reserve(positive_points.size() + negative_points.size() + 1);
 
         for (auto it = positive_points.rbegin(); it != positive_points.rend(); ++it)
-            intersectionArgs.push_back((*it).toVector2D());
-        intersectionArgs.push_back(P0.toVector2D());
+            intersectionArgs.push_back(*it);
+        intersectionArgs.push_back(P0);
         for (const auto& arg : negative_points)
-            intersectionArgs.push_back(arg.toVector2D());
+            intersectionArgs.push_back(arg);
 
-        auto curve = std::make_shared<IntersectionCurve>("IntersectionCurve", intersectionArgs, one->SceneFunction, !edgeEndP && !edgeEndN);
+        auto curve = std::make_shared<IntersectionCurve>("IntersectionCurve", intersectionArgs, one->SceneFunction, two->SceneFunction, !edgeEndP && !edgeEndN);
         curve->p_Selected->Selected = true;
 
-        scene->AddObject(curve);
+        QImage oneTex = curve->GetTrimmingTextureOne(one);
+        QImage twoTex = curve->GetTrimmingTextureTwo(two);
 
+        one->TrimTexture = std::make_shared<QOpenGLTexture>(oneTex.mirrored());
+        two->TrimTexture = std::make_shared<QOpenGLTexture>(twoTex.mirrored());
+
+        scene->AddObject(curve);
         EntityContextMenu::MakeControlsUpdate(curve->GetObjectID());
         EntityContextMenu::MakeRepaint();
+
+        //[TODO] do wyniesienia do oddzielnego guziczka
+        std::unique_ptr<ParametersIntersectionDialog> params = std::make_unique<ParametersIntersectionDialog>();
+        params->SetParamTextures(oneTex, twoTex);
+
+        params->exec();
     }
 }
 
@@ -113,7 +125,8 @@ QVector4D IntersectionAwareSystem::FindFirstPointOfIntersection(std::shared_ptr<
         !two->ArgumentsInsideDomain({P0_params.z(), startPoint.w()}))
         qDebug() << "Error with result " << P0_params;
 
-    return P0_params;
+    return WrapPointAround(P0_params, one, two);
+    //return P0_params;
 }
 
 std::list<QVector4D>
@@ -215,8 +228,18 @@ IntersectionAwareSystem::FindFurtherPointsOfIntersection(QVector4D P0, float dis
             (cur_point - P0).length() < params_dist)*/
             break;
 
-        res.push_back(cur_point);
+        res.push_back(WrapPointAround(cur_point, one, two));
+        //res.push_back(cur_point);
     } while (!edgeEnd);
 
     return res;
+}
+
+QVector4D IntersectionAwareSystem::WrapPointAround(const QVector4D &p, std::shared_ptr<IntersectionAware> one,
+                                                   std::shared_ptr<IntersectionAware> two)
+{
+    auto oneWrap = one->WrapArgumentsAround({p.x(), p.y()});
+    auto twoWrap = two->WrapArgumentsAround({p.z(), p.w()});
+
+    return {oneWrap.x(), oneWrap.y(), twoWrap.x(), twoWrap.y()};
 }

@@ -194,6 +194,7 @@ void PlaneC2::InitObject(const QString &name, bool isPipe, int countU, int count
     AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(GetObjectID(), name, p_Selected));
     AddComponent(p_Intersection = IntersectionAware::CreateRegisteredComponent(GetObjectID(), p_UV));
     InitializeUV(isPipe);
+    p_Drawing->p_renderingFunction = ASSIGN_DRAWING_FUNCTION(&PlaneC2::DrawingFunction);
 
     p_SceneElement->SerializeObject = ASSIGN_SERIALIZER_FUNCTION(&PlaneC2::SerializingFunction);
 
@@ -364,4 +365,11 @@ std::vector<QVector3D> PlaneC2::FromBSplineToBernstein(const std::vector<QVector
     bernsteinPoints[3] = 1.0f / 6.0f * bspline[1] + 2.0f / 3.0f * bspline[2] + 1.0f / 6.0f * bspline[3];
     
     return bernsteinPoints;
+}
+
+void PlaneC2::DrawingFunction(QOpenGLContext *context)
+{
+    if (p_Intersection->TrimTexture)
+        p_Intersection->TrimTexture->bind();
+    BasePlane::DrawingFunction(context);
 }

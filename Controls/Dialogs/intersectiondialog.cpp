@@ -12,3 +12,18 @@ IntersectionDialog::~IntersectionDialog()
 {
     delete ui;
 }
+
+float IntersectionDialog::PointsSceneDistance()
+{
+    return ui->doubleSpinBox->value();
+}
+
+bool IntersectionDialog::StartFromCursor()
+{
+    return ui->chkCursorStart->isChecked();
+}
+
+int IntersectionDialog::SearchingStartDensity()
+{
+    return 10;
+}

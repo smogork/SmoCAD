@@ -15,9 +15,9 @@ public:
     explicit IntersectionDialog(QWidget *parent = nullptr);
     ~IntersectionDialog();
 
-    float PointsSceneDistance() { return 0.1f; }//[TODO] dodac wyciaganie danych z UI
-    bool StartFromCursor() { return false; }
-    int SearchingStartDensity() { return 10; }
+    float PointsSceneDistance();
+    bool StartFromCursor();
+    int SearchingStartDensity();
 
 private:
     Ui::IntersectionDialog *ui;

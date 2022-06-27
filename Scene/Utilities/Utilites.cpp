@@ -17,6 +17,14 @@ float wrap(float v, float min, float max)
     return fmodf(v - i * m , m) + min;
 }
 
+int wrap(int v, int min, int max)
+{
+    v = v - min;
+    int m = max - min;
+    int i = v / m;
+    return ((v - i * m) % m) + min;
+}
+
 MG1::Float3 SerializeQVector3D(QVector3D v)
 {
     MG1::Float3 res;

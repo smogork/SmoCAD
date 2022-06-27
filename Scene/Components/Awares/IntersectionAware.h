@@ -8,6 +8,8 @@
 #include "Scene/Components/IComponent.h"
 #include "Scene/Components/UVParams.h"
 
+#include <QOpenGLTexture>
+
 #define ASSIGN_UV_FUNCTION(F)  std::bind(F, this, std::placeholders::_1)
 
 class IntersectionAware: public IComponent
@@ -17,6 +19,7 @@ public:
     QProperty<bool> UWraps, VWraps;
     QProperty<float> UMin, UMax;
     QProperty<float> VMin, VMax;
+    std::shared_ptr<QOpenGLTexture> TrimTexture;
     std::function<QVector3D(QVector2D uv)> SceneFunction;
     std::function<QVector3D(QVector2D uv)> SceneFunctionDerU;
     std::function<QVector3D(QVector2D uv)> SceneFunctionDerV;
