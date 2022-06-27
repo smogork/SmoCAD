@@ -217,8 +217,8 @@ void PlaneC0::InitObject(const QString &name, bool isPipe, int countU, int count
                                                                 PlaneColor = DefaultColor;
                                                         });
     MeshColor = Qt::darkGreen;
-    
 
+    p_Intersection->TrimTexture = std::make_shared<QOpenGLTexture>(QImage({512, 512}, QImage::Format_Mono));
 }
 
 void PlaneC0::InitializeUV(bool isPipe)
@@ -345,6 +345,13 @@ void PlaneC0::GetIndexesOfPatch(int uPatch, int vPatch, std::vector<int>& indice
             int hIdx = vPatch * (PATCH_SIZE - 1) + i;
             indices[idx_counter++] = hIdx * index_width + (wIdx % index_width);
         }
+}
+
+void PlaneC0::DrawingFunction(QOpenGLContext *context)
+{
+    if (p_Intersection->TrimTexture)
+        p_Intersection->TrimTexture->bind();
+    BasePlane::DrawingFunction(context);
 }
 
 

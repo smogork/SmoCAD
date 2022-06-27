@@ -33,6 +33,7 @@ protected:
     std::vector<int> GenerateTopologyIndices() override;
     int GetIndexCount() override;
     int GetVertexCount(bool isPipe);
+    void DrawingFunction(QOpenGLContext* context);
     void GetIndexesOfPatch(int uPatch, int vPatch, std::vector<int>& indices);
 
     void SerializingFunction(MG1::Scene& scene);

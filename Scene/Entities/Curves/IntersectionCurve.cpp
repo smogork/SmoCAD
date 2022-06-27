@@ -123,6 +123,7 @@ QImage IntersectionCurve::GetTrimmingTexture(const std::vector<QVector2D> &point
             wrapY = true;
 
         //Jezeli sie zapetlamy, to narysuj dwukrotnie
+        //TODO: pozbadz sie hardokodowanego rozmiaru tekstury
         if (wrapX)
         {
             if (x1 > size / 2)

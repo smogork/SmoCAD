@@ -36,10 +36,10 @@ PlaneC2::PlaneC2(const QString &name, bool isPipe, int countU, int countV): Base
 
 std::vector<float> PlaneC2::GenerateGeometryVertices()
 {
-    std::vector<float> res (3 * p_Collection->Size());
+    std::vector<float> res(3 * p_Collection->Size());
 
     int i = 0;
-    for (const std::weak_ptr<Transform>& pw : p_Collection->GetPoints())
+    for (const std::weak_ptr<Transform> &pw: p_Collection->GetPoints())
         if (auto p = pw.lock())
         {
             res[3 * i] = (*p->Position).x();
@@ -195,6 +195,7 @@ void PlaneC2::InitObject(const QString &name, bool isPipe, int countU, int count
     AddComponent(p_Intersection = IntersectionAware::CreateRegisteredComponent(GetObjectID(), p_UV));
     InitializeUV(isPipe);
     p_Drawing->p_renderingFunction = ASSIGN_DRAWING_FUNCTION(&PlaneC2::DrawingFunction);
+    p_Drawing->p_uniformFunction = ASSIGN_UNIFORM_FUNCTION(&PlaneC2::UniformFunction);
 
     p_SceneElement->SerializeObject = ASSIGN_SERIALIZER_FUNCTION(&PlaneC2::SerializingFunction);
 
@@ -218,7 +219,8 @@ void PlaneC2::InitObject(const QString &name, bool isPipe, int countU, int count
     });
     MeshColor = Qt::darkYellow;
     
-
+    //p_Intersection->TrimTexture = std::make_shared<QOpenGLTexture>(QImage({512, 512}, QImage::Format_ARGB32));
+    //p_Intersection->TrimTexture->setFormat(QOpenGLTexture::RGBA32F);
 }
 
 void PlaneC2::GetIndexesOfPatch(int uPatch, int vPatch, std::vector<int> &indices)
@@ -369,7 +371,16 @@ std::vector<QVector3D> PlaneC2::FromBSplineToBernstein(const std::vector<QVector
 
 void PlaneC2::DrawingFunction(QOpenGLContext *context)
 {
-    if (p_Intersection->TrimTexture)
-        p_Intersection->TrimTexture->bind();
     BasePlane::DrawingFunction(context);
 }
+
+void PlaneC2::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
+{
+    BasePlane::UniformFunction(shader);
+    if (p_Intersection->TrimTexture and p_Intersection->TrimTexture->isCreated())
+    {
+        p_Intersection->TrimTexture->bind(0, QOpenGLTexture::ResetTextureUnit);
+        shader->SetUniform("trimTexture", 0);
+    }
+}
+

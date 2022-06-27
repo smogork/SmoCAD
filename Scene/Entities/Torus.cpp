@@ -189,6 +189,11 @@ void Torus::InitializeUV()
 
 QVector3D Torus::TorusFunc(QVector2D uv)
 {
+    if (!p_Intersection->ArgumentsInsideDomain(uv))
+        return {0, 0, 0};
+
+    uv = p_Intersection->WrapArgumentsAround(uv);
+
     return (p_Transform->GetModelMatrix() *
             QVector4D(
             (p_UV->U + p_UV->V * cos(uv.y())) * cos(uv.x()),
@@ -199,6 +204,11 @@ QVector3D Torus::TorusFunc(QVector2D uv)
 
 QVector3D Torus::TorusFuncDerU(QVector2D uv)
 {
+    if (!p_Intersection->ArgumentsInsideDomain(uv))
+        return {0, 0, 0};
+
+    uv = p_Intersection->WrapArgumentsAround(uv);
+
     return (p_Transform->GetModelMatrix() *
             QVector4D(
             -(p_UV->U + p_UV->V * cos(uv.y())) * sin(uv.x()),
@@ -209,6 +219,11 @@ QVector3D Torus::TorusFuncDerU(QVector2D uv)
 
 QVector3D Torus::TorusFuncDerV(QVector2D uv)
 {
+    if (!p_Intersection->ArgumentsInsideDomain(uv))
+        return {0, 0, 0};
+
+    uv = p_Intersection->WrapArgumentsAround(uv);
+
     return (p_Transform->GetModelMatrix() *
             QVector4D(
             - p_UV->V * sin(uv.y()) * cos(uv.x()),

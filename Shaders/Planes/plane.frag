@@ -1,9 +1,13 @@
 #version 440 core
 out vec4 FragColor;
+
+in vec2 TexCoord;
+
 uniform vec4 u_ObjectColor;
+uniform sampler2D trimTexture;
 
 void main()
 {
-    FragColor = u_ObjectColor;
-    //FragColor = (1.0f, 1.0f, 0.0f, 1.0f);
+    float alpha = texture2D(trimTexture, TexCoord).r;
+    FragColor = vec4(u_ObjectColor.rgb, alpha);
 }

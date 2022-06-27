@@ -2,6 +2,11 @@
 
 layout (quads, equal_spacing, ccw) in;
 
+uniform int u_UPatch;
+uniform int u_VPatch;
+
+out vec2 TexCoord;
+
 struct MVP
 {
     mat4 Model;
@@ -47,6 +52,9 @@ vec4[4] bspline_to_bernstein(vec4[4] array)
 
 void main()
 {
+    vec2 patchUV = vec2(gl_PrimitiveID % u_UPatch, gl_PrimitiveID / u_UPatch);
+    TexCoord = (gl_TessCoord.xy + patchUV) / vec2(u_UPatch, u_VPatch);
+
     float u = gl_TessCoord.x;
     float v = gl_TessCoord.y;
 
