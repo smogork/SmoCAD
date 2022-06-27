@@ -219,7 +219,7 @@ void PlaneC2::InitObject(const QString &name, bool isPipe, int countU, int count
     });
     MeshColor = Qt::darkYellow;
     
-    //p_Intersection->TrimTexture = std::make_shared<QOpenGLTexture>(QImage({512, 512}, QImage::Format_ARGB32));
+    p_Intersection->TrimTexture = std::make_shared<QOpenGLTexture>(QImage({512, 512}, QImage::Format_ARGB32));
     //p_Intersection->TrimTexture->setFormat(QOpenGLTexture::RGBA32F);
 }
 
