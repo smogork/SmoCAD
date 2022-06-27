@@ -9,6 +9,7 @@
 #include "Scene/Components/Selectable.h"
 #include "Scene/Components/SceneElement.h"
 #include "Scene/Entities/Points/Point.h"
+#include "Scene/Components/Awares/IntersectionAware.h"
 
 class PlaneC2: public BasePlane
 {
@@ -25,12 +26,21 @@ protected:
     std::vector<int> GenerateTopologyIndices() override;
     int GetIndexCount() override;
     int GetVertexCount(bool isPipe);
+    void GetIndexesOfPatch(int uPatch, int vPatch, std::vector<int>& indices);
+    void DrawingFunction(QOpenGLContext* context);
 
     void SerializingFunction(MG1::Scene& scene);
+    void InitializeUV(bool isPipe);
+    static std::vector<QVector3D> FromBSplineToBernstein(const std::vector<QVector3D>& bspline);
+    
+    QVector3D PlaneC2Func(QVector2D uv);
+    QVector3D PlaneC2FuncDerU(QVector2D uv);
+    QVector3D PlaneC2FuncDerV(QVector2D uv);
 
 public:
     std::shared_ptr<Selectable> p_Selected;
     std::shared_ptr<SceneElement> p_SceneElement;
+    std::shared_ptr<IntersectionAware> p_Intersection;
 
     PlaneC2(const QString& name, bool isPipe, int countU, int countV);
     explicit PlaneC2(const MG1::BezierSurfaceC2 &p2);

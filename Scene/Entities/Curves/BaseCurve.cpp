@@ -6,7 +6,7 @@
 #include "Scene/Utilities/Utilites.h"
 #include "Renderer/Options.h"
 #include "Scene/SceneECS.h"
-#include "Scene/Systems/CollectionAwareSystem.h"
+#include "Scene/Systems/Awares/CollectionAwareSystem.h"
 #include "ThirdParty/Scene-Serializer/cpp/Serializer/Serializer/Scene/SerializerException.h"
 
 BaseCurve::BaseCurve(unsigned int cid) : IEntity(cid)

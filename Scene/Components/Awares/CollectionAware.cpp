@@ -4,7 +4,7 @@
 
 #include "CollectionAware.h"
 #include "Scene/SceneECS.h"
-#include "Scene/Systems/CollectionAwareSystem.h"
+#include "Scene/Systems/Awares/CollectionAwareSystem.h"
 #include "Scene/Utilities/Utilites.h"
 
 std::shared_ptr<CollectionAware>

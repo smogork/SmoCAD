@@ -6,7 +6,8 @@
 #include "Scene/SceneECS.h"
 #include "Mathematics/PointShapes.h"
 #include "ThirdParty/Scene-Serializer/cpp/Serializer/Serializer/Scene/SerializerException.h"
-#include "Scene/Systems/CollectionAwareSystem.h"
+#include "Scene/Systems/Awares/CollectionAwareSystem.h"
+#include "Mathematics/Polynomials.h"
 
 void PlaneC2::OnSinglePointModified(QVector3D pos, unsigned int changedOID)
 {
@@ -54,20 +55,16 @@ std::vector<int> PlaneC2::GenerateTopologyIndices()
 {
     std::vector<int> res(GetIndexCount());
     int res_idx = 0;
-
-    int index_width =  p_UV->U + (PATCH_SIZE - 1);
-    if (p_UV->UWraps)
-        index_width -= PATCH_SIZE - 1;
+    
+    std::vector<int> patch_indices(16);
     for (int h = 0; h < p_UV->V; ++h)//height
         for (int w = 0; w < p_UV->U; ++w)//width
-            for (int i = 0; i < PATCH_SIZE; ++i)//height
-                for (int j = 0; j < PATCH_SIZE; ++j)//width
-                {
-                    int wIdx = w  + j;
-                    int hIdx = h  + i;
-                    res[res_idx++] = hIdx * index_width + (wIdx % index_width);
-                }
-
+        {
+            GetIndexesOfPatch(w, h, patch_indices);
+            for (int idx : patch_indices)
+                res[res_idx++] = idx;
+        }
+    
     return res;
 }
 
@@ -107,8 +104,8 @@ void PlaneC2::SerializingFunction(MG1::Scene &scene)
     MG1::BezierSurfaceC2 p2;
     p2.SetId(GetObjectID());
     p2.name = p_SceneElement->Name.value().toStdString();
-    p2.uWrapped = p_UV->UWraps;
-    p2.vWrapped = p_UV->VWraps;
+    p2.uWrapped = p_Intersection->UWraps;
+    p2.vWrapped = p_Intersection->VWraps;
     p2.size.x = p_UV->U;
     p2.size.y = p_UV->V;
 
@@ -144,7 +141,7 @@ PlaneC2::PlaneC2(const MG1::BezierSurfaceC2 &p2): BasePlane(PLANEC2_CLASS, p2.Ge
 
     p_UV->LockEditUV(false);
     p_Collection->LockContent(false);
-    p_UV->VWraps = p2.vWrapped;
+    p_Intersection->VWraps = p2.vWrapped;
 
     if (p2.patches.size() == 0)
         throw MG1::SerializerException("Error while deserializing Surface without patches");
@@ -155,7 +152,7 @@ PlaneC2::PlaneC2(const MG1::BezierSurfaceC2 &p2): BasePlane(PLANEC2_CLASS, p2.Ge
 
 
     auto indices = GenerateTopologyIndices();
-    std::vector<std::shared_ptr<CollectionAware>> points(GetVertexCount(p_UV->UWraps));
+    std::vector<std::shared_ptr<CollectionAware>> points(GetVertexCount(p_Intersection->UWraps));
 
     //[TODO] zrobic wspolna deserializacje patchy na podstawie tablicy indeksow oraz punktow
     if (auto scene = SceneECS::Instance().lock())
@@ -195,6 +192,9 @@ void PlaneC2::InitObject(const QString &name, bool isPipe, int countU, int count
 {
     AddComponent(p_Selected = Selectable::CreateRegisteredComponent(GetObjectID()));
     AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(GetObjectID(), name, p_Selected));
+    AddComponent(p_Intersection = IntersectionAware::CreateRegisteredComponent(GetObjectID(), p_UV));
+    InitializeUV(isPipe);
+    p_Drawing->p_renderingFunction = ASSIGN_DRAWING_FUNCTION(&PlaneC2::DrawingFunction);
 
     p_SceneElement->SerializeObject = ASSIGN_SERIALIZER_FUNCTION(&PlaneC2::SerializingFunction);
 
@@ -217,4 +217,159 @@ void PlaneC2::InitObject(const QString &name, bool isPipe, int countU, int count
             PlaneColor = DefaultColor;
     });
     MeshColor = Qt::darkYellow;
+    
+
+}
+
+void PlaneC2::GetIndexesOfPatch(int uPatch, int vPatch, std::vector<int> &indices)
+{
+    int index_width =  p_UV->U + (PATCH_SIZE - 1);
+    if (p_Intersection->UWraps)
+        index_width -= PATCH_SIZE - 1;
+    
+    int idx_counter = 0;
+    for (int i = 0; i < PATCH_SIZE; ++i)//height
+        for (int j = 0; j < PATCH_SIZE; ++j)//width
+        {
+            int wIdx = uPatch  + j;
+            int hIdx = vPatch  + i;
+            indices[idx_counter++] = hIdx * index_width + (wIdx % index_width);
+        }
+}
+
+void PlaneC2::InitializeUV(bool isPipe)
+{
+    p_Intersection->SceneFunction = ASSIGN_UV_FUNCTION(&PlaneC2::PlaneC2Func);
+    p_Intersection->SceneFunctionDerU = ASSIGN_UV_FUNCTION(&PlaneC2::PlaneC2FuncDerU);
+    p_Intersection->SceneFunctionDerV = ASSIGN_UV_FUNCTION(&PlaneC2::PlaneC2FuncDerV);
+
+
+    p_Intersection->UWraps = isPipe;
+    p_Intersection->VWraps = false;
+    p_Intersection->UMin = 0;
+    p_Intersection->VMin = 0;
+    p_Intersection->UMax = p_UV->U.value();
+    p_Intersection->VMax = p_UV->V.value();
+}
+
+QVector3D PlaneC2::PlaneC2Func(QVector2D uv)
+{
+    if (!p_Intersection->ArgumentsInsideDomain(uv))
+        return {0, 0, 0};
+
+    uv = p_Intersection->WrapArgumentsAround(uv);
+
+    int planeNumU = (int)uv.x();
+    int planeNumV = (int)uv.y();
+    
+    float u = fmodf(uv.x(), 1);
+    float v = fmodf(uv.y(), 1);
+    
+    std::vector<int> patch_indices(16);
+    std::vector<QVector3D> patch_points(16);
+    std::vector<QVector3D> control_points(4), mid_values(4);
+    GetIndexesOfPatch(planeNumU, planeNumV, patch_indices);
+    
+    auto points = p_Collection->GetVectorCoords();
+    for (int i = 0; i < 16; ++i)
+        patch_points[i] = points[patch_indices[i]];
+    
+    for (int i = 0; i < 4; ++i)
+    {
+        Polynomials::LoadControlPointsRow(i, patch_points, control_points);
+        auto bernstein = FromBSplineToBernstein(control_points);
+        mid_values[i] = Polynomials::deCasteljau(u, bernstein);
+    }
+    auto mid_bernstein = FromBSplineToBernstein(mid_values);
+    QVector3D pos = Polynomials::deCasteljau(v, mid_bernstein);
+    
+    return pos;
+}
+
+QVector3D PlaneC2::PlaneC2FuncDerU(QVector2D uv)
+{
+    if (!p_Intersection->ArgumentsInsideDomain(uv))
+        return {0, 0, 0};
+
+    uv = p_Intersection->WrapArgumentsAround(uv);
+
+    int planeNumU = (int)uv.x();
+    int planeNumV = (int)uv.y();
+    
+    float u = fmodf(uv.x(), 1);
+    float v = fmodf(uv.y(), 1);
+    
+    std::vector<int> patch_indices(16);
+    std::vector<QVector3D> patch_points(16);
+    std::vector<QVector3D> control_points(4), mid_values(4);
+    GetIndexesOfPatch(planeNumU, planeNumV, patch_indices);
+    
+    auto points = p_Collection->GetVectorCoords();
+    for (int i = 0; i < 16; ++i)
+        patch_points[i] = points[patch_indices[i]];
+    
+    for (int i = 0; i < 4; ++i)
+    {
+        Polynomials::LoadControlPointsCol(i, patch_points, control_points);
+        auto bernstein = FromBSplineToBernstein(control_points);
+        mid_values[i] = Polynomials::deCasteljau(v, bernstein);
+    }
+    auto mid_bernstein = FromBSplineToBernstein(mid_values);
+    auto derUPoly = Polynomials::deCasteljauDerK(1, mid_bernstein);
+    QVector3D derU = Polynomials::deCasteljau(u, derUPoly);
+    
+    return derU;
+}
+
+QVector3D PlaneC2::PlaneC2FuncDerV(QVector2D uv)
+{
+    if (!p_Intersection->ArgumentsInsideDomain(uv))
+        return {0, 0, 0};
+
+    uv = p_Intersection->WrapArgumentsAround(uv);
+
+    int planeNumU = (int)uv.x();
+    int planeNumV = (int)uv.y();
+    
+    float u = fmodf(uv.x(), 1);
+    float v = fmodf(uv.y(), 1);
+    
+    std::vector<int> patch_indices(16);
+    std::vector<QVector3D> patch_points(16);
+    std::vector<QVector3D> control_points(4), mid_values(4);
+    GetIndexesOfPatch(planeNumU, planeNumV, patch_indices);
+    
+    auto points = p_Collection->GetVectorCoords();
+    for (int i = 0; i < 16; ++i)
+        patch_points[i] = points[patch_indices[i]];
+    
+    for (int i = 0; i < 4; ++i)
+    {
+        Polynomials::LoadControlPointsRow(i, patch_points, control_points);
+        auto bernstein = FromBSplineToBernstein(control_points);
+        mid_values[i] = Polynomials::deCasteljau(u, bernstein);
+    }
+    auto mid_bernstein = FromBSplineToBernstein(mid_values);
+    auto derVPoly = Polynomials::deCasteljauDerK(1, mid_bernstein);
+    QVector3D derV = Polynomials::deCasteljau(v, derVPoly);
+    
+    return derV;
+}
+
+std::vector<QVector3D> PlaneC2::FromBSplineToBernstein(const std::vector<QVector3D>& bspline)
+{
+    std::vector<QVector3D> bernsteinPoints(4);
+    bernsteinPoints[0] = 1.0f / 6.0f * bspline[0] + 2.0f / 3.0f * bspline[1] + 1.0f / 6.0f * bspline[2];
+    bernsteinPoints[1] = 2.0f / 3.0f * bspline[1] + 1.0f / 3.0f * bspline[2];
+    bernsteinPoints[2] = 1.0f / 3.0f * bspline[1] + 2.0f / 3.0f * bspline[2];
+    bernsteinPoints[3] = 1.0f / 6.0f * bspline[1] + 2.0f / 3.0f * bspline[2] + 1.0f / 6.0f * bspline[3];
+    
+    return bernsteinPoints;
+}
+
+void PlaneC2::DrawingFunction(QOpenGLContext *context)
+{
+    if (p_Intersection->TrimTexture)
+        p_Intersection->TrimTexture->bind();
+    BasePlane::DrawingFunction(context);
 }

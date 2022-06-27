@@ -8,7 +8,7 @@
 #include "Scene/Scene.h"
 #include "Scene/Entities/Curves/BezierC2.h"
 #include "Scene/Entities/Curves/BezierC0.h"
-#include "CollectionAwareSystem.h"
+#include "Scene/Systems/Awares/CollectionAwareSystem.h"
 #include "Scene/Entities/Curves/InterpolationC2.h"
 #include "Controls/EntityContextMenu.h"
 #include "Scene/Utilities/Utilites.h"

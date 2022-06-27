@@ -9,7 +9,7 @@
 #include "Scene/Entities/Curves/BezierC2.h"
 #include "Scene/Entities/Curves/InterpolationC2.h"
 #include "Controls/EntityContextMenu.h"
-#include "TransformCollectionSystem.h"
+#include "Scene/Systems/TransformCollectionSystem.h"
 
 std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids,
                                                 const std::vector<unsigned int> &listContextOids)> > >

@@ -50,13 +50,6 @@ bool InterpolationC2Test::TestInterpolationResultC2(std::vector<QVector3D> &knot
     return true;
 }
 
-bool InterpolationC2Test::QVector3DAlmostEquals(QVector3D one, QVector3D two)
-{
-    return (std::abs(one.x() - two.x()) < feps) and
-            (std::abs(one.y() - two.y()) < feps) and
-            (std::abs(one.z() - two.z()) < feps);
-}
-
 std::vector<double> InterpolationC2Test::CountDistance(std::vector<QVector3D> &knots)
 {
     std::vector<double> distance(knots.size() - 1);

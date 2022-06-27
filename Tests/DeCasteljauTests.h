@@ -5,13 +5,11 @@
 #ifndef SMOCAD_DECASTELJAUTESTS_H
 #define SMOCAD_DECASTELJAUTESTS_H
 
-#include <gtest/gtest.h>
 #include <QVector3D>
+#include "CommonTestClass.h"
 
-class DeCasteljauTests: public testing::Test
+class DeCasteljauTests: public CommonTestClass
 {
-    const float feps = 1e-6;
-
 public:
     DeCasteljauTests( ) {
         // initialization;
@@ -31,8 +29,6 @@ public:
     ~DeCasteljauTests( ) override {
         //resources cleanup, no exceptions allowed
     }
-    
-    bool QVector3DAlmostEquals(QVector3D one, QVector3D two);
 };
 
 #endif //SMOCAD_DECASTELJAUTESTS_H

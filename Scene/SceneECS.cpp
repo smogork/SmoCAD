@@ -3,29 +3,35 @@
 //
 
 #include "SceneECS.h"
+
 #include "Scene/Systems/DrawingSystem.h"
 #include "Scene/Systems/TransformSystem.h"
 #include "Scene/Systems/UVParamsSystem.h"
-#include "Scene/Entities/Cursor.h"
 #include "Scene/Systems/SelectableSystem.h"
-#include "Scene/Systems/CompositeAwareSystem.h"
-#include "Scene/Systems/CollectionAwareSystem.h"
+#include "Scene/Systems/Awares/CompositeAwareSystem.h"
+#include "Scene/Systems/Awares/CollectionAwareSystem.h"
 #include "Scene/Systems/TransformCollectionSystem.h"
-#include "Controls/ComponentControl.h"
 #include "Scene/Systems/ScreenSelectableSystem.h"
-#include "Scene/Entities/Planes/PlaneCreator.h"
 #include "Scene/Systems/UvPlaneCreatorSystem.h"
-#include "Serializer.h"
+#include "Scene/Systems/MergeSystem.h"
+#include "Scene/Systems/Awares/FillAwareSystem.h"
+#include "Scene/Systems/Awares/IntersectionAwareSystem.h"
+
+#include "Scene/Entities/Cursor.h"
 #include "Scene/Entities/Torus.h"
 #include "Scene/Entities/Curves/BezierC0.h"
 #include "Scene/Entities/Curves/InterpolationC2.h"
 #include "Scene/Entities/Curves/BezierC2.h"
 #include "Scene/Entities/Planes/PlaneC2.h"
 #include "Scene/Entities/SelectRectangle.h"
+#include "Scene/Entities/Planes/PlaneCreator.h"
+
+#include "Controls/ComponentControl.h"
+
+#include "Serializer.h"
 #include "mainwindow.h"
 #include "glwidget.h"
-#include "Scene/Systems/MergeSystem.h"
-#include "Scene/Systems/FillAwareSystem.h"
+
 #include <list>
 
 std::shared_ptr<SceneECS> SceneECS::scene = nullptr;
@@ -63,6 +69,8 @@ SceneECS::SceneECS()
             std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<MergeSystem>()));
     systems.put<FillAwareSystem>(
             std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<FillAwareSystem>()));
+    systems.put<IntersectionAwareSystem>(
+            std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<IntersectionAwareSystem>()));
 }
 
 SceneECS::~SceneECS()

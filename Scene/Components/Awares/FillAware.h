@@ -5,8 +5,8 @@
 #ifndef SMOCAD_FILLAWARE_H
 #define SMOCAD_FILLAWARE_H
 
-#include "IComponent.h"
-#include "TransformCollection.h"
+#include "Scene/Components/IComponent.h"
+#include "Scene/Components/TransformCollection.h"
 
 enum class FillEdge
 {

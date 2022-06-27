@@ -4,7 +4,7 @@
 
 #include "BezierC0.h"
 #include "Scene/SceneECS.h"
-#include "Scene/Systems/CollectionAwareSystem.h"
+#include "Scene/Systems/Awares/CollectionAwareSystem.h"
 #include "ThirdParty/Scene-Serializer/cpp/Serializer/Serializer/Scene/SerializerException.h"
 
 BezierC0::BezierC0(const QString &name): VirtualBezierC0()

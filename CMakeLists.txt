@@ -21,6 +21,8 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS OpenGLWidgets REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS 3DCore REQUIRED)
+#find_package(GSL REQUIRED)    # See below (2)
+
 
 set(TS_FILES SmoCAD_en_GB.ts)
 set(SHADER_FILES
@@ -57,7 +59,8 @@ set(MATH_FILES
         Mathematics/f2c.h
         Mathematics/GeometryRelation.cpp Mathematics/GeometryRelation.h
         Mathematics/PointShapes.cpp Mathematics/PointShapes.h
-        Mathematics/Polynomials.cpp Mathematics/Polynomials.h)
+        Mathematics/Polynomials.cpp Mathematics/Polynomials.h
+        Mathematics/Optimization.cpp Mathematics/Optimization.h)
 
 set(CONTROL_SOURCES
         mainwindow.cpp mainwindow.h mainwindow.ui
@@ -72,7 +75,10 @@ set(CONTROL_SOURCES
         Controls/ListElements/QListWidgetCollectionElement.cpp Controls/ListElements/QListWidgetCollectionElement.h
         Controls/stereoscopicconfig.h Controls/stereoscopicconfig.cpp Controls/stereoscopicconfig.ui
         Controls/uvplanecreatorcontrol.h Controls/uvplanecreatorcontrol.cpp Controls/uvplanecreatorcontrol.ui
-        Controls/EntityContextMenu.cpp Controls/EntityContextMenu.h)
+        Controls/EntityContextMenu.cpp Controls/EntityContextMenu.h
+        Controls/Dialogs/intersectiondialog.h Controls/Dialogs/intersectiondialog.cpp Controls/Dialogs/intersectiondialog.ui
+        Controls/Dialogs/parametersintersectiondialog.h Controls/Dialogs/parametersintersectiondialog.cpp Controls/Dialogs/parametersintersectiondialog.ui
+        )
 
 set(PROJECT_SOURCES
         main.cpp
@@ -113,13 +119,13 @@ set(PROJECT_SOURCES
         Scene/Components/Selectable.cpp Scene/Components/Selectable.h
         Scene/Events/SystemEvents/SelectionChanged.cpp Scene/Events/SystemEvents/SelectionChanged.h
         Scene/Entities/Composite.cpp Scene/Entities/Composite.h
-        Scene/Components/CompositeAware.cpp Scene/Components/CompositeAware.h
-        Scene/Systems/CompositeAwareSystem.cpp Scene/Systems/CompositeAwareSystem.h
+        Scene/Components/Awares/CompositeAware.cpp Scene/Components/Awares/CompositeAware.h
+        Scene/Systems/Awares/CompositeAwareSystem.cpp Scene/Systems/Awares/CompositeAwareSystem.h
         Scene/Entities/Polyline.cpp Scene/Entities/Polyline.h
         Scene/Components/TransformCollection.cpp Scene/Components/TransformCollection.h
-        Scene/Components/CollectionAware.cpp Scene/Components/CollectionAware.h
+        Scene/Components/Awares/CollectionAware.cpp Scene/Components/Awares/CollectionAware.h
         Scene/Systems/TransformCollectionSystem.cpp Scene/Systems/TransformCollectionSystem.h
-        Scene/Systems/CollectionAwareSystem.cpp Scene/Systems/CollectionAwareSystem.h
+        Scene/Systems/Awares/CollectionAwareSystem.cpp Scene/Systems/Awares/CollectionAwareSystem.h
         Scene/Utilities/Utilites.cpp Scene/Utilities/Utilites.h
         Scene/Entities/Curves/VirtualBezierC0.cpp Scene/Entities/Curves/VirtualBezierC0.h
         Scene/Entities/Curves/BezierC2.cpp Scene/Entities/Curves/BezierC2.h
@@ -147,10 +153,13 @@ set(PROJECT_SOURCES
         Renderer/InputController/InputEvents/SelectRectangleUpdateEvent.cpp Renderer/InputController/InputEvents/SelectRectangleUpdateEvent.h
         Scene/Systems/MergeSystem.cpp Scene/Systems/MergeSystem.h
         Scene/Components/Merge.cpp Scene/Components/Merge.h
-        Scene/Systems/FillAwareSystem.cpp Scene/Systems/FillAwareSystem.h
-        Scene/Components/FillAware.cpp Scene/Components/FillAware.h
+        Scene/Systems/Awares/FillAwareSystem.cpp Scene/Systems/Awares/FillAwareSystem.h
+        Scene/Components/Awares/FillAware.cpp Scene/Components/Awares/FillAware.h
         Scene/Entities/Planes/FillPlane.cpp Scene/Entities/Planes/FillPlane.h Scene/Entities/Planes/GregoryMesh.cpp Scene/Entities/Planes/GregoryMesh.h
-        ThirdParty/set_ops.hpp ThirdParty/ngraph.hpp)
+        ThirdParty/set_ops.hpp ThirdParty/ngraph.hpp
+        Scene/Systems/Awares/IntersectionAwareSystem.cpp Scene/Systems/Awares/IntersectionAwareSystem.h
+        Scene/Components/Awares/IntersectionAware.cpp Scene/Components/Awares/IntersectionAware.h
+        Scene/Entities/Curves/IntersectionCurve.cpp Scene/Entities/Curves/IntersectionCurve.h)
 
 add_subdirectory(Tests)
 add_subdirectory(ThirdParty/Scene-Serializer/cpp/Serializer)
@@ -197,6 +206,7 @@ target_link_libraries(SmoCAD PRIVATE Qt${QT_VERSION_MAJOR}::Core)
 #target_link_libraries(SmoCAD PRIVATE lapack blas)
 target_link_libraries(SmoCAD PRIVATE m)
 target_link_libraries(SmoCAD PRIVATE MGSerializer)
+#target_link_libraries(SmoCAD PRIVATE GSL::gsl GSL::gslcblas)
 
 set_target_properties(SmoCAD PROPERTIES
         MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com

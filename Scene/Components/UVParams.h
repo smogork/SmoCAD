@@ -5,10 +5,14 @@
 #ifndef SMOCAD_UVPARAMS_H
 #define SMOCAD_UVPARAMS_H
 
+
+
 #include <QProperty>
 
 #include "IComponent.h"
 #include "Scene/Events/SystemEvents/UVParamsChanged.h"
+
+
 
 class UVParams: public IComponent
 {
@@ -22,7 +26,7 @@ public:
     QProperty<float> V;
     QProperty<int> UDensity;
     QProperty<int> VDensity;
-    QProperty<bool> UWraps, VWraps;
+
 
     explicit UVParams(unsigned int);
     ~UVParams() override;

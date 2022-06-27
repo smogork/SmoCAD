@@ -5,7 +5,7 @@
 #include "GregoryMesh.h"
 #include "Scene/Utilities/Utilites.h"
 
-GregoryMesh::GregoryMesh(): IEntity(GREGORY_MESH)
+GregoryMesh::GregoryMesh(): IEntity(GREGORY_MESH_CLASS)
 {
     AddComponent(p_Drawing = DynamicDrawing::CreateRegisteredComponent(GetObjectID()));
     InitializeDrawing();

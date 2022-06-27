@@ -7,8 +7,9 @@
 #include "Scene/Utilities/Utilites.h"
 #include "Scene/SceneECS.h"
 #include "Mathematics/PointShapes.h"
+#include "Mathematics/Polynomials.h"
 #include "ThirdParty/Scene-Serializer/cpp/Serializer/Serializer/Scene/SerializerException.h"
-#include "Scene/Systems/CollectionAwareSystem.h"
+#include "Scene/Systems/Awares/CollectionAwareSystem.h"
 
 void PlaneC0::OnSinglePointModified(QVector3D pos, unsigned int changedOID)
 {
@@ -51,20 +52,16 @@ std::vector<int> PlaneC0::GenerateTopologyIndices()
 {
     std::vector<int> res(GetIndexCount());
     int res_idx = 0;
-
-    int index_width = (PATCH_SIZE - 1) * p_UV->U + 1;
-    if (p_UV->UWraps)
-        index_width--;
+    
+    std::vector<int> patch_indices(16);
     for (int h = 0; h < p_UV->V; ++h)//height
         for (int w = 0; w < p_UV->U; ++w)//width
-            for (int i = 0; i < PATCH_SIZE; ++i)//height
-                for (int j = 0; j < PATCH_SIZE; ++j)//width
-                {
-                    int wIdx = w * (PATCH_SIZE - 1) + j;
-                    int hIdx = h * (PATCH_SIZE - 1) + i;
-                    res[res_idx++] = hIdx * index_width + (wIdx % index_width);
-                }
-
+        {
+            GetIndexesOfPatch(w, h, patch_indices);
+            for (int idx : patch_indices)
+                res[res_idx++] = idx;
+        }
+        
     return res;
 }
 
@@ -110,8 +107,8 @@ void PlaneC0::SerializingFunction(MG1::Scene &scene)
     MG1::BezierSurfaceC0 p0;
     p0.SetId(GetObjectID());
     p0.name = p_SceneElement->Name.value().toStdString();
-    p0.uWrapped = p_UV->UWraps;
-    p0.vWrapped = p_UV->VWraps;
+    p0.uWrapped = p_Intersection->UWraps;
+    p0.vWrapped = p_Intersection->VWraps;
     p0.size.x = p_UV->U;
     p0.size.y = p_UV->V;
 
@@ -146,7 +143,7 @@ PlaneC0::PlaneC0(const MG1::BezierSurfaceC0 &p0): BasePlane(PLANEC0_CLASS, p0.Ge
 
     p_UV->LockEditUV(false);
     p_Collection->LockContent(false);
-    p_UV->VWraps = p0.vWrapped;
+    p_Intersection->VWraps = p0.vWrapped;
 
     if (p0.patches.size() == 0)
         throw MG1::SerializerException("Error while deserializing Surface without patches");
@@ -157,7 +154,7 @@ PlaneC0::PlaneC0(const MG1::BezierSurfaceC0 &p0): BasePlane(PLANEC0_CLASS, p0.Ge
 
 
     auto indices = GenerateTopologyIndices();
-    std::vector<std::shared_ptr<CollectionAware>> points(GetVertexCount(p_UV->UWraps));
+    std::vector<std::shared_ptr<CollectionAware>> points(GetVertexCount(p_Intersection->UWraps));
 
     if (auto scene = SceneECS::Instance().lock())
     {
@@ -197,6 +194,8 @@ void PlaneC0::InitObject(const QString &name, bool isPipe, int countU, int count
     AddComponent(p_Selected = Selectable::CreateRegisteredComponent(GetObjectID()));
     AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(GetObjectID(), name, p_Selected));
     AddComponent(p_FillAware = FillAware::CreateRegisteredComponent(GetObjectID(), p_Collection));
+    AddComponent(p_Intersection = IntersectionAware::CreateRegisteredComponent(GetObjectID(), p_UV));
+    InitializeUV(isPipe);
 
     p_SceneElement->SerializeObject = ASSIGN_SERIALIZER_FUNCTION(&PlaneC0::SerializingFunction);
 
@@ -218,6 +217,135 @@ void PlaneC0::InitObject(const QString &name, bool isPipe, int countU, int count
                                                                 PlaneColor = DefaultColor;
                                                         });
     MeshColor = Qt::darkGreen;
+    
+
 }
+
+void PlaneC0::InitializeUV(bool isPipe)
+{
+    p_Intersection->SceneFunction = ASSIGN_UV_FUNCTION(&PlaneC0::PlaneC0Func);
+    p_Intersection->SceneFunctionDerU = ASSIGN_UV_FUNCTION(&PlaneC0::PlaneC0FuncDerU);
+    p_Intersection->SceneFunctionDerV = ASSIGN_UV_FUNCTION(&PlaneC0::PlaneC0FuncDerV);
+
+    p_Intersection->UWraps = isPipe;
+    p_Intersection->VWraps = false;
+    p_Intersection->UMin = 0;
+    p_Intersection->VMin = 0;
+    p_Intersection->UMax = p_UV->U.value();
+    p_Intersection->VMax = p_UV->V.value();
+}
+
+QVector3D PlaneC0::PlaneC0Func(QVector2D uv)
+{
+    if (!p_Intersection->ArgumentsInsideDomain(uv))
+        return {0, 0, 0};
+
+    uv = p_Intersection->WrapArgumentsAround(uv);
+    int planeNumU = (int)uv.x();
+    int planeNumV = (int)uv.y();
+    
+    float u = fmodf(uv.x(), 1);
+    float v = fmodf(uv.y(), 1);
+    
+    std::vector<int> patch_indices(16);
+    std::vector<QVector3D> patch_points(16);
+    std::vector<QVector3D> control_points(4), mid_values(4);
+    GetIndexesOfPatch(planeNumU, planeNumV, patch_indices);
+    
+    auto points = p_Collection->GetVectorCoords();
+    for (int i = 0; i < 16; ++i)
+        patch_points[i] = points[patch_indices[i]];
+    
+    for (int i = 0; i < 4; ++i)
+    {
+        Polynomials::LoadControlPointsRow(i, patch_points, control_points);
+        mid_values[i] = Polynomials::deCasteljau(u, control_points);
+    }
+    QVector3D pos = Polynomials::deCasteljau(v, mid_values);
+    
+    return pos;
+}
+
+
+QVector3D PlaneC0::PlaneC0FuncDerU(QVector2D uv)
+{
+    if (!p_Intersection->ArgumentsInsideDomain(uv))
+        return {0, 0, 0};
+
+    uv = p_Intersection->WrapArgumentsAround(uv);
+    int planeNumU = (int)uv.x();
+    int planeNumV = (int)uv.y();
+    
+    float u = fmodf(uv.x(), 1);
+    float v = fmodf(uv.y(), 1);
+    
+    std::vector<int> patch_indices(16);
+    std::vector<QVector3D> patch_points(16);
+    std::vector<QVector3D> control_points(4), mid_values(4);
+    GetIndexesOfPatch(planeNumU, planeNumV, patch_indices);
+    
+    auto points = p_Collection->GetVectorCoords();
+    for (int i = 0; i < 16; ++i)
+        patch_points[i] = points[patch_indices[i]];
+    
+    for (int i = 0; i < 4; ++i)
+    {
+        Polynomials::LoadControlPointsCol(i, patch_points, control_points);
+        mid_values[i] = Polynomials::deCasteljau(v, control_points);
+    }
+    auto derUPoly = Polynomials::deCasteljauDerK(1, mid_values);
+    QVector3D derU = Polynomials::deCasteljau(u, derUPoly);
+    
+    return derU;
+}
+
+QVector3D PlaneC0::PlaneC0FuncDerV(QVector2D uv)
+{
+    if (!p_Intersection->ArgumentsInsideDomain(uv))
+        return {0, 0, 0};
+
+    uv = p_Intersection->WrapArgumentsAround(uv);
+    int planeNumU = (int)uv.x();
+    int planeNumV = (int)uv.y();
+    
+    float u = fmodf(uv.x(), 1);
+    float v = fmodf(uv.y(), 1);
+    
+    std::vector<int> patch_indices(16);
+    std::vector<QVector3D> patch_points(16);
+    std::vector<QVector3D> control_points(4), mid_values(4);
+    GetIndexesOfPatch(planeNumU, planeNumV, patch_indices);
+    
+    auto points = p_Collection->GetVectorCoords();
+    for (int i = 0; i < 16; ++i)
+        patch_points[i] = points[patch_indices[i]];
+    
+    for (int i = 0; i < 4; ++i)
+    {
+        Polynomials::LoadControlPointsRow(i, patch_points, control_points);
+        mid_values[i] = Polynomials::deCasteljau(u, control_points);
+    }
+    auto derVPoly = Polynomials::deCasteljauDerK(1, mid_values);
+    QVector3D derV = Polynomials::deCasteljau(v, derVPoly);
+    
+    return derV;
+}
+
+void PlaneC0::GetIndexesOfPatch(int uPatch, int vPatch, std::vector<int>& indices)
+{
+    int index_width = (PATCH_SIZE - 1) * p_UV->U + 1;
+    if (p_Intersection->UWraps)
+        index_width--;
+    
+    int idx_counter = 0;
+    for (int i = 0; i < PATCH_SIZE; ++i)//height
+        for (int j = 0; j < PATCH_SIZE; ++j)//width
+        {
+            int wIdx = uPatch * (PATCH_SIZE - 1) + j;
+            int hIdx = vPatch * (PATCH_SIZE - 1) + i;
+            indices[idx_counter++] = hIdx * index_width + (wIdx % index_width);
+        }
+}
+
 
 

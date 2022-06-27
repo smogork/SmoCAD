@@ -9,7 +9,7 @@
 #include "IEntity.h"
 #include "Scene/Components/Transform.h"
 #include "Scene/Components/Drawing/StaticDrawing.h"
-#include "Scene/Components/CompositeAware.h"
+#include "Scene/Components/Awares/CompositeAware.h"
 #include "Scene/Components/Selectable.h"
 #include "Scene/Components/SceneElement.h"
 

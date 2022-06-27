@@ -5,13 +5,6 @@
 #include "DeCasteljauTests.h"
 #include "Mathematics/Polynomials.h"
 
-bool DeCasteljauTests::QVector3DAlmostEquals(QVector3D one, QVector3D two)
-{
-    return (std::abs(one.x() - two.x()) < feps) and
-           (std::abs(one.y() - two.y()) < feps) and
-           (std::abs(one.z() - two.z()) < feps);
-}
-
 TEST_F(DeCasteljauTests, ValueIn0)
 {
     std::vector<QVector3D> knots = {
@@ -92,6 +85,28 @@ TEST_F(DeCasteljauTests, DoubleFunction)
     EXPECT_TRUE(QVector3DAlmostEquals(knots[3], Polynomials::deCasteljau(1, doubles.second)));
     EXPECT_TRUE(QVector3DAlmostEquals(Polynomials::deCasteljau(0.25f, knots), Polynomials::deCasteljau(0.5f, doubles.first)));
     EXPECT_TRUE(QVector3DAlmostEquals(Polynomials::deCasteljau(0.75f, knots), Polynomials::deCasteljau(0.5f, doubles.second)));
+}
+
+TEST_F(DeCasteljauTests, FirstDerivative)
+{
+    std::vector<float> knots = {0, 1, 2, 3};
+    
+    std::vector<float> der = Polynomials::deCasteljauDerK(1, knots);
+    float der_value = Polynomials::deCasteljau(0.5f, der);
+    
+    EXPECT_EQ(der.size(), knots.size() - 1);
+    EXPECT_FLOAT_EQ(der_value, 3.0f);
+}
+
+TEST_F(DeCasteljauTests, SecondDerivative)
+{
+    std::vector<float> knots = {0, 1, 2, 3};
+    
+    std::vector<float> der = Polynomials::deCasteljauDerK(2, knots);
+    float der_value = Polynomials::deCasteljau(0.5f, der);
+    
+    EXPECT_EQ(der.size(), knots.size() - 2);
+    EXPECT_FLOAT_EQ(der_value, 0.0f);
 }
 
 

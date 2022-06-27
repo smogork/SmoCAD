@@ -4,7 +4,7 @@
 
 #include "CompositeAware.h"
 #include "Scene/SceneECS.h"
-#include "Scene/Systems/CompositeAwareSystem.h"
+#include "Scene/Systems/Awares/CompositeAwareSystem.h"
 
 const QColor CompositeAware::CompositeColor = Qt::cyan;
 

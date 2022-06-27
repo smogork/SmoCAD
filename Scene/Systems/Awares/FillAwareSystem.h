@@ -5,9 +5,9 @@
 #ifndef SMOCAD_FILLAWARESYSTEM_H
 #define SMOCAD_FILLAWARESYSTEM_H
 
-#include "ISystem.h"
-#include "Scene/Components/FillAware.h"
+#include "Scene/Components/Awares/FillAware.h"
 #include "ThirdParty/ngraph.hpp"
+#include "Scene/Systems/ISystem.h"
 
 class FillLoop
 {

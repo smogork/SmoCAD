@@ -6,7 +6,7 @@
 #define SMOCAD_INVISIBLEPOINT_H
 
 #include "Scene/Entities/IEntity.h"
-#include "Scene/Components/CollectionAware.h"
+#include "Scene/Components/Awares/CollectionAware.h"
 
 class InvisiblePoint: public IEntity
 {
