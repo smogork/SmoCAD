@@ -81,6 +81,9 @@ void IntersectionAwareSystem::CreateIntersectionCurveBetween(std::shared_ptr<Int
         QImage oneTex = curve->GetTrimmingTextureOne(one);
         QImage twoTex = curve->GetTrimmingTextureTwo(two);
 
+        oneTex.save("oneTex.png");
+        twoTex.save("twoTex.png");
+
         one->TrimTexture = std::make_shared<QOpenGLTexture>(oneTex.mirrored());
         two->TrimTexture = std::make_shared<QOpenGLTexture>(twoTex.mirrored());
 

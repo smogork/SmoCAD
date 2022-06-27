@@ -122,10 +122,6 @@ QImage IntersectionCurve::GetTrimmingTexture(const std::vector<QVector2D> &point
         if (abs(y2 - y1) > size / 2)
             wrapY = true;
 
-        //UWAGA! Tutaj zakladam po cichu, ze kazde UV zaczyna sie o 0!!!
-        QVector2D uv_last = plane->WrapArgumentsAround(points[i - 1]);
-        QVector2D uv = plane->WrapArgumentsAround(points[i]);
-
         //Jezeli sie zapetlamy, to narysuj dwukrotnie
         if (wrapX)
         {
@@ -171,14 +167,22 @@ QImage IntersectionCurve::GetTrimmingTexture(const std::vector<QVector2D> &point
             painter.drawLine(x1, y1, x2, y2);
     }
 
+    int x1 = (points[0].x()) * size / plane->UMax;
+    int y1 = (points[0].y()) * size / plane->VMax;
+    bool test = res.pixelIndex(x1, y1) != 0;
+
     //zapusc algorytm FloodFill (4spojny) dla pierwszego bialego pixela
-    for (int y = 0; y < size; ++y)
-        for (int x = 0; x < size; ++x)
-            if (res.pixelIndex(x, y) != 0)
-            {
-                //FloodFill4({x, y}, 0, res);
-                break;
-            }
+    for (int i = 0; i < size * size; ++i)
+    {
+        int x = i / size;
+        int y = i % size;
+
+        if (res.pixelIndex(x, y) != 0)
+        {
+            FloodFill4({x, y}, 0, res);
+            break;
+        }
+    }
 
     return res;
 }
