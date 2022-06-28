@@ -72,16 +72,17 @@ QImage IntersectionResult::GetTrimmingTextureTwo()
 QImage IntersectionResult::GetSelfTrimmingTexture()
 {
     const int size = 512;
-    QImage res({size, size}, QImage::Format_Mono);
-    res.fill(Qt::color1);
+    QImage res({size, size}, QImage::Format_RGB32);
+    res.fill(c_free);//zapelnienie kolorem bialym
+    res.save("clear.png");
 
     std::vector<QVector2D> args(m_paramPoints.size());
     for (int i = 0; i < m_paramPoints.size(); ++i)
         args[i] = {m_paramPoints[i].x(), m_paramPoints[i].y()};
-    DrawParametersPolylineOnTexture(res, m_planeOne, args);
+    DrawParametersPolylineOnTexture(c_curve, res, m_planeOne, args);
     for (int i = 0; i < m_paramPoints.size(); ++i)
         args[i] = {m_paramPoints[i].z(), m_paramPoints[i].w()};
-    DrawParametersPolylineOnTexture(res, m_planeOne, args);
+    DrawParametersPolylineOnTexture(c_curve, res, m_planeOne, args);
 
     res.save("before_flood.png");
 
@@ -91,9 +92,9 @@ QImage IntersectionResult::GetSelfTrimmingTexture()
         int x = i / size;
         int y = i % size;
 
-        if (res.pixelIndex(x, y) != 0)
+        if (res.pixel(x, y) == c_free)
         {
-            FloodFill4({x, y}, 0, res, m_planeOne->UWraps, m_planeOne->VWraps);
+            FloodFill4({x, y}, c_flood,  res, m_planeOne->UWraps, m_planeOne->VWraps);
             break;
         }
     }
@@ -105,28 +106,31 @@ QImage IntersectionResult::GetSelfTrimmingTexture()
 QImage IntersectionResult::GetTrimmingTexture(const std::vector<QVector2D> &points, std::shared_ptr<IntersectionAware> plane)
 {
     const int size = 512;
-    QImage res({size, size}, QImage::Format_Mono);
-    res.fill(Qt::color1);
+    QImage res({size, size}, QImage::Format_RGB32);
+    res.fill(c_free);//zapelnienie kolorem bialym
+    res.save("clear.png");
 
-    DrawParametersPolylineOnTexture(res, plane, points);
+    DrawParametersPolylineOnTexture(c_curve, res, plane, points);//zielona krzywa
 
+    res.save("before_flood.png");
     //zapusc algorytm FloodFill (4spojny) dla pierwszego bialego pixela
     for (int i = 0; i < size * size; ++i)
     {
         int x = i / size;
         int y = i % size;
 
-        if (res.pixelIndex(x, y) != 0)
+        if (res.pixel(x, y) == c_free)
         {
-            FloodFill4({x, y}, 0, res, plane->UWraps, plane->VWraps);
+            FloodFill4({x, y}, c_flood, res, plane->UWraps, plane->VWraps);
             break;
         }
     }
+    res.save("after_flood.png");
 
     return res;
 }
 
-void IntersectionResult::FloodFill4(QPoint start, uint color, QImage& image, bool wrapX, bool wrapY)
+void IntersectionResult::FloodFill4(QPoint start, QRgb color, QImage& image, bool wrapX, bool wrapY)
 {
 
     std::stack<QPoint> s;
@@ -147,10 +151,10 @@ void IntersectionResult::FloodFill4(QPoint start, uint color, QImage& image, boo
             cur.y() < 0 || cur.y() >= image.height())
             continue;
 
-        if (image.pixelIndex(cur) == color)
+        if (image.pixel(cur) != c_free)//jezeli nie jest wolne
             continue;
 
-        image.setPixel(cur, color);
+        image.setPixel(cur, color);//usatwiamy jak pixel jest wolny
         s.push({cur.x() + 1, cur.y()});
         s.push({cur.x(), cur.y() + 1});
         s.push({cur.x() - 1, cur.y()});
@@ -173,12 +177,11 @@ int IntersectionResult::GetScenePointsSize()
     return m_paramPoints.size();
 }
 
-void IntersectionResult::DrawParametersPolylineOnTexture(QImage &image, std::shared_ptr<IntersectionAware> plane, const std::vector<QVector2D> &points)
+void IntersectionResult::DrawParametersPolylineOnTexture(QRgb color, QImage &image, std::shared_ptr<IntersectionAware> plane, const std::vector<QVector2D> &points)
 {
     //zapelnij pixele z krzywej przeciecia
     QPainter painter(&image);
-    QBrush brush(Qt::color0, Qt::SolidPattern);
-    painter.setBrush(brush);
+    painter.setPen(color);
     for (int i = 1; i < points.size(); ++i)
     {
         bool wrapX = 0, wrapY = 0;
@@ -198,16 +201,21 @@ void IntersectionResult::DrawParametersPolylineOnTexture(QImage &image, std::sha
         {
             if (x1 > image.width()  / 2)
             {
-                int x2p = std::clamp(x2 + image.width() , 0, image.width() );
-                int x1p = std::clamp(x1 - image.width() , 0, image.width() );
+                /*int x2p = std::clamp(x2 + image.width() , 0, image.width() );
+                int x1p = std::clamp(x1 - image.width() , 0, image.width() );*/
+
+                int x2p = x2 + image.width();
+                int x1p = x1 - image.width();
 
                 painter.drawLine(x1, y1, x2p, y2);
                 painter.drawLine(x1p, y1, x2, y2);
             }
             else
             {
-                int x2p = std::clamp(x2 - image.width(), 0, image.width());
-                int x1p = std::clamp(x1 + image.width(), 0, image.width());
+                /*int x2p = std::clamp(x2 - image.width(), 0, image.width());
+                int x1p = std::clamp(x1 + image.width(), 0, image.width());*/
+                int x2p = x2 - image.width();
+                int x1p = x1 + image.width();
 
                 painter.drawLine(x1, y1, x2p, y2);
                 painter.drawLine(x1p, y1, x2, y2);
@@ -218,16 +226,20 @@ void IntersectionResult::DrawParametersPolylineOnTexture(QImage &image, std::sha
         {
             if (y1 > image.height() / 2)
             {
-                int y1p = std::clamp(y1 - image.height() , 0, image.height() );
-                int y2p = std::clamp(y2 + image.height() , 0, image.height() );
+                /*int y1p = std::clamp(y1 - image.height() , 0, image.height() );
+                int y2p = std::clamp(y2 + image.height() , 0, image.height() );*/
+                int y1p = y1 - image.height();
+                int y2p = y2 + image.height();
 
                 painter.drawLine(x1, y1, x2, y2p);
                 painter.drawLine(x1, y1p, x2, y2);
             }
             else
             {
-                int y1p = std::clamp(y1 + image.height(), 0, image.height());
-                int y2p = std::clamp(y2 - image.height(), 0, image.height());
+                /*int y1p = std::clamp(y1 + image.height(), 0, image.height());
+                int y2p = std::clamp(y2 - image.height(), 0, image.height());*/
+                int y1p = y1 + image.height();
+                int y2p = y2 - image.height();
 
                 painter.drawLine(x1, y1, x2, y2p);
                 painter.drawLine(x1, y1p, x2, y2);
