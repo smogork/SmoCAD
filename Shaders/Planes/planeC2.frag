@@ -8,6 +8,9 @@ uniform sampler2D trimTexture;
 
 void main()
 {
-    float alpha = texture(trimTexture, TexCoord).r;
-    FragColor = vec4(u_ObjectColor.rgb, alpha);
+    float trim = texture(trimTexture, TexCoord).r;
+    if (trim != 1.0f)
+        discard;
+
+    FragColor = u_ObjectColor;
 }

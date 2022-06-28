@@ -196,6 +196,7 @@ void PlaneC2::InitObject(const QString &name, bool isPipe, int countU, int count
     InitializeUV(isPipe);
     p_Drawing->p_renderingFunction = ASSIGN_DRAWING_FUNCTION(&PlaneC2::DrawingFunction);
     p_Drawing->p_uniformFunction = ASSIGN_UNIFORM_FUNCTION(&PlaneC2::UniformFunction);
+    //p_Drawing->IsTransparent = true;
 
     p_SceneElement->SerializeObject = ASSIGN_SERIALIZER_FUNCTION(&PlaneC2::SerializingFunction);
 

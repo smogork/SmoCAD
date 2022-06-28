@@ -196,6 +196,9 @@ void PlaneC0::InitObject(const QString &name, bool isPipe, int countU, int count
     AddComponent(p_FillAware = FillAware::CreateRegisteredComponent(GetObjectID(), p_Collection));
     AddComponent(p_Intersection = IntersectionAware::CreateRegisteredComponent(GetObjectID(), p_UV));
     InitializeUV(isPipe);
+    p_Drawing->p_renderingFunction = ASSIGN_DRAWING_FUNCTION(&PlaneC0::DrawingFunction);
+    p_Drawing->p_uniformFunction = ASSIGN_UNIFORM_FUNCTION(&PlaneC0::UniformFunction);
+    //p_Drawing->IsTransparent = true;
 
     p_SceneElement->SerializeObject = ASSIGN_SERIALIZER_FUNCTION(&PlaneC0::SerializingFunction);
 
@@ -218,7 +221,9 @@ void PlaneC0::InitObject(const QString &name, bool isPipe, int countU, int count
                                                         });
     MeshColor = Qt::darkGreen;
 
-    p_Intersection->TrimTexture = std::make_shared<QOpenGLTexture>(QImage({512, 512}, QImage::Format_Mono));
+    auto blank = QImage({512, 512}, QImage::Format_Mono);
+    blank.fill(Qt::color1);
+    p_Intersection->SetTrimmingTexture(blank);
 }
 
 void PlaneC0::InitializeUV(bool isPipe)
@@ -349,9 +354,17 @@ void PlaneC0::GetIndexesOfPatch(int uPatch, int vPatch, std::vector<int>& indice
 
 void PlaneC0::DrawingFunction(QOpenGLContext *context)
 {
-    if (p_Intersection->TrimTexture)
-        p_Intersection->TrimTexture->bind();
     BasePlane::DrawingFunction(context);
+}
+
+void PlaneC0::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
+{
+    BasePlane::UniformFunction(shader);
+    if (p_Intersection->TrimTexture and p_Intersection->TrimTexture->isCreated())
+    {
+        p_Intersection->TrimTexture->bind(0, QOpenGLTexture::ResetTextureUnit);
+        shader->SetUniform("trimTexture", 0);
+    }
 }
 
 

@@ -2,8 +2,8 @@
 
 layout (quads, equal_spacing, ccw) in;
 
-uniform int u_UPatch;
-uniform int u_VPatch;
+uniform float u_UPatch;
+uniform float u_VPatch;
 
 out vec2 TexCoord;
 
@@ -39,7 +39,7 @@ vec4[4] loadControlPoints(int idx, vec4[16] inArray)
 
 void main()
 {
-    vec2 patchUV = vec2(gl_PrimitiveID % u_UPatch, gl_PrimitiveID / u_UPatch);
+    vec2 patchUV = vec2(mod(gl_PrimitiveID, u_UPatch), floor(gl_PrimitiveID / u_UPatch));
     TexCoord = (gl_TessCoord.xy + patchUV) / vec2(u_UPatch, u_VPatch);
 
     float u = gl_TessCoord.x;
