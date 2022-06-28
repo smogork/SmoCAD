@@ -51,6 +51,8 @@ set(SHADER_FILES
         Shaders/Planes/gregory_plane.frag
         Shaders/select_rect.vert
         Shaders/select_rect.frag
+        Shaders/torus.vert
+        Shaders/torus.frag
         )
 
 set(MATH_FILES
