@@ -53,6 +53,9 @@ void IntersectionAwareSystem::CreateIntersectionCurveBetween(std::shared_ptr<Int
 
     QVector4D P0 = FindFirstPointOfIntersection(one, two);
 
+    if (std::isnan(P0.x()))
+        return;
+
     bool edgeEndP, edgeEndN;
     std::list<QVector4D> negative_points;
     std::list<QVector4D> positive_points = FindFurtherPointsOfIntersection(P0, dialog->PointsSceneDistance(),
@@ -123,13 +126,16 @@ QVector4D IntersectionAwareSystem::FindFirstPointOfIntersection(std::shared_ptr<
 
     QVector4D startPoint = one->FindClosestPoints(two);
     QVector4D P0_params = Optimization::SimpleGradientMethod(startPoint, func, grad);
+    P0_params = WrapPointAround(P0_params, one, two);
 
     if (P0_params.x() == NAN or !one->ArgumentsInsideDomain(P0_params.toVector2D()) or
-        !two->ArgumentsInsideDomain({P0_params.z(), startPoint.w()}))
-        qDebug() << "Error with result " << P0_params;
+        !two->ArgumentsInsideDomain({P0_params.z(), P0_params.w()}))
+    {
+        qDebug() << "Error with P0 params " << P0_params;
+        return {NAN, NAN, NAN, NAN};
+    }
 
-    return WrapPointAround(P0_params, one, two);
-    //return P0_params;
+    return P0_params;
 }
 
 std::list<QVector4D>

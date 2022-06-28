@@ -225,7 +225,7 @@ QVector3D Torus::TorusFuncDerU(QVector2D uv)
     return (p_Transform->GetModelMatrix() *
             QVector4D(
                     -(p_UV->U + p_UV->V * cos(uv.y())) * sin(uv.x()),
-                    p_UV->V * sin(uv.y()),
+                    0,
                     (p_UV->U + p_UV->V * cos(uv.y())) * cos(uv.x()),
                     0)).toVector3D();
 }
