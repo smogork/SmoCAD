@@ -218,9 +218,10 @@ void PlaneC2::InitObject(const QString &name, bool isPipe, int countU, int count
             PlaneColor = DefaultColor;
     });
     MeshColor = Qt::darkYellow;
-    
-    p_Intersection->TrimTexture = std::make_shared<QOpenGLTexture>(QImage({512, 512}, QImage::Format_ARGB32));
-    //p_Intersection->TrimTexture->setFormat(QOpenGLTexture::RGBA32F);
+
+    auto blank = QImage({512, 512}, QImage::Format_Mono);
+    blank.fill(Qt::color1);
+    p_Intersection->SetTrimmingTexture(blank);
 }
 
 void PlaneC2::GetIndexesOfPatch(int uPatch, int vPatch, std::vector<int> &indices)

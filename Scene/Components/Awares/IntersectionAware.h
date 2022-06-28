@@ -34,6 +34,7 @@ public:
     QVector2D FindClosestPoints(QVector3D pos, int density = 10);
     bool ArgumentsInsideDomain(QVector2D args);
     QVector2D WrapArgumentsAround(QVector2D args);
+    void SetTrimmingTexture(const QImage& img);
 };
 
 #endif //SMOCAD_INTERSECTIONAWARE_H

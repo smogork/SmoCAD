@@ -109,3 +109,9 @@ QVector2D IntersectionAware::WrapArgumentsAround(QVector2D args)
 
     return {u, v};
 }
+
+void IntersectionAware::SetTrimmingTexture(const QImage &img)
+{
+    TrimTexture = std::make_shared<QOpenGLTexture>(img);
+    TrimTexture->setWrapMode(QOpenGLTexture::ClampToEdge);
+}
