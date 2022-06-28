@@ -42,57 +42,79 @@ IntersectionAware::~IntersectionAware()
     UnregisterComponent();
 }
 
-QVector4D IntersectionAware::FindClosestPoints(std::shared_ptr<IntersectionAware> other, int density)
+QVector4D IntersectionAware::FindClosestPoints(std::shared_ptr<IntersectionAware> other, int samples)
 {
     QVector4D best_params;
     float best_dist = INFINITY;
 
-    for (int v_step = 0; v_step < density; ++v_step)
-    {
-        float v = v_step * VMax / density + VMin;
-        for (int u_step = 0; u_step < density; ++u_step)
-        {
-            float u = u_step * UMax / density + UMin;
-            QVector3D p = SceneFunction({u, v});
+    std::default_random_engine generator;
+    std::uniform_real_distribution<float> Udist(UMin,UMax);
+    std::uniform_real_distribution<float> Vdist(VMin,VMax);
 
-            QVector2D other_params = other->FindClosestPoints(p, density);
-            QVector3D other_p = other->SceneFunction(other_params);
+    std::vector<QVector2D> oneArgs(samples), twoArgs(samples);
+
+    for (int i = 0; i < samples; ++i)
+    {
+        float u1 = Udist(generator);
+        float v1 = Vdist(generator);
+        float u2 = Udist(generator);
+        float v2 = Vdist(generator);
+
+        oneArgs[i] = {u1, v1};
+        twoArgs[i] = {u2, v2};
+    }
+
+    for (int j = 0; j < twoArgs.size(); ++j)
+        for (int i = 0; i < oneArgs.size(); ++i)
+        {
+            QVector3D p = SceneFunction(oneArgs[i]);
+            QVector3D other_p = other->SceneFunction(twoArgs[j]);
 
             float dist = other_p.distanceToPoint(p);
-            if (dist < best_dist)
+            if (dist < best_dist )
             {
                 best_dist = dist;
-                best_params = {u, v, other_params.x(), other_params.y()};
+                best_params = {oneArgs[i].x(), oneArgs[i].y(), twoArgs[j].x(), twoArgs[j].y()};
             }
         }
-    }
 
     return best_params;
 }
 
-QVector2D IntersectionAware::FindClosestPoints(QVector3D pos, int density)
+QVector2D IntersectionAware::FindClosestPoints(QVector3D pos, int samples)
 {
     QVector2D best_params;
     float best_dist = INFINITY;
 
-    for (int v_step = 0; v_step < density; ++v_step)
-    {
-        float v = v_step * VMax / density + VMin;
-        for (int u_step = 0; u_step < density; ++u_step)
-        {
-            float u = u_step * UMax / density + UMin;
+    std::default_random_engine generator;
+    std::uniform_real_distribution<float> Udist(UMin,UMax);
+    std::uniform_real_distribution<float> Vdist(VMin,VMax);
 
-            QVector3D p = SceneFunction({u, v});
-            float dist = pos.distanceToPoint(p);
-            if (dist < best_dist)
-            {
-                best_dist = dist;
-                best_params = {u, v};
-            }
+    for (int i = 0; i < samples; ++i)
+    {
+        float u = Udist(generator);
+        float v = Vdist(generator);
+
+        QVector3D p = SceneFunction({u, v});
+
+        float dist = pos.distanceToPoint(p);
+        if (dist < best_dist)
+        {
+            best_dist = dist;
+            best_params = {u, v};
         }
     }
-
     return best_params;
+}
+
+QVector4D IntersectionAware::FindClosestPointsSelf(int samples)
+{
+    return QVector4D();
+}
+
+QVector2D IntersectionAware::FindClosestPointsFarFromArgs(QVector3D pos, QVector2D args, int samples)
+{
+    return QVector2D();
 }
 
 bool IntersectionAware::ArgumentsInsideDomain(QVector2D args)
@@ -129,3 +151,5 @@ void IntersectionAware::SetTrimmingUniforms(std::shared_ptr<ShaderWrapper> shade
     shader->SetUniform("u_FlipTrimming", FlipTrimming);
     shader->SetUniform("u_ActiveTrimming", IntersectionExists);
 }
+
+

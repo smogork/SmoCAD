@@ -32,8 +32,11 @@ public:
     explicit IntersectionAware(unsigned int oid);
     ~IntersectionAware() override;
 
-    QVector4D FindClosestPoints(std::shared_ptr<IntersectionAware> other, int density = 10);
-    QVector2D FindClosestPoints(QVector3D pos, int density = 10);
+    QVector4D FindClosestPoints(std::shared_ptr<IntersectionAware> other, int samples = 100);
+    QVector2D FindClosestPoints(QVector3D pos, int samples = 100);
+    QVector4D FindClosestPointsSelf(int samples = 100);
+    QVector2D FindClosestPointsFarFromArgs(QVector3D pos, QVector2D args, int samples = 100);
+
     bool ArgumentsInsideDomain(QVector2D args);
     QVector2D WrapArgumentsAround(QVector2D args);
     void SetTrimmingTexture(const QImage& img);
