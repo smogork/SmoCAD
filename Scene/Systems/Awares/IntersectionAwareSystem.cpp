@@ -251,6 +251,7 @@ QVector4D IntersectionAwareSystem::WrapPointAround(const QVector4D &p, std::shar
 std::unique_ptr<ComponentControl> IntersectionAwareSystem::PrepareUIForObject(unsigned int oid)
 {
     if (auto inter = GetComponent(oid).lock())
-        return std::move(std::make_unique<IntersectionAwareControl>(inter));
+        if (inter->IntersectionExists)
+            return std::move(std::make_unique<IntersectionAwareControl>(inter));
     return nullptr;
 }

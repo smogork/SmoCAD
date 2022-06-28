@@ -7,6 +7,7 @@
 
 #include "Scene/Components/IComponent.h"
 #include "Scene/Components/UVParams.h"
+#include "Renderer/ShaderWrapper.h"
 
 #include <QOpenGLTexture>
 
@@ -20,7 +21,7 @@ public:
     QProperty<float> UMin, UMax;
     QProperty<float> VMin, VMax;
     std::shared_ptr<QOpenGLTexture> TrimTexture;
-    bool FlipTrimming;
+    bool FlipTrimming, IntersectionExists;
     std::function<QVector3D(QVector2D uv)> SceneFunction;
     std::function<QVector3D(QVector2D uv)> SceneFunctionDerU;
     std::function<QVector3D(QVector2D uv)> SceneFunctionDerV;
@@ -36,6 +37,7 @@ public:
     bool ArgumentsInsideDomain(QVector2D args);
     QVector2D WrapArgumentsAround(QVector2D args);
     void SetTrimmingTexture(const QImage& img);
+    void SetTrimmingUniforms(std::shared_ptr<ShaderWrapper> shader);
 };
 
 #endif //SMOCAD_INTERSECTIONAWARE_H

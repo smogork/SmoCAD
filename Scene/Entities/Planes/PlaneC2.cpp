@@ -219,10 +219,6 @@ void PlaneC2::InitObject(const QString &name, bool isPipe, int countU, int count
             PlaneColor = DefaultColor;
     });
     MeshColor = Qt::darkYellow;
-
-    auto blank = QImage({512, 512}, QImage::Format_Mono);
-    blank.fill(Qt::color1);
-    p_Intersection->SetTrimmingTexture(blank);
 }
 
 void PlaneC2::GetIndexesOfPatch(int uPatch, int vPatch, std::vector<int> &indices)
@@ -379,11 +375,6 @@ void PlaneC2::DrawingFunction(QOpenGLContext *context)
 void PlaneC2::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
 {
     BasePlane::UniformFunction(shader);
-    if (p_Intersection->TrimTexture and p_Intersection->TrimTexture->isCreated())
-    {
-        p_Intersection->TrimTexture->bind(0, QOpenGLTexture::ResetTextureUnit);
-        shader->SetUniform("trimTexture", 0);
-    }
-    shader->SetUniform("u_FlipTrimming", (int)p_Intersection->FlipTrimming);
+    p_Intersection->SetTrimmingUniforms(shader);
 }
 

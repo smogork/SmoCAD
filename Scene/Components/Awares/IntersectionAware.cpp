@@ -33,7 +33,8 @@ void IntersectionAware::UnregisterComponent()
 
 IntersectionAware::IntersectionAware(unsigned int oid): IComponent(oid, INTERSECTION_AWARE)
 {
-
+    IntersectionExists = false;
+    FlipTrimming = false;
 }
 
 IntersectionAware::~IntersectionAware()
@@ -112,6 +113,19 @@ QVector2D IntersectionAware::WrapArgumentsAround(QVector2D args)
 
 void IntersectionAware::SetTrimmingTexture(const QImage &img)
 {
+    IntersectionExists = true;
+
     TrimTexture = std::make_shared<QOpenGLTexture>(img);
     TrimTexture->setWrapMode(QOpenGLTexture::ClampToEdge);
+}
+
+void IntersectionAware::SetTrimmingUniforms(std::shared_ptr<ShaderWrapper> shader)
+{
+    if (TrimTexture and TrimTexture->isCreated())
+    {
+        TrimTexture->bind(0, QOpenGLTexture::ResetTextureUnit);
+        shader->SetUniform("trimTexture", 0);
+    }
+    shader->SetUniform("u_FlipTrimming", FlipTrimming);
+    shader->SetUniform("u_ActiveTrimming", IntersectionExists);
 }

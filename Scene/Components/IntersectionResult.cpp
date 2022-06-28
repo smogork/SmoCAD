@@ -43,6 +43,9 @@ IntersectionResult::IntersectionResult(unsigned int oid): IComponent(oid, INTERS
 
 IntersectionResult::~IntersectionResult()
 {
+    m_planeOne->IntersectionExists = false;
+    m_planeTwo->IntersectionExists = false;
+
     UnregisterComponent();
 }
 

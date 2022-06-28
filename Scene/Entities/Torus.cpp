@@ -42,13 +42,7 @@ void Torus::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
     shader->SetUniform("u_MVP.Model", p_Transform->GetModelMatrix());
     //shader->SetUniform("u_MVP.Model", QMatrix4x4());
     shader->SetUniform("u_ObjectColor", ColorToVector4D(m_color));
-
-    if (p_Intersection->TrimTexture and p_Intersection->TrimTexture->isCreated())
-    {
-        p_Intersection->TrimTexture->bind(0, QOpenGLTexture::ResetTextureUnit);
-        shader->SetUniform("trimTexture", 0);
-    }
-    shader->SetUniform("u_FlipTrimming", (int)p_Intersection->FlipTrimming);
+    p_Intersection->SetTrimmingUniforms(shader);
 }
 
 std::vector<float> Torus::GenerateGeometryVertices()
@@ -179,10 +173,6 @@ void Torus::InitObject(const QString &name, QVector3D position)
             });
 
     InitializeDrawing();
-
-    auto blank = QImage({512, 512}, QImage::Format_Mono);
-    blank.fill(Qt::color1);
-    p_Intersection->SetTrimmingTexture(blank);
 }
 
 void Torus::InitializeUV()
