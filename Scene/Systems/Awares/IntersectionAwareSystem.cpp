@@ -78,11 +78,11 @@ void IntersectionAwareSystem::CreateIntersectionCurveBetween(std::shared_ptr<Int
         for (const auto& arg : negative_points)
             intersectionArgs.push_back(arg);
 
-        auto curve = std::make_shared<IntersectionCurve>("IntersectionCurve", intersectionArgs, one->SceneFunction, two->SceneFunction, !edgeEndP && !edgeEndN);
+        auto curve = std::make_shared<IntersectionCurve>("IntersectionCurve", intersectionArgs, one, two, !edgeEndP && !edgeEndN);
         curve->p_Selected->Selected = true;
 
-        QImage oneTex = curve->GetTrimmingTextureOne(one);
-        QImage twoTex = curve->GetTrimmingTextureTwo(two);
+        QImage oneTex = curve->p_IntersectionRes->GetTrimmingTextureOne();
+        QImage twoTex = curve->p_IntersectionRes->GetTrimmingTextureTwo();
 
         /*oneTex.save("oneTex.png");
         twoTex.save("twoTex.png");*/
@@ -97,8 +97,7 @@ void IntersectionAwareSystem::CreateIntersectionCurveBetween(std::shared_ptr<Int
         //[TODO] do wyniesienia do oddzielnego guziczka
         std::unique_ptr<ParametersIntersectionDialog> params = std::make_unique<ParametersIntersectionDialog>();
         params->SetParamTextures(oneTex, twoTex);
-
-        params->exec();
+        params->show();
     }
 }
 

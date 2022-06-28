@@ -161,7 +161,7 @@ set(PROJECT_SOURCES
         ThirdParty/set_ops.hpp ThirdParty/ngraph.hpp
         Scene/Systems/Awares/IntersectionAwareSystem.cpp Scene/Systems/Awares/IntersectionAwareSystem.h
         Scene/Components/Awares/IntersectionAware.cpp Scene/Components/Awares/IntersectionAware.h
-        Scene/Entities/Curves/IntersectionCurve.cpp Scene/Entities/Curves/IntersectionCurve.h)
+        Scene/Entities/Curves/IntersectionCurve.cpp Scene/Entities/Curves/IntersectionCurve.h Scene/Systems/IntersectionResultSystem.cpp Scene/Systems/IntersectionResultSystem.h Scene/Components/IntersectionResult.cpp Scene/Components/IntersectionResult.h)
 
 add_subdirectory(Tests)
 add_subdirectory(ThirdParty/Scene-Serializer/cpp/Serializer)

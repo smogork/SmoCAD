@@ -14,6 +14,7 @@
 #include "Scene/Systems/ScreenSelectableSystem.h"
 #include "Scene/Systems/UvPlaneCreatorSystem.h"
 #include "Scene/Systems/MergeSystem.h"
+#include "Scene/Systems/IntersectionResultSystem.h"
 #include "Scene/Systems/Awares/FillAwareSystem.h"
 #include "Scene/Systems/Awares/IntersectionAwareSystem.h"
 
@@ -71,6 +72,8 @@ SceneECS::SceneECS()
             std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<FillAwareSystem>()));
     systems.put<IntersectionAwareSystem>(
             std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<IntersectionAwareSystem>()));
+    systems.put<IntersectionResultSystem>(
+            std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<IntersectionResultSystem>()));
 }
 
 SceneECS::~SceneECS()
