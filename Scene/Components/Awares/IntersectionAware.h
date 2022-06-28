@@ -20,6 +20,7 @@ public:
     QProperty<float> UMin, UMax;
     QProperty<float> VMin, VMax;
     std::shared_ptr<QOpenGLTexture> TrimTexture;
+    bool FlipTrimming;
     std::function<QVector3D(QVector2D uv)> SceneFunction;
     std::function<QVector3D(QVector2D uv)> SceneFunctionDerU;
     std::function<QVector3D(QVector2D uv)> SceneFunctionDerV;

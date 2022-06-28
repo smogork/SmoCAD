@@ -21,6 +21,7 @@ protected:
 
 public:
 
+
     static std::shared_ptr<IntersectionResult>
     CreateRegisteredComponent(unsigned int oid, std::vector<QVector4D>& points, std::shared_ptr<IntersectionAware> one,
                               std::shared_ptr<IntersectionAware> two, bool isCycle);

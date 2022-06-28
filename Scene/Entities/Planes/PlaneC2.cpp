@@ -384,5 +384,6 @@ void PlaneC2::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
         p_Intersection->TrimTexture->bind(0, QOpenGLTexture::ResetTextureUnit);
         shader->SetUniform("trimTexture", 0);
     }
+    shader->SetUniform("u_FlipTrimming", (int)p_Intersection->FlipTrimming);
 }
 

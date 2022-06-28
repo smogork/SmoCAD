@@ -80,6 +80,8 @@ set(CONTROL_SOURCES
         Controls/EntityContextMenu.cpp Controls/EntityContextMenu.h
         Controls/Dialogs/intersectiondialog.h Controls/Dialogs/intersectiondialog.cpp Controls/Dialogs/intersectiondialog.ui
         Controls/Dialogs/parametersintersectiondialog.h Controls/Dialogs/parametersintersectiondialog.cpp Controls/Dialogs/parametersintersectiondialog.ui
+        Controls/intersectionawarecontrol.h Controls/intersectionawarecontrol.cpp Controls/intersectionawarecontrol.ui
+        Controls/intersectionresultcontrol.h Controls/intersectionresultcontrol.cpp Controls/intersectionresultcontrol.ui
         )
 
 set(PROJECT_SOURCES

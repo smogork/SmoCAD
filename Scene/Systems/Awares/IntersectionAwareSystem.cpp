@@ -9,6 +9,7 @@
 #include "Scene/SceneECS.h"
 #include "Scene/Entities/Curves/IntersectionCurve.h"
 #include "Controls/EntityContextMenu.h"
+#include "Controls/intersectionawarecontrol.h"
 
 std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids,
                                                 const std::vector<unsigned int> &listContextOids)> > >
@@ -93,11 +94,6 @@ void IntersectionAwareSystem::CreateIntersectionCurveBetween(std::shared_ptr<Int
         scene->AddObject(curve);
         EntityContextMenu::MakeControlsUpdate(curve->GetObjectID());
         EntityContextMenu::MakeRepaint();
-
-        //[TODO] do wyniesienia do oddzielnego guziczka
-        std::unique_ptr<ParametersIntersectionDialog> params = std::make_unique<ParametersIntersectionDialog>();
-        params->SetParamTextures(oneTex, twoTex);
-        params->show();
     }
 }
 
@@ -250,4 +246,11 @@ QVector4D IntersectionAwareSystem::WrapPointAround(const QVector4D &p, std::shar
     auto twoWrap = two->WrapArgumentsAround({p.z(), p.w()});
 
     return {oneWrap.x(), oneWrap.y(), twoWrap.x(), twoWrap.y()};
+}
+
+std::unique_ptr<ComponentControl> IntersectionAwareSystem::PrepareUIForObject(unsigned int oid)
+{
+    if (auto inter = GetComponent(oid).lock())
+        return std::move(std::make_unique<IntersectionAwareControl>(inter));
+    return nullptr;
 }

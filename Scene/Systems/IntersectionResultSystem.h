@@ -21,6 +21,7 @@ public:
                                                     const std::vector<unsigned int> &listContextOids)> > >
     CreateContextMenuItemsForSceneList(const std::vector<unsigned int> &selectedOids,
                                        const std::vector<unsigned int> &listContextOids) override;
+    std::unique_ptr<ComponentControl> PrepareUIForObject(unsigned int oid) override;
 };
 
 
