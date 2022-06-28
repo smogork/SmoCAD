@@ -20,9 +20,8 @@ void IntersectionResultControl::on_btnDomains_clicked()
     if (auto res = m_res.lock())
     {
         paramsDialog = std::make_unique<ParametersIntersectionDialog>();
-        auto one = res->GetTrimmingTextureOne();
-        auto two = res->GetTrimmingTextureTwo();
-        paramsDialog->SetParamTextures(one, two);
+        auto [oneTex, twoTex] = res->GetTrimmingTextures();
+        paramsDialog->SetParamTextures(oneTex, twoTex);
         paramsDialog->show();
     }
 }

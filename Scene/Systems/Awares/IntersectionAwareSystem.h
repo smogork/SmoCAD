@@ -26,7 +26,7 @@ public:
 protected:
     void CreateIntersectionCurveBetween(std::shared_ptr<IntersectionAware> one, std::shared_ptr<IntersectionAware> two);
     QVector4D
-    FindFirstPointOfIntersection(std::shared_ptr<IntersectionAware> one, std::shared_ptr<IntersectionAware> two);
+    FindFirstPointOfIntersection(std::shared_ptr<IntersectionAware> one, std::shared_ptr<IntersectionAware> two, int samples);
     std::list<QVector4D>
     FindFurtherPointsOfIntersection(QVector4D P0, float dist, bool direction, bool& edgeEnd, std::shared_ptr<IntersectionAware> one,
                                     std::shared_ptr<IntersectionAware> two);

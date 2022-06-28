@@ -16,8 +16,12 @@ protected:
     std::shared_ptr<IntersectionAware> m_planeOne, m_planeTwo;
     bool m_cycle;
 
+    QImage GetTrimmingTextureOne();
+    QImage GetTrimmingTextureTwo();
+    QImage GetSelfTrimmingTexture();
     QImage GetTrimmingTexture(const std::vector<QVector2D> &points, std::shared_ptr<IntersectionAware> plane);
     void FloodFill4(QPoint start, uint color, QImage& image, bool wrapX, bool wrapY);
+    void DrawParametersPolylineOnTexture(QImage& image, std::shared_ptr<IntersectionAware> plane, const std::vector<QVector2D> &points);
 
 public:
 
@@ -33,8 +37,7 @@ public:
     std::vector<QVector3D> GetScenePoints();
     int GetScenePointsSize();
 
-    QImage GetTrimmingTextureOne();
-    QImage GetTrimmingTextureTwo();
+    std::tuple<QImage, QImage> GetTrimmingTextures();
 };
 
 

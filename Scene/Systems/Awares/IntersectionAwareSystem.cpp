@@ -51,8 +51,7 @@ void IntersectionAwareSystem::CreateIntersectionCurveBetween(std::shared_ptr<Int
     if (!dialog->exec())
         return;
 
-
-    QVector4D P0 = FindFirstPointOfIntersection(one, two);
+    QVector4D P0 = FindFirstPointOfIntersection(one, two, dialog->SearchingStartDensity());
 
     if (std::isnan(P0.x()))
         return;
@@ -82,11 +81,7 @@ void IntersectionAwareSystem::CreateIntersectionCurveBetween(std::shared_ptr<Int
         auto curve = std::make_shared<IntersectionCurve>("IntersectionCurve", intersectionArgs, one, two, !edgeEndP && !edgeEndN);
         curve->p_Selected->Selected = true;
 
-        QImage oneTex = curve->p_IntersectionRes->GetTrimmingTextureOne();
-        QImage twoTex = curve->p_IntersectionRes->GetTrimmingTextureTwo();
-
-        /*oneTex.save("oneTex.png");
-        twoTex.save("twoTex.png");*/
+        auto [oneTex, twoTex] = curve->p_IntersectionRes->GetTrimmingTextures();
 
         one->SetTrimmingTexture(oneTex);
         two->SetTrimmingTexture(twoTex);
@@ -98,7 +93,7 @@ void IntersectionAwareSystem::CreateIntersectionCurveBetween(std::shared_ptr<Int
 }
 
 QVector4D IntersectionAwareSystem::FindFirstPointOfIntersection(std::shared_ptr<IntersectionAware> one,
-                                                                std::shared_ptr<IntersectionAware> two)
+                                                                std::shared_ptr<IntersectionAware> two, int samples)
 {
     auto func = [one, two](QVector4D args) -> float
     {
@@ -119,7 +114,12 @@ QVector4D IntersectionAwareSystem::FindFirstPointOfIntersection(std::shared_ptr<
         return 2.0f / vec.length() * ders;
     };
 
-    QVector4D startPoint = one->FindClosestPoints(two);
+    QVector4D startPoint;
+    if (one->GetAttachedObjectID() == two->GetAttachedObjectID())
+        startPoint = one->FindClosestPointsSelf(samples);
+    else
+        startPoint = one->FindClosestPoints(two, samples);
+
     QVector4D P0_params = Optimization::SimpleGradientMethod(startPoint, func, grad);
     P0_params = WrapPointAround(P0_params, one, two);
 

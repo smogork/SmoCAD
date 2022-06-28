@@ -69,78 +69,46 @@ QImage IntersectionResult::GetTrimmingTextureTwo()
     return GetTrimmingTexture(args, m_planeTwo);
 }
 
+QImage IntersectionResult::GetSelfTrimmingTexture()
+{
+    const int size = 512;
+    QImage res({size, size}, QImage::Format_Mono);
+    res.fill(Qt::color1);
+
+    std::vector<QVector2D> args(m_paramPoints.size());
+    for (int i = 0; i < m_paramPoints.size(); ++i)
+        args[i] = {m_paramPoints[i].x(), m_paramPoints[i].y()};
+    DrawParametersPolylineOnTexture(res, m_planeOne, args);
+    for (int i = 0; i < m_paramPoints.size(); ++i)
+        args[i] = {m_paramPoints[i].z(), m_paramPoints[i].w()};
+    DrawParametersPolylineOnTexture(res, m_planeOne, args);
+
+    res.save("before_flood.png");
+
+    //zapusc algorytm FloodFill (4spojny) dla pierwszego bialego pixela
+    for (int i = 0; i < size * size; ++i)
+    {
+        int x = i / size;
+        int y = i % size;
+
+        if (res.pixelIndex(x, y) != 0)
+        {
+            FloodFill4({x, y}, 0, res, m_planeOne->UWraps, m_planeOne->VWraps);
+            break;
+        }
+    }
+
+    res.save("after_flood.png");
+    return res;
+}
+
 QImage IntersectionResult::GetTrimmingTexture(const std::vector<QVector2D> &points, std::shared_ptr<IntersectionAware> plane)
 {
     const int size = 512;
     QImage res({size, size}, QImage::Format_Mono);
     res.fill(Qt::color1);
 
-    //zapelnij pixele z krzywej przeciecia
-    QPainter painter(&res);
-    QBrush brush(Qt::color0, Qt::SolidPattern);
-    painter.setBrush(brush);
-    for (int i = 1; i < points.size(); ++i)
-    {
-        bool wrapX = 0, wrapY = 0;
-        int x1 = (points[i - 1].x()) * size / plane->UMax;
-        int y1 = (points[i - 1].y()) * size / plane->VMax;
-        int x2 = (points[i].x()) * size / plane->UMax;
-        int y2 = (points[i].y()) * size / plane->VMax;
-
-
-        if (abs(x2 - x1) > size / 2)
-            wrapX = true;
-        if (abs(y2 - y1) > size / 2)
-            wrapY = true;
-
-        //Jezeli sie zapetlamy, to narysuj dwukrotnie
-        if (wrapX)
-        {
-            if (x1 > size / 2)
-            {
-                int x2p = std::clamp(x2 + size, 0, size);
-                int x1p = std::clamp(x1 - size, 0, size);
-
-                painter.drawLine(x1, y1, x2p, y2);
-                painter.drawLine(x1p, y1, x2, y2);
-            }
-            else
-            {
-                int x2p = std::clamp(x2 - size, 0, size);
-                int x1p = std::clamp(x1 + size, 0, size);
-
-                painter.drawLine(x1, y1, x2p, y2);
-                painter.drawLine(x1p, y1, x2, y2);
-            }
-        }
-
-        if (wrapY)
-        {
-            if (y1 > size / 2)
-            {
-                int y1p = std::clamp(y1 - size, 0, size);
-                int y2p = std::clamp(y2 + size, 0, size);
-
-                painter.drawLine(x1, y1, x2, y2p);
-                painter.drawLine(x1, y1p, x2, y2);
-            }
-            else
-            {
-                int y1p = std::clamp(y1 + size, 0, size);
-                int y2p = std::clamp(y2 - size, 0, size);
-
-                painter.drawLine(x1, y1, x2, y2p);
-                painter.drawLine(x1, y1p, x2, y2);
-            }
-        }
-
-        if (!wrapX and !wrapY)
-            painter.drawLine(x1, y1, x2, y2);
-    }
-
-    int x1 = (points[0].x()) * size / plane->UMax;
-    int y1 = (points[0].y()) * size / plane->VMax;
-    bool test = res.pixelIndex(x1, y1) != 0;
+    DrawParametersPolylineOnTexture(res, plane, points);
 
     //zapusc algorytm FloodFill (4spojny) dla pierwszego bialego pixela
     for (int i = 0; i < size * size; ++i)
@@ -203,4 +171,84 @@ std::vector<QVector3D> IntersectionResult::GetScenePoints()
 int IntersectionResult::GetScenePointsSize()
 {
     return m_paramPoints.size();
+}
+
+void IntersectionResult::DrawParametersPolylineOnTexture(QImage &image, std::shared_ptr<IntersectionAware> plane, const std::vector<QVector2D> &points)
+{
+    //zapelnij pixele z krzywej przeciecia
+    QPainter painter(&image);
+    QBrush brush(Qt::color0, Qt::SolidPattern);
+    painter.setBrush(brush);
+    for (int i = 1; i < points.size(); ++i)
+    {
+        bool wrapX = 0, wrapY = 0;
+        int x1 = (points[i - 1].x()) * image.width() / plane->UMax;
+        int y1 = (points[i - 1].y()) * image.height() / plane->VMax;
+        int x2 = (points[i].x()) * image.width()  / plane->UMax;
+        int y2 = (points[i].y()) * image.height() / plane->VMax;
+
+
+        if (abs(x2 - x1) > image.width()  / 2)
+            wrapX = true;
+        if (abs(y2 - y1) > image.height() / 2)
+            wrapY = true;
+
+        //Jezeli sie zapetlamy, to narysuj dwukrotnie
+        if (wrapX)
+        {
+            if (x1 > image.width()  / 2)
+            {
+                int x2p = std::clamp(x2 + image.width() , 0, image.width() );
+                int x1p = std::clamp(x1 - image.width() , 0, image.width() );
+
+                painter.drawLine(x1, y1, x2p, y2);
+                painter.drawLine(x1p, y1, x2, y2);
+            }
+            else
+            {
+                int x2p = std::clamp(x2 - image.width(), 0, image.width());
+                int x1p = std::clamp(x1 + image.width(), 0, image.width());
+
+                painter.drawLine(x1, y1, x2p, y2);
+                painter.drawLine(x1p, y1, x2, y2);
+            }
+        }
+
+        if (wrapY)
+        {
+            if (y1 > image.height() / 2)
+            {
+                int y1p = std::clamp(y1 - image.height() , 0, image.height() );
+                int y2p = std::clamp(y2 + image.height() , 0, image.height() );
+
+                painter.drawLine(x1, y1, x2, y2p);
+                painter.drawLine(x1, y1p, x2, y2);
+            }
+            else
+            {
+                int y1p = std::clamp(y1 + image.height(), 0, image.height());
+                int y2p = std::clamp(y2 - image.height(), 0, image.height());
+
+                painter.drawLine(x1, y1, x2, y2p);
+                painter.drawLine(x1, y1p, x2, y2);
+            }
+        }
+
+        if (!wrapX and !wrapY)
+            painter.drawLine(x1, y1, x2, y2);
+    }
+}
+
+std::tuple<QImage, QImage> IntersectionResult::GetTrimmingTextures()
+{
+    if (m_planeOne->GetAttachedObjectID() == m_planeTwo->GetAttachedObjectID())
+    {
+        QImage res = GetSelfTrimmingTexture();
+        return {res, res};
+    }
+
+    QImage oneTex = GetTrimmingTextureOne();
+    QImage twoTex = GetTrimmingTextureTwo();
+
+    return {oneTex, twoTex};
 }

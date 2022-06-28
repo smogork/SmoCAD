@@ -25,5 +25,5 @@ bool IntersectionDialog::StartFromCursor()
 
 int IntersectionDialog::SearchingStartDensity()
 {
-    return 10;
+    return ui->spinDensity->value();
 }
