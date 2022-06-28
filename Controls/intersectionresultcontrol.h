@@ -13,7 +13,6 @@ class IntersectionResultControl;
 class IntersectionResultControl : public ComponentControl
 {
     Q_OBJECT
-
 public:
     explicit IntersectionResultControl(std::shared_ptr<IntersectionResult> res, QWidget *parent = nullptr);
     ~IntersectionResultControl();
