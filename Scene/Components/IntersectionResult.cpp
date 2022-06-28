@@ -43,8 +43,10 @@ IntersectionResult::IntersectionResult(unsigned int oid): IComponent(oid, INTERS
 
 IntersectionResult::~IntersectionResult()
 {
-    m_planeOne->IntersectionExists = false;
-    m_planeTwo->IntersectionExists = false;
+    if (auto one = m_planeOne.lock())
+        one->IntersectionExists = false;
+    if (auto two = m_planeTwo.lock())
+        two->IntersectionExists = false;
 
     UnregisterComponent();
 }
@@ -56,7 +58,9 @@ QImage IntersectionResult::GetTrimmingTextureOne()
     for (int i = 0; i < m_paramPoints.size(); ++i)
         args[i] = m_paramPoints[i].toVector2D();
 
-    return GetTrimmingTexture(args, m_planeOne);
+    if (auto one = m_planeOne.lock())
+        return GetTrimmingTexture(args, one);
+    return {};
 }
 
 QImage IntersectionResult::GetTrimmingTextureTwo()
@@ -66,7 +70,9 @@ QImage IntersectionResult::GetTrimmingTextureTwo()
     for (int i = 0; i < m_paramPoints.size(); ++i)
         args[i] = {m_paramPoints[i].z(), m_paramPoints[i].w()};
 
-    return GetTrimmingTexture(args, m_planeTwo);
+    if (auto two = m_planeTwo.lock())
+        return GetTrimmingTexture(args, two);
+    return {};
 }
 
 QImage IntersectionResult::GetSelfTrimmingTexture()
@@ -77,13 +83,18 @@ QImage IntersectionResult::GetSelfTrimmingTexture()
     res.save("clear.png");
 
     std::vector<QVector2D> args(m_paramPoints.size());
+    auto one = m_planeOne.lock();
+    auto two = m_planeTwo.lock();
+    if (!one or !two)
+        return res;
+
     for (int i = 0; i < m_paramPoints.size(); ++i)
         args[i] = {m_paramPoints[i].x(), m_paramPoints[i].y()};
-    DrawParametersPolylineOnTexture(c_curve, res, m_planeOne, args);
+    DrawParametersPolylineOnTexture(c_curve, res, one, args);
+
     for (int i = 0; i < m_paramPoints.size(); ++i)
         args[i] = {m_paramPoints[i].z(), m_paramPoints[i].w()};
-    DrawParametersPolylineOnTexture(c_curve, res, m_planeOne, args);
-
+    DrawParametersPolylineOnTexture(c_curve, res, two, args);
     res.save("before_flood.png");
 
     //zapusc algorytm FloodFill (4spojny) dla pierwszego bialego pixela
@@ -94,7 +105,7 @@ QImage IntersectionResult::GetSelfTrimmingTexture()
 
         if (res.pixel(x, y) == c_free)
         {
-            FloodFill4({x, y}, c_flood,  res, m_planeOne->UWraps, m_planeOne->VWraps);
+            FloodFill4({x, y}, c_flood,  res, one->UWraps, one->VWraps);
             break;
         }
     }
@@ -166,9 +177,11 @@ std::vector<QVector3D> IntersectionResult::GetScenePoints()
 {
     std::vector<QVector3D> res(m_paramPoints.size());
 
-    for (int i = 0; i < m_paramPoints.size(); ++i)
-        res[i] = m_planeOne->SceneFunction(m_paramPoints[i].toVector2D());
-
+    if (auto one = m_planeOne.lock())
+    {
+        for (int i = 0; i < m_paramPoints.size(); ++i)
+            res[i] = one->SceneFunction(m_paramPoints[i].toVector2D());
+    }
     return res;
 }
 
@@ -253,7 +266,13 @@ void IntersectionResult::DrawParametersPolylineOnTexture(QRgb color, QImage &ima
 
 std::tuple<QImage, QImage> IntersectionResult::GetTrimmingTextures()
 {
-    if (m_planeOne->GetAttachedObjectID() == m_planeTwo->GetAttachedObjectID())
+
+    auto one = m_planeOne.lock();
+    auto two = m_planeTwo.lock();
+    if (!one or !two)
+        return {};
+
+    if (one->GetAttachedObjectID() == two->GetAttachedObjectID())
     {
         QImage res = GetSelfTrimmingTexture();
         return {res, res};

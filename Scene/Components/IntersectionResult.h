@@ -11,6 +11,7 @@
 
 class IntersectionResult : public IComponent
 {
+    Q_OBJECT
 private :
     static constexpr QRgb c_curve = qRgb(0, 255, 0);
     static constexpr QRgb c_free = qRgb(255, 255, 255);
@@ -18,7 +19,7 @@ private :
 
 protected:
     std::vector<QVector4D> m_paramPoints;
-    std::shared_ptr<IntersectionAware> m_planeOne, m_planeTwo;
+    std::weak_ptr<IntersectionAware> m_planeOne, m_planeTwo;
     bool m_cycle;
 
     QImage GetTrimmingTextureOne();

@@ -28,6 +28,8 @@ protected:
     void DrawingFunction(QOpenGLContext *context);
     void UniformFunction(std::shared_ptr<ShaderWrapper> shader);
 
+protected slots:
+    void OnIntersectionAwareDeleted();
 
 public:
     std::shared_ptr<SceneElement> p_SceneElement;
@@ -38,6 +40,7 @@ public:
 
     IntersectionCurve(const QString &name, std::vector<QVector4D>& points, std::shared_ptr<IntersectionAware> one,
                       std::shared_ptr<IntersectionAware> two, bool isCycle);
+    void OnComponentDeleted();
 };
 
 #endif //SMOCAD_INTERSECTIONCURVE_H

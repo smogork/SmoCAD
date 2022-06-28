@@ -26,13 +26,15 @@ public:
 protected:
     void CreateIntersectionCurveBetween(std::shared_ptr<IntersectionAware> one, std::shared_ptr<IntersectionAware> two);
     QVector4D
-    FindFirstPointOfIntersection(std::shared_ptr<IntersectionAware> one, std::shared_ptr<IntersectionAware> two, int samples, QVector3D cursorPoint, bool startFromCursor);
+    FindFirstPointOfIntersection(std::shared_ptr<IntersectionAware> one, std::shared_ptr<IntersectionAware> two,
+                                 int samples, QVector3D cursorPoint, bool startFromCursor);
     std::list<QVector4D>
-    FindFurtherPointsOfIntersection(QVector4D P0, float dist, bool direction, bool& edgeEnd, std::shared_ptr<IntersectionAware> one,
+    FindFurtherPointsOfIntersection(QVector4D P0, float dist, bool direction, bool &edgeEnd,
+                                    std::shared_ptr<IntersectionAware> one,
                                     std::shared_ptr<IntersectionAware> two);
 
-    QVector4D WrapPointAround(const QVector4D& p, std::shared_ptr<IntersectionAware> one,
-    std::shared_ptr<IntersectionAware> two);
+    QVector4D WrapPointAround(const QVector4D &p, std::shared_ptr<IntersectionAware> one,
+                              std::shared_ptr<IntersectionAware> two);
 
 };
 

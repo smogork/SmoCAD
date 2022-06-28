@@ -4,6 +4,7 @@
 
 #include "IntersectionCurve.h"
 #include "Scene/Utilities/Utilites.h"
+#include "Scene/SceneECS.h"
 
 
 IntersectionCurve::IntersectionCurve(const QString &name, std::vector<QVector4D>& points, std::shared_ptr<IntersectionAware> one,
@@ -26,6 +27,8 @@ IntersectionCurve::IntersectionCurve(const QString &name, std::vector<QVector4D>
                     DrawingColor = DefaultColor;
             });
 
+    connect(one.get(), &IComponent::ComponentDeleted, this, &IntersectionCurve::OnIntersectionAwareDeleted);
+    connect(two.get(), &IComponent::ComponentDeleted, this, &IntersectionCurve::OnIntersectionAwareDeleted);
 }
 
 void IntersectionCurve::InitializeDrawing()
@@ -68,4 +71,10 @@ std::vector<float> IntersectionCurve::GenerateGeometryVertices()
 int IntersectionCurve::GetIndexCount()
 {
     return p_IntersectionRes->GetScenePointsSize();
+}
+
+void IntersectionCurve::OnIntersectionAwareDeleted()
+{
+    if (auto scene = SceneECS::Instance().lock())
+        scene->RemoveObject(GetObjectID());
 }
