@@ -111,7 +111,7 @@ QVector4D IntersectionAware::FindClosestPointsSelf(int samples)
 {
     QVector4D best_params;
     float best_dist = INFINITY;
-    const QVector2D minArgDist = {(UMax - UMin) / 100, (VMax - VMin) / 100};
+    const QVector2D minArgDist = {(UMax - UMin) / 20, (VMax - VMin) / 20};
 
     std::default_random_engine generator;
     std::uniform_real_distribution<float> Udist(UMin, UMax);
@@ -150,9 +150,9 @@ QVector4D IntersectionAware::FindClosestPointsSelf(int samples)
 
 QVector2D IntersectionAware::FindClosestPointsFarFromArgs(QVector3D pos, QVector2D args, int samples)
 {
-    QVector2D best_params;
+    QVector2D best_params = {NAN, NAN};
     float best_dist = INFINITY;
-    const QVector2D minArgDist = {(UMax - UMin) / 100, (VMax - VMin) / 100};
+    const QVector2D minArgDist = {(UMax - UMin) / 20, (VMax - VMin) / 20};
 
     std::default_random_engine generator;
     std::uniform_real_distribution<float> Udist(UMin, UMax);

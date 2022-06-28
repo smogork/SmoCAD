@@ -374,6 +374,17 @@ std::vector<unsigned int> SceneECS::GetListContextObjects()
     return elSystem->GetSelectedItemsOnList();
 }
 
+QVector3D SceneECS::GetCursorPos(bool &cursorExists)
+{
+    if (cursor)
+    {
+        cursorExists = true;
+        return cursor->p_Transform->Position;
+    }
+    cursorExists = false;
+    return QVector3D();
+}
+
 
 
 
