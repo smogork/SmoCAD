@@ -123,21 +123,20 @@ QImage IntersectionCurve::GetTrimmingTexture(const std::vector<QVector2D> &point
             wrapY = true;
 
         //Jezeli sie zapetlamy, to narysuj dwukrotnie
-        //TODO: pozbadz sie hardokodowanego rozmiaru tekstury
         if (wrapX)
         {
             if (x1 > size / 2)
             {
-                int x2p = std::clamp(x2 + 512, 0, 512);
-                int x1p = std::clamp(x1 - 512, 0, 512);
+                int x2p = std::clamp(x2 + size, 0, size);
+                int x1p = std::clamp(x1 - size, 0, size);
 
                 painter.drawLine(x1, y1, x2p, y2);
                 painter.drawLine(x1p, y1, x2, y2);
             }
             else
             {
-                int x2p = std::clamp(x2 - 512, 0, 512);
-                int x1p = std::clamp(x1 + 512, 0, 512);
+                int x2p = std::clamp(x2 - size, 0, size);
+                int x1p = std::clamp(x1 + size, 0, size);
 
                 painter.drawLine(x1, y1, x2p, y2);
                 painter.drawLine(x1p, y1, x2, y2);
@@ -148,16 +147,16 @@ QImage IntersectionCurve::GetTrimmingTexture(const std::vector<QVector2D> &point
         {
             if (y1 > size / 2)
             {
-                int y1p = std::clamp(y1 - 512, 0, 512);
-                int y2p = std::clamp(y2 + 512, 0, 512);
+                int y1p = std::clamp(y1 - size, 0, size);
+                int y2p = std::clamp(y2 + size, 0, size);
 
                 painter.drawLine(x1, y1, x2, y2p);
                 painter.drawLine(x1, y1p, x2, y2);
             }
             else
             {
-                int y1p = std::clamp(y1 + 512, 0, 512);
-                int y2p = std::clamp(y2 - 512, 0, 512);
+                int y1p = std::clamp(y1 + size, 0, size);
+                int y2p = std::clamp(y2 - size, 0, size);
 
                 painter.drawLine(x1, y1, x2, y2p);
                 painter.drawLine(x1, y1p, x2, y2);
@@ -180,7 +179,7 @@ QImage IntersectionCurve::GetTrimmingTexture(const std::vector<QVector2D> &point
 
         if (res.pixelIndex(x, y) != 0)
         {
-            FloodFill4({x, y}, 0, res);
+            FloodFill4({x, y}, 0, res, plane->UWraps, plane->VWraps);
             break;
         }
     }
@@ -188,7 +187,7 @@ QImage IntersectionCurve::GetTrimmingTexture(const std::vector<QVector2D> &point
     return res;
 }
 
-void IntersectionCurve::FloodFill4(QPoint start, uint color, QImage& image)
+void IntersectionCurve::FloodFill4(QPoint start, uint color, QImage& image, bool wrapX, bool wrapY)
 {
 
     std::stack<QPoint> s;
@@ -198,6 +197,12 @@ void IntersectionCurve::FloodFill4(QPoint start, uint color, QImage& image)
     {
         QPoint cur = s.top();
         s.pop();
+
+        if (wrapX)
+            cur.setX(wrap(cur.x(), 0, image.width()));
+
+        if (wrapY)
+            cur.setY(wrap(cur.y(), 0, image.height()));
 
         if (cur.x() < 0 || cur.x() >= image.width() ||
             cur.y() < 0 || cur.y() >= image.height())

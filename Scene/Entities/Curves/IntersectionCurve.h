@@ -31,7 +31,7 @@ protected:
     void DrawingFunction(QOpenGLContext *context);
     void UniformFunction(std::shared_ptr<ShaderWrapper> shader);
     QImage GetTrimmingTexture(const std::vector<QVector2D> &points, std::shared_ptr<IntersectionAware> plane);
-    void FloodFill4(QPoint start, uint color, QImage& image);
+    void FloodFill4(QPoint start, uint color, QImage& image, bool wrapX, bool wrapY);
 
 public:
     std::shared_ptr<SceneElement> p_SceneElement;

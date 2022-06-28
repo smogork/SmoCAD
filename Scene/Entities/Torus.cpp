@@ -72,8 +72,8 @@ std::vector<float> Torus::GenerateGeometryVertices()
             res[vIndex] = p.x();
             res[vIndex + 1] = p.y();
             res[vIndex + 2] = p.z();
-            res[vIndex + 3] = u / p_UV->UDensity;
-            res[vIndex + 4] = v / p_UV->VDensity;
+            res[vIndex + 3] = (float)u / p_UV->UDensity;
+            res[vIndex + 4] = (float)v / p_UV->VDensity;
             vIndex += 5;
         }
     }
