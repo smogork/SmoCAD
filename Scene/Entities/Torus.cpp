@@ -184,9 +184,9 @@ void Torus::InitializeUV()
     p_Intersection->UWraps = true;
     p_Intersection->VWraps = true;
     p_Intersection->UMin = 0.0f;
-    p_Intersection->UMax = 2 * M_PIf;
+    p_Intersection->UMax = 2 * M_PI;
     p_Intersection->VMin = 0.0f;
-    p_Intersection->VMax = 2 * M_PIf;
+    p_Intersection->VMax = 2 * M_PI;
 
     uNotifier = p_UV->U.addNotifier(ASSIGN_NOTIFIER_FUNCTION(&Torus::UVChanged));
     vNotifier = p_UV->V.addNotifier(ASSIGN_NOTIFIER_FUNCTION(&Torus::UVChanged));

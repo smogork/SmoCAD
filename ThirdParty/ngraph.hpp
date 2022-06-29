@@ -255,8 +255,8 @@ class tGraph
       G_[a];
     }
 
-    void insert_new_vertex_inout_list(const vertex &a, const vertex_set &IN,
-              const vertex_set &OUT)
+    void insert_new_vertex_inout_list(const vertex &a, const vertex_set &in_neighs,
+              const vertex_set &out_neighs)
     {
       typename adj_graph::iterator p = find(a);
 
@@ -267,8 +267,8 @@ class tGraph
             num_edges_ -= p->second.second.size();
       }
 
-      G_[a] = make_pair(IN, OUT);
-      num_edges_ += OUT.size();
+      G_[a] = make_pair(in_neighs, out_neighs);
+      num_edges_ += out_neighs.size();
     }
 
 

@@ -23,6 +23,10 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS 3DCore REQUIRED)
 #find_package(GSL REQUIRED)    # See below (2)
 
+if (WIN32)
+    find_library(GDIPLUS gdiplus)
+    find_library(GDI32 gdi32)
+endif ()
 
 set(TS_FILES SmoCAD_en_GB.ts)
 set(SHADER_FILES
@@ -165,7 +169,7 @@ set(PROJECT_SOURCES
         Scene/Components/Awares/IntersectionAware.cpp Scene/Components/Awares/IntersectionAware.h
         Scene/Entities/Curves/IntersectionCurve.cpp Scene/Entities/Curves/IntersectionCurve.h Scene/Systems/IntersectionResultSystem.cpp Scene/Systems/IntersectionResultSystem.h Scene/Components/IntersectionResult.cpp Scene/Components/IntersectionResult.h)
 
-add_subdirectory(Tests)
+#add_subdirectory(Tests)
 add_subdirectory(ThirdParty/Scene-Serializer/cpp/Serializer)
 
 if (${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -211,6 +215,11 @@ target_link_libraries(SmoCAD PRIVATE Qt${QT_VERSION_MAJOR}::Core)
 target_link_libraries(SmoCAD PRIVATE m)
 target_link_libraries(SmoCAD PRIVATE MGSerializer)
 #target_link_libraries(SmoCAD PRIVATE GSL::gsl GSL::gslcblas)
+
+if (WIN32)
+    target_link_libraries(SmoCAD PRIVATE GDIPLUS GDI32)
+    target_link_libraries(SmoCAD PRIVATE opengl32)
+endif()
 
 set_target_properties(SmoCAD PROPERTIES
         MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
