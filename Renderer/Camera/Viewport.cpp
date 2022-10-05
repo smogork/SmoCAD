@@ -9,7 +9,7 @@ Viewport::Viewport(QSize viewport, float fov)
 {
     this->viewportSize = viewport;
     this->fov = fov;
-    this->radFov = fov * M_PIf / 180.0f;
+    this->radFov = fov * M_PI / 180.0f;
     aspectRatio = (float)viewport.width() / (float)viewport.height();
 }
 
@@ -28,7 +28,7 @@ QMatrix4x4 Viewport::UpdatePerspectiveMatrix(QSize viewport)
 QMatrix4x4 Viewport::GetProjectionMatrix()
 {
     QMatrix4x4 res;
-    res.perspective(fov, aspectRatio, NEAR, FAR);
+    res.perspective(fov, aspectRatio, NEAR_DIST, FAR_DIST);
     return res;
 }
 
@@ -49,7 +49,7 @@ QMatrix4x4 Viewport::GetLeftEyeProjectionMatrix()
 {
     float top, bottom, left, right;
 
-    top     = NEAR * tan(radFov/2);
+    top     = NEAR_DIST * tan(radFov/2);
     bottom  = -top;
 
     float a = aspectRatio * tan(radFov/2) * Options::StereoParams->FocusDistance;
@@ -57,12 +57,12 @@ QMatrix4x4 Viewport::GetLeftEyeProjectionMatrix()
     float b = a - Options::StereoParams->EyeSeparation/2;
     float c = a + Options::StereoParams->EyeSeparation/2;
 
-    left    = -b * NEAR/Options::StereoParams->FocusDistance;
-    right   =  c * NEAR/Options::StereoParams->FocusDistance;
+    left    = -b * NEAR_DIST/Options::StereoParams->FocusDistance;
+    right   =  c * NEAR_DIST/Options::StereoParams->FocusDistance;
 
     QMatrix4x4 res;
     res.frustum(left, right, bottom, top,
-              NEAR, FAR);
+              NEAR_DIST, FAR_DIST);
     return res;
 }
 
@@ -70,7 +70,7 @@ QMatrix4x4 Viewport::GetRightEyeProjectionMatrix()
 {
     float top, bottom, left, right;
 
-    top     = NEAR * tan(radFov/2);
+    top     = NEAR_DIST * tan(radFov/2);
     bottom  = -top;
 
     float a = aspectRatio * tan(radFov/2) * Options::StereoParams->FocusDistance;
@@ -78,12 +78,12 @@ QMatrix4x4 Viewport::GetRightEyeProjectionMatrix()
     float b = a - Options::StereoParams->EyeSeparation/2;
     float c = a + Options::StereoParams->EyeSeparation/2;
 
-    left    =  -c * NEAR/Options::StereoParams->FocusDistance;
-    right   =   b * NEAR/Options::StereoParams->FocusDistance;
+    left    =  -c * NEAR_DIST/Options::StereoParams->FocusDistance;
+    right   =   b * NEAR_DIST/Options::StereoParams->FocusDistance;
 
     QMatrix4x4 res;
     res.frustum(left, right, bottom, top,
-                NEAR, FAR);
+                NEAR_DIST, FAR_DIST);
     return res;
 }
 
@@ -93,8 +93,8 @@ QMatrix4x4 Viewport::CreateStereoMatrix(bool isLeft)
     float left_right_direction = -1.0f;
     if(isLeft)
         left_right_direction = 1.0f;
-    float nearZ = NEAR;
-    float farZ = FAR;
+    float nearZ = NEAR_DIST;
+    float farZ = FAR_DIST;
     double frustumshift = (Options::StereoParams->EyeSeparation /2)*nearZ/farZ;
     float top = tan(radFov/2)*nearZ;
     float right =

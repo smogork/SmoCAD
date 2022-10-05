@@ -32,7 +32,6 @@ void BasePlane::DrawingFunction(QOpenGLContext *context)
 {
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE );//rysowanie wireframow trojkatow wygenerowanych w shaderze teselacji
     Renderer::DrawPatches(context->functions(), GetIndexCount());
-    
 }
 
 void BasePlane::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
@@ -41,6 +40,8 @@ void BasePlane::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
     shader->SetUniform("u_MVP.Model", QMatrix4x4());
     shader->SetUniform("u_UDensity", p_UV->UDensity);
     shader->SetUniform("u_VDensity", p_UV->VDensity);
+    shader->SetUniform("u_UPatch", p_UV->U);
+    shader->SetUniform("u_VPatch", p_UV->V);
     shader->GetRawProgram()->setPatchVertexCount(16);
 }
 
@@ -59,7 +60,6 @@ void BasePlane::InitObject(bool isPipe, int countU, int countV)
     AddComponent(p_Drawing = DynamicDrawing::CreateRegisteredComponent(GetObjectID()));
     AddComponent(p_Collection = TransformCollection::CreateRegisteredComponent(GetObjectID()));
     AddComponent(p_UV = UVParams::CreateRegisteredComponent(GetObjectID(), countU, countV));
-    p_UV->UWraps = isPipe;
     m_mesh.IsPipe = isPipe;
 
     InitializeDrawing();

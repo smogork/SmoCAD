@@ -8,7 +8,7 @@
 #include "Scene/Entities/IEntity.h"
 #include "Scene/Components/Transform.h"
 #include "Scene/Components/Drawing/StaticDrawing.h"
-#include "Scene/Components/CollectionAware.h"
+#include "Scene/Components/Awares/CollectionAware.h"
 #include "Scene/Components/Selectable.h"
 #include "Scene/Components/ScreenSelectable.h"
 

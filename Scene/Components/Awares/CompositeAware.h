@@ -6,8 +6,8 @@
 #define SMOCAD_COMPOSITEAWARE_H
 
 
-#include "IComponent.h"
-#include "Transform.h"
+#include "Scene/Components/IComponent.h"
+#include "Scene/Components/Transform.h"
 #include "Scene/Components/Drawing/Drawing.h"
 
 class CompositeAware: public IComponent

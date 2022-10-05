@@ -8,7 +8,7 @@
 #include "IComponent.h"
 #include "Transform.h"
 #include "Selectable.h"
-#include "CompositeAware.h"
+#include "Scene/Components/Awares/CompositeAware.h"
 
 class ScreenSelectable : public IComponent
 {

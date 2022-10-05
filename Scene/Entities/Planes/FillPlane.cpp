@@ -5,7 +5,7 @@
 #include "FillPlane.h"
 #include "Scene/SceneECS.h"
 #include "Mathematics/PointShapes.h"
-#include "Scene/Systems/FillAwareSystem.h"
+#include "Scene/Systems/Awares/FillAwareSystem.h"
 #include "Renderer/Options.h"
 
 FillPlane::FillPlane(const QString &name, const FillLoop &planeLoop)
@@ -51,7 +51,6 @@ FillPlane::FillPlane(const QString &name, const FillLoop &planeLoop)
     p_UV->LockEditUV();
     
     m_gmesh.DrawingColor = Qt::red;
-    //[TODO] dodac przelaczanie siatki w opcjach
 }
 
 std::vector<float> FillPlane::GenerateGeometryVertices()

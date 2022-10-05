@@ -16,6 +16,8 @@
 #define ASSIGN_CONTEXT_LIST_FUNCTION_IGNORE_SELECTION(F)  std::bind(F, this, std::placeholders::_1)
 
 QVector4D ColorToVector4D(QColor c);
+float wrap(float v, float min, float max);
+int wrap(int v, int min, int max);
 
 MG1::Float3 SerializeQVector3D(QVector3D v);
 QVector3D DeserializeFloat3(MG1::Float3 v);

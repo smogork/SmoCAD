@@ -5,8 +5,8 @@
 #ifndef SMOCAD_COLLECTIONAWARE_H
 #define SMOCAD_COLLECTIONAWARE_H
 
-#include "IComponent.h"
-#include "Transform.h"
+#include "Scene/Components/IComponent.h"
+#include "Scene/Components/Transform.h"
 
 class CollectionAware: public IComponent
 {

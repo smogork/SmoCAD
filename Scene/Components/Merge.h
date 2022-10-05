@@ -6,7 +6,7 @@
 #define SMOCAD_MERGE_H
 
 #include "IComponent.h"
-#include "CollectionAware.h"
+#include "Scene/Components/Awares/CollectionAware.h"
 
 class Merge : public IComponent
 {

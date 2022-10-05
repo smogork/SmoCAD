@@ -142,7 +142,7 @@ void OrbitalCamera::Reset()
 {
     CenterPoint = QVector3D();
     fiAngle = 0;
-    thetaAngle = M_PIf / 4;
+    thetaAngle = M_PI / 4;
     SetPivotLength(5);
     UpdateFrontAndRight();
 }

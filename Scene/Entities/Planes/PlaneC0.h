@@ -15,7 +15,8 @@
 #include "Scene/Entities/Points/Point.h"
 #include "Scene/Components/UVParams.h"
 #include "BasePlane.h"
-#include "Scene/Components/FillAware.h"
+#include "Scene/Components/Awares/FillAware.h"
+#include "Scene/Components/Awares/IntersectionAware.h"
 
 class PlaneC0 : public BasePlane
 {
@@ -32,13 +33,22 @@ protected:
     std::vector<int> GenerateTopologyIndices() override;
     int GetIndexCount() override;
     int GetVertexCount(bool isPipe);
+    void DrawingFunction(QOpenGLContext* context);
+    void UniformFunction(std::shared_ptr<ShaderWrapper> shader);
+    void GetIndexesOfPatch(int uPatch, int vPatch, std::vector<int>& indices);
 
     void SerializingFunction(MG1::Scene& scene);
+    void InitializeUV(bool isPipe);
+    
+    QVector3D PlaneC0Func(QVector2D uv);
+    QVector3D PlaneC0FuncDerU(QVector2D uv);
+    QVector3D PlaneC0FuncDerV(QVector2D uv);
 
 public:
     std::shared_ptr<Selectable> p_Selected;
     std::shared_ptr<SceneElement> p_SceneElement;
     std::shared_ptr<FillAware> p_FillAware;
+    std::shared_ptr<IntersectionAware> p_Intersection;
 
     PlaneC0(const QString &name, bool isPipe, int countU, int countV);
     explicit PlaneC0(const MG1::BezierSurfaceC0 &p0);

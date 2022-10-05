@@ -3,10 +3,10 @@
 #include "Scene/SceneECS.h"
 #include "Scene/Systems/SceneElementSystem.h"
 #include "Scene/Entities/Curves/BezierC0.h"
-#include "Scene/Systems/CollectionAwareSystem.h"
+#include "Scene/Systems/Awares/CollectionAwareSystem.h"
 #include "Scene/Entities/Curves/BezierC2.h"
 #include "Scene/Entities/Curves/InterpolationC2.h"
-#include "Scene/Systems/CompositeAwareSystem.h"
+#include "Scene/Systems/Awares/CompositeAwareSystem.h"
 #include "Controls/EntityContextMenu.h"
 
 #include <QMenu>

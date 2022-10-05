@@ -6,7 +6,7 @@
 #include "FillAware.h"
 #include "Scene/Systems/ISystem.h"
 #include "Scene/SceneECS.h"
-#include "Scene/Systems/FillAwareSystem.h"
+#include "Scene/Systems/Awares/FillAwareSystem.h"
 
 std::shared_ptr<FillAware>
 FillAware::CreateRegisteredComponent(unsigned int oid, std::shared_ptr<TransformCollection> col)
@@ -41,39 +41,6 @@ FillAware::~FillAware()
 {
     UnregisterComponent();
 }
-
-/*CrossingPoint FillAware::GetCrossingPointWith(const std::shared_ptr<FillAware> &other)
-{
-    //JEzeli nie ma dokladnie 16 punktow (jeden platek) to w ogole nie rozwazamy przeciec
-    if (p_Collection->Size() != 16 or other->p_Collection->Size() != 16)
-        return CrossingPoint::NONE;
-    
-    auto one_points = p_Collection->GetVectorAwares();
-    auto two_points = other->p_Collection->GetVectorAwares();
-    
-    std::vector<std::shared_ptr<CollectionAware>> one_corners = {one_points[0].lock(), one_points[3].lock(),
-                                                                 one_points[15].lock(), one_points[12].lock()};
-    std::vector<std::shared_ptr<CollectionAware>> two_corners = {two_points[0].lock(), two_points[3].lock(),
-                                                                 two_points[15].lock(), two_points[12].lock()};
-    
-    for (int one_i = 0; one_i < 4; ++one_i)
-    {
-        for (int two_i = 0; two_i < 4; ++two_i)
-        {
-            if (one_corners[one_i]->GetAttachedObjectID() == two_corners[two_i]->GetAttachedObjectID())
-                return (CrossingPoint) (one_i + 1);
-        }
-    }
-    return CrossingPoint::NONE;
-}*/
-
-/*FillEdge FillAware::GetFillEdgeWith(const std::shared_ptr<FillAware> &one, const std::shared_ptr<FillAware> &two)
-{
-    CrossingPoint onePoint = GetCrossingPointWith(one);
-    CrossingPoint twoPoint = GetCrossingPointWith(two);
-    
-    
-}*/
 
 std::vector<std::shared_ptr<CollectionAware>> FillAware::GetPointsFromEdge(FillEdge edge)
 {

@@ -8,7 +8,7 @@
 
 #include "Scene/Entities/IEntity.h"
 #include "Scene/Entities/Cursor.h"
-#include "Scene/Components/CompositeAware.h"
+#include "Scene/Components/Awares/CompositeAware.h"
 #include "Scene/Components/Selectable.h"
 
 class Composite: public IEntity

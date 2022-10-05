@@ -6,9 +6,9 @@
 #define SMOCAD_FILLPLANE_H
 
 #include "BasePlane.h"
-#include "Scene/Components/FillAware.h"
+#include "Scene/Components/Awares/FillAware.h"
 #include "GregoryMesh.h"
-#include "Scene/Systems/FillAwareSystem.h"
+#include "Scene/Systems/Awares/FillAwareSystem.h"
 
 class FillPlane: public BasePlane
 {

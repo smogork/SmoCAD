@@ -10,7 +10,8 @@ Torus::Torus(const QString &name, QVector3D position) : IEntity(TORUS_CLASS)
     InitObject(name, position);
 }
 
-Torus::Torus(const QString &name) : Torus(name, QVector3D()) {}
+Torus::Torus(const QString &name) : Torus(name, QVector3D())
+{}
 
 void Torus::UVChanged()
 {
@@ -23,7 +24,8 @@ void Torus::InitializeDrawing()
     p_Drawing->SetVertexData(GenerateGeometryVertices());
     p_Drawing->SetIndexData(GenerateTopologyIndices());
     p_Drawing->p_bufferLayout.Push<float>(3);//position
-    if (auto sh = Renderer::GetShader(DEFAULT_SHADER).lock())
+    p_Drawing->p_bufferLayout.Push<float>(2);//texCoord
+    if (auto sh = Renderer::GetShader(TORUS_SHADER).lock())
         p_Drawing->AttachShader(sh);
 
     p_Drawing->p_renderingFunction = ASSIGN_DRAWING_FUNCTION(&Torus::DrawingFunction);
@@ -38,31 +40,36 @@ void Torus::DrawingFunction(QOpenGLContext *context)
 void Torus::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
 {
     shader->SetUniform("u_MVP.Model", p_Transform->GetModelMatrix());
+    //shader->SetUniform("u_MVP.Model", QMatrix4x4());
     shader->SetUniform("u_ObjectColor", ColorToVector4D(m_color));
+    p_Intersection->SetTrimmingUniforms(shader);
 }
 
 std::vector<float> Torus::GenerateGeometryVertices()
 {
-    std::vector<float> res(3 * p_UV->VDensity * p_UV->UDensity);
+    std::vector<float> res(5 * (p_UV->VDensity + 1) * (p_UV->UDensity + 1));
 
     int vIndex = 0;
-    for (int u = 0; u < p_UV->UDensity; ++u)
+    for (int u = 0; u < p_UV->UDensity + 1; ++u)
     {
         float uDegree = u * 2.0f * M_PI / p_UV->UDensity;
-        QMatrix4x4 rotY;
-        rotY.rotate(uDegree * 180 / M_PI, Transform::GetYAxis());
-        for (int v = 0; v < p_UV->VDensity; ++v)
+        /*QMatrix4x4 rotY;
+        rotY.rotate(uDegree * 180 / M_PI, Transform::GetYAxis());*/
+        for (int v = 0; v < p_UV->VDensity + 1; ++v)
         {
             float vDegree = v * 2.0f * M_PI / p_UV->VDensity;
-            QVector4D p = rotY * QVector4D(
+            /*QVector4D p = rotY * QVector4D(
                     p_UV->V * cosf(vDegree) + p_UV->U,
                     p_UV->V * sinf(vDegree),
-                    0.0f, 1.0f);
+                    0.0f, 1.0f);*/
+            QVector3D p = TorusLocalFunc({uDegree, vDegree});
 
             res[vIndex] = p.x();
             res[vIndex + 1] = p.y();
             res[vIndex + 2] = p.z();
-            vIndex += 3;
+            res[vIndex + 3] = (float)u / p_UV->UDensity;
+            res[vIndex + 4] = (float)v / p_UV->VDensity;
+            vIndex += 5;
         }
     }
 
@@ -74,23 +81,24 @@ std::vector<int> Torus::GenerateTopologyIndices()
     std::vector<int> res(GetIndexCount());
 
     int eIndex = 0;
+    const int smallCirOffset = p_UV->VDensity + 1;
     for (int u = 0; u < p_UV->UDensity; ++u)
     {
-        int uOffset = u * p_UV->VDensity;
+        int uOffset = u * smallCirOffset;
 
         //Mały okrąg
         for (int v = 0; v < p_UV->VDensity; ++v)
         {
             res[eIndex] = uOffset + v;
-            res[eIndex + 1] = uOffset + ((v + 1) % p_UV->VDensity);
+            res[eIndex + 1] = uOffset + v + 1;
             eIndex += 2;
         }
 
-        //Połaczenie z kolejnym okręgiem modulo
+        //Połaczenie z kolejnym malym okręgiem
         for (int v = 0; v < p_UV->VDensity; ++v)
         {
             res[eIndex] = uOffset + v;
-            res[eIndex + 1] = (uOffset + p_UV->VDensity + v) % (p_UV->VDensity * p_UV->UDensity);
+            res[eIndex + 1] = uOffset + smallCirOffset + v ;
             eIndex += 2;
         }
     }
@@ -148,25 +156,93 @@ void Torus::InitObject(const QString &name, QVector3D position)
     AddComponent(p_CompositeAware = CompositeAware::CreateRegisteredComponent(GetObjectID(), p_Transform, p_Drawing));
     AddComponent(p_Selected = Selectable::CreateRegisteredComponent(GetObjectID()));
     AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(GetObjectID(), name, p_Selected));
-    p_UV->UWraps = true;
-    p_UV->VWraps = true;
+    AddComponent(p_Intersection = IntersectionAware::CreateRegisteredComponent(GetObjectID(), p_UV));
+    InitializeUV();
 
     p_SceneElement->SerializeObject = ASSIGN_SERIALIZER_FUNCTION(&Torus::SerializingFunction);
 
-    selectedNotifier = p_Selected->Selected.addNotifier([this]()
-                                                        {
-                                                            HandleColors();
-                                                        });
-    compositeNotifier = p_CompositeAware->InsideComposite.addNotifier([this]()
-                                                                      {
-                                                                          HandleColors();
-                                                                      });
+    selectedNotifier = p_Selected->Selected.addNotifier(
+            [this]()
+            {
+                HandleColors();
+            });
+    compositeNotifier = p_CompositeAware->InsideComposite.addNotifier(
+            [this]()
+            {
+                HandleColors();
+            });
 
     InitializeDrawing();
+}
+
+void Torus::InitializeUV()
+{
+    p_Intersection->SceneFunction = ASSIGN_UV_FUNCTION(&Torus::TorusFunc);
+    p_Intersection->SceneFunctionDerU = ASSIGN_UV_FUNCTION(&Torus::TorusFuncDerU);
+    p_Intersection->SceneFunctionDerV = ASSIGN_UV_FUNCTION(&Torus::TorusFuncDerV);
+
+    p_Intersection->UWraps = true;
+    p_Intersection->VWraps = true;
+    p_Intersection->UMin = 0.0f;
+    p_Intersection->UMax = 2 * M_PI;
+    p_Intersection->VMin = 0.0f;
+    p_Intersection->VMax = 2 * M_PI;
+
     uNotifier = p_UV->U.addNotifier(ASSIGN_NOTIFIER_FUNCTION(&Torus::UVChanged));
     vNotifier = p_UV->V.addNotifier(ASSIGN_NOTIFIER_FUNCTION(&Torus::UVChanged));
     udNotifier = p_UV->UDensity.addNotifier(ASSIGN_NOTIFIER_FUNCTION(&Torus::UVChanged));
     vdNotifier = p_UV->VDensity.addNotifier(ASSIGN_NOTIFIER_FUNCTION(&Torus::UVChanged));
+}
+
+QVector3D Torus::TorusFunc(QVector2D uv)
+{
+    if (!p_Intersection->ArgumentsInsideDomain(uv))
+        return {0, 0, 0};
+
+    uv = p_Intersection->WrapArgumentsAround(uv);
+
+    QVector4D local(TorusLocalFunc(uv));
+    local.setW(1.0f);
+    return (p_Transform->GetModelMatrix() * local).toVector3D();
+}
+
+QVector3D Torus::TorusFuncDerU(QVector2D uv)
+{
+    if (!p_Intersection->ArgumentsInsideDomain(uv))
+        return {0, 0, 0};
+
+    uv = p_Intersection->WrapArgumentsAround(uv);
+
+    return (p_Transform->GetModelMatrix() *
+            QVector4D(
+                    -(p_UV->U + p_UV->V * cos(uv.y())) * sin(uv.x()),
+                    0,
+                    (p_UV->U + p_UV->V * cos(uv.y())) * cos(uv.x()),
+                    0)).toVector3D();
+}
+
+QVector3D Torus::TorusFuncDerV(QVector2D uv)
+{
+    if (!p_Intersection->ArgumentsInsideDomain(uv))
+        return {0, 0, 0};
+
+    uv = p_Intersection->WrapArgumentsAround(uv);
+
+    return (p_Transform->GetModelMatrix() *
+            QVector4D(
+                    -p_UV->V * sin(uv.y()) * cos(uv.x()),
+                    p_UV->V * cos(uv.y()),
+                    -p_UV->V * sin(uv.y()) * sin(uv.x()),
+                    0)).toVector3D();
+}
+
+QVector3D Torus::TorusLocalFunc(QVector2D uv)
+{
+    return QVector3D(
+            (p_UV->U + p_UV->V * cos(uv.y())) * cos(uv.x()),
+            p_UV->V * sin(uv.y()),
+            (p_UV->U + p_UV->V * cos(uv.y())) * sin(uv.x())
+                    );
 }
 
 

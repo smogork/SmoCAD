@@ -5,12 +5,10 @@
 #ifndef SMOCAD_INTERPOLATIONC2TEST_H
 #define SMOCAD_INTERPOLATIONC2TEST_H
 
-#include <gtest/gtest.h>
+#include "CommonTestClass.h"
 
-class InterpolationC2Test: public testing::Test
+class InterpolationC2Test: public CommonTestClass
 {
-    const float feps = 1e-6;
-
 public:
     InterpolationC2Test( ) {
         // initialization;
@@ -35,7 +33,7 @@ public:
     bool TestInterpolationResultC0(std::vector<QVector3D>& knots, std::vector<QVector3D>& res);
     bool TestInterpolationResultC1(std::vector<QVector3D>& knots, std::vector<QVector3D>& res, std::vector<double>& distance);
     bool TestInterpolationResultC2(std::vector<QVector3D>& knots, std::vector<QVector3D>& res, std::vector<double>& distance);
-    bool QVector3DAlmostEquals(QVector3D one, QVector3D two);
+
     std::vector<double> CountDistance(std::vector<QVector3D>& knots);
 };
 
