@@ -38,6 +38,7 @@ private:
     QPropertyNotifier vdNotifier;
     
     //u - wiekszy promien [0, 2PI), v - mniejszy promien [0, 2PI)
+    QVector3D TorusLocalFunc(QVector2D uv);
     QVector3D TorusFunc(QVector2D uv);
     QVector3D TorusFuncDerU(QVector2D uv);
     QVector3D TorusFuncDerV(QVector2D uv);

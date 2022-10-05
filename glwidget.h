@@ -2,7 +2,6 @@
 #define GLWIDGET_H
 
 #include <QOpenGLWidget>
-#include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLBuffer>
 #include <QOpenGLVertexArrayObject>
@@ -10,12 +9,13 @@
 #include <QMouseEvent>
 #include <QWheelEvent>
 #include <QKeyEvent>
+#include <QOpenGLFunctions_4_4_Core>
 
 #include "Renderer/InputController/InputController.h"
 #include "Renderer/InputController/InputEvents/CameraUpdateEvent.h"
 #include "Renderer/Renderer.h"
 
-class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions
+class GLWidget : public QOpenGLWidget, public QOpenGLFunctions_4_4_Core
 {
 Q_OBJECT
 public:

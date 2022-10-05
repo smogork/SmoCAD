@@ -1,12 +1,13 @@
-#version 440 core
-out vec4 FragColor;
+#version 330 core
 
 in vec2 TexCoord;
 
-uniform vec4 u_ObjectColor;
+out vec4 FragColor;
+
+uniform sampler2D trimTexture;
 uniform bool u_FlipTrimming;
 uniform bool u_ActiveTrimming;
-uniform sampler2D trimTexture;
+uniform vec4 u_ObjectColor;
 
 void main()
 {

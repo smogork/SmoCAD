@@ -7,6 +7,7 @@
 
 #include "Scene/Components/IComponent.h"
 #include "Scene/Components/UVParams.h"
+#include "Renderer/ShaderWrapper.h"
 
 #include <QOpenGLTexture>
 
@@ -20,6 +21,7 @@ public:
     QProperty<float> UMin, UMax;
     QProperty<float> VMin, VMax;
     std::shared_ptr<QOpenGLTexture> TrimTexture;
+    bool FlipTrimming, IntersectionExists;
     std::function<QVector3D(QVector2D uv)> SceneFunction;
     std::function<QVector3D(QVector2D uv)> SceneFunctionDerU;
     std::function<QVector3D(QVector2D uv)> SceneFunctionDerV;
@@ -30,10 +32,15 @@ public:
     explicit IntersectionAware(unsigned int oid);
     ~IntersectionAware() override;
 
-    QVector4D FindClosestPoints(std::shared_ptr<IntersectionAware> other, int density = 10);
-    QVector2D FindClosestPoints(QVector3D pos, int density = 10);
+    QVector4D FindClosestPoints(std::shared_ptr<IntersectionAware> other, int samples = 100);
+    QVector2D FindClosestPoints(QVector3D pos, int samples = 100);
+    QVector4D FindClosestPointsSelf(int samples = 100);
+    QVector2D FindClosestPointsFarFromArgs(QVector3D pos, QVector2D args, int samples = 100);
+
     bool ArgumentsInsideDomain(QVector2D args);
     QVector2D WrapArgumentsAround(QVector2D args);
+    void SetTrimmingTexture(const QImage& img);
+    void SetTrimmingUniforms(std::shared_ptr<ShaderWrapper> shader);
 };
 
 #endif //SMOCAD_INTERSECTIONAWARE_H

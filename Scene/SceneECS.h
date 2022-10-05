@@ -76,6 +76,7 @@ public:
     GenerateContextMenuItemsForSceneList();
     std::vector<unsigned int> GetSelectedObjects();
     std::vector<unsigned int> GetListContextObjects();
+    QVector3D GetCursorPos(bool& cursorExists);
     
     void InitializeScene();
     void ConnectSignalsToSystems(QObject* mainWindow, QObject* sceneWindow);
@@ -98,6 +99,7 @@ public:
     void ClearSystems();
 
     QString DebugSystemReport();
+
 signals:
     void CursorChange(std::shared_ptr<Cursor> cur);
 

@@ -2,6 +2,11 @@
 
 layout (quads, equal_spacing, ccw) in;
 
+uniform float u_UPatch;
+uniform float u_VPatch;
+
+out vec2 TexCoord;
+
 struct MVP
 {
     mat4 Model;
@@ -34,6 +39,9 @@ vec4[4] loadControlPoints(int idx, vec4[16] inArray)
 
 void main()
 {
+    vec2 patchUV = vec2(mod(gl_PrimitiveID, u_UPatch), floor(gl_PrimitiveID / u_UPatch));
+    TexCoord = (gl_TessCoord.xy + patchUV) / vec2(u_UPatch, u_VPatch);
+
     float u = gl_TessCoord.x;
     float v = gl_TessCoord.y;
 
@@ -54,4 +62,5 @@ void main()
 
     vec4 pos = bezier(v, midValue);
     gl_Position = u_MVP.Projection * u_MVP.View * u_MVP.Model * pos;
+
 }

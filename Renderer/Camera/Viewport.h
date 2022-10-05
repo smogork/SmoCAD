@@ -9,8 +9,8 @@
 #include <QMatrix4x4>
 #include <QProperty>
 
-#define NEAR 0.1f
-#define FAR 100.0f
+#define NEAR_DIST 0.1f
+#define FAR_DIST 100.0f
 
 
 class Viewport

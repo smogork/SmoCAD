@@ -2,6 +2,7 @@
 // Created by ksm on 6/19/22.
 //
 
+#include <QMessageBox>
 #include "IntersectionAwareSystem.h"
 #include "Controls/Dialogs/intersectiondialog.h"
 #include "Controls/Dialogs/parametersintersectiondialog.h"
@@ -9,6 +10,7 @@
 #include "Scene/SceneECS.h"
 #include "Scene/Entities/Curves/IntersectionCurve.h"
 #include "Controls/EntityContextMenu.h"
+#include "Controls/intersectionawarecontrol.h"
 
 std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids,
                                                 const std::vector<unsigned int> &listContextOids)> > >
@@ -50,22 +52,40 @@ void IntersectionAwareSystem::CreateIntersectionCurveBetween(std::shared_ptr<Int
     if (!dialog->exec())
         return;
 
-
-    QVector4D P0 = FindFirstPointOfIntersection(one, two);
-
-    bool edgeEndP, edgeEndN;
-    std::list<QVector4D> negative_points;
-    std::list<QVector4D> positive_points = FindFurtherPointsOfIntersection(P0, dialog->PointsSceneDistance(),
-                                                                           true, edgeEndP, one, two);
-    if (edgeEndP)//puszczamy w druga strone tylko jesli nie trafilismy na cykl
-        negative_points = FindFurtherPointsOfIntersection(P0, dialog->PointsSceneDistance(), false,
-                                                          edgeEndN, one, two);
-
-    qDebug() << "Found P0:" << P0 << ", positives:" << positive_points.size() << ", negatives:" << negative_points.size();
-    qDebug() << "edgeEndP:" << edgeEndP << ", edgeEndN:" << edgeEndN;
-
     if (auto scene = SceneECS::Instance().lock())
     {
+        bool curExists;
+        QVector3D curPos = scene->GetCursorPos(curExists);
+
+        if (!curExists && dialog->StartFromCursor())
+        {
+            QMessageBox msgBox;
+            msgBox.setText("Cannot start intersection form cursor - it does not exists on scene. Do you want to start from random point?");
+            msgBox.setInformativeText("Cannot find cursor on scene.");
+            msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+            msgBox.setDefaultButton(QMessageBox::No);
+            int ret = msgBox.exec();
+
+            if (ret == QMessageBox::No)
+                return;
+        }
+
+        QVector4D P0 = FindFirstPointOfIntersection(one, two, dialog->SearchingStartDensity(), curPos, curExists && dialog->StartFromCursor());
+
+        if (std::isnan(P0.x()))
+            return;
+
+        bool edgeEndP, edgeEndN;
+        std::list<QVector4D> negative_points;
+        std::list<QVector4D> positive_points = FindFurtherPointsOfIntersection(P0, dialog->PointsSceneDistance(),
+                                                                               true, edgeEndP, one, two);
+        if (edgeEndP)//puszczamy w druga strone tylko jesli nie trafilismy na cykl
+            negative_points = FindFurtherPointsOfIntersection(P0, dialog->PointsSceneDistance(), false,
+                                                              edgeEndN, one, two);
+
+        qDebug() << "Found P0:" << P0 << ", positives:" << positive_points.size() << ", negatives:" << negative_points.size();
+        qDebug() << "edgeEndP:" << edgeEndP << ", edgeEndN:" << edgeEndN;
+
         std::vector<QVector4D> intersectionArgs;
         intersectionArgs.reserve(positive_points.size() + negative_points.size() + 1);
 
@@ -75,32 +95,22 @@ void IntersectionAwareSystem::CreateIntersectionCurveBetween(std::shared_ptr<Int
         for (const auto& arg : negative_points)
             intersectionArgs.push_back(arg);
 
-        auto curve = std::make_shared<IntersectionCurve>("IntersectionCurve", intersectionArgs, one->SceneFunction, two->SceneFunction, !edgeEndP && !edgeEndN);
+        auto curve = std::make_shared<IntersectionCurve>("IntersectionCurve", intersectionArgs, one, two, !edgeEndP && !edgeEndN);
         curve->p_Selected->Selected = true;
 
-        QImage oneTex = curve->GetTrimmingTextureOne(one);
-        QImage twoTex = curve->GetTrimmingTextureTwo(two);
+        auto [oneTex, twoTex] = curve->p_IntersectionRes->GetTrimmingTextures();
 
-        oneTex.save("oneTex.png");
-        twoTex.save("twoTex.png");
-
-        one->TrimTexture = std::make_shared<QOpenGLTexture>(oneTex.mirrored());
-        two->TrimTexture = std::make_shared<QOpenGLTexture>(twoTex.mirrored());
+        one->SetTrimmingTexture(oneTex);
+        two->SetTrimmingTexture(twoTex);
 
         scene->AddObject(curve);
         EntityContextMenu::MakeControlsUpdate(curve->GetObjectID());
         EntityContextMenu::MakeRepaint();
-
-        //[TODO] do wyniesienia do oddzielnego guziczka
-        std::unique_ptr<ParametersIntersectionDialog> params = std::make_unique<ParametersIntersectionDialog>();
-        params->SetParamTextures(oneTex, twoTex);
-
-        params->exec();
     }
 }
 
 QVector4D IntersectionAwareSystem::FindFirstPointOfIntersection(std::shared_ptr<IntersectionAware> one,
-                                                                std::shared_ptr<IntersectionAware> two)
+                                                                std::shared_ptr<IntersectionAware> two, int samples, QVector3D cursorPoint, bool startFromCursor)
 {
     auto func = [one, two](QVector4D args) -> float
     {
@@ -121,15 +131,42 @@ QVector4D IntersectionAwareSystem::FindFirstPointOfIntersection(std::shared_ptr<
         return 2.0f / vec.length() * ders;
     };
 
-    QVector4D startPoint = one->FindClosestPoints(two);
+    QVector4D startPoint;
+    if (one->GetAttachedObjectID() == two->GetAttachedObjectID())
+    {
+        if (startFromCursor)
+        {
+            QVector2D oneStart = one->FindClosestPoints(cursorPoint, samples);
+            QVector2D twoStart = one->FindClosestPointsFarFromArgs(cursorPoint, oneStart, samples);
+            startPoint = {oneStart.x(), oneStart.y(), twoStart.x(), twoStart.y()};
+        }
+        else
+            startPoint = one->FindClosestPointsSelf(samples);
+    }
+
+    else
+    {
+        if (startFromCursor)
+        {
+            QVector2D oneStart = one->FindClosestPoints(cursorPoint, samples);
+            QVector2D twoStart = two->FindClosestPoints(cursorPoint, samples);
+            startPoint = {oneStart.x(), oneStart.y(), twoStart.x(), twoStart.y()};
+        } else
+            startPoint = one->FindClosestPoints(two, samples);
+    }
+
     QVector4D P0_params = Optimization::SimpleGradientMethod(startPoint, func, grad);
+    P0_params = WrapPointAround(P0_params, one, two);
 
-    if (P0_params.x() == NAN or !one->ArgumentsInsideDomain(P0_params.toVector2D()) or
-        !two->ArgumentsInsideDomain({P0_params.z(), startPoint.w()}))
-        qDebug() << "Error with result " << P0_params;
+    bool oneBeyond = !one->ArgumentsInsideDomain(P0_params.toVector2D());
+    bool twoBeyond = !two->ArgumentsInsideDomain({P0_params.z(), P0_params.w()});
+    if (P0_params.x() == NAN or oneBeyond or twoBeyond)
+    {
+        qDebug() << "Error with P0 params " << P0_params;
+        return {NAN, NAN, NAN, NAN};
+    }
 
-    return WrapPointAround(P0_params, one, two);
-    //return P0_params;
+    return P0_params;
 }
 
 std::list<QVector4D>
@@ -155,13 +192,13 @@ IntersectionAwareSystem::FindFurtherPointsOfIntersection(QVector4D P0, float dis
         float minChange = 1.0f;
 
         if (delta.x())
-            minChange = std::min(minChange, (std::clamp<float>(args.x(), one->UMin, one->UMax) - last.x()) / delta.x());
+            minChange = std::min(minChange, abs((std::clamp<float>(args.x(), one->UMin, one->UMax) - last.x()) / delta.x()));
         if (delta.y())
-            minChange = std::min(minChange, (std::clamp<float>(args.y(), one->VMin, one->VMax) - last.y()) / delta.y());
+            minChange = std::min(minChange, abs((std::clamp<float>(args.y(), one->VMin, one->VMax) - last.y()) / delta.y()));
         if (delta.z())
-            minChange = std::min(minChange, (std::clamp<float>(args.z(), two->UMin, two->UMax) - last.z()) / delta.z());
+            minChange = std::min(minChange, abs((std::clamp<float>(args.z(), two->UMin, two->UMax) - last.z()) / delta.z()));
         if (delta.w())
-            minChange = std::min(minChange, (std::clamp<float>(args.w(), two->VMin, two->VMax) - last.w()) / delta.w());
+            minChange = std::min(minChange, abs((std::clamp<float>(args.w(), two->VMin, two->VMax) - last.w()) / delta.w()));
 
         return last + delta * minChange;
     };
@@ -218,9 +255,9 @@ IntersectionAwareSystem::FindFurtherPointsOfIntersection(QVector4D P0, float dis
         cur_point = Optimization::NewtonRaphsonMethod(last_point, func, der, domainCheck, domainClamp, edgeEnd, 1e-3,
                                                       200);
 
-        if (cur_point.x() == NAN)
+        if (std::isnan(cur_point.x()))
         {
-            qDebug() << "Error for params:" << last_point;
+            qDebug() << "Error for params:" << last_point << " at iteration " << res.size();
             break;
         }
 
@@ -245,4 +282,12 @@ QVector4D IntersectionAwareSystem::WrapPointAround(const QVector4D &p, std::shar
     auto twoWrap = two->WrapArgumentsAround({p.z(), p.w()});
 
     return {oneWrap.x(), oneWrap.y(), twoWrap.x(), twoWrap.y()};
+}
+
+std::unique_ptr<ComponentControl> IntersectionAwareSystem::PrepareUIForObject(unsigned int oid)
+{
+    if (auto inter = GetComponent(oid).lock())
+        if (inter->IntersectionExists)
+            return std::move(std::make_unique<IntersectionAwareControl>(inter));
+    return nullptr;
 }

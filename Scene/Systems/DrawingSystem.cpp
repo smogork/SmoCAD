@@ -39,7 +39,7 @@ void DrawingSystem::StereoscopyRender(QOpenGLContext* context)
     Renderer::UpdateShadersStereo(true);
     PlainRender(context);
 
-    glClear(GL_DEPTH_BUFFER_BIT);
+    gl->glClear(GL_DEPTH_BUFFER_BIT);
 
     gl->glColorMask(true, false, false, true);
     Renderer::UpdateShadersStereo(false);

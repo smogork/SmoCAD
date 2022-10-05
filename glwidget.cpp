@@ -91,10 +91,13 @@ void GLWidget::LoadShaders()
 {
     Renderer::AddShader(DEFAULT_SHADER,
                         std::make_shared<ShaderWrapper>("Shaders/uniform_color.vert",
-                                                        "Shaders/simple_color.frag"));//default
+                                                        "Shaders/simple_color.frag"));
+    Renderer::AddShader(TORUS_SHADER,
+                        std::make_shared<ShaderWrapper>("Shaders/torus.vert",
+                                                        "Shaders/torus.frag"));
     Renderer::AddShader(CURSOR_SHADER,
                         std::make_shared<ShaderWrapper>("Shaders/buffer_color.vert",
-                                                        "Shaders/simple_color.frag"));//cursor
+                                                        "Shaders/simple_color.frag"));
     Renderer::AddShader(BEZIER_SHADER,
                         std::make_shared<ShaderWrapper>("Shaders/Curves/bezier.vert", "Shaders/Curves/bezier.frag",
                                                         "Shaders/Curves/bezier.tess", "Shaders/Curves/bezier.eval"));

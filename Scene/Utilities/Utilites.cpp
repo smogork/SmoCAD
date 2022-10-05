@@ -21,7 +21,7 @@ int wrap(int v, int min, int max)
 {
     v = v - min;
     int m = max - min;
-    int i = v / m;
+    int i = floor((float)v / m);
     return ((v - i * m) % m) + min;
 }
 

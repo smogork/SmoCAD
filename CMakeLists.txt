@@ -11,7 +11,7 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_compile_definitions(Q_ENABLE_OPENGL_FUNCTIONS_DEBUG)
+#add_compile_definitions(Q_ENABLE_OPENGL_FUNCTIONS_DEBUG)
 
 
 #find_package(LAPACK REQUIRED)
@@ -23,6 +23,10 @@ find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS 3DCore REQUIRED)
 #find_package(GSL REQUIRED)    # See below (2)
 
+if (WIN32)
+    find_library(GDIPLUS gdiplus)
+    find_library(GDI32 gdi32)
+endif ()
 
 set(TS_FILES SmoCAD_en_GB.ts)
 set(SHADER_FILES
@@ -51,6 +55,8 @@ set(SHADER_FILES
         Shaders/Planes/gregory_plane.frag
         Shaders/select_rect.vert
         Shaders/select_rect.frag
+        Shaders/torus.vert
+        Shaders/torus.frag
         )
 
 set(MATH_FILES
@@ -78,6 +84,8 @@ set(CONTROL_SOURCES
         Controls/EntityContextMenu.cpp Controls/EntityContextMenu.h
         Controls/Dialogs/intersectiondialog.h Controls/Dialogs/intersectiondialog.cpp Controls/Dialogs/intersectiondialog.ui
         Controls/Dialogs/parametersintersectiondialog.h Controls/Dialogs/parametersintersectiondialog.cpp Controls/Dialogs/parametersintersectiondialog.ui
+        Controls/intersectionawarecontrol.h Controls/intersectionawarecontrol.cpp Controls/intersectionawarecontrol.ui
+        Controls/intersectionresultcontrol.h Controls/intersectionresultcontrol.cpp Controls/intersectionresultcontrol.ui
         )
 
 set(PROJECT_SOURCES
@@ -159,9 +167,9 @@ set(PROJECT_SOURCES
         ThirdParty/set_ops.hpp ThirdParty/ngraph.hpp
         Scene/Systems/Awares/IntersectionAwareSystem.cpp Scene/Systems/Awares/IntersectionAwareSystem.h
         Scene/Components/Awares/IntersectionAware.cpp Scene/Components/Awares/IntersectionAware.h
-        Scene/Entities/Curves/IntersectionCurve.cpp Scene/Entities/Curves/IntersectionCurve.h)
+        Scene/Entities/Curves/IntersectionCurve.cpp Scene/Entities/Curves/IntersectionCurve.h Scene/Systems/IntersectionResultSystem.cpp Scene/Systems/IntersectionResultSystem.h Scene/Components/IntersectionResult.cpp Scene/Components/IntersectionResult.h)
 
-add_subdirectory(Tests)
+#add_subdirectory(Tests)
 add_subdirectory(ThirdParty/Scene-Serializer/cpp/Serializer)
 
 if (${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -207,6 +215,11 @@ target_link_libraries(SmoCAD PRIVATE Qt${QT_VERSION_MAJOR}::Core)
 target_link_libraries(SmoCAD PRIVATE m)
 target_link_libraries(SmoCAD PRIVATE MGSerializer)
 #target_link_libraries(SmoCAD PRIVATE GSL::gsl GSL::gslcblas)
+
+if (WIN32)
+    target_link_libraries(SmoCAD PRIVATE GDIPLUS GDI32)
+    target_link_libraries(SmoCAD PRIVATE opengl32)
+endif()
 
 set_target_properties(SmoCAD PROPERTIES
         MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
