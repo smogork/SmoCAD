@@ -13,15 +13,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #add_compile_definitions(Q_ENABLE_OPENGL_FUNCTIONS_DEBUG)
 
-
-#find_package(LAPACK REQUIRED)
-
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS OpenGLWidgets REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS 3DCore REQUIRED)
-#find_package(GSL REQUIRED)    # See below (2)
 
 if (WIN32)
     find_library(GDIPLUS gdiplus)
@@ -167,9 +163,13 @@ set(PROJECT_SOURCES
         ThirdParty/set_ops.hpp ThirdParty/ngraph.hpp
         Scene/Systems/Awares/IntersectionAwareSystem.cpp Scene/Systems/Awares/IntersectionAwareSystem.h
         Scene/Components/Awares/IntersectionAware.cpp Scene/Components/Awares/IntersectionAware.h
-        Scene/Entities/Curves/IntersectionCurve.cpp Scene/Entities/Curves/IntersectionCurve.h Scene/Systems/IntersectionResultSystem.cpp Scene/Systems/IntersectionResultSystem.h Scene/Components/IntersectionResult.cpp Scene/Components/IntersectionResult.h)
+        Scene/Entities/Curves/IntersectionCurve.cpp Scene/Entities/Curves/IntersectionCurve.h
+        Scene/Systems/IntersectionResultSystem.cpp Scene/Systems/IntersectionResultSystem.h
+        Scene/Components/IntersectionResult.cpp Scene/Components/IntersectionResult.h
+        Scene/Entities/Simulator/Simulator3C.cpp Scene/Entities/Simulator/Simulator3C.h
+        Scene/Entities/Simulator/CutterParameters.cpp Scene/Entities/Simulator/CutterParameters.h Loaders/GCodeLoader.cpp Loaders/GCodeLoader.h Scene/Entities/Simulator/CutterPath.cpp Scene/Entities/Simulator/CutterPath.h Scene/Entities/Simulator/CutterSimulator.cpp Scene/Entities/Simulator/CutterSimulator.h Mathematics/Units/Unit.cpp Mathematics/Units/Unit.h Mathematics/Units/Distance.cpp Mathematics/Units/Distance.h Mathematics/Units/Time.cpp Mathematics/Units/Time.h Mathematics/Units/Velocity.cpp Mathematics/Units/Velocity.h)
 
-#add_subdirectory(Tests)
+add_subdirectory(Tests)
 add_subdirectory(ThirdParty/Scene-Serializer/cpp/Serializer)
 
 if (${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -211,10 +211,8 @@ target_link_libraries(SmoCAD PRIVATE Qt${QT_VERSION_MAJOR}::Gui)
 target_link_libraries(SmoCAD PRIVATE Qt${QT_VERSION_MAJOR}::3DCore)
 target_link_libraries(SmoCAD PRIVATE Qt${QT_VERSION_MAJOR}::Core)
 
-#target_link_libraries(SmoCAD PRIVATE lapack blas)
 target_link_libraries(SmoCAD PRIVATE m)
 target_link_libraries(SmoCAD PRIVATE MGSerializer)
-#target_link_libraries(SmoCAD PRIVATE GSL::gsl GSL::gslcblas)
 
 if (WIN32)
     target_link_libraries(SmoCAD PRIVATE GDIPLUS GDI32)
