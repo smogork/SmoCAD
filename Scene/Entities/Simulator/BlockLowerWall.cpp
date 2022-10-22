@@ -14,6 +14,7 @@ BlockLowerWall::BlockLowerWall(QVector3D pos, double widthX, double widthY)
     
     m_simulatorMtx.setToIdentity();
     p_Transform->Scale = QVector3D(m_widthX, 1, m_widthY);
+    p_Transform->Rotation = QVector3D(180, 0, 0);
 }
 
 void BlockLowerWall::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
@@ -54,6 +55,6 @@ std::vector<float> BlockLowerWall::GenerateGeometryVertices()
 
 std::vector<int> BlockLowerWall::GenerateTopologyIndices()
 {
-    return {0, 2, 1, 1, 2, 3};//counter clockwise?
-    //return {0, 1, 2, 1, 3, 2};//clockwise?
+    //return {0, 2, 1, 1, 2, 3};//counter clockwise?
+    return {0, 1, 2, 1, 3, 2};//clockwise?
 }
