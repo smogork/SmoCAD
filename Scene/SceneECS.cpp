@@ -36,6 +36,8 @@
 #include "Scene/Entities/Simulator/BlockSideWall.h"
 #include "Scene/Entities/Simulator/BlockUpperWall.h"
 #include "Scene/Entities/Simulator/BlockParameters.h"
+#include "Scene/Entities/Simulator/CutterParameters.h"
+#include "Scene/Entities/Simulator/CutterObject.h"
 
 #include <list>
 
@@ -106,18 +108,20 @@ void SceneECS::InitUniqueObjects()
 
 void SceneECS::InitSceneObjects()
 {
-    BlockParameters params;
-    params.WidthX = 10;
-    params.WidthY = 10;
-    params.Height = 3;
-    params.VertexWidthX = 8 * params.WidthX;
-    params.VertexWidthY = 8 * params.WidthY;
+    BlockParameters blockParameters;
+    blockParameters.WidthX = 10;
+    blockParameters.WidthY = 10;
+    blockParameters.Height = 3;
+    blockParameters.VertexWidthX = 8 * blockParameters.WidthX;
+    blockParameters.VertexWidthY = 8 * blockParameters.WidthY;
+    CutterParameters cutterParameters(1, Cylindrical);
     
-    objects.push_back(std::make_shared<BlockLowerWall>(QVector3D(), params.WidthX, params.WidthY));
-    objects.push_back(std::make_shared<BlockSideWall>(QVector3D(), params.WidthX, params.WidthY, params.Height,
-                                                      params.VertexWidthX, params.VertexWidthY));
-    objects.push_back(std::make_shared<BlockUpperWall>(QVector3D(0, params.Height, 0), params.WidthX, params.WidthY,
-                                                       params.VertexWidthX, params.VertexWidthY));
+    objects.push_back(std::make_shared<BlockLowerWall>(QVector3D(), blockParameters.WidthX, blockParameters.WidthY));
+    objects.push_back(std::make_shared<BlockSideWall>(QVector3D(), blockParameters.WidthX, blockParameters.WidthY, blockParameters.Height,
+                                                      blockParameters.VertexWidthX, blockParameters.VertexWidthY));
+    objects.push_back(std::make_shared<BlockUpperWall>(QVector3D(0, blockParameters.Height, 0), blockParameters.WidthX, blockParameters.WidthY,
+                                                       blockParameters.VertexWidthX, blockParameters.VertexWidthY));
+    objects.push_back(std::make_shared<CutterObject>(QVector3D(0, 5, 0), cutterParameters));
 }
 
 void SceneECS::RemoveUniqueObjects()

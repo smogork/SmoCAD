@@ -59,6 +59,8 @@ set(SHADER_FILES
         Shaders/Simulator3C/side_wall.frag
         Shaders/Simulator3C/upper_wall.vert
         Shaders/Simulator3C/upper_wall.frag
+        Shaders/Simulator3C/cutter.vert
+        Shaders/Simulator3C/cutter.frag
         )
 
 set(MATH_FILES
@@ -176,7 +178,7 @@ set(PROJECT_SOURCES
         Scene/Entities/Simulator/CutterParameters.cpp Scene/Entities/Simulator/CutterParameters.h
         Loaders/GCodeLoader.cpp Loaders/GCodeLoader.h
         Scene/Entities/Simulator/CutterPath.cpp Scene/Entities/Simulator/CutterPath.h
-        Scene/Entities/Simulator/CutterSimulator.cpp Scene/Entities/Simulator/CutterSimulator.h
+        Scene/Entities/Simulator/CutterObject.cpp Scene/Entities/Simulator/CutterObject.h
         Mathematics/Units/Unit.cpp Mathematics/Units/Unit.h
         Mathematics/Units/Distance.cpp Mathematics/Units/Distance.h
         Mathematics/Units/Time.cpp Mathematics/Units/Time.h

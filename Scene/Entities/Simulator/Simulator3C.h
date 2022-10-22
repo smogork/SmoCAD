@@ -10,7 +10,7 @@
 #include "Scene/Components/Drawing/StaticDrawing.h"
 #include "Scene/Components/SceneElement.h"
 
-#include "CutterSimulator.h"
+#include "CutterObject.h"
 #include "CutterPath.h"
 #include "BlockUpperWall.h"
 #include "BlockLowerWall.h"
@@ -24,7 +24,7 @@
 class Simulator3C: public IEntity
 {
 private:
-    //CutterSimulator m_cutter;
+    //CutterObject m_cutter;
     //CutterPath m_cutterPath;
     /*BlockUpperWall m_blockUpper;
     BlockLowerWall m_blockLower;

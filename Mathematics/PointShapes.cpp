@@ -8,7 +8,8 @@
 
 #include <QMatrix4x4>
 
-std::vector<QVector3D> PointShapes::CreateRect(QVector3D startPos, float width, float height, int wPoints, int hPoints, Plane plane)
+std::vector<QVector3D>
+PointShapes::CreateRect(QVector3D startPos, float width, float height, int wPoints, int hPoints, Plane plane)
 {
     std::vector<QVector3D> res(wPoints * hPoints);
     
@@ -21,15 +22,19 @@ std::vector<QVector3D> PointShapes::CreateRect(QVector3D startPos, float width, 
     return res;
 }
 
-std::vector<QVector3D> PointShapes::CreateTube(QVector3D startPos, float radius, float length, int rPoints, int lPoints)
+std::vector<QVector3D>
+PointShapes::CreateTube(QVector3D startPos, float radius, float length, int rPoints, int lPoints, Plane plane)
 {
     std::vector<QVector3D> res(rPoints * lPoints);
     
     for (int i = 0; i < lPoints; ++i)//height
         for (int j = 0; j < rPoints; ++j)//width
-            res[i * rPoints + j] = QVector3D(radius * cos(2 * M_PI * j / rPoints), radius * sin(2 * M_PI * j / rPoints),
-                                             (float) i * length / (lPoints - 1)) + startPos;
+            res[i * rPoints + j] = QVector3D(
+                    radius * cos(2 * M_PI * j / rPoints),
+                    radius * sin(2 * M_PI * j / rPoints),
+                    (float) i * length / (lPoints - 1));
     
+    ApplyPlaneTransform(res, startPos, plane);
     return res;
 }
 
@@ -151,9 +156,8 @@ void PointShapes::ApplyPlaneTransform(std::vector<QVector3D> &points, QVector3D 
             transform.rotate(-90, Transform::GetYAxis());
             break;
     }
-
     
-    for (QVector3D& p : points)
+    for (QVector3D &p: points)
     {
         QVector4D p4 = p.toVector4D();
         p4.setW(1.0f);
@@ -161,12 +165,12 @@ void PointShapes::ApplyPlaneTransform(std::vector<QVector3D> &points, QVector3D 
     }
 }
 
-std::vector<int> PointShapes::RectTriangleIndices(int wPoints, int hPoints, bool clockwise)
+std::vector<int> PointShapes::RectTriangleIndices(int wPoints, int hPoints, bool clockwise, int* offset)
 {
     std::vector<int> indices;
     indices.reserve((wPoints - 1) * (hPoints - 1) * 6);
     
-    for (int h = 0 ; h < hPoints - 1; ++h)
+    for (int h = 0; h < hPoints - 1; ++h)
         for (int w = 0; w < wPoints - 1; ++w)
         {
             indices.push_back(w + h * wPoints);
@@ -174,25 +178,172 @@ std::vector<int> PointShapes::RectTriangleIndices(int wPoints, int hPoints, bool
             {
                 indices.push_back(w + (h + 1) * wPoints);
                 indices.push_back(w + 1 + (h + 1) * wPoints);
-            }
-            else
+            } else
             {
                 indices.push_back(w + 1 + (h + 1) * wPoints);
                 indices.push_back(w + (h + 1) * wPoints);
             }
-    
+            
             indices.push_back(w + h * wPoints);
             if (clockwise)
             {
                 indices.push_back(w + 1 + (h + 1) * wPoints);
                 indices.push_back(w + 1 + (h) * wPoints);
-            }
-            else
+            } else
             {
                 indices.push_back(w + 1 + (h) * wPoints);
                 indices.push_back(w + 1 + (h + 1) * wPoints);
             }
         }
-        
+    
+    HandleOffset(indices, offset, GetRectOffset(wPoints, hPoints));
     return indices;
 }
+
+std::vector<int> PointShapes::TubeTriangleIndices(int rPoints, int lPoints, bool clockwise, int* offset)
+{
+    //Wszystko poza zlaczeniem jest jak plaszczyzna
+    std::vector<int> indices = RectTriangleIndices(rPoints, lPoints, clockwise, nullptr);
+    
+    //Zlaczenie
+    for (int i = 0; i < lPoints - 1; ++i)
+    {
+        indices.push_back(rPoints * (i + 1) - 1 );
+        if (clockwise)
+        {
+            indices.push_back(rPoints * (i + 2) - 1);
+            indices.push_back(rPoints * i);
+        }
+        else
+        {
+            indices.push_back(rPoints * i);
+            indices.push_back(rPoints * (i + 2) - 1);
+        }
+    
+        indices.push_back(rPoints * (i + 2) - 1 );
+        if (clockwise)
+        {
+            indices.push_back(rPoints * (i + 1));
+            indices.push_back(rPoints * i);
+        }
+        else
+        {
+            indices.push_back(rPoints * i);
+            indices.push_back(rPoints * (i + 1));
+        }
+    }
+    
+    HandleOffset(indices, offset, GetTubeOffset(rPoints, lPoints));
+    return indices;
+}
+
+std::vector<QVector3D>
+PointShapes::CreateHalfSphere(QVector3D centerPos, float radius, int fiPoints, int thetaPoints, Plane plane)
+{
+    std::vector<QVector3D> res;
+    
+    for (int j = 0; j < thetaPoints; ++j)
+    {
+        float theta = (float)j / thetaPoints * M_PI * 0.5f;
+        for (int i = 0; i < fiPoints; ++i)
+        {
+            float fi = (float)i / (fiPoints - 1) * 2.0f * M_PI;
+            res.push_back(QVector3D(
+                    radius * cosf(theta) * cosf(fi),
+                    -radius * sinf(theta),
+                    radius * cosf(theta) * sinf(fi)
+            ));
+        }
+    }
+    res.push_back(QVector3D(0, radius, 0));//czubek sfery
+    
+    ApplyPlaneTransform(res, centerPos, plane);
+    return res;
+}
+
+std::vector<int> PointShapes::HalfSphereTriangleIndices(int fiPoints, int thetaPoints, bool clockwise, int* offset)
+{
+    return std::vector<int>();
+}
+
+std::vector<QVector3D> PointShapes::CreateCircle(QVector3D centerPos, float radius, int fiPoints, Plane plane)
+{
+    std::vector<QVector3D> res;
+    
+    for (int i = 0; i < fiPoints; ++i)
+    {
+        float fi = (float)i / (fiPoints - 1)* 2.0f * M_PI;
+        res.push_back(QVector3D(
+                radius * cosf(fi),
+                0,
+                radius * sinf(fi)
+                ));
+    }
+    res.push_back(QVector3D(0, 0, 0));//srodek kola
+    
+    ApplyPlaneTransform(res, centerPos, plane);
+    return res;
+}
+
+std::vector<int> PointShapes::CircleTriangleIndices(int fiPoints, bool clockwise, int* offset)
+{
+    int center = fiPoints;
+    std::vector<int> indices;
+    indices.reserve((fiPoints - 1) * 3);
+    
+    for (int i = 0; i < fiPoints - 1; ++i)
+    {
+        indices.push_back(center);
+        if (clockwise)
+        {
+            indices.push_back(i);
+            indices.push_back(i + 1);
+        }
+        else
+        {
+            indices.push_back(i + 1);
+            indices.push_back(i);
+        }
+    }
+    
+    HandleOffset(indices, offset, GetCircleOffset(fiPoints));
+    return indices;
+}
+
+int PointShapes::GetRectOffset(int wPoints, int hPoints)
+{
+    return wPoints * hPoints;
+}
+
+int PointShapes::GetTubeOffset(int rPoints, int lPoints)
+{
+    return GetRectOffset(rPoints, lPoints);
+}
+
+int PointShapes::GetSingleRectOffset()
+{
+    return 4;
+}
+
+int PointShapes::GetHalfSphereOffset(int fiPoints, int thetaPoints)
+{
+    return fiPoints * thetaPoints + 1;
+}
+
+int PointShapes::GetCircleOffset(int fiPoints)
+{
+    return fiPoints + 1;
+}
+
+void PointShapes::HandleOffset(std::vector<int>& indices, int* offset, int increment)
+{
+    if (offset)
+    {
+        if (*offset > 0)
+            for (auto &idx: indices)
+                idx += *offset;
+        *offset += increment;
+    }
+}
+
+

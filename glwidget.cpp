@@ -126,6 +126,8 @@ void GLWidget::LoadShaders()
                                                                                 "Shaders/Simulator3C/side_wall.frag"));
     Renderer::AddShader(BLOCK_UPPERWALL_SHADER, std::make_shared<ShaderWrapper>("Shaders/Simulator3C/upper_wall.vert",
                                                                                "Shaders/Simulator3C/upper_wall.frag"));
+    Renderer::AddShader(SIMULATOR_CUTTER_SHADER, std::make_shared<ShaderWrapper>("Shaders/Simulator3C/cutter.vert",
+                                                                                "Shaders/Simulator3C/cutter.frag"));
 }
 
 void GLWidget::RedrawScreen()
