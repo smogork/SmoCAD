@@ -120,9 +120,10 @@ void GLWidget::LoadShaders()
                                                         "Shaders/Planes/gregory_plane.frag",
                                                         "Shaders/Planes/gregory_plane.tess",
                                                         "Shaders/Planes/gregory_plane.eval"));
-    auto sh = std::make_shared<ShaderWrapper>("Shaders/Simulator3C/lower_wall.vert",
-                                              "Shaders/Simulator3C/lower_wall.frag");
-    Renderer::AddShader(BLOCK_LOWERWALL_SHADER, sh);
+    Renderer::AddShader(BLOCK_LOWERWALL_SHADER, std::make_shared<ShaderWrapper>("Shaders/Simulator3C/lower_wall.vert",
+                                                                                "Shaders/Simulator3C/lower_wall.frag"));
+    Renderer::AddShader(BLOCK_SIDEWALL_SHADER, std::make_shared<ShaderWrapper>("Shaders/Simulator3C/side_wall.vert",
+                                                                                "Shaders/Simulator3C/side_wall.frag"));
 }
 
 void GLWidget::RedrawScreen()

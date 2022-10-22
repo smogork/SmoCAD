@@ -33,6 +33,7 @@
 #include "mainwindow.h"
 #include "glwidget.h"
 #include "Scene/Entities/Simulator/BlockLowerWall.h"
+#include "Scene/Entities/Simulator/BlockSideWall.h"
 
 #include <list>
 
@@ -104,6 +105,7 @@ void SceneECS::InitUniqueObjects()
 void SceneECS::InitSceneObjects()
 {
     objects.push_back(std::make_shared<BlockLowerWall>(QVector3D(), 10, 10));
+    objects.push_back(std::make_shared<BlockSideWall>(QVector3D(), 10, 10, 3, 16, 16));
 }
 
 void SceneECS::RemoveUniqueObjects()

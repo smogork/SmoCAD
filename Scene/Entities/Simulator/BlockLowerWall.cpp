@@ -5,14 +5,15 @@
 #include "BlockLowerWall.h"
 #include "Mathematics/PointShapes.h"
 
-BlockLowerWall::BlockLowerWall(QVector3D pos, double widthX, double widthY): IEntity(SIMULATOR_BLOCK_LOWER)
+BlockLowerWall::BlockLowerWall(QVector3D pos, double widthX, double widthY)
+        : IEntity(SIMULATOR_BLOCK_LOWER), m_widthX(widthX), m_widthY(widthY), m_simulatorMtx(QMatrix4x4())
 {
     AddComponent(p_Transform = Transform::CreateRegisteredComponent(GetObjectID(), pos));
     AddComponent(p_Drawing = StaticDrawing::CreateRegisteredComponent(GetObjectID()));
     InitializeDrawing();
     
     m_simulatorMtx.setToIdentity();
-    p_Transform->Scale = QVector3D(widthX, 1, widthY);
+    p_Transform->Scale = QVector3D(m_widthX, 1, m_widthY);
 }
 
 void BlockLowerWall::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
@@ -43,12 +44,12 @@ std::vector<float> BlockLowerWall::GenerateGeometryVertices()
     auto points = PointShapes::CreateSingleRect({}, 1, 1, XZ);
     
     return
-    {
-        points[0].x(), points[0].y(), points[0].z(), 0.0f, 0.0f,
-        points[1].x(), points[1].y(), points[1].z(), 1.0f, 0.0f,
-        points[2].x(), points[2].y(), points[2].z(), 0.0f, 1.0f,
-        points[3].x(), points[3].y(), points[3].z(), 1.0f, 1.0f,
-    };
+            {
+                    points[0].x(), points[0].y(), points[0].z(), 0.0f, 0.0f,
+                    points[1].x(), points[1].y(), points[1].z(), 1.0f, 0.0f,
+                    points[2].x(), points[2].y(), points[2].z(), 0.0f, 1.0f,
+                    points[3].x(), points[3].y(), points[3].z(), 1.0f, 1.0f,
+            };
 }
 
 std::vector<int> BlockLowerWall::GenerateTopologyIndices()

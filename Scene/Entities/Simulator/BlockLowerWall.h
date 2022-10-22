@@ -9,7 +9,7 @@
 #include "Scene/Components/Transform.h"
 #include "Scene/Components/Drawing/StaticDrawing.h"
 
-//DOlna sciana zawsze jest w
+//DOlna sciana zawsze jest w Y = 0 wzgledem ukladu symulatora
 class BlockLowerWall: public IEntity
 {
 private:

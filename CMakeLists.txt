@@ -55,6 +55,8 @@ set(SHADER_FILES
         Shaders/torus.frag
         Shaders/Simulator3C/lower_wall.vert
         Shaders/Simulator3C/lower_wall.frag
+        Shaders/Simulator3C/side_wall.vert
+        Shaders/Simulator3C/side_wall.frag
         )
 
 set(MATH_FILES

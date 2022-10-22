@@ -12,10 +12,10 @@ std::vector<QVector3D> PointShapes::CreateRect(QVector3D startPos, float width, 
 {
     std::vector<QVector3D> res(wPoints * hPoints);
     
-    for (int i = 0; i < hPoints; ++i)//height
-        for (int j = 0; j < wPoints; ++j)//width
-            res[i * wPoints + j] =
-                    QVector3D((float) j * width / (wPoints - 1), 0, (float) i * height / (hPoints - 1));
+    for (int h = 0; h < hPoints; ++h)//height
+        for (int w = 0; w < wPoints; ++w)//width
+            res[h * wPoints + w] =
+                    QVector3D((float) w * width / (wPoints - 1), 0, (float) h * height / (hPoints - 1))/* + startPos*/;
     
     ApplyPlaneTransform(res, startPos, plane);
     return res;
@@ -136,20 +136,63 @@ std::vector<QVector3D> PointShapes::CreateSingleRect(QVector3D centerPos, float 
 
 void PointShapes::ApplyPlaneTransform(std::vector<QVector3D> &points, QVector3D startPos, Plane plane)
 {
-    QMatrix4x4 rotation;
+    QMatrix4x4 transform;
     
+    transform.translate(startPos);
     switch (plane)
     {
         case XY:
-            rotation.rotate(-90, Transform::GetXAxis());
+            transform.rotate(-90, Transform::GetXAxis());
             break;
         case XZ:
             break;
         case YZ:
-            rotation.rotate(90, Transform::GetZAxis());
+            transform.rotate(-90, Transform::GetZAxis());
+            transform.rotate(-90, Transform::GetYAxis());
             break;
     }
+
     
     for (QVector3D& p : points)
-        p = rotation * p + startPos;
+    {
+        QVector4D p4 = p.toVector4D();
+        p4.setW(1.0f);
+        p = (transform * p4).toVector3D();
+    }
+}
+
+std::vector<int> PointShapes::RectTriangleIndices(int wPoints, int hPoints, bool clockwise)
+{
+    std::vector<int> indices;
+    indices.reserve((wPoints - 1) * (hPoints - 1) * 6);
+    
+    for (int h = 0 ; h < hPoints - 1; ++h)
+        for (int w = 0; w < wPoints - 1; ++w)
+        {
+            indices.push_back(w + h * wPoints);
+            if (clockwise)
+            {
+                indices.push_back(w + (h + 1) * wPoints);
+                indices.push_back(w + 1 + (h + 1) * wPoints);
+            }
+            else
+            {
+                indices.push_back(w + 1 + (h + 1) * wPoints);
+                indices.push_back(w + (h + 1) * wPoints);
+            }
+    
+            indices.push_back(w + h * wPoints);
+            if (clockwise)
+            {
+                indices.push_back(w + 1 + (h + 1) * wPoints);
+                indices.push_back(w + 1 + (h) * wPoints);
+            }
+            else
+            {
+                indices.push_back(w + 1 + (h) * wPoints);
+                indices.push_back(w + 1 + (h + 1) * wPoints);
+            }
+        }
+        
+    return indices;
 }

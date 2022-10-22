@@ -24,6 +24,7 @@ public:
     double GetMilimeters() const;
     double GetCentimeters() const;
     double GetMeters() const;
+    double GetSceneUnits() const;
     
     void SetMilimeters(double mm);
     void SetCentimeters(double cm);

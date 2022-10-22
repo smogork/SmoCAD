@@ -1,5 +1,9 @@
 #version 330
 
+in vec2 TexCoord;
+
+out vec4 FragColor;
+
 void main() {
-    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+    FragColor = vec4(TexCoord.r, TexCoord.g, 0.0f, 1.0f);
 }

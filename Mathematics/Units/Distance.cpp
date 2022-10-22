@@ -58,4 +58,9 @@ void Distance::SetMeters(double m)
     value = m * 100;
 }
 
+double Distance::GetSceneUnits() const
+{
+    return GetCentimeters();
+}
+
 
