@@ -12,7 +12,7 @@
 class Velocity: public Unit
 {
 public:
-    Velocity(Distance dist, Time time);
+    Velocity(const Distance& dist, const Time& time);
 };
 
 #endif //SMOCAD_VELOCITY_H

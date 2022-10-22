@@ -11,11 +11,12 @@ class Unit
 protected:
     double value;
     
+    explicit Unit(double val);
 public:
-    virtual double GetBaseValue();
+    virtual double GetBaseValue() const;
     
-    friend Unit& operator+ (const Unit& one, const Unit& two);
-    friend Unit& operator- (const Unit& one, const Unit& two);
+    friend Unit operator+ (const Unit& one, const Unit& two);
+    friend Unit operator- (const Unit& one, const Unit& two);
 };
 
 #endif //SMOCAD_UNIT_H

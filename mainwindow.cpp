@@ -267,10 +267,8 @@ void MainWindow::on_actionShow_Bezier_mesh_triggered(bool checked)
     ui->sceneWidget->update();
 }
 
+void MainWindow::on_action3C_Simulator_triggered()
+{
 
-
-
-
-
-
+}
 

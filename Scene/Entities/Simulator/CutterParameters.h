@@ -16,7 +16,6 @@ class CutterParameters
 public:
     double Diameter;
     CutterType Type;
-    int
     
     CutterParameters(double diameter, CutterType type);
 };

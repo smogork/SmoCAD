@@ -200,8 +200,15 @@
     <addaction name="menuCurves_2"/>
     <addaction name="menuPlanes_2"/>
    </widget>
+   <widget class="QMenu" name="menuSimulator">
+    <property name="title">
+     <string>Simulator</string>
+    </property>
+    <addaction name="action3C_Simulator"/>
+   </widget>
    <addaction name="menuObjects"/>
    <addaction name="menuObjects_2"/>
+   <addaction name="menuSimulator"/>
    <addaction name="menuOptions"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
@@ -307,6 +314,11 @@
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
+   </property>
+  </action>
+  <action name="action3C_Simulator">
+   <property name="text">
+    <string>3C Simulator</string>
    </property>
   </action>
  </widget>

@@ -28,6 +28,8 @@ void GLWidget::initializeGL()
     glEnable(GL_PROGRAM_POINT_SIZE);
     glEnable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
     
     LoadShaders();
     Renderer::UpdateShaders();
@@ -118,6 +120,9 @@ void GLWidget::LoadShaders()
                                                         "Shaders/Planes/gregory_plane.frag",
                                                         "Shaders/Planes/gregory_plane.tess",
                                                         "Shaders/Planes/gregory_plane.eval"));
+    auto sh = std::make_shared<ShaderWrapper>("Shaders/Simulator3C/lower_wall.vert",
+                                              "Shaders/Simulator3C/lower_wall.frag");
+    Renderer::AddShader(BLOCK_LOWERWALL_SHADER, sh);
 }
 
 void GLWidget::RedrawScreen()

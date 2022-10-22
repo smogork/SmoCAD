@@ -32,6 +32,7 @@
 #include "Serializer.h"
 #include "mainwindow.h"
 #include "glwidget.h"
+#include "Scene/Entities/Simulator/BlockLowerWall.h"
 
 #include <list>
 
@@ -102,7 +103,7 @@ void SceneECS::InitUniqueObjects()
 
 void SceneECS::InitSceneObjects()
 {
-    //objects.push_back();
+    objects.push_back(std::make_shared<BlockLowerWall>(QVector3D(), 10, 10));
 }
 
 void SceneECS::RemoveUniqueObjects()

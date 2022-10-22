@@ -4,21 +4,24 @@
 
 #include "Unit.h"
 
-double Unit::GetBaseValue()
+
+Unit::Unit(double val): value(val)
+{
+
+}
+
+double Unit::GetBaseValue() const
 {
     return value;
 }
 
-Unit &operator+(const Unit &one, const Unit &two)
+Unit operator+(const Unit &one, const Unit &two)
 {
-    Unit res;
-    res.value = one.value + two.value;
-    return res;
+    return Unit(one.value + two.value);
 }
 
-Unit &operator-(const Unit &one, const Unit &two)
+Unit operator-(const Unit &one, const Unit &two)
 {
-    Unit res;
-    res.value = one.value - two.value;
-    return res;
+    return Unit(one.value - two.value);
 }
+

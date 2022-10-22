@@ -20,11 +20,10 @@ public:
     static Distance FromCentimeters(double cm);
     static Distance FromMilimeters(double mm);
     static Distance FromMeters(double m);
-    
-    double GetBaseValue() override;
-    double GetMilimeters();
-    double GetCentimeters();
-    double GetMeters();
+
+    double GetMilimeters() const;
+    double GetCentimeters() const;
+    double GetMeters() const;
     
     void SetMilimeters(double mm);
     void SetCentimeters(double cm);

@@ -4,27 +4,32 @@
 
 #include "PointShapes.h"
 #include "Polynomials.h"
+#include "Scene/Components/Transform.h"
 
-std::vector<QVector3D> PointShapes::CreateRect(QVector3D startPos, float width, float height, int wPoints, int hPoints)
+#include <QMatrix4x4>
+
+std::vector<QVector3D> PointShapes::CreateRect(QVector3D startPos, float width, float height, int wPoints, int hPoints, Plane plane)
 {
     std::vector<QVector3D> res(wPoints * hPoints);
-
+    
     for (int i = 0; i < hPoints; ++i)//height
         for (int j = 0; j < wPoints; ++j)//width
-            res[i * wPoints + j] = QVector3D((float) j * width / (wPoints - 1), 0, (float) i * height / (hPoints - 1)) + startPos;
-
+            res[i * wPoints + j] =
+                    QVector3D((float) j * width / (wPoints - 1), 0, (float) i * height / (hPoints - 1));
+    
+    ApplyPlaneTransform(res, startPos, plane);
     return res;
 }
 
 std::vector<QVector3D> PointShapes::CreateTube(QVector3D startPos, float radius, float length, int rPoints, int lPoints)
 {
     std::vector<QVector3D> res(rPoints * lPoints);
-
+    
     for (int i = 0; i < lPoints; ++i)//height
         for (int j = 0; j < rPoints; ++j)//width
             res[i * rPoints + j] = QVector3D(radius * cos(2 * M_PI * j / rPoints), radius * sin(2 * M_PI * j / rPoints),
-                                             (float) i  * length / (lPoints - 1))+ startPos;
-
+                                             (float) i * length / (lPoints - 1)) + startPos;
+    
     return res;
 }
 
@@ -53,8 +58,9 @@ std::vector<QVector3D> PointShapes::CreateFillPlanePoints(std::vector<QVector3D>
         
         for (int j = 0; j < 4; ++j)
         {
-            firstInnerPoints.push_back(edgeDoubles[i].first[j]  + (edgeDoubles[i].first[j]- deeperDoubles[i].first[j]));
-            secondInnerPoints.push_back(edgeDoubles[i].second[j] + (edgeDoubles[i].second[j] - deeperDoubles[i].second[j]));
+            firstInnerPoints.push_back(edgeDoubles[i].first[j] + (edgeDoubles[i].first[j] - deeperDoubles[i].first[j]));
+            secondInnerPoints
+                    .push_back(edgeDoubles[i].second[j] + (edgeDoubles[i].second[j] - deeperDoubles[i].second[j]));
         }
         
         innerEdgePoints.push_back(std::make_pair(firstInnerPoints, secondInnerPoints));
@@ -113,4 +119,37 @@ std::vector<QVector3D> PointShapes::CreateFillPlanePoints(std::vector<QVector3D>
     }
     
     return res;
+}
+
+std::vector<QVector3D> PointShapes::CreateSingleRect(QVector3D centerPos, float width, float height, Plane plane)
+{
+    std::vector<QVector3D> res = {
+            {-0.5f * width, 0.0f, 0.5f * height},
+            {0.5f * width,  0.0f, 0.5f * height},
+            {-0.5f * width, 0.0f, -0.5f * height},
+            {0.5f * width,  0.0f, -0.5f * height},
+    };
+    
+    ApplyPlaneTransform(res, centerPos, plane);
+    return res;
+}
+
+void PointShapes::ApplyPlaneTransform(std::vector<QVector3D> &points, QVector3D startPos, Plane plane)
+{
+    QMatrix4x4 rotation;
+    
+    switch (plane)
+    {
+        case XY:
+            rotation.rotate(-90, Transform::GetXAxis());
+            break;
+        case XZ:
+            break;
+        case YZ:
+            rotation.rotate(90, Transform::GetZAxis());
+            break;
+    }
+    
+    for (QVector3D& p : points)
+        p = rotation * p + startPos;
 }

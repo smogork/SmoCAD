@@ -53,6 +53,8 @@ set(SHADER_FILES
         Shaders/select_rect.frag
         Shaders/torus.vert
         Shaders/torus.frag
+        Shaders/Simulator3C/lower_wall.vert
+        Shaders/Simulator3C/lower_wall.frag
         )
 
 set(MATH_FILES
@@ -167,7 +169,19 @@ set(PROJECT_SOURCES
         Scene/Systems/IntersectionResultSystem.cpp Scene/Systems/IntersectionResultSystem.h
         Scene/Components/IntersectionResult.cpp Scene/Components/IntersectionResult.h
         Scene/Entities/Simulator/Simulator3C.cpp Scene/Entities/Simulator/Simulator3C.h
-        Scene/Entities/Simulator/CutterParameters.cpp Scene/Entities/Simulator/CutterParameters.h Loaders/GCodeLoader.cpp Loaders/GCodeLoader.h Scene/Entities/Simulator/CutterPath.cpp Scene/Entities/Simulator/CutterPath.h Scene/Entities/Simulator/CutterSimulator.cpp Scene/Entities/Simulator/CutterSimulator.h Mathematics/Units/Unit.cpp Mathematics/Units/Unit.h Mathematics/Units/Distance.cpp Mathematics/Units/Distance.h Mathematics/Units/Time.cpp Mathematics/Units/Time.h Mathematics/Units/Velocity.cpp Mathematics/Units/Velocity.h)
+        Scene/Entities/Simulator/CutterParameters.cpp Scene/Entities/Simulator/CutterParameters.h
+        Loaders/GCodeLoader.cpp Loaders/GCodeLoader.h
+        Scene/Entities/Simulator/CutterPath.cpp Scene/Entities/Simulator/CutterPath.h
+        Scene/Entities/Simulator/CutterSimulator.cpp Scene/Entities/Simulator/CutterSimulator.h
+        Mathematics/Units/Unit.cpp Mathematics/Units/Unit.h
+        Mathematics/Units/Distance.cpp Mathematics/Units/Distance.h
+        Mathematics/Units/Time.cpp Mathematics/Units/Time.h
+        Mathematics/Units/Velocity.cpp Mathematics/Units/Velocity.h
+        Scene/Entities/Simulator/BlockUpperWall.cpp Scene/Entities/Simulator/BlockUpperWall.h
+        Scene/Entities/Simulator/BlockSideWall.cpp Scene/Entities/Simulator/BlockSideWall.h
+        Scene/Entities/Simulator/BlockLowerWall.cpp Scene/Entities/Simulator/BlockLowerWall.h
+        Scene/Entities/Simulator/CutterPathPolygon.cpp Scene/Entities/Simulator/CutterPathPolygon.h
+        Scene/Entities/Simulator/BlockParameters.cpp Scene/Entities/Simulator/BlockParameters.h)
 
 add_subdirectory(Tests)
 add_subdirectory(ThirdParty/Scene-Serializer/cpp/Serializer)

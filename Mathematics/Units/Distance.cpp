@@ -4,7 +4,7 @@
 
 #include "Distance.h"
 
-Distance::Distance(double dist): distance(dist)
+Distance::Distance(double dist): Unit(dist)
 { }
 
 Distance Distance::FromCentimeters(double cm)
@@ -24,43 +24,38 @@ Distance Distance::FromMilimeters(double mm)
 Distance Distance::FromMeters(double m)
 {
     Distance res(0);
-    res.SetMeters(mm);
+    res.SetMeters(m);
     return res;
 }
 
-double Distance::GetBaseValue()
-{
-    return value;
-}
-
-double Distance::GetMilimeters()
+double Distance::GetMilimeters() const
 {
     return value * 10;
 }
 
-double Distance::GetCentimeters()
+double Distance::GetCentimeters() const
 {
     return value;
 }
 
-double Distance::GetMeters()
+double Distance::GetMeters() const
 {
     return value / 100;
 }
 
 void Distance::SetMilimeters(double mm)
 {
-    distance = mm / 10;
+    value = mm / 10;
 }
 
 void Distance::SetCentimeters(double cm)
 {
-    distance = cm;
+    value = cm;
 }
 
 void Distance::SetMeters(double m)
 {
-distance = m * 100;
+    value = m * 100;
 }
 
 
