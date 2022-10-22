@@ -63,9 +63,9 @@ std::vector<float> BlockSideWall::GenerateGeometryVertices()
     
     std::vector<float> res;
     CreateVerticesForWall(wallA, m_vertexWidthX, res, 1, 0);
-    CreateVerticesForWall(wallB, m_vertexWidthX, res, -1, 0);
+    CreateVerticesForWall(wallB, m_vertexWidthX, res, -1, 2);
     CreateVerticesForWall(wallC, m_vertexWidthY, res, 0, 1);
-    CreateVerticesForWall(wallD, m_vertexWidthY, res, 0, -1);
+    CreateVerticesForWall(wallD, m_vertexWidthY, res, 2, -1);
     
     return res;
 }
@@ -109,6 +109,8 @@ float BlockSideWall::ScaleTexCoord(int vertexNum, int vertexCount, int scaleFlag
     {
         case 1:
             return (float)vertexNum / (vertexCount - 1);
+        case 2:
+            return 1.0;
         case -1:
             return 1.0f - (float)vertexNum / (vertexCount - 1);
         case 0:

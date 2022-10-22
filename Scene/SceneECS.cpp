@@ -34,6 +34,8 @@
 #include "glwidget.h"
 #include "Scene/Entities/Simulator/BlockLowerWall.h"
 #include "Scene/Entities/Simulator/BlockSideWall.h"
+#include "Scene/Entities/Simulator/BlockUpperWall.h"
+#include "Scene/Entities/Simulator/BlockParameters.h"
 
 #include <list>
 
@@ -104,8 +106,18 @@ void SceneECS::InitUniqueObjects()
 
 void SceneECS::InitSceneObjects()
 {
-    objects.push_back(std::make_shared<BlockLowerWall>(QVector3D(), 10, 10));
-    objects.push_back(std::make_shared<BlockSideWall>(QVector3D(), 10, 10, 3, 16, 16));
+    BlockParameters params;
+    params.WidthX = 10;
+    params.WidthY = 10;
+    params.Height = 3;
+    params.VertexWidthX = 8 * params.WidthX;
+    params.VertexWidthY = 8 * params.WidthY;
+    
+    objects.push_back(std::make_shared<BlockLowerWall>(QVector3D(), params.WidthX, params.WidthY));
+    objects.push_back(std::make_shared<BlockSideWall>(QVector3D(), params.WidthX, params.WidthY, params.Height,
+                                                      params.VertexWidthX, params.VertexWidthY));
+    objects.push_back(std::make_shared<BlockUpperWall>(QVector3D(0, params.Height, 0), params.WidthX, params.WidthY,
+                                                       params.VertexWidthX, params.VertexWidthY));
 }
 
 void SceneECS::RemoveUniqueObjects()
