@@ -12,11 +12,19 @@ struct MVP
     mat4 Projection;
 };
 
+
 uniform MVP u_MVP;
+
+uniform sampler2D heightTexture;
+uniform float u_MaxHeight;
 
 void main()
 {
-    vec4 pos = vec4(aPos, 1.0f);
-    gl_Position = u_MVP.Projection * u_MVP.View * u_MVP.Model * pos;
     TexCoord = aTex;
+
+    float height = (1.0f - texture(heightTexture, TexCoord).r) * u_MaxHeight;
+    vec4 pos = vec4(aPos.x, -height, aPos.z, 1.0f);
+    //vec4 pos = vec4(aPos, 1.0f);
+    gl_Position = u_MVP.Projection * u_MVP.View * u_MVP.Model * pos;
+
 }

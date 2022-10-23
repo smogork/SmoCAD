@@ -23,6 +23,11 @@ private:
     std::unique_ptr<BlockSideWall> m_blockSide;
     BlockParameters m_blockParams;
     
+    QImage m_heightMap;
+    std::shared_ptr<QOpenGLTexture> m_heightTexture;
+    
+    void InitializeHeightMap();
+    
 public:
     static std::shared_ptr<Simulator3CComponent> CreateRegisteredComponent(unsigned int oid, std::shared_ptr<Transform> trans);
     void UnregisterComponent();
