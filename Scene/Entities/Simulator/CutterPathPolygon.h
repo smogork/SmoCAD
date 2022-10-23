@@ -13,7 +13,8 @@
 class CutterPathPolygon: public IEntity
 {
 private:
-    CutterPath m_pathData;
+    //CutterPath m_pathData;
+    std::vector<QVector3D> m_pathData;
 
 public:
     std::shared_ptr<Transform> p_Transform;

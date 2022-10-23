@@ -5,21 +5,23 @@
 #include "BlockLowerWall.h"
 #include "Mathematics/PointShapes.h"
 
-BlockLowerWall::BlockLowerWall(QVector3D pos, double widthX, double widthY)
-        : IEntity(SIMULATOR_BLOCK_LOWER), m_widthX(widthX), m_widthY(widthY), m_simulatorMtx(QMatrix4x4())
+BlockLowerWall::BlockLowerWall(QVector3D pos, std::shared_ptr<Transform> simulatorTransform, double widthX, double widthY)
+        : IEntity(SIMULATOR_BLOCK_LOWER), m_widthX(widthX), m_widthY(widthY), m_simulatorTransform(simulatorTransform)
 {
     AddComponent(p_Transform = Transform::CreateRegisteredComponent(GetObjectID(), pos));
     AddComponent(p_Drawing = StaticDrawing::CreateRegisteredComponent(GetObjectID()));
     InitializeDrawing();
     
-    m_simulatorMtx.setToIdentity();
     p_Transform->Scale = QVector3D(m_widthX, 1, m_widthY);
     p_Transform->Rotation = QVector3D(180, 0, 0);
 }
 
 void BlockLowerWall::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
 {
-    shader->SetUniform("u_MVP.Model", m_simulatorMtx * p_Transform->GetModelMatrix());
+    QMatrix4x4 modelMtx = p_Transform->GetModelMatrix();
+    if (auto trans = m_simulatorTransform.lock())
+        modelMtx = trans->GetModelMatrix() * modelMtx;
+    shader->SetUniform("u_MVP.Model", modelMtx);
 }
 
 void BlockLowerWall::DrawingFunction(QOpenGLContext *context)

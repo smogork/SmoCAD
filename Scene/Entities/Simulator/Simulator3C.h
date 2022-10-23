@@ -16,26 +16,18 @@
 #include "BlockLowerWall.h"
 #include "BlockSideWall.h"
 #include "BlockParameters.h"
+#include "Scene/Components/Simulator3CComponent.h"
 
-/**
- * To entity lamie wszystkei poprzednie zasady o dzialaniu na componentach zamiast na Entity - trudno, mam wyjebane.
- * Jest to zbyt zlozony byt dla mojej technologii. Bedzie on zawierac w sobie wiele entity i zarzadzac nimi.
- */
 class Simulator3C: public IEntity
 {
 private:
-    //CutterObject m_cutter;
-    //CutterPath m_cutterPath;
-    /*BlockUpperWall m_blockUpper;
-    BlockLowerWall m_blockLower;
-    BlockSideWall m_blockSide[4];
-    BlockParameters m_blockParams;*/
-    
+
+
 public:
     std::shared_ptr<Transform> p_Transform;
-    std::shared_ptr<StaticDrawing> p_Drawing;
-    std::shared_ptr<SceneElement> p_SceneElement;
+    std::shared_ptr<Simulator3CComponent> p_Simulator;
     std::shared_ptr<Selectable> p_Selected;
+    std::shared_ptr<SceneElement> p_SceneElement;
     
     explicit Simulator3C(const QString& name);
     Simulator3C(const QString& name, QVector3D position);

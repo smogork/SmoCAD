@@ -187,7 +187,7 @@ set(PROJECT_SOURCES
         Scene/Entities/Simulator/BlockSideWall.cpp Scene/Entities/Simulator/BlockSideWall.h
         Scene/Entities/Simulator/BlockLowerWall.cpp Scene/Entities/Simulator/BlockLowerWall.h
         Scene/Entities/Simulator/CutterPathPolygon.cpp Scene/Entities/Simulator/CutterPathPolygon.h
-        Scene/Entities/Simulator/BlockParameters.cpp Scene/Entities/Simulator/BlockParameters.h)
+        Scene/Entities/Simulator/BlockParameters.cpp Scene/Entities/Simulator/BlockParameters.h Scene/Components/Simulator3CComponent.cpp Scene/Components/Simulator3CComponent.h Scene/Systems/Simulator3CSystem.cpp Scene/Systems/Simulator3CSystem.h)
 
 add_subdirectory(Tests)
 add_subdirectory(ThirdParty/Scene-Serializer/cpp/Serializer)

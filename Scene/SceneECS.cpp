@@ -17,6 +17,7 @@
 #include "Scene/Systems/IntersectionResultSystem.h"
 #include "Scene/Systems/Awares/FillAwareSystem.h"
 #include "Scene/Systems/Awares/IntersectionAwareSystem.h"
+#include "Scene/Systems/Simulator3CSystem.h"
 
 #include "Scene/Entities/Cursor.h"
 #include "Scene/Entities/Torus.h"
@@ -26,18 +27,19 @@
 #include "Scene/Entities/Planes/PlaneC2.h"
 #include "Scene/Entities/SelectRectangle.h"
 #include "Scene/Entities/Planes/PlaneCreator.h"
-
-#include "Controls/ComponentControl.h"
-
-#include "Serializer.h"
-#include "mainwindow.h"
-#include "glwidget.h"
 #include "Scene/Entities/Simulator/BlockLowerWall.h"
 #include "Scene/Entities/Simulator/BlockSideWall.h"
 #include "Scene/Entities/Simulator/BlockUpperWall.h"
 #include "Scene/Entities/Simulator/BlockParameters.h"
 #include "Scene/Entities/Simulator/CutterParameters.h"
 #include "Scene/Entities/Simulator/CutterObject.h"
+
+#include "Controls/ComponentControl.h"
+
+#include "Serializer.h"
+#include "mainwindow.h"
+#include "glwidget.h"
+#include "Scene/Entities/Simulator/Simulator3C.h"
 
 #include <list>
 
@@ -80,6 +82,8 @@ SceneECS::SceneECS()
             std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<IntersectionAwareSystem>()));
     systems.put<IntersectionResultSystem>(
             std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<IntersectionResultSystem>()));
+    systems.put<Simulator3CSystem>(
+            std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<Simulator3CSystem>()));
 }
 
 SceneECS::~SceneECS()
@@ -108,22 +112,16 @@ void SceneECS::InitUniqueObjects()
 
 void SceneECS::InitSceneObjects()
 {
-    BlockParameters blockParameters;
-    blockParameters.WidthX = 10;
-    blockParameters.WidthY = 10;
-    blockParameters.Height = 3;
-    blockParameters.VertexWidthX = 8 * blockParameters.WidthX;
-    blockParameters.VertexWidthY = 8 * blockParameters.WidthY;
-    CutterParameters cutterParameters(1, Cylindrical);
-    
-    objects.push_back(std::make_shared<BlockLowerWall>(QVector3D(), blockParameters.WidthX, blockParameters.WidthY));
+    /*objects.push_back(std::make_shared<BlockLowerWall>(QVector3D(), blockParameters.WidthX, blockParameters.WidthY));
     objects.push_back(std::make_shared<BlockSideWall>(QVector3D(), blockParameters.WidthX, blockParameters.WidthY, blockParameters.Height,
                                                       blockParameters.VertexWidthX, blockParameters.VertexWidthY));
     objects.push_back(std::make_shared<BlockUpperWall>(QVector3D(0, blockParameters.Height, 0), blockParameters.WidthX, blockParameters.WidthY,
                                                        blockParameters.VertexWidthX, blockParameters.VertexWidthY));
     objects.push_back(std::make_shared<CutterObject>(QVector3D(1, 3, 1), cutterParameters));
     cutterParameters.Type = Spherical;
-    objects.push_back(std::make_shared<CutterObject>(QVector3D(-1, 3, -1), cutterParameters));
+    objects.push_back(std::make_shared<CutterObject>(QVector3D(-1, 3, -1), cutterParameters));*/
+    
+    objects.push_back(std::make_shared<Simulator3C>("simulator3c"));
 }
 
 void SceneECS::RemoveUniqueObjects()

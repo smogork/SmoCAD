@@ -13,7 +13,7 @@
 class BlockLowerWall: public IEntity
 {
 private:
-    QMatrix4x4 m_simulatorMtx;
+    std::weak_ptr<Transform> m_simulatorTransform;
     double m_widthX, m_widthY;
     
     void InitializeDrawing();
@@ -26,7 +26,7 @@ public:
     std::shared_ptr<Transform> p_Transform;
     std::shared_ptr<StaticDrawing> p_Drawing;
     
-    BlockLowerWall(QVector3D pos, double widthX, double widthY);
+    BlockLowerWall(QVector3D pos, std::shared_ptr<Transform> simulatorTransform, double widthX, double widthY);
 };
 
 #endif //SMOCAD_BLOCKLOWERWALL_H

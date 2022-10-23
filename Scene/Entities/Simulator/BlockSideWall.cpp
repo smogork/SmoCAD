@@ -6,18 +6,15 @@
 #include "Mathematics/PointShapes.h"
 #include <QMatrix4x4>
 
-BlockSideWall::BlockSideWall(QVector3D pos, double widthX, double widthY, double height, int vertexWidthX,
+BlockSideWall::BlockSideWall(QVector3D pos, std::shared_ptr<Transform> simulatorTransform, double widthX, double widthY, double height, int vertexWidthX,
                              int vertexWidthY)
         : IEntity(SIMULATOR_BLOCK_SIDE), m_widthX(widthX), m_widthY(widthY), m_height(height),
           m_vertexWidthX(vertexWidthX),
-          m_vertexWidthY(vertexWidthY), m_simulatorMtx(QMatrix4x4())
+          m_vertexWidthY(vertexWidthY), m_simulatorTransform(simulatorTransform)
 {
     AddComponent(p_Transform = Transform::CreateRegisteredComponent(GetObjectID(), pos));
     AddComponent(p_Drawing = StaticDrawing::CreateRegisteredComponent(GetObjectID()));
     InitializeDrawing();
-    
-    m_simulatorMtx.setToIdentity();
-    
 }
 
 void BlockSideWall::InitializeDrawing()
@@ -40,7 +37,10 @@ void BlockSideWall::DrawingFunction(QOpenGLContext *context)
 
 void BlockSideWall::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
 {
-    shader->SetUniform("u_MVP.Model", m_simulatorMtx * p_Transform->GetModelMatrix());
+    QMatrix4x4 modelMtx = p_Transform->GetModelMatrix();
+    if (auto trans = m_simulatorTransform.lock())
+        modelMtx = trans->GetModelMatrix() * modelMtx;
+    shader->SetUniform("u_MVP.Model", modelMtx);
 }
 
 std::vector<float> BlockSideWall::GenerateGeometryVertices()

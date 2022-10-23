@@ -12,7 +12,7 @@
 class BlockUpperWall: public IEntity
 {
 private:
-    QMatrix4x4 m_simulatorMtx;
+    std::weak_ptr<Transform> m_simulatorTransform;
     double m_widthX, m_widthY;
     int m_vertexWidthX, m_vertexWidthY;
     int m_indexCount;
@@ -27,7 +27,7 @@ public:
     std::shared_ptr<Transform> p_Transform;
     std::shared_ptr<StaticDrawing> p_Drawing;
     
-    BlockUpperWall(QVector3D pos, double widthX, double widthY, int vertexWidthX, int vertexWidthY);
+    BlockUpperWall(QVector3D pos, std::shared_ptr<Transform> simulatorTransform, double widthX, double widthY, int vertexWidthX, int vertexWidthY);
 };
 
 #endif //SMOCAD_BLOCKUPPERWALL_H
