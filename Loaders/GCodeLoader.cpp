@@ -60,8 +60,8 @@ QVector3D GCodeLoader::ParseGCodeLine(const QString &line)
     
     //TODO: Pozostal jeszcze przypadek gdy jakiejs wspolrzednej zabraknie. Wystarczy wtedy -1 wystawic i poprawic w gornej petli.
     res.setX(std::strtof(line.mid(Xpos + 1, Ypos - Xpos - 1).toStdString().c_str(), nullptr));
-    res.setZ(std::strtof(line.mid(Ypos + 1, Zpos - Ypos - 1).toStdString().c_str(), nullptr));
     res.setY(std::strtof(line.mid(Zpos + 1, line.size() - Ypos - 1).toStdString().c_str(), nullptr));
+    res.setZ(-std::strtof(line.mid(Ypos + 1, Zpos - Ypos - 1).toStdString().c_str(), nullptr));//UWAGA! Z w pionie dla obrabiarki
     
     return res / 10;//TODO; zastosowac obiekty z przetwarzaniem odleglosci
 }
