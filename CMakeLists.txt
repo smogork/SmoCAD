@@ -181,7 +181,7 @@ set(PROJECT_SOURCES
         Scene/Entities/Simulator/CutterPath.cpp Scene/Entities/Simulator/CutterPath.h
         Scene/Entities/Simulator/CutterObject.cpp Scene/Entities/Simulator/CutterObject.h
         Mathematics/Units/Unit.cpp Mathematics/Units/Unit.h
-        Mathematics/Units/Distance.cpp Mathematics/Units/Distance.h
+        Mathematics/Units/Length.cpp Mathematics/Units/Length.h
         Mathematics/Units/Time.cpp Mathematics/Units/Time.h
         Mathematics/Units/Velocity.cpp Mathematics/Units/Velocity.h
         Scene/Entities/Simulator/BlockUpperWall.cpp Scene/Entities/Simulator/BlockUpperWall.h

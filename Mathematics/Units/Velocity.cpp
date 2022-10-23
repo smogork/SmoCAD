@@ -4,5 +4,5 @@
 
 #include "Velocity.h"
 
-Velocity::Velocity(const Distance& dist, const Time& time): Unit(dist.GetMeters() / time.GetBaseValue())
+Velocity::Velocity(const Length& dist, const Time& time): Unit(dist.GetMeters() / time.GetBaseValue())
 { }

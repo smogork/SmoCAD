@@ -32,12 +32,15 @@ private:
     std::unique_ptr<BlockLowerWall> m_blockLower;
     std::unique_ptr<BlockSideWall> m_blockSide;
     BlockParameters m_blockParams;
+    CutterParameters m_cutterParams;
     QProperty<SimulatorState> m_state;
     
     QImage m_heightMap;
     std::shared_ptr<QOpenGLTexture> m_heightTexture;
     
     void InitializeHeightMap();
+    void MoveCutterToIdleState();
+
 signals:
     void SimulatorStateChanged(SimulatorState state);
 
@@ -53,6 +56,15 @@ public:
     ~Simulator3CComponent() override;
     
     SimulatorState GetState() { return m_state; }
+    bool CanLoadPaths();
+    void LoadPathFile(const QString& filepath);
+    
+    bool CanChangeCutterParams();
+    void ChangeCutterType(CutterType type);
+    void ChangeCutterDiameter(Length diameter);
+    CutterParameters GetCutterParameters();
+    
+    BlockParameters GetBlockParameters();
 };
 
 #endif //SMOCAD_SIMULATOR3CCOMPONENT_H

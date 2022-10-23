@@ -7,12 +7,12 @@
 
 #include "Unit.h"
 #include "Time.h"
-#include "Distance.h"
+#include "Length.h"
 
 class Velocity: public Unit
 {
 public:
-    Velocity(const Distance& dist, const Time& time);
+    Velocity(const Length& dist, const Time& time);
 };
 
 #endif //SMOCAD_VELOCITY_H

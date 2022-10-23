@@ -7,7 +7,7 @@
 
 #include "Scene/Entities/IEntity.h"
 #include "Scene/Components/Transform.h"
-#include "Scene/Components/Drawing/StaticDrawing.h"
+#include "Scene/Components/Drawing/DynamicDrawing.h"
 #include "CutterParameters.h"
 
 class CutterObject: public IEntity
@@ -30,9 +30,11 @@ private:
 
 public:
     std::shared_ptr<Transform> p_Transform;
-    std::shared_ptr<StaticDrawing> p_Drawing;
+    std::shared_ptr<DynamicDrawing> p_Drawing;
     
     CutterObject(QVector3D pos, CutterParameters params, std::shared_ptr<Transform> simulatorTransform);
+    void SetCutterParameters(Length diameter, CutterType type);
+    void SetCutterParameters(CutterParameters params);
 };
 
 #endif //SMOCAD_CUTTEROBJECT_H

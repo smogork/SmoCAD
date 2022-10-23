@@ -6,10 +6,10 @@
 #include "Mathematics/PointShapes.h"
 
 CutterObject::CutterObject(QVector3D pos, CutterParameters params, std::shared_ptr<Transform> simulatorTransform)
-: IEntity(SIMULATOR_CUTTER), m_params(params), m_simulatorTransform(simulatorTransform)
+        : IEntity(SIMULATOR_CUTTER), m_params(params), m_simulatorTransform(simulatorTransform)
 {
     AddComponent(p_Transform = Transform::CreateRegisteredComponent(GetObjectID(), pos));
-    AddComponent(p_Drawing = StaticDrawing::CreateRegisteredComponent(GetObjectID()));
+    AddComponent(p_Drawing = DynamicDrawing::CreateRegisteredComponent(GetObjectID()));
     InitializeDrawing();
 }
 
@@ -42,29 +42,32 @@ std::vector<float> CutterObject::GenerateGeometryVertices()
 {
     std::vector<float> res;
     
-    std::vector<QVector3D> topCover = PointShapes::CreateCircle(QVector3D(0, CutterHeight, 0), m_params.Diameter / 2,
+    std::vector<QVector3D> topCover = PointShapes::CreateCircle(QVector3D(0, CutterHeight, 0),
+                                                                m_params.Diameter.GetSceneUnits() / 2,
                                                                 VertexRCount, XZ);
-
     
     std::vector<QVector3D> cylinder, bottom;
     switch (m_params.Type)
     {
         case Cylindrical:
             cylinder =
-                    PointShapes::CreateTube(QVector3D(), m_params.Diameter / 2, CutterHeight, VertexRCount,
+                    PointShapes::CreateTube(QVector3D(), m_params.Diameter.GetSceneUnits() / 2, CutterHeight,
+                                            VertexRCount,
                                             VertexLCount, XY);
-            bottom = PointShapes::CreateCircle(QVector3D(), m_params.Diameter / 2,
-                                                                           VertexRCount, XZ);
+            bottom = PointShapes::CreateCircle(QVector3D(), m_params.Diameter.GetSceneUnits() / 2,
+                                               VertexRCount, XZ);
             break;
         case Spherical:
             cylinder =
-                    PointShapes::CreateTube(QVector3D(0, m_params.Diameter / 2, 0), m_params.Diameter / 2,
-                                            CutterHeight - m_params.Diameter / 2, VertexRCount, VertexLCount, XY);
-            bottom = PointShapes::CreateHalfSphere(QVector3D(0, m_params.Diameter / 2, 0), m_params.Diameter / 2,
-                                                                                VertexRCount, VertexThetaCount, XZ);
+                    PointShapes::CreateTube(QVector3D(0, m_params.Diameter.GetSceneUnits() / 2, 0),
+                                            m_params.Diameter.GetSceneUnits() / 2,
+                                            CutterHeight - m_params.Diameter.GetSceneUnits() / 2, VertexRCount,
+                                            VertexLCount, XY);
+            bottom = PointShapes::CreateHalfSphere(QVector3D(0, m_params.Diameter.GetSceneUnits() / 2, 0),
+                                                   m_params.Diameter.GetSceneUnits() / 2,
+                                                   VertexRCount, VertexThetaCount, XZ);
             break;
     }
-    
     
     AppendToVertices(res, topCover);
     AppendToVertices(res, cylinder);
@@ -106,4 +109,18 @@ void CutterObject::AppendToVertices(std::vector<float> &vertices, const std::vec
         vertices.push_back(p.z());
     }
     
+}
+
+void CutterObject::SetCutterParameters(Length diameter, CutterType type)
+{
+    m_params.Diameter = diameter;
+    m_params.Type = type;
+    
+    p_Drawing->SetVertexData(GenerateGeometryVertices());
+    p_Drawing->SetIndexData(GenerateTopologyIndices());
+}
+
+void CutterObject::SetCutterParameters(CutterParameters params)
+{
+    SetCutterParameters(params.Diameter, params.Type);
 }

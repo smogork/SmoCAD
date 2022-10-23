@@ -4,8 +4,13 @@
 
 #include "CutterParameters.h"
 
-CutterParameters::CutterParameters(double diameter, CutterType type):
+CutterParameters::CutterParameters(Length diameter, CutterType type):
     Diameter(diameter), Type(type)
+{
+
+}
+
+CutterParameters::CutterParameters()
 {
 
 }

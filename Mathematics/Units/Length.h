@@ -2,24 +2,24 @@
 // Created by ksm on 10/20/22.
 //
 
-#ifndef SMOCAD_DISTANCE_H
-#define SMOCAD_DISTANCE_H
+#ifndef SMOCAD_LENGTH_H
+#define SMOCAD_LENGTH_H
 
 #include "Unit.h"
 
 /**
- * Dystans wyrazony w cm
+ * Abstracyjna klasa przedstawiajaca odleglosc w przestzreni.
  *
  */
-class Distance: public Unit
+class Length: public Unit
 {
 private:
-    explicit Distance(double dist);
+    explicit Length(double dist);
     
 public:
-    static Distance FromCentimeters(double cm);
-    static Distance FromMilimeters(double mm);
-    static Distance FromMeters(double m);
+    static Length FromCentimeters(double cm);
+    static Length FromMilimeters(double mm);
+    static Length FromMeters(double m);
 
     double GetMilimeters() const;
     double GetCentimeters() const;
@@ -31,4 +31,4 @@ public:
     void SetMeters(double m);
 };
 
-#endif //SMOCAD_DISTANCE_H
+#endif //SMOCAD_LENGTH_H

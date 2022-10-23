@@ -5,6 +5,8 @@
 #ifndef SMOCAD_CUTTERPARAMETERS_H
 #define SMOCAD_CUTTERPARAMETERS_H
 
+#include "Mathematics/Units/Length.h"
+
 enum CutterType
 {
     Spherical,
@@ -14,10 +16,11 @@ enum CutterType
 class CutterParameters
 {
 public:
-    double Diameter;
-    CutterType Type;
+    Length Diameter = Length::FromMilimeters(10);
+    CutterType Type = Spherical;
     
-    CutterParameters(double diameter, CutterType type);
+    CutterParameters(Length diameter, CutterType type);
+    CutterParameters();
 };
 
 #endif //SMOCAD_CUTTERPARAMETERS_H
