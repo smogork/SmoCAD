@@ -255,7 +255,7 @@ PointShapes::CreateHalfSphere(QVector3D centerPos, float radius, int fiPoints, i
             ));
         }
     }
-    res.push_back(QVector3D(0, radius, 0));//czubek sfery
+    res.push_back(QVector3D(0, -radius, 0));//czubek sfery
     
     ApplyPlaneTransform(res, centerPos, plane);
     return res;
@@ -263,7 +263,26 @@ PointShapes::CreateHalfSphere(QVector3D centerPos, float radius, int fiPoints, i
 
 std::vector<int> PointShapes::HalfSphereTriangleIndices(int fiPoints, int thetaPoints, bool clockwise, int* offset)
 {
-    return std::vector<int>();
+    int center = fiPoints * thetaPoints;
+    std::vector<int> indices = RectTriangleIndices(fiPoints, thetaPoints, clockwise, nullptr);
+    
+    for (int i = 0; i < fiPoints - 1; ++i)
+    {
+        indices.push_back(center);
+        if (clockwise)
+        {
+            indices.push_back((thetaPoints - 1) * fiPoints + i + 1);
+            indices.push_back((thetaPoints - 1) * fiPoints + i);
+
+        } else
+        {
+            indices.push_back((thetaPoints - 1) * fiPoints + i );
+            indices.push_back((thetaPoints - 1) * fiPoints + i + 1);
+        }
+    }
+    
+    HandleOffset(indices, offset, GetHalfSphereOffset(fiPoints, thetaPoints));
+    return indices;
 }
 
 std::vector<QVector3D> PointShapes::CreateCircle(QVector3D centerPos, float radius, int fiPoints, Plane plane)

@@ -58,7 +58,7 @@ std::vector<float> CutterObject::GenerateGeometryVertices()
             cylinder =
                     PointShapes::CreateTube(QVector3D(0, m_params.Diameter / 2, 0), m_params.Diameter / 2,
                                             CutterHeight - m_params.Diameter / 2, VertexRCount, VertexLCount, XY);
-            bottom = PointShapes::CreateHalfSphere(QVector3D(), m_params.Diameter / 2,
+            bottom = PointShapes::CreateHalfSphere(QVector3D(0, m_params.Diameter / 2, 0), m_params.Diameter / 2,
                                                                                 VertexRCount, VertexThetaCount, XZ);
             break;
     }

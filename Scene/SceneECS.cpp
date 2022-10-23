@@ -121,7 +121,9 @@ void SceneECS::InitSceneObjects()
                                                       blockParameters.VertexWidthX, blockParameters.VertexWidthY));
     objects.push_back(std::make_shared<BlockUpperWall>(QVector3D(0, blockParameters.Height, 0), blockParameters.WidthX, blockParameters.WidthY,
                                                        blockParameters.VertexWidthX, blockParameters.VertexWidthY));
-    objects.push_back(std::make_shared<CutterObject>(QVector3D(0, 5, 0), cutterParameters));
+    objects.push_back(std::make_shared<CutterObject>(QVector3D(1, 3, 1), cutterParameters));
+    cutterParameters.Type = Spherical;
+    objects.push_back(std::make_shared<CutterObject>(QVector3D(-1, 3, -1), cutterParameters));
 }
 
 void SceneECS::RemoveUniqueObjects()
