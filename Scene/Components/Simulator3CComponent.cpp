@@ -32,7 +32,7 @@ void Simulator3CComponent::UnregisterComponent()
 }
 
 Simulator3CComponent::Simulator3CComponent(unsigned int oid, std::shared_ptr<Transform> simulatorTransform)
-        : IComponent(oid, SIMULATOR3C), p_Transform(simulatorTransform)
+        : IComponent(oid, SIMULATOR3C), p_Transform(simulatorTransform), m_state(IDLE)
 {
     m_blockParams = {3, 10, 10, 2048, 2048, 64, 64};//domyslne parametry
     

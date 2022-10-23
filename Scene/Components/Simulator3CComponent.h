@@ -14,8 +14,16 @@
 #include "Scene/Entities/Simulator/BlockParameters.h"
 #include "Scene/Entities/Simulator/CutterPathPolyline.h"
 
+enum SimulatorState
+{
+    IDLE,
+    MILLING,
+    PAUSED,
+};
+
 class Simulator3CComponent : public IComponent
 {
+Q_OBJECT
 private:
     std::unique_ptr<CutterObject> m_cutter;
     std::unique_ptr<CutterPath> m_cutterPath;
@@ -24,14 +32,18 @@ private:
     std::unique_ptr<BlockLowerWall> m_blockLower;
     std::unique_ptr<BlockSideWall> m_blockSide;
     BlockParameters m_blockParams;
+    QProperty<SimulatorState> m_state;
     
     QImage m_heightMap;
     std::shared_ptr<QOpenGLTexture> m_heightTexture;
     
     void InitializeHeightMap();
-    
+signals:
+    void SimulatorStateChanged(SimulatorState state);
+
 public:
-    static std::shared_ptr<Simulator3CComponent> CreateRegisteredComponent(unsigned int oid, std::shared_ptr<Transform> trans);
+    static std::shared_ptr<Simulator3CComponent>
+    CreateRegisteredComponent(unsigned int oid, std::shared_ptr<Transform> trans);
     void UnregisterComponent();
     
     std::shared_ptr<Transform> p_Transform;
@@ -39,6 +51,8 @@ public:
     Simulator3CComponent(unsigned int oid, std::shared_ptr<Transform> simulatorTransform);
     explicit Simulator3CComponent(unsigned int oid);
     ~Simulator3CComponent() override;
+    
+    SimulatorState GetState() { return m_state; }
 };
 
 #endif //SMOCAD_SIMULATOR3CCOMPONENT_H

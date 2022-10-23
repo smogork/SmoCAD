@@ -16,6 +16,7 @@ public:
     const char *GetSystemName() override { return "Simulator3CSystem"; }
     std::shared_ptr<Simulator3CComponent>
     CreateRegistered(unsigned int oid, std::shared_ptr<Transform> simulatorTransform);
+    std::unique_ptr<ComponentControl> PrepareUIForObject(unsigned int oid) override;
 };
 
 #endif //SMOCAD_SIMULATOR3CSYSTEM_H

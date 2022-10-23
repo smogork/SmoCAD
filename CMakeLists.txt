@@ -90,6 +90,7 @@ set(CONTROL_SOURCES
         Controls/Dialogs/parametersintersectiondialog.h Controls/Dialogs/parametersintersectiondialog.cpp Controls/Dialogs/parametersintersectiondialog.ui
         Controls/intersectionawarecontrol.h Controls/intersectionawarecontrol.cpp Controls/intersectionawarecontrol.ui
         Controls/intersectionresultcontrol.h Controls/intersectionresultcontrol.cpp Controls/intersectionresultcontrol.ui
+        Controls/simulator3ccontrol.h Controls/simulator3ccontrol.cpp Controls/simulator3ccontrol.ui
         )
 
 set(PROJECT_SOURCES
