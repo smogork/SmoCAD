@@ -11,7 +11,7 @@
 class GCodeLoader
 {
 public:
-    static CutterPath LoadCutterPath(const QString& filepath);
+    static std::unique_ptr<CutterPath> LoadCutterPath(const QString& filepath);
     
 private:
     static CutterParameters ParseFilenameForParameters(const QString& filepath);

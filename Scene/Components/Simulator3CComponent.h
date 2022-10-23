@@ -12,12 +12,14 @@
 #include "Scene/Entities/Simulator/BlockLowerWall.h"
 #include "Scene/Entities/Simulator/BlockSideWall.h"
 #include "Scene/Entities/Simulator/BlockParameters.h"
+#include "Scene/Entities/Simulator/CutterPathPolyline.h"
 
 class Simulator3CComponent : public IComponent
 {
 private:
     std::unique_ptr<CutterObject> m_cutter;
     std::unique_ptr<CutterPath> m_cutterPath;
+    std::unique_ptr<CutterPathPolyline> m_pathPolyline;
     std::unique_ptr<BlockUpperWall> m_blockUpper;
     std::unique_ptr<BlockLowerWall> m_blockLower;
     std::unique_ptr<BlockSideWall> m_blockSide;

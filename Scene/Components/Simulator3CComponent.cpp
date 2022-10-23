@@ -5,6 +5,8 @@
 #include "Simulator3CComponent.h"
 #include "Scene/SceneECS.h"
 #include "Scene/Systems/Simulator3CSystem.h"
+#include "Scene/Entities/Simulator/CutterPathPolyline.h"
+#include "Loaders/GCodeLoader.h"
 
 std::shared_ptr<Simulator3CComponent>
 Simulator3CComponent::CreateRegisteredComponent(unsigned int oid, std::shared_ptr<Transform> trans)
@@ -48,6 +50,17 @@ Simulator3CComponent::Simulator3CComponent(unsigned int oid, std::shared_ptr<Tra
     m_blockUpper = std::make_unique<BlockUpperWall>(QVector3D(0, m_blockParams.Height, 0), p_Transform, m_heightTexture,
                                                     m_blockParams.WidthX, m_blockParams.WidthY, m_blockParams.Height,
                                                     m_blockParams.VertexWidthX, m_blockParams.VertexWidthY);
+    
+    try
+    {
+        m_cutterPath = GCodeLoader::LoadCutterPath("../docs/paths/Paths1/t1.k16");
+        m_pathPolyline = std::make_unique<CutterPathPolyline>(m_cutterPath->Points, p_Transform);
+        m_cutter = std::make_unique<CutterObject>(m_cutterPath->Points[0], m_cutterPath->Cutter, p_Transform);
+    }
+    catch (std::runtime_error &e)
+    {
+        qDebug() << "Error on loading paths " << e.what();
+    }
     
 }
 

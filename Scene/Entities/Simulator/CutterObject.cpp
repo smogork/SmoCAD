@@ -5,13 +5,12 @@
 #include "CutterObject.h"
 #include "Mathematics/PointShapes.h"
 
-CutterObject::CutterObject(QVector3D pos, CutterParameters params) : IEntity(SIMULATOR_CUTTER), m_params(params)
+CutterObject::CutterObject(QVector3D pos, CutterParameters params, std::shared_ptr<Transform> simulatorTransform)
+: IEntity(SIMULATOR_CUTTER), m_params(params), m_simulatorTransform(simulatorTransform)
 {
     AddComponent(p_Transform = Transform::CreateRegisteredComponent(GetObjectID(), pos));
     AddComponent(p_Drawing = StaticDrawing::CreateRegisteredComponent(GetObjectID()));
     InitializeDrawing();
-    
-    m_simulatorMtx.setToIdentity();
 }
 
 void CutterObject::InitializeDrawing()
@@ -33,7 +32,10 @@ void CutterObject::DrawingFunction(QOpenGLContext *context)
 
 void CutterObject::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
 {
-    shader->SetUniform("u_MVP.Model", m_simulatorMtx * p_Transform->GetModelMatrix());
+    QMatrix4x4 modelMtx = p_Transform->GetModelMatrix();
+    if (auto trans = m_simulatorTransform.lock())
+        modelMtx = trans->GetModelMatrix() * modelMtx;
+    shader->SetUniform("u_MVP.Model", modelMtx);
 }
 
 std::vector<float> CutterObject::GenerateGeometryVertices()

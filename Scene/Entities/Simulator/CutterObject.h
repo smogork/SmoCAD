@@ -18,7 +18,7 @@ private:
     static constexpr int VertexThetaCount = 16;
     static constexpr int CutterHeight = 4;
     CutterParameters m_params;
-    QMatrix4x4 m_simulatorMtx;
+    std::weak_ptr<Transform> m_simulatorTransform;
     int m_indexCount;
     
     void InitializeDrawing();
@@ -32,7 +32,7 @@ public:
     std::shared_ptr<Transform> p_Transform;
     std::shared_ptr<StaticDrawing> p_Drawing;
     
-    CutterObject(QVector3D pos, CutterParameters params);
+    CutterObject(QVector3D pos, CutterParameters params, std::shared_ptr<Transform> simulatorTransform);
 };
 
 #endif //SMOCAD_CUTTEROBJECT_H
