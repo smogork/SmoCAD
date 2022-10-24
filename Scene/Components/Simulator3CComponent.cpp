@@ -8,6 +8,8 @@
 #include "Scene/Entities/Simulator/CutterPathPolyline.h"
 #include "Loaders/GCodeLoader.h"
 
+#include <cmath>
+
 std::shared_ptr<Simulator3CComponent>
 Simulator3CComponent::CreateRegisteredComponent(unsigned int oid, std::shared_ptr<Transform> trans)
 {
@@ -34,9 +36,8 @@ void Simulator3CComponent::UnregisterComponent()
 Simulator3CComponent::Simulator3CComponent(unsigned int oid, std::shared_ptr<Transform> simulatorTransform)
         : IComponent(oid, SIMULATOR3C), p_Transform(simulatorTransform), m_state(IDLE)
 {
-    
     InitializeHeightMap();
-    m_heightTexture = std::make_shared<QOpenGLTexture>(m_heightMap,
+    m_heightTexture = std::make_shared<QOpenGLTexture>(m_heightMap.GetBitmap(),
                                                        QOpenGLTexture::MipMapGeneration::DontGenerateMipMaps);
     m_heightTexture->setWrapMode(QOpenGLTexture::ClampToEdge);
     
@@ -66,9 +67,18 @@ Simulator3CComponent::~Simulator3CComponent()
 
 void Simulator3CComponent::InitializeHeightMap()
 {
-    m_heightMap = QImage({m_blockParams.TextureWidthX, m_blockParams.TextureWidthY}, QImage::Format_RGB32);
-    QPainter p(&m_heightMap);
-    p.fillRect(0, 0, m_blockParams.TextureWidthX, m_blockParams.TextureWidthY, QGradient::Preset::AfricanField);
+    m_heightMap.ChangeSize(m_blockParams.TextureWidthX, m_blockParams.TextureWidthY);
+    m_heightMap.GetRedColorFunction = ASSIGN_COLOR_FUNCTION(&Simulator3CComponent::CutterColorFunction);
+    
+    //const float r1 = 1.5, r2 = 2.0;
+    
+    QVector3D startPoint = {-4, 4, -4};
+    QVector3D finishPoint = {4, 4, -2};
+    QPoint startPointTex = CutterCentreToTexture(startPoint);
+    QPoint endPointTex = CutterCentreToTexture(finishPoint);
+    
+    m_heightMap.drawThickLine(startPointTex, endPointTex, startPoint, finishPoint, 500, LINE_THICKNESS_DRAW_CLOCKWISE);
+    m_heightMap.drawThickLine(startPointTex, endPointTex, startPoint, finishPoint, 500, LINE_THICKNESS_DRAW_COUNTERCLOCKWISE);
 }
 
 void Simulator3CComponent::LoadPathFile(const QString &filepath)
@@ -91,7 +101,8 @@ void Simulator3CComponent::LoadPathFile(const QString &filepath)
         
         MoveCutterToIdleState();
         m_state = IDLE;
-        throw std::runtime_error(QString("Error on loading paths from %0.\n%1").arg(filepath).arg(e.what()).toStdString());
+        throw std::runtime_error(
+                QString("Error on loading paths from %0.\n%1").arg(filepath).arg(e.what()).toStdString());
     }
 }
 
@@ -139,5 +150,57 @@ CutterParameters Simulator3CComponent::GetCutterParameters()
 BlockParameters Simulator3CComponent::GetBlockParameters()
 {
     return m_blockParams;
+}
+
+float Simulator3CComponent::CutterColorFunction(int x, int y, QVector3D startCutterPos, QVector3D endCutterPos)
+{
+    QVector2D cutterPoint = TextureToCutter(x, y, startCutterPos);
+    
+    float r = m_cutterParams.Diameter.GetSceneUnits() / 2;
+    if (cutterPoint.distanceToPoint({0, 0}) > r)
+        return NAN;
+    
+    switch (m_cutterParams.Type)
+    {
+        case Cylindrical:
+            return CutterHeightToTextureColor(0, startCutterPos.y(), endCutterPos.y());
+        case Spherical:
+            float cHeight = r - sqrt(r * r - cutterPoint.x() * cutterPoint.x() - cutterPoint.y() * cutterPoint.y());
+            return CutterHeightToTextureColor(cHeight, startCutterPos.y(), endCutterPos.y());
+    }
+    return NAN;
+}
+
+QVector2D Simulator3CComponent::TextureToCutter(int texX, int texY, QVector3D CutterSimPos)
+{
+    return QVector2D(
+            ((float)texX / m_blockParams.TextureWidthX - 0.5f) * m_blockParams.WidthX.GetSceneUnits() - CutterSimPos.x(),
+            ((float)texY / m_blockParams.TextureWidthY - 0.5f) * m_blockParams.WidthY.GetSceneUnits() - CutterSimPos.z()
+    );
+}
+
+float Simulator3CComponent::CutterHeightToTextureColor(float cutterHeight, float startHeight, float finishHeight)
+{
+    if (startHeight - finishHeight < 1e-4)
+    {
+        float red = cutterHeight + startHeight;
+        return red / m_blockParams.Height.GetSceneUnits();
+    }
+    
+    //TODO: Stworzenie gradientu
+    return 1;
+}
+
+QPoint Simulator3CComponent::CutterToTexture(QVector2D cutterP, QVector3D CutterSimPos)
+{
+    return QPoint(
+            ((cutterP.x() + CutterSimPos.x()) / m_blockParams.WidthX.GetSceneUnits() + 0.5f) * m_blockParams.TextureWidthX,
+            ((cutterP.y() + CutterSimPos.z()) / m_blockParams.WidthY.GetSceneUnits() + 0.5f) * m_blockParams.TextureWidthY
+    );
+}
+
+QPoint Simulator3CComponent::CutterCentreToTexture(QVector3D CutterSimPos)
+{
+    return CutterToTexture({0, 0}, CutterSimPos);
 }
 

@@ -13,6 +13,9 @@
 #include "Scene/Entities/Simulator/BlockSideWall.h"
 #include "Scene/Entities/Simulator/BlockParameters.h"
 #include "Scene/Entities/Simulator/CutterPathPolyline.h"
+#include "Scene/Utilities/QImageOperator.h"
+
+
 
 enum SimulatorState
 {
@@ -35,11 +38,17 @@ private:
     CutterParameters m_cutterParams;
     QProperty<SimulatorState> m_state;
     
-    QImage m_heightMap;
+    //QImage m_heightMap;
+    QImageOperator m_heightMap;
     std::shared_ptr<QOpenGLTexture> m_heightTexture;
     
     void InitializeHeightMap();
     void MoveCutterToIdleState();
+    float CutterColorFunction(int x, int y, QVector3D startCutterPos, QVector3D endCutterPos);
+    QPoint CutterToTexture(QVector2D cutterP, QVector3D CutterSimPos);
+    QPoint CutterCentreToTexture(QVector3D CutterSimPos);
+    float CutterHeightToTextureColor(float cutterHeight, float startHeight, float finishHeight);
+    QVector2D TextureToCutter(int texX, int texY, QVector3D CutterSimPos);
 
 signals:
     void SimulatorStateChanged(SimulatorState state);
