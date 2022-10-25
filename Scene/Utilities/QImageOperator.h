@@ -53,12 +53,18 @@ class QImageOperator
 {
 private:
     QImage m_bitmap;
+    QImage m_borderBitmap;
+    std::vector<float> m_stamp;
+    int m_stampX;
+    int m_stampY;
     
     //void BresenhamAlgorithm(QPoint zero, QPoint diff, DrawState state, QColor color);
     void drawLineOverlap(int aXStart, int aYStart, int aXEnd, int aYEnd, uint8_t aOverlap,
                          QColor aColor);
     void ClampPointToDisplay(QPoint &p);
     void ClampPointToDisplay(int &x, int &y);
+    void Plot4EllipsePoints(int cx, int cy, int x, int y, QColor color);
+    void CreateStampData(int textureRadiusX, int textureRadiusY);
 public:
     
     QImageOperator(int bitmapSizeX, int bitmapSizeY);
@@ -82,7 +88,15 @@ public:
     void drawThickLineSimple(int aXStart, int aYStart, int aXEnd, int aYEnd,
                              unsigned int aThickness, uint8_t aThicknessMode, QColor aColor);
     
+    void drawEllipse(QPoint center, QPoint radius, QColor color);
+    void FloodFill4(QPoint start, QVector3D simStartPos, QVector3D simFinishPos);
+    
+    void PrepareSphericalStamp(int textureRadiusX, int textureRadiusY, float R);
+    void ApplyStamp(int cx, int cy, float cutterSimHeight, float blockHeight);
+    void CutterMove(QPoint texStart, QPoint texEnd, float startHeight, float endHeight, float blockHeight);
+    
     [[nodiscard]] const QImage &GetBitmap() const;
+    [[nodiscard]] const QImage &GetBorderBitmap() const;
 };
 
 /*#ifdef __cplusplus

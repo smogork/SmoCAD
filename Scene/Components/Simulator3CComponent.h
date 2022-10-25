@@ -49,6 +49,8 @@ private:
     QPoint CutterCentreToTexture(QVector3D CutterSimPos);
     float CutterHeightToTextureColor(float cutterHeight, float startHeight, float finishHeight);
     QVector2D TextureToCutter(int texX, int texY, QVector3D CutterSimPos);
+    QVector2D TextureToSim(int texX, int texY);
+    float DistToSegment(QVector2D p, QVector2D A, QVector2D B);
 
 signals:
     void SimulatorStateChanged(SimulatorState state);

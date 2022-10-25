@@ -72,13 +72,51 @@ void Simulator3CComponent::InitializeHeightMap()
     
     //const float r1 = 1.5, r2 = 2.0;
     
-    QVector3D startPoint = {-4, 4, -4};
-    QVector3D finishPoint = {4, 4, -2};
-    QPoint startPointTex = CutterCentreToTexture(startPoint);
-    QPoint endPointTex = CutterCentreToTexture(finishPoint);
+    QVector3D points[] = {
+            {-4, 4, -4},
+            {4, 4, -2},
+            {2, 4.5, 0},
+            {-1, 2, 5},
+            {0, 5, 0},
+    };
     
+    float r = m_cutterParams.Diameter.GetSceneUnits() / 2.0f;
+    QPoint textureRadius = QPoint(r / m_blockParams.WidthX.GetSceneUnits() * m_blockParams.TextureWidthX,
+                                  r / m_blockParams.WidthY.GetSceneUnits() * m_blockParams.TextureWidthY);
+    
+    m_heightMap.PrepareSphericalStamp(textureRadius.x(), textureRadius.y(), r);
+    
+    for (int i = 0; i < 4; ++i)
+    {
+        QVector3D startPoint = points[i];
+        QVector3D finishPoint = points[i + 1];
+        QPoint startPointTex = CutterCentreToTexture(startPoint);
+        QPoint endPointTex = CutterCentreToTexture(finishPoint);
+    
+        m_heightMap.CutterMove(startPointTex, endPointTex, startPoint.y(), finishPoint.y(), m_blockParams.Height.GetSceneUnits());
+    }
+    
+   
+    //m_heightMap.ApplyStamp(startPointTex, 4, m_blockParams.Height.GetSceneUnits());
+    //m_heightMap.ApplyStamp(endPointTex, 4, m_blockParams.Height.GetSceneUnits());
+    //m_heightMap.GetBitmap().save("stamp.png");
+    
+    /*QPainter p((QPaintDevice *) &m_heightMap.GetBorderBitmap());
+    QPen line(Qt::red), clean(Qt::black);
+    p.setPen(line);
+    p.drawEllipse(startPointTex, textureRadius.x(), textureRadius.y());
+    p.drawEllipse(endPointTex, textureRadius.x(), textureRadius.y());
+    
+    m_heightMap.GetBorderBitmap().save("pre_flood.png");
+    m_heightMap.FloodFill4(startPointTex, startPoint, finishPoint);
+    m_heightMap.FloodFill4(endPointTex, startPoint, finishPoint);*/
+    /*//narysuj koncowe kolko
+    m_heightMap.draw
+    
+    //narysuj rynne
     m_heightMap.drawThickLine(startPointTex, endPointTex, startPoint, finishPoint, 500, LINE_THICKNESS_DRAW_CLOCKWISE);
     m_heightMap.drawThickLine(endPointTex, startPointTex, finishPoint, startPoint, 500, LINE_THICKNESS_DRAW_CLOCKWISE);
+*/
 }
 
 void Simulator3CComponent::LoadPathFile(const QString &filepath)
@@ -154,10 +192,14 @@ BlockParameters Simulator3CComponent::GetBlockParameters()
 
 float Simulator3CComponent::CutterColorFunction(int x, int y, QVector3D startCutterPos, QVector3D endCutterPos)
 {
-    QVector2D cutterPoint = TextureToCutter(x, y, startCutterPos);
+    QVector2D simPoint = TextureToSim(x, y);
+    
+    float distToMoveLine = DistToSegment(simPoint,
+                                         QVector2D(startCutterPos.x(), startCutterPos.z()),
+                                         QVector2D(endCutterPos.x(), endCutterPos.z()));
     
     float r = m_cutterParams.Diameter.GetSceneUnits() / 2;
-    if (cutterPoint.distanceToPoint({0, 0}) > r)
+    if (distToMoveLine > r)
         return NAN;
     
     switch (m_cutterParams.Type)
@@ -165,7 +207,7 @@ float Simulator3CComponent::CutterColorFunction(int x, int y, QVector3D startCut
         case Cylindrical:
             return CutterHeightToTextureColor(0, startCutterPos.y(), endCutterPos.y());
         case Spherical:
-            float cHeight = r - sqrt(r * r - cutterPoint.x() * cutterPoint.x() - cutterPoint.y() * cutterPoint.y());
+            float cHeight = r - std::sqrt(r * r - distToMoveLine * distToMoveLine);
             return CutterHeightToTextureColor(cHeight, startCutterPos.y(), endCutterPos.y());
     }
     return NAN;
@@ -174,8 +216,10 @@ float Simulator3CComponent::CutterColorFunction(int x, int y, QVector3D startCut
 QVector2D Simulator3CComponent::TextureToCutter(int texX, int texY, QVector3D CutterSimPos)
 {
     return QVector2D(
-            ((float)texX / m_blockParams.TextureWidthX - 0.5f) * m_blockParams.WidthX.GetSceneUnits() - CutterSimPos.x(),
-            ((float)texY / m_blockParams.TextureWidthY - 0.5f) * m_blockParams.WidthY.GetSceneUnits() - CutterSimPos.z()
+            ((float) texX / m_blockParams.TextureWidthX - 0.5f) * m_blockParams.WidthX.GetSceneUnits() -
+            CutterSimPos.x(),
+            ((float) texY / m_blockParams.TextureWidthY - 0.5f) * m_blockParams.WidthY.GetSceneUnits() -
+            CutterSimPos.z()
     );
 }
 
@@ -194,13 +238,36 @@ float Simulator3CComponent::CutterHeightToTextureColor(float cutterHeight, float
 QPoint Simulator3CComponent::CutterToTexture(QVector2D cutterP, QVector3D CutterSimPos)
 {
     return QPoint(
-            ((cutterP.x() + CutterSimPos.x()) / m_blockParams.WidthX.GetSceneUnits() + 0.5f) * m_blockParams.TextureWidthX,
-            ((cutterP.y() + CutterSimPos.z()) / m_blockParams.WidthY.GetSceneUnits() + 0.5f) * m_blockParams.TextureWidthY
+            ((cutterP.x() + CutterSimPos.x()) / m_blockParams.WidthX.GetSceneUnits() + 0.5f) *
+            m_blockParams.TextureWidthX,
+            ((cutterP.y() + CutterSimPos.z()) / m_blockParams.WidthY.GetSceneUnits() + 0.5f) *
+            m_blockParams.TextureWidthY
     );
 }
 
 QPoint Simulator3CComponent::CutterCentreToTexture(QVector3D CutterSimPos)
 {
     return CutterToTexture({0, 0}, CutterSimPos);
+}
+
+QVector2D Simulator3CComponent::TextureToSim(int texX, int texY)
+{
+    return QVector2D(
+            ((float) texX / m_blockParams.TextureWidthX - 0.5f) * m_blockParams.WidthX.GetSceneUnits(),
+            ((float) texY / m_blockParams.TextureWidthY - 0.5f) * m_blockParams.WidthY.GetSceneUnits()
+    );
+}
+
+float Simulator3CComponent::DistToSegment(QVector2D p, QVector2D A, QVector2D B)
+{
+    QVector2D v = B - A;
+    QVector2D vp = p - A;
+    float lengthAb = v.length();
+    
+    v.normalize();
+    float scale = QVector2D::dotProduct(v, vp.normalized()) * vp.length();
+    
+    QVector2D thrownP = A + std::clamp(scale, 0.0f, lengthAb) * v;
+    return (p - thrownP).length();
 }
 
