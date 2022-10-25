@@ -44,6 +44,7 @@ void BlockUpperWall::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
     m_heightTexture->bind(0, QOpenGLTexture::ResetTextureUnit);
     shader->SetUniform("heightTexture", 0);
     shader->SetUniform("u_MaxHeight", (float)m_height);
+    shader->SetUniform("u_TextureSize", m_heightTexture->width());
 }
 
 std::vector<float> BlockUpperWall::GenerateGeometryVertices()

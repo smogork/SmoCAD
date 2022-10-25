@@ -78,7 +78,7 @@ void Simulator3CComponent::InitializeHeightMap()
     QPoint endPointTex = CutterCentreToTexture(finishPoint);
     
     m_heightMap.drawThickLine(startPointTex, endPointTex, startPoint, finishPoint, 500, LINE_THICKNESS_DRAW_CLOCKWISE);
-    m_heightMap.drawThickLine(startPointTex, endPointTex, startPoint, finishPoint, 500, LINE_THICKNESS_DRAW_COUNTERCLOCKWISE);
+    m_heightMap.drawThickLine(endPointTex, startPointTex, finishPoint, startPoint, 500, LINE_THICKNESS_DRAW_CLOCKWISE);
 }
 
 void Simulator3CComponent::LoadPathFile(const QString &filepath)
