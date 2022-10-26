@@ -159,7 +159,10 @@ void Simulator3CControl::on_pushButton_clicked()
 
 void Simulator3CControl::on_pushButton_2_clicked()
 {
-
+    if (auto sim = m_sim.lock())
+    {
+        sim->SkipPathToEnd();
+    }
 }
 
 void Simulator3CControl::onSimulatorStateChange(SimulatorState state)

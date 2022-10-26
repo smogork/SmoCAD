@@ -748,6 +748,7 @@ const QImage &QImageOperator::GetBorderBitmap() const
 
 void QImageOperator::PrepareSphericalStamp(int textureRadiusX, int textureRadiusY, float R)
 {
+    isToolFlat = false;
     CreateStampData(textureRadiusX, textureRadiusY);
     
     for (int y = 0 ; y < m_stampY; ++y)
@@ -778,15 +779,36 @@ void QImageOperator::ApplyStamp(int cx, int cy, float cutterSimHeight, float blo
     int offsetY = -m_stampY/2;
     
     for (int y = 0 ; y < m_stampY; ++y)
-        for (int x = 0 ; x < m_stampX; ++x)
+    {
+        if (cy + offsetY + y < 0 || cy + offsetY + y >= m_bitmap.height())
+            continue;
+        
+        for (int x = 0; x < m_stampX; ++x)
         {
-            if (m_stamp[y * m_stampX + x] != m_stamp[y * m_stampX + x])//nan check
+            if (cx + offsetX + x < 0 || cx + offsetX + x >= m_bitmap.width())
                 continue;
             
-            float texVal = (m_stamp[y * m_stampX + x] + cutterSimHeight) / blockHeight;
+            if (m_stamp[y * m_stampX + x] != m_stamp[y * m_stampX + x])//nan check
+                continue;
+        
+            float height = m_stamp[y * m_stampX + x] + cutterSimHeight;
+            float curHeight = (qRed(m_bitmap.pixel(cx + offsetX + x, cy + offsetY + y))) / 255.0f *
+                              blockHeight;//TODO: wywalic cala bitmape
+            float toolSub = curHeight - height;
+            if (toolSub < 0.0f)
+                continue;
+        
+            if (toolSub > MaximumToolSubmersion)
+                throw MillingException("Tool undercut detected");
+        
+            if (isToolFlat && toolSub > 0.0f)
+                throw MillingException("Flat cutter went down in material");
+        
+            float texVal = height / blockHeight;
             c.setRedF(texVal);
             drawPixel(cx + offsetX + x, cy + offsetY + y, c);
         }
+    }
 }
 
 void QImageOperator::CutterMove(QPoint texStart, QPoint texEnd, float startHeight, float endHeight, float blockHeight)
@@ -796,6 +818,9 @@ void QImageOperator::CutterMove(QPoint texStart, QPoint texEnd, float startHeigh
     int y1 = texStart.y();
     int x2 = texEnd.x();
     int y2 = texEnd.y();
+    
+    if (blockHeight - endHeight > MaximalGlobalSubmerison)
+        throw MillingException("Milling below global limit detected");
     
     int d, dx, dy, ai, bi, xi, yi;
     int x = x1, y = y1;
@@ -850,35 +875,11 @@ void QImageOperator::CutterMove(QPoint texStart, QPoint texEnd, float startHeigh
             ApplyStamp(x, y, height, blockHeight);
         }
     }
-    
-    /*int dx, dy, p, x, y;
-    dx = aXEnd - aXStart;
-    dy = aYEnd - aYStart;
-    x = aXStart;
-    y = aYStart;
-    p = 2 * dy - dx;
-    while (x < aXEnd)
-    {
-        float fromStart = (x - texStart.x()) * (x - texStart.x()) + (y - texStart.y()) * (y - texStart.y()) ;
-        float height = startHeight + fromStart * (endHeight - startHeight);
-        if (p >= 0)
-        {
-            //drawPixel(x, y, );
-            ApplyStamp(QPoint(x, y), height, blockHeight);
-            y = y + 1;
-            p = p + 2 * dy - 2 * dx;
-        } else
-        {
-            //drawPixel(x, y, aColor);
-            ApplyStamp(QPoint(x, y), height, blockHeight);
-            p = p + 2 * dy;
-        }
-        x = x + 1;
-    }*/
 }
 
 void QImageOperator::PrepareCylindricalStamp(int textureRadiusX, int textureRadiusY, float R)
 {
+    isToolFlat = true;
     CreateStampData(textureRadiusX, textureRadiusY);
     for (int i = 0; i < m_stampX * m_stampY; ++i)
         m_stamp[i] = 0;
@@ -898,3 +899,7 @@ void QImageOperator::PrepareCylindricalStamp(int textureRadiusX, int textureRadi
 /**
  * @}
  */
+MillingException::MillingException(const std::string what): std::runtime_error(what)
+{
+
+}

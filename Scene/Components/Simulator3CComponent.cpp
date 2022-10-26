@@ -82,14 +82,10 @@ void Simulator3CComponent::LoadPathFile(const QString &filepath)
     try
     {
         m_cutterPath = GCodeLoader::LoadCutterPath(filepath);
-        m_cutterParams = m_cutterPath->Cutter;
+        ChangeCutterParameters(m_cutterPath->Cutter);
         m_pathPolyline = std::make_unique<CutterPathPolyline>(m_cutterPath->Points, p_Transform);
-        m_cutter->SetCutterParameters(m_cutterParams);
         m_cutter->p_Transform->Position = m_cutterPath->Points[0];
         m_state = PAUSED;
-        
-        //SkipPathToEnd();
-        //m_heightTexture->setData(m_heightMap.GetBitmap());
     }
     catch (std::runtime_error &e)
     {
@@ -116,19 +112,7 @@ void Simulator3CComponent::ChangeCutterType(CutterType type)
         return;
     
     m_cutterParams.Type = type;
-    m_cutter->SetCutterParameters(m_cutterParams);
-    
-    switch (m_cutterParams.Type)
-    {
-        case Cylindrical:
-            m_heightMap.PrepareCylindricalStamp(GetCutterTextureRadius().x(), GetCutterTextureRadius().y(),
-                                                m_cutterParams.Diameter.GetSceneUnits() / 2.0f);
-            break;
-        case Spherical:
-            m_heightMap.PrepareSphericalStamp(GetCutterTextureRadius().x(), GetCutterTextureRadius().y(),
-                                                m_cutterParams.Diameter.GetSceneUnits() / 2.0f);
-            break;
-    }
+    ChangeCutterParameters(m_cutterParams);
 }
 
 void Simulator3CComponent::ChangeCutterDiameter(Length diameter)
@@ -137,7 +121,7 @@ void Simulator3CComponent::ChangeCutterDiameter(Length diameter)
         return;
     
     m_cutterParams.Diameter = diameter;
-    m_cutter->SetCutterParameters(m_cutterParams);
+    ChangeCutterParameters(m_cutterParams);
 }
 
 bool Simulator3CComponent::CanChangeCutterParams()
@@ -243,6 +227,9 @@ float Simulator3CComponent::DistToSegment(QVector2D p, QVector2D A, QVector2D B)
 
 void Simulator3CComponent::SkipPathToEnd()
 {
+    if (m_state == IDLE)
+        return;
+    
     for (int i = 0; i < m_cutterPath->Points.size() - 1; ++i)
     {
         QVector3D startPoint = m_cutterPath->Points[i];
@@ -254,6 +241,11 @@ void Simulator3CComponent::SkipPathToEnd()
         
         qDebug() << "Path nr" << i;
     }
+    
+    m_heightTexture->setData(m_heightMap.GetBitmap());
+    m_cutterPath.reset();
+    m_pathPolyline.reset();
+    m_state = IDLE;
 }
 
 QPoint Simulator3CComponent::GetCutterTextureRadius()
@@ -261,5 +253,23 @@ QPoint Simulator3CComponent::GetCutterTextureRadius()
     float r = m_cutterParams.Diameter.GetSceneUnits() / 2.0f;
     return QPoint(r / m_blockParams.WidthX.GetSceneUnits() * m_blockParams.TextureWidthX,
                                   r / m_blockParams.WidthY.GetSceneUnits() * m_blockParams.TextureWidthY);
+}
+
+void Simulator3CComponent::ChangeCutterParameters(CutterParameters params)
+{
+    m_cutterParams = params;
+    m_cutter->SetCutterParameters(m_cutterParams);
+    
+    switch (m_cutterParams.Type)
+    {
+        case Cylindrical:
+            m_heightMap.PrepareCylindricalStamp(GetCutterTextureRadius().x(), GetCutterTextureRadius().y(),
+                                                m_cutterParams.Diameter.GetSceneUnits() / 2.0f);
+            break;
+        case Spherical:
+            m_heightMap.PrepareSphericalStamp(GetCutterTextureRadius().x(), GetCutterTextureRadius().y(),
+                                              m_cutterParams.Diameter.GetSceneUnits() / 2.0f);
+            break;
+    }
 }
 

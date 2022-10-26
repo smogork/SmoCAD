@@ -51,8 +51,9 @@ private:
     QVector2D TextureToCutter(int texX, int texY, QVector3D CutterSimPos);
     QVector2D TextureToSim(int texX, int texY);
     float DistToSegment(QVector2D p, QVector2D A, QVector2D B);
-    void SkipPathToEnd();
+
     QPoint GetCutterTextureRadius();
+    void ChangeCutterParameters(CutterParameters params);
 
 signals:
     void SimulatorStateChanged(SimulatorState state);
@@ -71,6 +72,7 @@ public:
     SimulatorState GetState() { return m_state; }
     bool CanLoadPaths();
     void LoadPathFile(const QString& filepath);
+    void SkipPathToEnd();
     
     bool CanChangeCutterParams();
     void ChangeCutterType(CutterType type);

@@ -49,6 +49,12 @@ inline DrawState operator|(DrawState a, DrawState b)
     return static_cast<DrawState>(static_cast<int>(a) | static_cast<int>(b));
 }
 
+class MillingException: public std::runtime_error
+{
+public:
+    explicit MillingException(const std::string what);
+};
+
 class QImageOperator
 {
 private:
@@ -57,6 +63,7 @@ private:
     std::vector<float> m_stamp;
     int m_stampX;
     int m_stampY;
+    bool isToolFlat;
     
     //void BresenhamAlgorithm(QPoint zero, QPoint diff, DrawState state, QColor color);
     void drawLineOverlap(int aXStart, int aYStart, int aXEnd, int aYEnd, uint8_t aOverlap,
@@ -66,6 +73,8 @@ private:
     void Plot4EllipsePoints(int cx, int cy, int x, int y, QColor color);
     void CreateStampData(int textureRadiusX, int textureRadiusY);
 public:
+    float MaximumToolSubmersion = 1.5;
+    float MaximalGlobalSubmerison = 3.5;
     
     QImageOperator(int bitmapSizeX, int bitmapSizeY);
     QImageOperator();
