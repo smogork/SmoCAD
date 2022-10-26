@@ -932,6 +932,12 @@ std::shared_ptr<QOpenGLTexture> QImageOperator::GetTexture()
     return m_tex;
 }
 
+void QImageOperator::Reset()
+{
+    for (int i = 0; i < m_bitmap.size(); ++i)
+        m_bitmap[i] = 1.0f;
+}
+
 /**
  * @}
  */

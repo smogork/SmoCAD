@@ -386,6 +386,18 @@ void Simulator3CComponent::onSimulationFinished(QVector3D cutterSimPos)
 
 void Simulator3CComponent::Reset()
 {
-
+    if (m_simProcess)
+    {
+        m_simProcess->quit();
+        m_simProcess->wait();
+        SimulationProgress = 0;
+    }
+    
+    m_heightMap->Reset();
+    m_heightMap->UploadToGPU();
+    m_simProcess.reset();
+    m_pathPolyline.reset();
+    m_state = IDLE;
+    EntityContextMenu::MakeRepaint();
 }
 

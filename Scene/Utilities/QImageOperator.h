@@ -113,6 +113,7 @@ public:
     
     void UploadToGPU();
     std::shared_ptr<QOpenGLTexture> GetTexture();
+    void Reset();
 };
 
 /*#ifdef __cplusplus

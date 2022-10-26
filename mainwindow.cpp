@@ -18,6 +18,7 @@
 #include "Serializer.h"
 #include "Scene/Entities/SelectRectangle.h"
 #include "Controls/EntityContextMenu.h"
+#include "Scene/Entities/Simulator/Simulator3C.h"
 
 MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -200,6 +201,14 @@ void MainWindow::on_actionNew_triggered()
     }
 }
 
+void MainWindow::on_action3C_Simulator_triggered()
+{
+    std::shared_ptr<Simulator3C> sim = std::make_shared<Simulator3C>("Simulator3C");
+    if (auto scene = SceneECS::Instance().lock())
+        scene->AddObject(sim);
+    ui->sceneWidget->update();
+}
+
 void MainWindow::on_actionOpen_triggered()
 {
     QFileDialog dialog(this, "Open saved scene file");
@@ -267,8 +276,5 @@ void MainWindow::on_actionShow_Bezier_mesh_triggered(bool checked)
     ui->sceneWidget->update();
 }
 
-void MainWindow::on_action3C_Simulator_triggered()
-{
 
-}
 
