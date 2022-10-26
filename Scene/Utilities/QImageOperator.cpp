@@ -124,35 +124,30 @@ QImageOperator::QImageOperator()
     ChangeSize(1, 1);
 }
 
-const QImage &QImageOperator::GetBitmap() const
-{
-    return m_bitmap;
-}
-
 void QImageOperator::ClampPointToDisplay(QPoint &p)
 {
-    if (p.x() > m_bitmap.size().width() - 1 || p.x() < 0)
-        p.setX(std::clamp(p.x(), 0, m_bitmap.size().width()));
-    if (p.y() > m_bitmap.size().height() - 1 || p.y() < 0)
-        p.setY(std::clamp(p.y(), 0, m_bitmap.size().height()));
+    if (p.x() > bitmapX - 1 || p.x() < 0)
+        p.setX(std::clamp(p.x(), 0, bitmapX));
+    if (p.y() > bitmapY - 1 || p.y() < 0)
+        p.setY(std::clamp(p.y(), 0, bitmapY));
 }
 
 void QImageOperator::ClampPointToDisplay(int &x, int &y)
 {
-    if (x > m_bitmap.size().width() - 1 || x < 0)
-        x = std::clamp(x, (int) 0, (int) m_bitmap.size().width());
-    if (y > m_bitmap.size().height() - 1 || y < 0)
-        y = std::clamp(y, (int) 0, (int) m_bitmap.size().height());
+    if (x > bitmapX - 1 || x < 0)
+        x = std::clamp(x, 0, bitmapX);
+    if (y > bitmapY - 1 || y < 0)
+        y = std::clamp(y, 0, bitmapY);
 }
 
-void inline QImageOperator::drawPixel(int x, int y, QColor aColor)
+void inline QImageOperator::drawPixel(int x, int y, float color)
 {
-    if (x < 0 || x >= m_bitmap.width() || y < 0 || y >= m_bitmap.height() )
+    if (x < 0 || x >= bitmapX || y < 0 || y >= bitmapY)
         return;
     
     //zbuffor
-    if (aColor.red() < qRed(m_bitmap.pixel(x, y)))
-        m_bitmap.setPixelColor(x, y, aColor);
+    if (getPixel(x, y) > color)
+        m_bitmap[y * bitmapX + x] = color;
 }
 
 void QImageOperator::drawLine(int aXStart, int aYStart, int aXEnd, int aYEnd, QColor aColor)
@@ -167,12 +162,12 @@ void QImageOperator::drawLine(int aXStart, int aYStart, int aXEnd, int aYEnd, QC
     {
         if (p >= 0)
         {
-            drawPixel(x, y, aColor);
+            //drawPixel(x, y, aColor);
             y = y + 1;
             p = p + 2 * dy - 2 * dx;
         } else
         {
-            drawPixel(x, y, aColor);
+            //drawPixel(x, y, aColor);
             p = p + 2 * dy;
         }
         x = x + 1;
@@ -187,8 +182,8 @@ void QImageOperator::fillRect(QPoint A, QPoint B, QColor aColor)
 void QImageOperator::fillRect(int aXStart, int aYStart, int aXEnd, int aYEnd, QColor aColor)
 {
     for (int y = aYStart; y <= aYEnd; ++y)
-        for (int x = aXStart; x < aXEnd; ++x)
-            drawPixel(x, y, aColor);
+        for (int x = aXStart; x < aXEnd; ++x);
+            //drawPixel(x, y, aColor);
 }
 
 /**
@@ -235,7 +230,7 @@ QImageOperator::drawLineOverlap(int aXStart, int aYStart, int aXEnd, int aYEnd, 
         tDeltaXTimes2 = tDeltaX << 1;
         tDeltaYTimes2 = tDeltaY << 1;
         //draw start pixel
-        drawPixel(aXStart, aYStart, aColor);
+        //drawPixel(aXStart, aYStart, aColor);
         if (tDeltaX > tDeltaY)
         {
             // start value represents a half step in Y direction
@@ -249,19 +244,19 @@ QImageOperator::drawLineOverlap(int aXStart, int aYStart, int aXEnd, int aYEnd, 
                     if (aOverlap & LINE_OVERLAP_MAJOR)
                     {
                         // draw pixel in main direction before changing
-                        drawPixel(aXStart, aYStart, aColor);
+                        //drawPixel(aXStart, aYStart, aColor);
                     }
                     // change Y
                     aYStart += tStepY;
                     if (aOverlap & LINE_OVERLAP_MINOR)
                     {
                         // draw pixel in minor direction before changing
-                        drawPixel(aXStart - tStepX, aYStart, aColor);
+                        //drawPixel(aXStart - tStepX, aYStart, aColor);
                     }
                     tError -= tDeltaXTimes2;
                 }
                 tError += tDeltaYTimes2;
-                drawPixel(aXStart, aYStart, aColor);
+                //drawPixel(aXStart, aYStart, aColor);
             }
         } else
         {
@@ -274,18 +269,18 @@ QImageOperator::drawLineOverlap(int aXStart, int aYStart, int aXEnd, int aYEnd, 
                     if (aOverlap & LINE_OVERLAP_MAJOR)
                     {
                         // draw pixel in main direction before changing
-                        drawPixel(aXStart, aYStart, aColor);
+                        //drawPixel(aXStart, aYStart, aColor);
                     }
                     aXStart += tStepX;
                     if (aOverlap & LINE_OVERLAP_MINOR)
                     {
                         // draw pixel in minor direction before changing
-                        drawPixel(aXStart, aYStart - tStepY, aColor);
+                        //drawPixel(aXStart, aYStart - tStepY, aColor);
                     }
                     tError -= tDeltaYTimes2;
                 }
                 tError += tDeltaXTimes2;
-                drawPixel(aXStart, aYStart, aColor);
+                //drawPixel(aXStart, aYStart, aColor);
             }
         }
     }
@@ -297,7 +292,8 @@ QImageOperator::drawLineOverlap(int aXStart, int aYStart, int aXEnd, int aYEnd, 
  * The code is bigger and more complicated than drawThickLineSimple() but it tends to be faster, since drawing a pixel is often a slow operation.
  * aThicknessMode can be one of LINE_THICKNESS_MIDDLE, LINE_THICKNESS_DRAW_CLOCKWISE, LINE_THICKNESS_DRAW_COUNTERCLOCKWISE
  */
-void QImageOperator::drawThickLine(int aXStart, int aYStart, int aXEnd, int aYEnd, QVector3D simStartPos, QVector3D simFinishPos,
+void QImageOperator::drawThickLine(int aXStart, int aYStart, int aXEnd, int aYEnd, QVector3D simStartPos,
+                                   QVector3D simFinishPos,
                                    unsigned int aThickness, uint8_t aThicknessMode)
 {
     int16_t i, tDeltaX, tDeltaY, tDeltaXTimes2, tDeltaYTimes2, tError, tStepX, tStepY;
@@ -431,7 +427,7 @@ void QImageOperator::drawThickLine(int aXStart, int aYStart, int aXEnd, int aYEn
                 tOverlap = LINE_OVERLAP_MAJOR;
             }
             tError += tDeltaYTimes2;
-    
+            
             float red = GetRedColorFunction(aXStart, aYStart, simStartPos, simFinishPos);
             if (red != red)//nan check
                 break;
@@ -495,7 +491,8 @@ void QImageOperator::drawThickLine(int aXStart, int aYStart, int aXEnd, int aYEn
 }
 
 void
-QImageOperator::drawThickLine(QPoint aStart, QPoint aEnd, QVector3D simStartPos, QVector3D simFinishPos, unsigned int aThickness,
+QImageOperator::drawThickLine(QPoint aStart, QPoint aEnd, QVector3D simStartPos, QVector3D simFinishPos,
+                              unsigned int aThickness,
                               uint8_t aThicknessMode)
 {
     drawThickLine(aStart.x(), aStart.y(), aEnd.x(), aEnd.y(), simStartPos, simFinishPos, aThickness, aThicknessMode);
@@ -625,36 +622,48 @@ void QImageOperator::drawThickLineSimple(QPoint aStart, QPoint aEnd, unsigned in
 
 void QImageOperator::ChangeSize(int bitmapSizeX, int bitmapSizeY)
 {
-    m_bitmap = QImage({bitmapSizeX, bitmapSizeY}, QImage::Format_RGB32);
-    m_borderBitmap = QImage({bitmapSizeX, bitmapSizeY}, QImage::Format_RGB32);
+    bitmapX = bitmapSizeX;
+    bitmapY = bitmapSizeY;
     
-    QBrush b(Qt::red), w(Qt::black);
-    QPainter p(&m_bitmap), p2(&m_borderBitmap);
-    p.fillRect(0, 0, bitmapSizeX, bitmapSizeY, b);
-    p2.fillRect(0, 0, bitmapSizeX, bitmapSizeY, w);
+    m_bitmap.resize(bitmapSizeX * bitmapSizeY);
+    for (int i = 0; i < m_bitmap.size(); ++i)
+        m_bitmap[i] = 1.0f;
     
-    //m_borderBitmap.save("chuj.kurwa");
+    m_tex = std::make_shared<QOpenGLTexture>(QOpenGLTexture::Target::Target2D);
+    m_tex->setMinMagFilters(QOpenGLTexture::Filter::LinearMipMapLinear, QOpenGLTexture::Filter::NearestMipMapLinear);
+    m_tex->create();
+    
+    m_tex->setSize(bitmapX, bitmapY);
+    m_tex->setFormat(QOpenGLTexture::R32F);
+    m_tex->setAutoMipMapGenerationEnabled(true);
+    m_tex->setMipBaseLevel(0);
+
+    m_tex->setWrapMode(QOpenGLTexture::ClampToEdge);
+    m_tex->allocateStorage(QOpenGLTexture::Red, QOpenGLTexture::Float32);
+    UploadToGPU();
 }
 
 void QImageOperator::drawEllipse(QPoint center, QPoint radius, QColor color)
 {
     int XRadius = radius.x(), YRadius = radius.y();
     int CX = center.x(), CY = center.y();
-    int  X, Y;
+    int X, Y;
     int XChange, YChange;
     int EllipseError;
     int TwoASquare, TwoBSquare;
     int StoppingX, StoppingY;
-    TwoASquare = 2*XRadius*XRadius;
-    TwoBSquare = 2*YRadius*YRadius;
+    TwoASquare = 2 * XRadius * XRadius;
+    TwoBSquare = 2 * YRadius * YRadius;
     X = XRadius;
     Y = 0;
-    XChange : YRadius*YRadius*(1 - 2*XRadius);
-    YChange : XRadius*XRadius;
+    XChange :
+    YRadius * YRadius * (1 - 2 * XRadius);
+    YChange :
+    XRadius * XRadius;
     EllipseError = 0;
-    StoppingX = TwoBSquare*XRadius;
+    StoppingX = TwoBSquare * XRadius;
     StoppingY = 0;
-    while ( StoppingX >= StoppingY )
+    while (StoppingX >= StoppingY)
     {
         Plot4EllipsePoints(CX, CY, X, Y, color);
         Y++;
@@ -671,12 +680,12 @@ void QImageOperator::drawEllipse(QPoint center, QPoint radius, QColor color)
     //{ 1st point set is done; start the 2nd set of points }
     X = 0;
     Y = YRadius;
-    XChange = YRadius*YRadius;
-    YChange = XRadius*XRadius*(1 - 2*YRadius);
+    XChange = YRadius * YRadius;
+    YChange = XRadius * XRadius * (1 - 2 * YRadius);
     EllipseError = 0;
     StoppingX = 0;
-    StoppingY = TwoASquare*YRadius;
-    while ( StoppingX <= StoppingY )
+    StoppingY = TwoASquare * YRadius;
+    while (StoppingX <= StoppingY)
     {
         Plot4EllipsePoints(CX, CY, X, Y, color);
         X++;
@@ -693,10 +702,10 @@ void QImageOperator::drawEllipse(QPoint center, QPoint radius, QColor color)
 
 void QImageOperator::Plot4EllipsePoints(int cx, int cy, int x, int y, QColor color)
 {
-    drawPixel(cx+x, cy+y, color);
-    drawPixel(cx-x, cy+y, color);
-    drawPixel(cx-x, cy-y, color);
-    drawPixel(cx+x, cy-y, color);
+    /*drawPixel(cx + x, cy + y, color);
+    drawPixel(cx - x, cy + y, color);
+    drawPixel(cx - x, cy - y, color);
+    drawPixel(cx + x, cy - y, color);*/
 }
 
 void QImageOperator::FloodFill4(QPoint start, QVector3D simStartPos, QVector3D simFinishPos)
@@ -710,30 +719,30 @@ void QImageOperator::FloodFill4(QPoint start, QVector3D simStartPos, QVector3D s
         QPoint cur = s.top();
         s.pop();
         
-        if (cur.x() < 0 || cur.x() >= m_bitmap.width() ||
-            cur.y() < 0 || cur.y() >= m_bitmap.height())
+        if (cur.x() < 0 || cur.x() >= bitmapX ||
+            cur.y() < 0 || cur.y() >= bitmapY)
             continue;
-    
+        
         //Jezeli pixel jest troche zielony to dotarlismy do granicy
-        auto test = qRed(m_borderBitmap.pixel(cur));
-        if (test > 0)
+        //auto test = qRed(m_borderBitmap.pixel(cur));
+        //if (test > 0)
         {
             //m_borderBitmap.save("chuj.png");
-            continue;
+            //continue;
         }
-    
+        
         //Ewaluujemy kolor
         QColor color;
         float red = GetRedColorFunction(cur.x(), cur.y(), simStartPos, simFinishPos);
         if (red != red)//nan check
             continue;
         color.setRedF(red);
-        drawPixel(cur.x(), cur.y(), color);
-        m_borderBitmap.setPixelColor(cur.x(), cur.y(), Qt::red);
+        //drawPixel(cur.x(), cur.y(), color);
+        //m_borderBitmap.setPixelColor(cur.x(), cur.y(), Qt::red);
         //counter = (counter + 1) % 1000;
         /*if (counter == 0)
             m_borderBitmap.save("chuj.png");*/
-
+        
         s.push({cur.x() + 1, cur.y()});
         s.push({cur.x(), cur.y() + 1});
         s.push({cur.x() - 1, cur.y()});
@@ -741,21 +750,17 @@ void QImageOperator::FloodFill4(QPoint start, QVector3D simStartPos, QVector3D s
     }
 }
 
-const QImage &QImageOperator::GetBorderBitmap() const
-{
-    return m_borderBitmap;
-}
 
 void QImageOperator::PrepareSphericalStamp(int textureRadiusX, int textureRadiusY, float R)
 {
     isToolFlat = false;
     CreateStampData(textureRadiusX, textureRadiusY);
     
-    for (int y = 0 ; y < m_stampY; ++y)
-        for (int x = 0 ; x < m_stampX; ++x)
+    for (int y = 0; y < m_stampY; ++y)
+        for (int x = 0; x < m_stampX; ++x)
         {
-            float dx = (abs(x - textureRadiusX) / (float)textureRadiusX) * R;
-            float dy = (abs(y - textureRadiusY) / (float)textureRadiusY) * R;
+            float dx = (abs(x - textureRadiusX) / (float) textureRadiusX) * R;
+            float dy = (abs(y - textureRadiusY) / (float) textureRadiusY) * R;
             float dist = sqrt(dx * dx + dy * dy);
             
             if (dist > R)
@@ -775,45 +780,47 @@ void QImageOperator::CreateStampData(int textureRadiusX, int textureRadiusY)
 void QImageOperator::ApplyStamp(int cx, int cy, float cutterSimHeight, float blockHeight, bool toolLowered)
 {
     QColor c(Qt::black);
-    int offsetX = -m_stampX/2;
-    int offsetY = -m_stampY/2;
+    int offsetX = -m_stampX / 2;
+    int offsetY = -m_stampY / 2;
+    int y0 = cy + offsetY;
+    int y1 = cy + offsetY;
     
-    for (int y = 0 ; y < m_stampY; ++y)
+    //TODO: poprawic stepel poprzez lepsze wyliczanie zakresow petli
+    for (int y = 0; y < m_stampY; ++y)
     {
-        if (cy + offsetY + y < 0 || cy + offsetY + y >= m_bitmap.height())
+        if (cy + offsetY + y < 0 || cy + offsetY + y >= bitmapY)
             continue;
         
         for (int x = 0; x < m_stampX; ++x)
         {
-            if (cx + offsetX + x < 0 || cx + offsetX + x >= m_bitmap.width())
+            if (cx + offsetX + x < 0 || cx + offsetX + x >= bitmapX)
                 continue;
             
             if (m_stamp[y * m_stampX + x] != m_stamp[y * m_stampX + x])//nan check
                 continue;
-        
+            
             float height = m_stamp[y * m_stampX + x] + cutterSimHeight;
-            float curHeight = (qRed(m_bitmap.pixel(cx + offsetX + x, cy + offsetY + y))) / 255.0f *
-                              blockHeight;//TODO: wywalic cala bitmape
+            float curHeight = getPixel(cx + offsetX + x, cy + offsetY + y) * blockHeight;
             float toolSub = curHeight - height;
             if (toolSub < 0.0f)
                 continue;
-        
+            
             if (toolSub > MaximumToolSubmersion)
                 throw MillingException("Tool undercut detected");
-        
+            
             if (isToolFlat and toolSub > 0.0f and toolLowered)
                 throw MillingException("Flat cutter went down in material");
-        
+            
             float texVal = height / blockHeight;
-            c.setRedF(texVal);
-            drawPixel(cx + offsetX + x, cy + offsetY + y, c);
+            drawPixel(cx + offsetX + x, cy + offsetY + y, texVal);
         }
     }
 }
 
 void QImageOperator::CutterMove(QPoint texStart, QPoint texEnd, float startHeight, float endHeight, float blockHeight)
 {
-    float lineLength = sqrt((texEnd - texStart).x() * (texEnd - texStart).x() + (texEnd - texStart).y() * (texEnd - texStart).y());
+    float lineLength = sqrt(
+            (texEnd - texStart).x() * (texEnd - texStart).x() + (texEnd - texStart).y() * (texEnd - texStart).y());
     int x1 = texStart.x();
     int y1 = texStart.y();
     int x2 = texEnd.x();
@@ -824,51 +831,65 @@ void QImageOperator::CutterMove(QPoint texStart, QPoint texEnd, float startHeigh
     
     int d, dx, dy, ai, bi, xi, yi;
     int x = x1, y = y1;
-    if (x1 < x2) {
+    if (x1 < x2)
+    {
         xi = 1;
         dx = x2 - x1;
-    } else {
+    } else
+    {
         xi = -1;
         dx = x1 - x2;
     }
-    if (y1 < y2) {
+    if (y1 < y2)
+    {
         yi = 1;
         dy = y2 - y1;
-    } else {
+    } else
+    {
         yi = -1;
         dy = y1 - y2;
     }
     
     ApplyStamp(x, y, startHeight, blockHeight, startHeight - endHeight > 1e-5);
-    if (dx > dy) {
+    if (dx > dy)
+    {
         ai = (dy - dx) * 2;
         bi = dy * 2;
         d = bi - dx;
-        while (x != x2) {
-            float fromStart = sqrt((x - texStart.x()) * (x - texStart.x()) + (y - texStart.y()) * (y - texStart.y())) / lineLength ;
+        while (x != x2)
+        {
+            float fromStart = sqrt((x - texStart.x()) * (x - texStart.x()) + (y - texStart.y()) * (y - texStart.y())) /
+                              lineLength;
             float height = startHeight + fromStart * (endHeight - startHeight);
-            if (d >= 0) {
+            if (d >= 0)
+            {
                 x += xi;
                 y += yi;
                 d += ai;
-            } else {
+            } else
+            {
                 d += bi;
                 x += xi;
             }
             ApplyStamp(x, y, height, blockHeight, startHeight - endHeight > 1e-5);
         }
-    } else {
-        ai = ( dx - dy ) * 2;
+    } else
+    {
+        ai = (dx - dy) * 2;
         bi = dx * 2;
         d = bi - dy;
-        while (y != y2) {
-            float fromStart = sqrt((x - texStart.x()) * (x - texStart.x()) + (y - texStart.y()) * (y - texStart.y())) / lineLength ;
+        while (y != y2)
+        {
+            float fromStart = sqrt((x - texStart.x()) * (x - texStart.x()) + (y - texStart.y()) * (y - texStart.y())) /
+                              lineLength;
             float height = startHeight + fromStart * (endHeight - startHeight);
-            if (d >= 0) {
+            if (d >= 0)
+            {
                 x += xi;
                 y += yi;
                 d += ai;
-            } else {
+            } else
+            {
                 d += bi;
                 y += yi;
             }
@@ -884,11 +905,11 @@ void QImageOperator::PrepareCylindricalStamp(int textureRadiusX, int textureRadi
     for (int i = 0; i < m_stampX * m_stampY; ++i)
         m_stamp[i] = 0;
     
-    for (int y = 0 ; y < m_stampY; ++y)
-        for (int x = 0 ; x < m_stampX; ++x)
+    for (int y = 0; y < m_stampY; ++y)
+        for (int x = 0; x < m_stampX; ++x)
         {
-            float dx = (abs(x - textureRadiusX) / (float)textureRadiusX) * R;
-            float dy = (abs(y - textureRadiusY) / (float)textureRadiusY) * R;
+            float dx = (abs(x - textureRadiusX) / (float) textureRadiusX) * R;
+            float dy = (abs(y - textureRadiusY) / (float) textureRadiusY) * R;
             float dist = sqrt(dx * dx + dy * dy);
             
             if (dist > R)
@@ -896,10 +917,25 @@ void QImageOperator::PrepareCylindricalStamp(int textureRadiusX, int textureRadi
         }
 }
 
+float inline QImageOperator::getPixel(int x, int y)
+{
+    return m_bitmap[y * bitmapX + x];
+}
+
+void QImageOperator::UploadToGPU()
+{
+    m_tex->setData(0, 0, 0, bitmapX, bitmapY, 1, QOpenGLTexture::Red, QOpenGLTexture::Float32, m_bitmap.data());
+}
+
+std::shared_ptr<QOpenGLTexture> QImageOperator::GetTexture()
+{
+    return m_tex;
+}
+
 /**
  * @}
  */
-MillingException::MillingException(const std::string what): std::runtime_error(what)
+MillingException::MillingException(const std::string what) : std::runtime_error(what)
 {
 
 }

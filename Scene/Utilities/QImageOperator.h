@@ -16,6 +16,7 @@
 #include <QImage>
 #include <QPainter>
 #include <QVector3D>
+#include <QOpenGLTexture>
 
 /*
  * Overlap means drawing additional pixel when changing minor direction
@@ -58,9 +59,12 @@ public:
 class QImageOperator
 {
 private:
-    QImage m_bitmap;
-    QImage m_borderBitmap;
+    //QImage m_bitmap;
+    //QImage m_borderBitmap;
     std::vector<float> m_stamp;
+    std::vector<float> m_bitmap;
+    std::shared_ptr<QOpenGLTexture> m_tex;
+    int bitmapX, bitmapY;
     int m_stampX;
     int m_stampY;
     bool isToolFlat;
@@ -72,6 +76,8 @@ private:
     void ClampPointToDisplay(int &x, int &y);
     void Plot4EllipsePoints(int cx, int cy, int x, int y, QColor color);
     void CreateStampData(int textureRadiusX, int textureRadiusY);
+    float inline getPixel(int x, int y);
+    
 public:
     float MaximumToolSubmersion = 1.5;
     float MaximalGlobalSubmerison = 3.5;
@@ -84,7 +90,7 @@ public:
     std::function<float(int bitmapX, int bitmapY, QVector3D startCutterPos, QVector3D endCutterPos)> GetRedColorFunction = {};
     
     //void DrawPixel(QPoint zero, int x, int y, DrawState state, QColor color);
-    void inline drawPixel(int x, int y, QColor aColor);
+    void inline drawPixel(int x, int y, float color);
     //void drawLine(QPoint A, QPoint B, QColor aColor);
     void drawLine(int aXStart, int aYStart, int aXEnd, int aYEnd, QColor aColor);
     void fillRect(QPoint A, QPoint B, QColor aColor);
@@ -105,8 +111,8 @@ public:
     void ApplyStamp(int cx, int cy, float cutterSimHeight, float blockHeight, bool toolLowered);
     void CutterMove(QPoint texStart, QPoint texEnd, float startHeight, float endHeight, float blockHeight);
     
-    [[nodiscard]] const QImage &GetBitmap() const;
-    [[nodiscard]] const QImage &GetBorderBitmap() const;
+    void UploadToGPU();
+    std::shared_ptr<QOpenGLTexture> GetTexture();
 };
 
 /*#ifdef __cplusplus

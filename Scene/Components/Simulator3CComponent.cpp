@@ -44,11 +44,6 @@ Simulator3CComponent::Simulator3CComponent(unsigned int oid, std::shared_ptr<Tra
     
     m_woodTexture = std::make_shared<QOpenGLTexture>(QImage("Resources/wood.png"),
                                                      QOpenGLTexture::MipMapGeneration::GenerateMipMaps);
-    m_heightTexture = std::make_shared<QOpenGLTexture>(m_heightMap->GetBitmap(),
-                                                       QOpenGLTexture::MipMapGeneration::DontGenerateMipMaps);
-    m_heightTexture
-            ->setMinMagFilters(QOpenGLTexture::Filter::LinearMipMapLinear, QOpenGLTexture::Filter::NearestMipMapLinear);
-    m_heightTexture->setWrapMode(QOpenGLTexture::ClampToEdge);
     
     ResizeBlock();
     m_cutter = std::make_unique<CutterObject>(QVector3D(), m_cutterParams, p_Transform);
@@ -307,13 +302,13 @@ void Simulator3CComponent::ResizeBlock()
 {
     m_blockLower = std::make_unique<BlockLowerWall>(QVector3D(), p_Transform, m_blockParams.WidthX.GetSceneUnits(),
                                                     m_blockParams.WidthY.GetSceneUnits());
-    m_blockSide = std::make_unique<BlockSideWall>(QVector3D(), p_Transform, m_heightTexture,
+    m_blockSide = std::make_unique<BlockSideWall>(QVector3D(), p_Transform, m_heightMap->GetTexture(),
                                                   m_blockParams.WidthX.GetSceneUnits(),
                                                   m_blockParams.WidthY.GetSceneUnits(),
                                                   m_blockParams.Height.GetSceneUnits(), m_blockParams.VertexWidthX,
                                                   m_blockParams.VertexWidthY);
     m_blockUpper = std::make_unique<BlockUpperWall>(QVector3D(0, m_blockParams.Height.GetSceneUnits(), 0), p_Transform,
-                                                    m_heightTexture, m_woodTexture,
+                                                    m_heightMap->GetTexture(), m_woodTexture,
                                                     m_blockParams.WidthX.GetSceneUnits(),
                                                     m_blockParams.WidthY.GetSceneUnits(),
                                                     m_blockParams.Height.GetSceneUnits(),
@@ -360,7 +355,7 @@ void Simulator3CComponent::PlayPauseSimulation()
 
 void Simulator3CComponent::onSimulationResultsHandle(QVector3D cutterSimPos)
 {
-    m_heightTexture->setData(m_heightMap->GetBitmap(), QOpenGLTexture::DontGenerateMipMaps);
+    m_heightMap->UploadToGPU();
     m_cutter->p_Transform->Position = cutterSimPos;
     EntityContextMenu::MakeRepaint();
 }
