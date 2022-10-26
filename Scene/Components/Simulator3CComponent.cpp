@@ -7,6 +7,8 @@
 #include "Scene/Systems/Simulator3CSystem.h"
 #include "Scene/Entities/Simulator/CutterPathPolyline.h"
 #include "Loaders/GCodeLoader.h"
+#include "Scene/Entities/Simulator/SimulationProcess.h"
+#include "Controls/EntityContextMenu.h"
 
 #include <cmath>
 #include <QMessageBox>
@@ -37,12 +39,15 @@ void Simulator3CComponent::UnregisterComponent()
 Simulator3CComponent::Simulator3CComponent(unsigned int oid, std::shared_ptr<Transform> simulatorTransform)
         : IComponent(oid, SIMULATOR3C), p_Transform(simulatorTransform), m_state(IDLE)
 {
+    m_heightMap = std::make_shared<QImageOperator>(m_blockParams.TextureWidthX, m_blockParams.TextureWidthY);
     InitializeHeightMap();
     
-    m_woodTexture = std::make_shared<QOpenGLTexture>(QImage("Resources/wood.png"), QOpenGLTexture::MipMapGeneration::GenerateMipMaps);
-    m_heightTexture = std::make_shared<QOpenGLTexture>(m_heightMap.GetBitmap(),
+    m_woodTexture = std::make_shared<QOpenGLTexture>(QImage("Resources/wood.png"),
+                                                     QOpenGLTexture::MipMapGeneration::GenerateMipMaps);
+    m_heightTexture = std::make_shared<QOpenGLTexture>(m_heightMap->GetBitmap(),
                                                        QOpenGLTexture::MipMapGeneration::DontGenerateMipMaps);
-    m_heightTexture->setMinMagFilters(QOpenGLTexture::Filter::LinearMipMapLinear, QOpenGLTexture::Filter::NearestMipMapLinear);
+    m_heightTexture
+            ->setMinMagFilters(QOpenGLTexture::Filter::LinearMipMapLinear, QOpenGLTexture::Filter::NearestMipMapLinear);
     m_heightTexture->setWrapMode(QOpenGLTexture::ClampToEdge);
     
     ResizeBlock();
@@ -55,12 +60,19 @@ Simulator3CComponent::Simulator3CComponent(unsigned int oid, std::shared_ptr<Tra
 
 Simulator3CComponent::~Simulator3CComponent()
 {
+    if (m_simProcess)
+    {
+        emit AbortSimulation();
+        m_simProcess->quit();
+        m_simProcess->wait();
+    }
+    
     UnregisterComponent();
 }
 
 void Simulator3CComponent::InitializeHeightMap()
 {
-    m_heightMap.ChangeSize(m_blockParams.TextureWidthX, m_blockParams.TextureWidthY);
+    m_heightMap->ChangeSize(m_blockParams.TextureWidthX, m_blockParams.TextureWidthY);
     //m_heightMap.GetRedColorFunction = ASSIGN_COLOR_FUNCTION(&Simulator3CComponent::CutterColorFunction);
 }
 
@@ -71,10 +83,32 @@ void Simulator3CComponent::LoadPathFile(const QString &filepath)
     
     try
     {
-        m_cutterPath = GCodeLoader::LoadCutterPath(filepath);
-        ChangeCutterParameters(m_cutterPath->Cutter);
-        m_pathPolyline = std::make_unique<CutterPathPolyline>(m_cutterPath->Points, p_Transform);
-        m_cutter->p_Transform->Position = m_cutterPath->Points[0];
+        std::unique_ptr<CutterPath> cutterPath = GCodeLoader::LoadCutterPath(filepath);
+        ChangeCutterParameters(cutterPath->Cutter);
+        m_pathPolyline = std::make_unique<CutterPathPolyline>(cutterPath->Points, p_Transform);
+        m_cutter->p_Transform->Position = cutterPath->Points[0];
+        SimulationProgress = 0;
+        
+        if (m_simProcess)
+        {
+            emit AbortSimulation();
+            m_simProcess->quit();
+            m_simProcess->wait();
+        }
+        
+        m_simProcess = std::make_unique<SimulationProcess>(std::move(cutterPath), m_heightMap, m_blockParams);
+        connect(m_simProcess.get(), &SimulationProcess::finished, m_simProcess.get(), &QObject::deleteLater);
+        connect(this, &Simulator3CComponent::PlaySimulation, m_simProcess.get(), &SimulationProcess::onPlaySimulation);
+        connect(this, &Simulator3CComponent::PauseSimulation, m_simProcess.get(), &SimulationProcess::onPauseSimulation);
+        connect(this, &Simulator3CComponent::SkipSimulation, m_simProcess.get(), &SimulationProcess::onSkipSimulation);
+        connect(this, &Simulator3CComponent::AbortSimulation, m_simProcess.get(), &SimulationProcess::onAbortSimulation);
+        
+        connect(m_simProcess.get(), &SimulationProcess::SimulationResultReady, this,
+                &Simulator3CComponent::onSimulationResultsHandle);
+        connect(m_simProcess.get(), &SimulationProcess::SimulationError, this, &Simulator3CComponent::onSimulationError);
+        connect(m_simProcess.get(), &SimulationProcess::SimulationProgress, this, &Simulator3CComponent::onSimulationProgress);
+        connect(m_simProcess.get(), &SimulationProcess::SimulationFinished, this, &Simulator3CComponent::onSimulationFinished);
+        m_simProcess->start();
         m_state = PAUSED;
     }
     catch (std::runtime_error &e)
@@ -179,21 +213,6 @@ float Simulator3CComponent::CutterHeightToTextureColor(float cutterHeight, float
     return 1;
 }
 
-QPoint Simulator3CComponent::CutterToTexture(QVector2D cutterP, QVector3D CutterSimPos)
-{
-    return QPoint(
-            ((cutterP.x() + CutterSimPos.x()) / m_blockParams.WidthX.GetSceneUnits() + 0.5f) *
-            m_blockParams.TextureWidthX,
-            ((cutterP.y() + CutterSimPos.z()) / m_blockParams.WidthY.GetSceneUnits() + 0.5f) *
-            m_blockParams.TextureWidthY
-    );
-}
-
-QPoint Simulator3CComponent::CutterCentreToTexture(QVector3D CutterSimPos)
-{
-    return CutterToTexture({0, 0}, CutterSimPos);
-}
-
 QVector2D Simulator3CComponent::TextureToSim(int texX, int texY)
 {
     return QVector2D(
@@ -220,45 +239,15 @@ void Simulator3CComponent::SkipPathToEnd()
     if (m_state == IDLE)
         return;
     
-    int i = 0;
-    try
-    {
-        for (; i < m_cutterPath->Points.size() - 1; ++i)
-        {
-            QVector3D startPoint = m_cutterPath->Points[i];
-            QVector3D finishPoint = m_cutterPath->Points[i + 1];
-            QPoint startPointTex = CutterCentreToTexture(startPoint);
-            QPoint endPointTex = CutterCentreToTexture(finishPoint);
-        
-            m_heightMap.CutterMove(startPointTex, endPointTex, startPoint.y(), finishPoint.y(),
-                                   m_blockParams.Height.GetSceneUnits());
-        
-            qDebug() << "Path nr" << i;
-        }
-        
-        m_heightTexture->setData(m_heightMap.GetBitmap());
-        m_cutter->p_Transform->Position = m_cutterPath->Points[m_cutterPath->Points.size() - 1];
-        m_cutterPath.reset();
-        m_pathPolyline.reset();
-        m_state = IDLE;
-    }
-    catch (MillingException &e)
-    {
-        m_cutter->p_Transform->Position = m_cutterPath->Points[i];
-        m_state = PAUSED;
-        m_heightTexture->setData(m_heightMap.GetBitmap());
-        
-        QMessageBox msgBox;
-        msgBox.setText(e.what());
-        msgBox.exec();
-    }
+    emit SkipSimulation();
+    m_state = MILLING;
 }
 
 QPoint Simulator3CComponent::GetCutterTextureRadius()
 {
     float r = m_cutterParams.Diameter.GetSceneUnits() / 2.0f;
     return QPoint(r / m_blockParams.WidthX.GetSceneUnits() * m_blockParams.TextureWidthX,
-                                  r / m_blockParams.WidthY.GetSceneUnits() * m_blockParams.TextureWidthY);
+                  r / m_blockParams.WidthY.GetSceneUnits() * m_blockParams.TextureWidthY);
 }
 
 void Simulator3CComponent::ChangeCutterParameters(CutterParameters params)
@@ -269,20 +258,23 @@ void Simulator3CComponent::ChangeCutterParameters(CutterParameters params)
     switch (m_cutterParams.Type)
     {
         case Cylindrical:
-            m_heightMap.PrepareCylindricalStamp(GetCutterTextureRadius().x(), GetCutterTextureRadius().y(),
-                                                m_cutterParams.Diameter.GetSceneUnits() / 2.0f);
+            m_heightMap->PrepareCylindricalStamp(GetCutterTextureRadius().x(), GetCutterTextureRadius().y(),
+                                                 m_cutterParams.Diameter.GetSceneUnits() / 2.0f);
             break;
         case Spherical:
-            m_heightMap.PrepareSphericalStamp(GetCutterTextureRadius().x(), GetCutterTextureRadius().y(),
-                                              m_cutterParams.Diameter.GetSceneUnits() / 2.0f);
+            m_heightMap->PrepareSphericalStamp(GetCutterTextureRadius().x(), GetCutterTextureRadius().y(),
+                                               m_cutterParams.Diameter.GetSceneUnits() / 2.0f);
             break;
     }
 }
 
 void Simulator3CComponent::ChangeToolSubmersions(Length toolSub, Length globalSub)
 {
-    m_heightMap.MaximalGlobalSubmerison = globalSub.GetSceneUnits();
-    m_heightMap.MaximumToolSubmersion = toolSub.GetSceneUnits();
+    if (m_state == MILLING)
+        return;
+    
+    m_heightMap->MaximalGlobalSubmerison = globalSub.GetSceneUnits();
+    m_heightMap->MaximumToolSubmersion = toolSub.GetSceneUnits();
 }
 
 void Simulator3CComponent::ChangeBlockSize(Length X, Length Y, Length Height)
@@ -338,7 +330,8 @@ void Simulator3CComponent::HidePathsOnScene(bool hide)
 
 std::tuple<Length, Length> Simulator3CComponent::GetToolSubmersions()
 {
-    return {Length::FromCentimeters(m_heightMap.MaximumToolSubmersion), Length::FromCentimeters(m_heightMap.MaximalGlobalSubmerison)};
+    return {Length::FromCentimeters(m_heightMap->MaximumToolSubmersion),
+            Length::FromCentimeters(m_heightMap->MaximalGlobalSubmerison)};
 }
 
 bool Simulator3CComponent::GetPathsHide()
@@ -349,5 +342,50 @@ bool Simulator3CComponent::GetPathsHide()
     if (m_pathPolyline)
         return m_pathPolyline->p_Drawing->Enabled;
     return false;
+}
+
+void Simulator3CComponent::PlayPauseSimulation()
+{
+    //emit PauseSimulation();
+    if (m_state == PAUSED)
+    {
+        emit PlaySimulation();
+        m_state = MILLING;
+    } else if (m_state == MILLING)
+    {
+        emit PauseSimulation();
+        m_state = PAUSED;
+    }
+}
+
+void Simulator3CComponent::onSimulationResultsHandle(QVector3D cutterSimPos)
+{
+    m_heightTexture->setData(m_heightMap->GetBitmap(), QOpenGLTexture::DontGenerateMipMaps);
+    m_cutter->p_Transform->Position = cutterSimPos;
+    EntityContextMenu::MakeRepaint();
+}
+
+void Simulator3CComponent::onSimulationError(std::string msg)
+{
+    QMessageBox msgBox;
+    msgBox.setText(QString(msg.c_str()));
+    msgBox.exec();
+}
+
+void Simulator3CComponent::onSimulationProgress(int progress)
+{
+    SimulationProgress = progress;
+}
+
+void Simulator3CComponent::onSimulationFinished(QVector3D cutterSimPos)
+{
+    onSimulationResultsHandle(cutterSimPos);
+    m_simProcess->quit();
+    m_simProcess->wait();
+    SimulationProgress = 100;
+    
+    m_simProcess.reset();
+    m_pathPolyline.reset();
+    m_state = IDLE;
 }
 

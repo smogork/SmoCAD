@@ -30,6 +30,21 @@ Simulator3CControl::Simulator3CControl(std::shared_ptr<Simulator3CComponent> sim
         ui->globalSubmersion->setValue(global.GetMilimeters());
         
         ui->pathsShow->setChecked(sim->GetPathsHide());
+        ui->simProgress->setValue(sim->SimulationProgress);
+        
+        progressNotifier = sim->SimulationProgress.addNotifier(
+                [this]()
+                {
+                    if (this->ignoreNotifier) return;
+                    
+                    auto simulation = m_sim.lock();
+                    if (!simulation)
+                        return;
+    
+                    UPDATE_UI_IGNORING_VALUE_CHANGED(
+                            ui->simProgress->setValue(simulation->SimulationProgress)
+                            );
+                });
     }
     ignoreValueChanged = false;
 }
@@ -74,7 +89,7 @@ void Simulator3CControl::on_blockVerticesX_valueChanged(int arg1)
     if (auto sim = m_sim.lock())
     {
         UPDATE_VALUE_IGNORING_NOTIFIER(sim->ChangeBlockVertices(ui->blockVerticesX->value(),
-                                                            ui->BlockVerticesY->value()));
+                                                                ui->BlockVerticesY->value()));
     }
 }
 
@@ -128,7 +143,8 @@ void Simulator3CControl::on_toolSubmersion_valueChanged(double arg1)
     if (auto sim = m_sim.lock())
     {
         UPDATE_VALUE_IGNORING_NOTIFIER(sim->ChangeToolSubmersions(Length::FromMilimeters(ui->toolSubmersion->value()),
-                                                                  Length::FromMilimeters(ui->globalSubmersion->value())));
+                                                                  Length::FromMilimeters(
+                                                                          ui->globalSubmersion->value())));
     }
 }
 
@@ -137,13 +153,9 @@ void Simulator3CControl::on_globalSubmersion_valueChanged(double arg1)
     if (auto sim = m_sim.lock())
     {
         UPDATE_VALUE_IGNORING_NOTIFIER(sim->ChangeToolSubmersions(Length::FromMilimeters(ui->toolSubmersion->value()),
-                                                                  Length::FromMilimeters(ui->globalSubmersion->value())));
+                                                                  Length::FromMilimeters(
+                                                                          ui->globalSubmersion->value())));
     }
-}
-
-void Simulator3CControl::on_simSpeed_valueChanged(int value)
-{
-
 }
 
 void Simulator3CControl::on_pathsShow_toggled(bool checked)
@@ -170,7 +182,6 @@ void Simulator3CControl::on_pushButton_clicked()
             if (auto sim = m_sim.lock())
             {
                 sim->LoadPathFile(filename);
-                ui->pathsInfo->setText("Paths loaded succesfully");
             }
         }
         catch (std::runtime_error &e)
@@ -178,7 +189,6 @@ void Simulator3CControl::on_pushButton_clicked()
             QMessageBox msgBox;
             msgBox.setText(e.what());
             msgBox.exec();
-            ui->pathsInfo->setText("Error while loading");
         }
         
         RequestRepaint();
@@ -192,11 +202,28 @@ void Simulator3CControl::on_pushButton_2_clicked()
     if (auto sim = m_sim.lock())
     {
         sim->SkipPathToEnd();
-        RequestRepaint();
     }
 }
 
 void Simulator3CControl::onSimulatorStateChange(SimulatorState state)
+{
+
+}
+
+void Simulator3CControl::on_simPlayPause_clicked()
+{
+    if (auto sim = m_sim.lock())
+    {
+        sim->PlayPauseSimulation();
+    }
+}
+
+void Simulator3CControl::on_pushButton_3_clicked()
+{
+
+}
+
+void Simulator3CControl::on_pushButton_4_clicked()
 {
 
 }

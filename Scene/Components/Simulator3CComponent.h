@@ -14,8 +14,7 @@
 #include "Scene/Entities/Simulator/BlockParameters.h"
 #include "Scene/Entities/Simulator/CutterPathPolyline.h"
 #include "Scene/Utilities/QImageOperator.h"
-
-
+#include "Scene/Entities/Simulator/SimulationProcess.h"
 
 enum SimulatorState
 {
@@ -29,7 +28,7 @@ class Simulator3CComponent : public IComponent
 Q_OBJECT
 private:
     std::unique_ptr<CutterObject> m_cutter;
-    std::unique_ptr<CutterPath> m_cutterPath;
+
     std::unique_ptr<CutterPathPolyline> m_pathPolyline;
     std::unique_ptr<BlockUpperWall> m_blockUpper;
     std::unique_ptr<BlockLowerWall> m_blockLower;
@@ -37,17 +36,17 @@ private:
     BlockParameters m_blockParams;
     CutterParameters m_cutterParams;
     QProperty<SimulatorState> m_state;
+    std::unique_ptr<SimulationProcess> m_simProcess;
     
     //QImage m_heightMap;
-    QImageOperator m_heightMap;
+    std::shared_ptr<QImageOperator> m_heightMap;
     std::shared_ptr<QOpenGLTexture> m_heightTexture;
     std::shared_ptr<QOpenGLTexture> m_woodTexture;
     
     void InitializeHeightMap();
     void MoveCutterToIdleState();
     float CutterColorFunction(int x, int y, QVector3D startCutterPos, QVector3D endCutterPos);
-    QPoint CutterToTexture(QVector2D cutterP, QVector3D CutterSimPos);
-    QPoint CutterCentreToTexture(QVector3D CutterSimPos);
+
     float CutterHeightToTextureColor(float cutterHeight, float startHeight, float finishHeight);
     QVector2D TextureToCutter(int texX, int texY, QVector3D CutterSimPos);
     QVector2D TextureToSim(int texX, int texY);
@@ -56,9 +55,19 @@ private:
     QPoint GetCutterTextureRadius();
     void ChangeCutterParameters(CutterParameters params);
     void ResizeBlock();
+    
+private slots:
+    void onSimulationResultsHandle(QVector3D cutterSimPos);
+    void onSimulationProgress(int progress);
+    void onSimulationError(std::string msg);
+    void onSimulationFinished(QVector3D cutterSimPos);
 
 signals:
     void SimulatorStateChanged(SimulatorState state);
+    void PlaySimulation();
+    void PauseSimulation();
+    void SkipSimulation();
+    void AbortSimulation();
 
 public:
     static std::shared_ptr<Simulator3CComponent>
@@ -66,6 +75,7 @@ public:
     void UnregisterComponent();
     
     std::shared_ptr<Transform> p_Transform;
+    QProperty<int> SimulationProgress;
     
     Simulator3CComponent(unsigned int oid, std::shared_ptr<Transform> simulatorTransform);
     explicit Simulator3CComponent(unsigned int oid);
@@ -90,6 +100,7 @@ public:
     void ChangeBlockVertices(int X, int Y);
     void ChangeTextureSize(int size);
     
+    void PlayPauseSimulation();
 };
 
 #endif //SMOCAD_SIMULATOR3CCOMPONENT_H

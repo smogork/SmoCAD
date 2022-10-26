@@ -32,7 +32,6 @@ private slots:
     void on_toolSubmersion_valueChanged(double arg1);
     void on_globalSubmersion_valueChanged(double arg1);
     
-    void on_simSpeed_valueChanged(int value);
     void on_pathsShow_toggled(bool checked);
     
     void on_pushButton_clicked();
@@ -40,9 +39,16 @@ private slots:
     
     void onSimulatorStateChange(SimulatorState state);
 
+    void on_simPlayPause_clicked();
+
+    void on_pushButton_3_clicked();
+
+    void on_pushButton_4_clicked();
+
 private:
     Ui::Simulator3CControl *ui;
     std::weak_ptr<Simulator3CComponent> m_sim;
+    QPropertyNotifier progressNotifier;
 };
 
 #endif // SIMULATOR3CCONTROL_H
