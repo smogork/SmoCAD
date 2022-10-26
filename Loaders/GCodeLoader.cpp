@@ -18,12 +18,14 @@ std::unique_ptr<CutterPath> GCodeLoader::LoadCutterPath(const QString &filepath)
         throw std::runtime_error("Cannot open file");
     
     QTextStream in(&file);
+    QVector3D lastData = {-1, -1, -1};
     while (!in.atEnd())
     {
         try
         {
             QString line = in.readLine();
-            QVector3D move = ParseGCodeLine(line);
+            QVector3D move = ParseGCodeLine(line, lastData);
+            lastData = move;
             ret->Points.push_back(move);
         }
         catch (const std::runtime_error &e)
@@ -48,29 +50,28 @@ CutterParameters GCodeLoader::ParseFilenameForParameters(const QString &filepath
     throw std::runtime_error("Wrong extension of file");
 }
 
-QVector3D GCodeLoader::ParseGCodeLine(const QString &line)
+QVector3D GCodeLoader::ParseGCodeLine(const QString &line, QVector3D lastData)
 {
-    QVector3D res = {-1, -1, -1};
-    int Gpos = -1, Xpos = -1, Ypos = -1, Zpos = -1;
+    std::map<QChar, float> data;
+    data['X'] = lastData.x();
+    data['Y'] = -lastData.z();
+    data['Z'] = lastData.y();
+    
     int it = 0;
+    //znajdz pierwsza literke
+    while (line[it] < 'A' or line[it] > 'Z') it++;
     
-    for (; it < line.size() && line[it] != 'G'; ++it);
-    Gpos = it;
-    for (; it < line.size() && line[it] != 'X'; ++it);
-    Xpos = it;
-    for (; it < line.size() && line[it] != 'Y'; ++it);
-    Ypos = it;
-    for (; it < line.size() && line[it] != 'Z'; ++it);
-    Zpos = it;
+    while (it < line.size())
+    {
+        QChar l = line[it];
+        float val;
+        int last = it;
     
-    if (Xpos - Gpos != 3 || Xpos * Ypos * Zpos < 0)
-        throw std::runtime_error(QString("Wrong line to parse: %0").arg(line).toStdString());
+        it++;
+        while (it < line.size() and (line[it] < 'A' or line[it] > 'Z')) it++;
+        val = Length::FromMilimeters(std::strtof(line.mid(last + 1, it - last - 1).toStdString().c_str(), nullptr)).GetSceneUnits();
+        data[l] = val;
+    }
     
-    //TODO: Pozostal jeszcze przypadek gdy jakiejs wspolrzednej zabraknie. Wystarczy wtedy -1 wystawic i poprawic w gornej petli.
-    Length x = Length::FromMilimeters(std::strtof(line.mid(Xpos + 1, Ypos - Xpos - 1).toStdString().c_str(), nullptr));
-    Length y = Length::FromMilimeters(std::strtof(line.mid(Zpos + 1, line.size() - Ypos - 1).toStdString().c_str(), nullptr));
-    Length z = Length::FromMilimeters(-std::strtof(line.mid(Ypos + 1, Zpos - Ypos - 1).toStdString().c_str(), nullptr));
-    
-    res = QVector3D(x.GetSceneUnits(), y.GetSceneUnits(), z.GetSceneUnits());
-    return res;
+    return {data['X'], data['Z'], -data['Y']};
 }

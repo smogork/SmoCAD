@@ -51,6 +51,8 @@ private:
     QVector2D TextureToCutter(int texX, int texY, QVector3D CutterSimPos);
     QVector2D TextureToSim(int texX, int texY);
     float DistToSegment(QVector2D p, QVector2D A, QVector2D B);
+    void SkipPathToEnd();
+    QPoint GetCutterTextureRadius();
 
 signals:
     void SimulatorStateChanged(SimulatorState state);

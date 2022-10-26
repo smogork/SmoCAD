@@ -15,7 +15,7 @@ public:
     
 private:
     static CutterParameters ParseFilenameForParameters(const QString& filepath);
-    static QVector3D ParseGCodeLine(const QString& line);
+    static QVector3D ParseGCodeLine(const QString& line, QVector3D lastData);
 };
 
 #endif //SMOCAD_GCODELOADER_H

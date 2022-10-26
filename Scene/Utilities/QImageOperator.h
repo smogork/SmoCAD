@@ -92,6 +92,7 @@ public:
     void FloodFill4(QPoint start, QVector3D simStartPos, QVector3D simFinishPos);
     
     void PrepareSphericalStamp(int textureRadiusX, int textureRadiusY, float R);
+    void PrepareCylindricalStamp(int textureRadiusX, int textureRadiusY, float R);
     void ApplyStamp(int cx, int cy, float cutterSimHeight, float blockHeight);
     void CutterMove(QPoint texStart, QPoint texEnd, float startHeight, float endHeight, float blockHeight);
     

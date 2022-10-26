@@ -147,6 +147,10 @@ void QImageOperator::ClampPointToDisplay(int &x, int &y)
 
 void inline QImageOperator::drawPixel(int x, int y, QColor aColor)
 {
+    if (x < 0 || x >= m_bitmap.width() || y < 0 || y >= m_bitmap.height() )
+        return;
+    
+    //zbuffor
     if (aColor.red() < qRed(m_bitmap.pixel(x, y)))
         m_bitmap.setPixelColor(x, y, aColor);
 }
@@ -871,6 +875,24 @@ void QImageOperator::CutterMove(QPoint texStart, QPoint texEnd, float startHeigh
         }
         x = x + 1;
     }*/
+}
+
+void QImageOperator::PrepareCylindricalStamp(int textureRadiusX, int textureRadiusY, float R)
+{
+    CreateStampData(textureRadiusX, textureRadiusY);
+    for (int i = 0; i < m_stampX * m_stampY; ++i)
+        m_stamp[i] = 0;
+    
+    for (int y = 0 ; y < m_stampY; ++y)
+        for (int x = 0 ; x < m_stampX; ++x)
+        {
+            float dx = (abs(x - textureRadiusX) / (float)textureRadiusX) * R;
+            float dy = (abs(y - textureRadiusY) / (float)textureRadiusY) * R;
+            float dist = sqrt(dx * dx + dy * dy);
+            
+            if (dist > R)
+                m_stamp[y * m_stampX + x] = NAN;
+        }
 }
 
 /**

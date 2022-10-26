@@ -86,7 +86,7 @@ void main() {
     vec3 pos_dv = normalize(dFdy(WorldPos));
     vec3 norm = cross(pos_du, pos_dv);
 
-    norm = normalMapping(norm, pos_du, bump.xyz);
+    //norm = normalMapping(norm, pos_du, bump.xyz);
     norm = (u_MVP.Model * vec4(norm, 0.0f)).xyz;
 
 
