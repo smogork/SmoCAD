@@ -31,6 +31,9 @@ Simulator3CControl::Simulator3CControl(std::shared_ptr<Simulator3CComponent> sim
         
         ui->pathsShow->setChecked(sim->GetPathsHide());
         ui->simProgress->setValue(sim->SimulationProgress);
+        
+        ui->pushButton_3->setVisible(false);
+        ui->pushButton_4->setVisible(false);
     
         onSimulatorStateChange(sim->m_state);
         
@@ -323,7 +326,7 @@ void Simulator3CControl::on_pushButton_3_clicked()
 {
     if (auto sim = m_sim.lock())
     {
-        sim->AbortSimulation();
+        sim->ClearPaths();
     }
 }
 
