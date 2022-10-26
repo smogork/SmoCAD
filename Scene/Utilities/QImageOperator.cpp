@@ -772,7 +772,7 @@ void QImageOperator::CreateStampData(int textureRadiusX, int textureRadiusY)
     m_stamp.resize(m_stampX * m_stampY);
 }
 
-void QImageOperator::ApplyStamp(int cx, int cy, float cutterSimHeight, float blockHeight)
+void QImageOperator::ApplyStamp(int cx, int cy, float cutterSimHeight, float blockHeight, bool toolLowered)
 {
     QColor c(Qt::black);
     int offsetX = -m_stampX/2;
@@ -801,7 +801,7 @@ void QImageOperator::ApplyStamp(int cx, int cy, float cutterSimHeight, float blo
             if (toolSub > MaximumToolSubmersion)
                 throw MillingException("Tool undercut detected");
         
-            if (isToolFlat && toolSub > 0.0f)
+            if (isToolFlat and toolSub > 0.0f and toolLowered)
                 throw MillingException("Flat cutter went down in material");
         
             float texVal = height / blockHeight;
@@ -839,7 +839,7 @@ void QImageOperator::CutterMove(QPoint texStart, QPoint texEnd, float startHeigh
         dy = y1 - y2;
     }
     
-    ApplyStamp(x, y, startHeight, blockHeight);
+    ApplyStamp(x, y, startHeight, blockHeight, startHeight - endHeight > 1e-5);
     if (dx > dy) {
         ai = (dy - dx) * 2;
         bi = dy * 2;
@@ -855,7 +855,7 @@ void QImageOperator::CutterMove(QPoint texStart, QPoint texEnd, float startHeigh
                 d += bi;
                 x += xi;
             }
-            ApplyStamp(x, y, height, blockHeight);
+            ApplyStamp(x, y, height, blockHeight, startHeight - endHeight > 1e-5);
         }
     } else {
         ai = ( dx - dy ) * 2;
@@ -872,7 +872,7 @@ void QImageOperator::CutterMove(QPoint texStart, QPoint texEnd, float startHeigh
                 d += bi;
                 y += yi;
             }
-            ApplyStamp(x, y, height, blockHeight);
+            ApplyStamp(x, y, height, blockHeight, startHeight - endHeight > 1e-5);
         }
     }
 }

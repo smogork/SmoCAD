@@ -57,7 +57,7 @@ std::vector<float> BlockSideWall::GenerateGeometryVertices()
     std::vector<QVector3D> wallA = PointShapes::CreateRect(QVector3D(-m_widthX / 2.0f, 0.0f, -m_widthY / 2.0f),
                                                            m_widthX, m_height, m_vertexWidthX, 2, XY);
     std::vector<QVector3D> wallC = PointShapes::CreateRect(QVector3D(-m_widthX / 2.0f, 0.0f, -m_widthY / 2.0f),
-                                                           m_widthX, m_height, m_vertexWidthY, 2, YZ);
+                                                           m_widthY, m_height, m_vertexWidthY, 2, YZ);
     
     std::vector<QVector3D> wallB(wallA.size()), wallD(wallC.size());
     auto rotationFunc = [rot](const QVector3D &p)

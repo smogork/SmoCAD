@@ -4,8 +4,8 @@
 #include "ui_simulator3ccontrol.h"
 
 Simulator3CControl::Simulator3CControl(std::shared_ptr<Simulator3CComponent> sim, QWidget *parent) :
-    ComponentControl(parent),
-    ui(new Ui::Simulator3CControl), m_sim(sim)
+        ComponentControl(parent),
+        ui(new Ui::Simulator3CControl), m_sim(sim)
 {
     ui->setupUi(this);
     onSimulatorStateChange(m_sim.lock()->GetState());
@@ -35,39 +35,59 @@ Simulator3CControl::~Simulator3CControl()
 
 void Simulator3CControl::on_blockSizeX_valueChanged(double arg1)
 {
-
+    if (auto sim = m_sim.lock())
+    {
+        UPDATE_VALUE_IGNORING_NOTIFIER(sim->ChangeBlockSize(Length::FromCentimeters(ui->blockSizeX->value()),
+                                                            Length::FromCentimeters(ui->blockSizeY->value()),
+                                                            Length::FromCentimeters(ui->blockHeight->value())));
+    }
 }
-
 
 void Simulator3CControl::on_blockSizeY_valueChanged(double arg1)
 {
-
+    if (auto sim = m_sim.lock())
+    {
+        UPDATE_VALUE_IGNORING_NOTIFIER(sim->ChangeBlockSize(Length::FromCentimeters(ui->blockSizeX->value()),
+                                                            Length::FromCentimeters(ui->blockSizeY->value()),
+                                                            Length::FromCentimeters(ui->blockHeight->value())));
+    }
 }
-
 
 void Simulator3CControl::on_blockHeight_valueChanged(double arg1)
 {
-
+    if (auto sim = m_sim.lock())
+    {
+        UPDATE_VALUE_IGNORING_NOTIFIER(sim->ChangeBlockSize(Length::FromCentimeters(ui->blockSizeX->value()),
+                                                            Length::FromCentimeters(ui->blockSizeY->value()),
+                                                            Length::FromCentimeters(ui->blockHeight->value())));
+    }
 }
-
 
 void Simulator3CControl::on_blockVerticesX_valueChanged(int arg1)
 {
-
+    if (auto sim = m_sim.lock())
+    {
+        UPDATE_VALUE_IGNORING_NOTIFIER(sim->ChangeBlockVertices(ui->blockVerticesX->value(),
+                                                            ui->BlockVerticesY->value()));
+    }
 }
-
 
 void Simulator3CControl::on_BlockVerticesY_valueChanged(int arg1)
 {
-
+    if (auto sim = m_sim.lock())
+    {
+        UPDATE_VALUE_IGNORING_NOTIFIER(sim->ChangeBlockVertices(ui->blockVerticesX->value(),
+                                                                ui->BlockVerticesY->value()));
+    }
 }
-
 
 void Simulator3CControl::on_heightmapSize_valueChanged(int arg1)
 {
-
+    if (auto sim = m_sim.lock())
+    {
+        UPDATE_VALUE_IGNORING_NOTIFIER(sim->ChangeTextureSize(arg1));
+    }
 }
-
 
 void Simulator3CControl::on_toolSphere_toggled(bool checked)
 {
@@ -79,7 +99,6 @@ void Simulator3CControl::on_toolSphere_toggled(bool checked)
     }
 }
 
-
 void Simulator3CControl::on_toolCylinder_toggled(bool checked)
 {
     if (!checked)
@@ -90,7 +109,6 @@ void Simulator3CControl::on_toolCylinder_toggled(bool checked)
     }
 }
 
-
 void Simulator3CControl::on_toolDiameter_valueChanged(double arg1)
 {
     if (auto sim = m_sim.lock())
@@ -99,30 +117,33 @@ void Simulator3CControl::on_toolDiameter_valueChanged(double arg1)
     }
 }
 
-
 void Simulator3CControl::on_toolSubmersion_valueChanged(double arg1)
 {
-
+    if (auto sim = m_sim.lock())
+    {
+        UPDATE_VALUE_IGNORING_NOTIFIER(sim->ChangeToolSubmersions(Length::FromMilimeters(ui->toolSubmersion->value()),
+                                                                  Length::FromMilimeters(ui->globalSubmersion->value())));
+    }
 }
-
 
 void Simulator3CControl::on_globalSubmersion_valueChanged(double arg1)
 {
-
+    if (auto sim = m_sim.lock())
+    {
+        UPDATE_VALUE_IGNORING_NOTIFIER(sim->ChangeToolSubmersions(Length::FromMilimeters(ui->toolSubmersion->value()),
+                                                                  Length::FromMilimeters(ui->globalSubmersion->value())));
+    }
 }
-
 
 void Simulator3CControl::on_simSpeed_valueChanged(int value)
 {
 
 }
 
-
 void Simulator3CControl::on_pathsShow_toggled(bool checked)
 {
 
 }
-
 
 void Simulator3CControl::on_pushButton_clicked()
 {
@@ -143,7 +164,8 @@ void Simulator3CControl::on_pushButton_clicked()
                 ui->pathsInfo->setText("Paths loaded succesfully");
             }
         }
-        catch (std::runtime_error &e) {
+        catch (std::runtime_error &e)
+        {
             QMessageBox msgBox;
             msgBox.setText(e.what());
             msgBox.exec();
@@ -156,12 +178,12 @@ void Simulator3CControl::on_pushButton_clicked()
     }
 }
 
-
 void Simulator3CControl::on_pushButton_2_clicked()
 {
     if (auto sim = m_sim.lock())
     {
         sim->SkipPathToEnd();
+        RequestRepaint();
     }
 }
 

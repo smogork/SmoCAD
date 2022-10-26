@@ -102,7 +102,7 @@ public:
     
     void PrepareSphericalStamp(int textureRadiusX, int textureRadiusY, float R);
     void PrepareCylindricalStamp(int textureRadiusX, int textureRadiusY, float R);
-    void ApplyStamp(int cx, int cy, float cutterSimHeight, float blockHeight);
+    void ApplyStamp(int cx, int cy, float cutterSimHeight, float blockHeight, bool toolLowered);
     void CutterMove(QPoint texStart, QPoint texEnd, float startHeight, float endHeight, float blockHeight);
     
     [[nodiscard]] const QImage &GetBitmap() const;

@@ -54,6 +54,7 @@ private:
 
     QPoint GetCutterTextureRadius();
     void ChangeCutterParameters(CutterParameters params);
+    void ResizeBlock();
 
 signals:
     void SimulatorStateChanged(SimulatorState state);
@@ -77,9 +78,15 @@ public:
     bool CanChangeCutterParams();
     void ChangeCutterType(CutterType type);
     void ChangeCutterDiameter(Length diameter);
+    void ChangeToolSubmersions(Length toolSub, Length globalSub);
     CutterParameters GetCutterParameters();
+    std::tuple<Length, Length> GetToolSubmersions();
     
     BlockParameters GetBlockParameters();
+    void ChangeBlockSize(Length X, Length Y, Length Height);
+    void ChangeBlockVertices(int X, int Y);
+    void ChangeTextureSize(int size);
+    
 };
 
 #endif //SMOCAD_SIMULATOR3CCOMPONENT_H

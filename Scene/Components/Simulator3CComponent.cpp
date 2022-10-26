@@ -9,6 +9,7 @@
 #include "Loaders/GCodeLoader.h"
 
 #include <cmath>
+#include <QMessageBox>
 
 std::shared_ptr<Simulator3CComponent>
 Simulator3CComponent::CreateRegisteredComponent(unsigned int oid, std::shared_ptr<Transform> trans)
@@ -43,19 +44,7 @@ Simulator3CComponent::Simulator3CComponent(unsigned int oid, std::shared_ptr<Tra
     m_heightTexture->setMinMagFilters(QOpenGLTexture::Filter::LinearMipMapLinear, QOpenGLTexture::Filter::NearestMipMapLinear);
     m_heightTexture->setWrapMode(QOpenGLTexture::ClampToEdge);
     
-    m_blockLower = std::make_unique<BlockLowerWall>(QVector3D(), p_Transform, m_blockParams.WidthX.GetSceneUnits(),
-                                                    m_blockParams.WidthY.GetSceneUnits());
-    m_blockSide = std::make_unique<BlockSideWall>(QVector3D(), p_Transform, m_heightTexture,
-                                                  m_blockParams.WidthX.GetSceneUnits(),
-                                                  m_blockParams.WidthY.GetSceneUnits(),
-                                                  m_blockParams.Height.GetSceneUnits(), m_blockParams.VertexWidthX,
-                                                  m_blockParams.VertexWidthY);
-    m_blockUpper = std::make_unique<BlockUpperWall>(QVector3D(0, m_blockParams.Height.GetSceneUnits(), 0), p_Transform,
-                                                    m_heightTexture,
-                                                    m_blockParams.WidthX.GetSceneUnits(),
-                                                    m_blockParams.WidthY.GetSceneUnits(),
-                                                    m_blockParams.Height.GetSceneUnits(),
-                                                    m_blockParams.VertexWidthX, m_blockParams.VertexWidthY);
+    ResizeBlock();
     m_cutter = std::make_unique<CutterObject>(QVector3D(), m_cutterParams, p_Transform);
     
     ChangeCutterType(m_cutterParams.Type);
@@ -230,22 +219,38 @@ void Simulator3CComponent::SkipPathToEnd()
     if (m_state == IDLE)
         return;
     
-    for (int i = 0; i < m_cutterPath->Points.size() - 1; ++i)
+    int i = 0;
+    try
     {
-        QVector3D startPoint = m_cutterPath->Points[i];
-        QVector3D finishPoint = m_cutterPath->Points[i + 1];
-        QPoint startPointTex = CutterCentreToTexture(startPoint);
-        QPoint endPointTex = CutterCentreToTexture(finishPoint);
+        for (; i < m_cutterPath->Points.size() - 1; ++i)
+        {
+            QVector3D startPoint = m_cutterPath->Points[i];
+            QVector3D finishPoint = m_cutterPath->Points[i + 1];
+            QPoint startPointTex = CutterCentreToTexture(startPoint);
+            QPoint endPointTex = CutterCentreToTexture(finishPoint);
         
-        m_heightMap.CutterMove(startPointTex, endPointTex, startPoint.y(), finishPoint.y(), m_blockParams.Height.GetSceneUnits());
+            m_heightMap.CutterMove(startPointTex, endPointTex, startPoint.y(), finishPoint.y(),
+                                   m_blockParams.Height.GetSceneUnits());
         
-        qDebug() << "Path nr" << i;
+            qDebug() << "Path nr" << i;
+        }
+        
+        m_heightTexture->setData(m_heightMap.GetBitmap());
+        m_cutter->p_Transform->Position = m_cutterPath->Points[m_cutterPath->Points.size() - 1];
+        m_cutterPath.reset();
+        m_pathPolyline.reset();
+        m_state = IDLE;
     }
-    
-    m_heightTexture->setData(m_heightMap.GetBitmap());
-    m_cutterPath.reset();
-    m_pathPolyline.reset();
-    m_state = IDLE;
+    catch (MillingException &e)
+    {
+        m_cutter->p_Transform->Position = m_cutterPath->Points[i];
+        m_state = PAUSED;
+        m_heightTexture->setData(m_heightMap.GetBitmap());
+        
+        QMessageBox msgBox;
+        msgBox.setText(e.what());
+        msgBox.exec();
+    }
 }
 
 QPoint Simulator3CComponent::GetCutterTextureRadius()
@@ -271,5 +276,54 @@ void Simulator3CComponent::ChangeCutterParameters(CutterParameters params)
                                               m_cutterParams.Diameter.GetSceneUnits() / 2.0f);
             break;
     }
+}
+
+void Simulator3CComponent::ChangeToolSubmersions(Length toolSub, Length globalSub)
+{
+    m_heightMap.MaximalGlobalSubmerison = globalSub.GetSceneUnits();
+    m_heightMap.MaximumToolSubmersion = toolSub.GetSceneUnits();
+}
+
+void Simulator3CComponent::ChangeBlockSize(Length X, Length Y, Length Height)
+{
+    m_blockParams.WidthX = X;
+    m_blockParams.WidthY = Y;
+    m_blockParams.Height = Height;
+    
+    ResizeBlock();
+    ChangeCutterParameters(m_cutterParams);
+}
+
+void Simulator3CComponent::ChangeBlockVertices(int X, int Y)
+{
+    m_blockParams.VertexWidthX = X;
+    m_blockParams.VertexWidthY = Y;
+    
+    ResizeBlock();
+    ChangeCutterParameters(m_cutterParams);
+}
+
+void Simulator3CComponent::ChangeTextureSize(int size)
+{
+    m_blockParams.VertexWidthX = m_blockParams.VertexWidthY = size;
+    InitializeHeightMap();
+    ChangeCutterParameters(m_cutterParams);
+}
+
+void Simulator3CComponent::ResizeBlock()
+{
+    m_blockLower = std::make_unique<BlockLowerWall>(QVector3D(), p_Transform, m_blockParams.WidthX.GetSceneUnits(),
+                                                    m_blockParams.WidthY.GetSceneUnits());
+    m_blockSide = std::make_unique<BlockSideWall>(QVector3D(), p_Transform, m_heightTexture,
+                                                  m_blockParams.WidthX.GetSceneUnits(),
+                                                  m_blockParams.WidthY.GetSceneUnits(),
+                                                  m_blockParams.Height.GetSceneUnits(), m_blockParams.VertexWidthX,
+                                                  m_blockParams.VertexWidthY);
+    m_blockUpper = std::make_unique<BlockUpperWall>(QVector3D(0, m_blockParams.Height.GetSceneUnits(), 0), p_Transform,
+                                                    m_heightTexture,
+                                                    m_blockParams.WidthX.GetSceneUnits(),
+                                                    m_blockParams.WidthY.GetSceneUnits(),
+                                                    m_blockParams.Height.GetSceneUnits(),
+                                                    m_blockParams.VertexWidthX, m_blockParams.VertexWidthY);
 }
 
