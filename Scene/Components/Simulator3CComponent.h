@@ -41,6 +41,7 @@ private:
     //QImage m_heightMap;
     QImageOperator m_heightMap;
     std::shared_ptr<QOpenGLTexture> m_heightTexture;
+    std::shared_ptr<QOpenGLTexture> m_woodTexture;
     
     void InitializeHeightMap();
     void MoveCutterToIdleState();

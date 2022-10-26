@@ -15,6 +15,7 @@ class BlockUpperWall : public IEntity
 private:
     std::weak_ptr<Transform> m_simulatorTransform;
     std::shared_ptr<QOpenGLTexture> m_heightTexture;
+    std::shared_ptr<QOpenGLTexture> m_woodTexture;
     double m_widthX, m_widthY, m_height;
     int m_vertexWidthX, m_vertexWidthY;
     int m_indexCount;
@@ -30,7 +31,7 @@ public:
     std::shared_ptr<StaticDrawing> p_Drawing;
     
     BlockUpperWall(QVector3D pos, std::shared_ptr<Transform> simulatorTransform,
-                   std::shared_ptr<QOpenGLTexture> heightMap, double widthX, double widthY, double height, int vertexWidthX,
+                   std::shared_ptr<QOpenGLTexture> heightMap, std::shared_ptr<QOpenGLTexture> woodTex, double widthX, double widthY, double height, int vertexWidthX,
                    int vertexWidthY);
 };
 

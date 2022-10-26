@@ -16,6 +16,8 @@ struct MVP
 
 
 uniform sampler2D heightTexture;
+uniform sampler2D woodTexture;
+
 uniform float u_MaxHeight;
 uniform int u_TextureSize;
 uniform MVP u_MVP;
@@ -28,7 +30,7 @@ const float ka = 0.1f;
 const float kd = 0.6f;
 const float ks = 0.2f;
 const float m = 100.0f;
-const vec3 surfaceColor = vec3(0.6f, 0.5f, 0.6f);
+//const vec3 surfaceColor = vec3(0.6f, 0.5f, 0.6f);
 
 vec4 saturate(vec4 v)
 {
@@ -58,6 +60,8 @@ vec4 phong(vec3 worldPos, vec3 norm, vec3 view)
 {
 	view = normalize(view);
 	norm = normalize(norm);
+    vec3 surfaceColor = texture(woodTexture, TexCoord).rgb;
+
 	vec3 color = surfaceColor * ka; //ambient
 	for (int k = 0; k < NLIGHTS; ++k)
 	{

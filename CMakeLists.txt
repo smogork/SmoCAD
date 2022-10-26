@@ -25,6 +25,9 @@ if (WIN32)
 endif ()
 
 set(TS_FILES SmoCAD_en_GB.ts)
+set(RESOURCE_FILES
+        Resources/wood.png)
+
 set(SHADER_FILES
         Shaders/buffer_color.vert
         Shaders/uniform_color.vert
@@ -256,6 +259,15 @@ foreach (shader_file ${SHADER_FILES})
             ${CMAKE_SOURCE_DIR}/${shader_file}
             ${CMAKE_CURRENT_BINARY_DIR}/${shader_file})
 endforeach (shader_file)
+
+# Copy resources
+foreach (res_file ${RESOURCE_FILES})
+    add_custom_command(
+            TARGET SmoCAD POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_SOURCE_DIR}/${res_file}
+            ${CMAKE_CURRENT_BINARY_DIR}/${res_file})
+endforeach (res_file)
 
 if (QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(SmoCAD)

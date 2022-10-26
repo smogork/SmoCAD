@@ -6,10 +6,10 @@
 #include "Mathematics/PointShapes.h"
 
 BlockUpperWall::BlockUpperWall(QVector3D pos, std::shared_ptr<Transform> simulatorTransform,
-                               std::shared_ptr<QOpenGLTexture> heightMap, double widthX, double widthY, double height,
+                               std::shared_ptr<QOpenGLTexture> heightMap, std::shared_ptr<QOpenGLTexture> woodTex, double widthX, double widthY, double height,
                                int vertexWidthX, int vertexWidthY)
         : IEntity(SIMULATOR_BLOCK_UPPER), m_widthX(widthX), m_widthY(widthY), m_height(height), m_vertexWidthX(vertexWidthX),
-          m_vertexWidthY(vertexWidthY), m_simulatorTransform(simulatorTransform), m_heightTexture(heightMap)
+          m_vertexWidthY(vertexWidthY), m_simulatorTransform(simulatorTransform), m_heightTexture(heightMap), m_woodTexture(woodTex)
 {
     AddComponent(p_Transform = Transform::CreateRegisteredComponent(GetObjectID(), pos));
     AddComponent(p_Drawing = StaticDrawing::CreateRegisteredComponent(GetObjectID()));
@@ -42,9 +42,11 @@ void BlockUpperWall::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
     shader->SetUniform("u_MVP.Model", modelMtx);
     
     m_heightTexture->bind(0, QOpenGLTexture::ResetTextureUnit);
+    m_woodTexture->bind(1, QOpenGLTexture::ResetTextureUnit);
     shader->SetUniform("heightTexture", 0);
+    shader->SetUniform("woodTexture", 1);
     shader->SetUniform("u_MaxHeight", (float)m_height);
-    shader->SetUniform("u_TextureSize", m_heightTexture->width());
+    //shader->SetUniform("u_TextureSize", m_heightTexture->width());
 }
 
 std::vector<float> BlockUpperWall::GenerateGeometryVertices()
