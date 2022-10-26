@@ -17,6 +17,8 @@ private:
     explicit Length(double dist);
     
 public:
+    Length ();
+    
     static Length FromCentimeters(double cm);
     static Length FromMilimeters(double mm);
     static Length FromMeters(double m);

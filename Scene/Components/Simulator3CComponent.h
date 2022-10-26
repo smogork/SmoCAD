@@ -75,6 +75,8 @@ public:
     bool CanLoadPaths();
     void LoadPathFile(const QString& filepath);
     void SkipPathToEnd();
+    void HidePathsOnScene(bool hide);
+    bool GetPathsHide();
     
     bool CanChangeCutterParams();
     void ChangeCutterType(CutterType type);

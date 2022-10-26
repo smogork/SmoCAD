@@ -328,3 +328,26 @@ void Simulator3CComponent::ResizeBlock()
                                                     m_blockParams.VertexWidthX, m_blockParams.VertexWidthY);
 }
 
+void Simulator3CComponent::HidePathsOnScene(bool hide)
+{
+    if (m_state == IDLE)
+        return;
+    
+    m_pathPolyline->p_Drawing->Enabled = hide;
+}
+
+std::tuple<Length, Length> Simulator3CComponent::GetToolSubmersions()
+{
+    return {Length::FromCentimeters(m_heightMap.MaximumToolSubmersion), Length::FromCentimeters(m_heightMap.MaximalGlobalSubmerison)};
+}
+
+bool Simulator3CComponent::GetPathsHide()
+{
+    if (m_state == IDLE)
+        return false;
+    
+    if (m_pathPolyline)
+        return m_pathPolyline->p_Drawing->Enabled;
+    return false;
+}
+

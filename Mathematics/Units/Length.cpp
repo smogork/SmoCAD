@@ -63,4 +63,9 @@ double Length::GetSceneUnits() const
     return GetCentimeters();
 }
 
+Length::Length(): Unit(0)
+{
+
+}
+
 

@@ -24,6 +24,12 @@ Simulator3CControl::Simulator3CControl(std::shared_ptr<Simulator3CComponent> sim
         ui->toolDiameter->setValue(cParams.Diameter.GetMilimeters());
         ui->toolCylinder->setChecked(cParams.Type == Cylindrical);
         ui->toolSphere->setChecked(cParams.Type == Spherical);
+        Length tool, global;
+        std::tie(tool, global) = sim->GetToolSubmersions();
+        ui->toolSubmersion->setValue(tool.GetMilimeters());
+        ui->globalSubmersion->setValue(global.GetMilimeters());
+        
+        ui->pathsShow->setChecked(sim->GetPathsHide());
     }
     ignoreValueChanged = false;
 }
@@ -142,7 +148,10 @@ void Simulator3CControl::on_simSpeed_valueChanged(int value)
 
 void Simulator3CControl::on_pathsShow_toggled(bool checked)
 {
-
+    if (auto sim = m_sim.lock())
+    {
+        UPDATE_VALUE_IGNORING_NOTIFIER(sim->HidePathsOnScene(checked));
+    }
 }
 
 void Simulator3CControl::on_pushButton_clicked()
