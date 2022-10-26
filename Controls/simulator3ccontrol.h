@@ -49,6 +49,7 @@ private:
     Ui::Simulator3CControl *ui;
     std::weak_ptr<Simulator3CComponent> m_sim;
     QPropertyNotifier progressNotifier;
+    QPropertyNotifier stateNotifier;
 };
 
 #endif // SIMULATOR3CCONTROL_H

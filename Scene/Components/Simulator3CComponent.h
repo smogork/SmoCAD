@@ -35,7 +35,7 @@ private:
     std::unique_ptr<BlockSideWall> m_blockSide;
     BlockParameters m_blockParams;
     CutterParameters m_cutterParams;
-    QProperty<SimulatorState> m_state;
+
     std::unique_ptr<SimulationProcess> m_simProcess;
     
     //QImage m_heightMap;
@@ -76,6 +76,7 @@ public:
     
     std::shared_ptr<Transform> p_Transform;
     QProperty<int> SimulationProgress;
+    QProperty<SimulatorState> m_state;
     
     Simulator3CComponent(unsigned int oid, std::shared_ptr<Transform> simulatorTransform);
     explicit Simulator3CComponent(unsigned int oid);
@@ -101,6 +102,7 @@ public:
     void ChangeTextureSize(int size);
     
     void PlayPauseSimulation();
+    void Reset();
 };
 
 #endif //SMOCAD_SIMULATOR3CCOMPONENT_H

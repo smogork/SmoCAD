@@ -67,8 +67,16 @@ void SimulationProcess::run()
         QPoint startPointTex = CutterCentreToTexture(startPoint);
         QPoint endPointTex = CutterCentreToTexture(finishPoint);
         
-        m_heightMap->CutterMove(startPointTex, endPointTex, startPoint.y(), finishPoint.y(),
-                                m_blockParams.Height.GetSceneUnits());
+        try
+        {
+            m_heightMap->CutterMove(startPointTex, endPointTex, startPoint.y(), finishPoint.y(),
+                                    m_blockParams.Height.GetSceneUnits());
+        }
+        catch (MillingException &e)
+        {
+            emit SimulationError(e.what());
+            emit SimulationFinished(m_cutterPath->Points[pathNumber]);
+        }
         
         if (abort)
             return;

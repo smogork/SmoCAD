@@ -31,6 +31,8 @@ Simulator3CControl::Simulator3CControl(std::shared_ptr<Simulator3CComponent> sim
         
         ui->pathsShow->setChecked(sim->GetPathsHide());
         ui->simProgress->setValue(sim->SimulationProgress);
+    
+        onSimulatorStateChange(sim->m_state);
         
         progressNotifier = sim->SimulationProgress.addNotifier(
                 [this]()
@@ -45,6 +47,19 @@ Simulator3CControl::Simulator3CControl(std::shared_ptr<Simulator3CComponent> sim
                             ui->simProgress->setValue(simulation->SimulationProgress)
                             );
                 });
+    
+        stateNotifier = sim->m_state.addNotifier(
+                [this]()
+                {
+                    if (this->ignoreNotifier) return;
+                
+                    auto simulation = m_sim.lock();
+                    if (!simulation)
+                        return;
+    
+                    onSimulatorStateChange(simulation->m_state);
+                });
+
     }
     ignoreValueChanged = false;
 }
@@ -207,7 +222,93 @@ void Simulator3CControl::on_pushButton_2_clicked()
 
 void Simulator3CControl::onSimulatorStateChange(SimulatorState state)
 {
-
+    switch (state)
+    {
+        case IDLE:
+            //nie mozna uzywac przyciskow od symulacji
+            //blok
+            ui->blockSizeX->setEnabled(true);
+            ui->blockSizeY->setEnabled(true);
+            ui->blockHeight->setEnabled(true);
+            ui->blockVerticesX->setEnabled(true);
+            ui->BlockVerticesY->setEnabled(true);
+            ui->heightmapSize->setEnabled(true);
+            
+            //narzedzie
+            ui->toolCylinder->setEnabled(true);
+            ui->toolSphere->setEnabled(true);
+            ui->toolDiameter->setEnabled(true);
+            ui->toolSubmersion->setEnabled(true);
+            ui->globalSubmersion->setEnabled(true);
+            
+            //sterowanie symulacja
+            ui->simPlayPause->setEnabled(false);
+            ui->pushButton_2->setEnabled(false);//skip
+            
+            //sciezki
+            ui->pushButton->setEnabled(true);//wczytywanie sciezek
+            ui->pushButton_3->setEnabled(false);//wyczysczenie sciezek
+            ui->pushButton_4->setEnabled(true);//restart symulatora
+            
+            ui->simGroupBox->setTitle("Simulator3C[IDLE]");
+            break;
+        case PAUSED:
+            //nie mozna zmieniac bloku!!
+            //blok
+            ui->blockSizeX->setEnabled(false);
+            ui->blockSizeY->setEnabled(false);
+            ui->blockHeight->setEnabled(false);
+            ui->blockVerticesX->setEnabled(false);
+            ui->BlockVerticesY->setEnabled(false);
+            ui->heightmapSize->setEnabled(false);
+        
+            //narzedzie
+            ui->toolCylinder->setEnabled(true);
+            ui->toolSphere->setEnabled(true);
+            ui->toolDiameter->setEnabled(true);
+            ui->toolSubmersion->setEnabled(true);
+            ui->globalSubmersion->setEnabled(true);
+        
+            //sterowanie symulacja
+            ui->simPlayPause->setEnabled(true);
+            ui->pushButton_2->setEnabled(true);//skip
+        
+            //sciezki
+            ui->pushButton->setEnabled(true);//wczytywanie sciezek
+            ui->pushButton_3->setEnabled(true);//wyczysczenie sciezek
+            ui->pushButton_4->setEnabled(true);//restart symulatora
+            
+            ui->simGroupBox->setTitle("Simulator3C[PAUSED]");
+            break;
+        case MILLING:
+            //nie mozna zmieniac bloku i freza oraz usuwac sciezek ani restartcowac symulator
+            //blok
+            ui->blockSizeX->setEnabled(false);
+            ui->blockSizeY->setEnabled(false);
+            ui->blockHeight->setEnabled(false);
+            ui->blockVerticesX->setEnabled(false);
+            ui->BlockVerticesY->setEnabled(false);
+            ui->heightmapSize->setEnabled(false);
+        
+            //narzedzie
+            ui->toolCylinder->setEnabled(false);
+            ui->toolSphere->setEnabled(false);
+            ui->toolDiameter->setEnabled(false);
+            ui->toolSubmersion->setEnabled(false);
+            ui->globalSubmersion->setEnabled(false);
+        
+            //sterowanie symulacja
+            ui->simPlayPause->setEnabled(true);
+            ui->pushButton_2->setEnabled(true);//skip
+        
+            //sciezki
+            ui->pushButton->setEnabled(false);//wczytywanie sciezek
+            ui->pushButton_3->setEnabled(false);//wyczysczenie sciezek
+            ui->pushButton_4->setEnabled(false);//restart symulatora
+            
+            ui->simGroupBox->setTitle("Simulator3C[MILLING]");
+            break;
+    }
 }
 
 void Simulator3CControl::on_simPlayPause_clicked()
@@ -220,11 +321,17 @@ void Simulator3CControl::on_simPlayPause_clicked()
 
 void Simulator3CControl::on_pushButton_3_clicked()
 {
-
+    if (auto sim = m_sim.lock())
+    {
+        sim->AbortSimulation();
+    }
 }
 
 void Simulator3CControl::on_pushButton_4_clicked()
 {
-
+    if (auto sim = m_sim.lock())
+    {
+        sim->Reset();
+    }
 }
 

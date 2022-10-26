@@ -384,3 +384,8 @@ void Simulator3CComponent::onSimulationFinished(QVector3D cutterSimPos)
     m_state = IDLE;
 }
 
+void Simulator3CComponent::Reset()
+{
+
+}
+
