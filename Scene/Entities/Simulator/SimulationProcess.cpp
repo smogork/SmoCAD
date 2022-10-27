@@ -74,6 +74,7 @@ void SimulationProcess::run()
         }
         catch (MillingException &e)
         {
+            abort = true;
             emit SimulationError(e.what());
             emit SimulationFinished(m_cutterPath->Points[pathNumber]);
         }
