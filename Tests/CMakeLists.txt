@@ -14,7 +14,11 @@ set(TEST_FILES
         test_main.cpp
         DeCasteljauTests.cpp DeCasteljauTests.h
         GradientMethodTests.cpp GradientMethodTests.h
-        CommonTestClass.cpp CommonTestClass.h NewtonRaphsonTests.cpp NewtonRaphsonTests.h)
+        CommonTestClass.cpp CommonTestClass.h
+        NewtonRaphsonTests.cpp NewtonRaphsonTests.h
+        Units/BaseUnitTests.cpp Units/BaseUnitTests.h
+        Units/DistanceTests.cpp Units/DistanceTests.h
+    )
 
 add_executable(SmoCAD_Tests ${TEST_FILES} ${MATH_FILES})
 

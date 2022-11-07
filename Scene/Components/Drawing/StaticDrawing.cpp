@@ -14,10 +14,11 @@ void StaticDrawing::Render(QOpenGLContext* context)
         IntializeBuffers();
     }
 
-    m_vao->bind();
+
     if (p_uniformFunction)
         p_uniformFunction(m_shader);
     m_shader->Bind();
+    m_vao->bind();
     if (p_renderingFunction)
         p_renderingFunction(context);
     m_vao->release();
@@ -56,11 +57,12 @@ void StaticDrawing::IntializeBuffers()
         prog.setAttributeBuffer(i, element.type, offset, element.count, p_bufferLayout.GetStride());
         offset += element.count * VertexBufferElement::GetSizeOfType(element.type);
     }
-
+    m_vbo->release();
+    
+    m_vao->bind();
     m_ibo->bind();
     m_vao->release();
-
-    m_vbo->release();
+    
     m_ibo->release();
     prog.release();
 }

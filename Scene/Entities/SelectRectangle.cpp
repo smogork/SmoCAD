@@ -10,18 +10,17 @@ SelectRectangle::SelectRectangle(QRect pos) : IEntity(SELECT_RECT_CLASS)
 {
     AddComponent(p_Drawing = DynamicDrawing::CreateRegisteredComponent(GetObjectID()));
     InitializeDrawing();
-
+    
     m_areaChangedNotifier = SelectionArea.addNotifier(
             [this]
             {
                 p_Drawing->SetVertexData(GenerateGeometryVertices());
             });
-
+    
     SelectionArea = pos;
 }
 
-void SelectRectangle::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
-{ }
+void SelectRectangle::UniformFunction(std::shared_ptr<ShaderWrapper> shader) {}
 
 void SelectRectangle::DrawingFunction(QOpenGLContext *context)
 {
@@ -37,7 +36,7 @@ void SelectRectangle::InitializeDrawing()
     if (auto sh = Renderer::GetShader(SHADERS::SELECT_RECT_SHADER).lock())
         p_Drawing->AttachShader(sh);
     p_Drawing->IsTransparent = true;
-
+    
     p_Drawing->p_renderingFunction = ASSIGN_DRAWING_FUNCTION(&SelectRectangle::DrawingFunction);
     p_Drawing->p_uniformFunction = ASSIGN_UNIFORM_FUNCTION(&SelectRectangle::UniformFunction);
 }
@@ -51,10 +50,8 @@ std::vector<int> SelectRectangle::GenerateTopologyIndices()
 std::vector<float> SelectRectangle::GenerateGeometryVertices()
 {
     QVector3D points[4] = {
-            {(float) ((*SelectionArea).topLeft().x()),
-                                                           Renderer::controller.viewport->GetViewportSize().height() -
-                                                           (float) (*SelectionArea).topLeft().y(),
-                                                                                                       0.0f},
+            {(float) ((*SelectionArea).topLeft().x()),     Renderer::controller.viewport->GetViewportSize().height() -
+                                                           (float) (*SelectionArea).topLeft().y(),     0.0f},
             {(float) ((*SelectionArea).topRight().x()),    Renderer::controller.viewport->GetViewportSize().height() -
                                                            (float) (*SelectionArea).topRight().y(),    0.0f},
             {(float) ((*SelectionArea).bottomLeft().x()),  Renderer::controller.viewport->GetViewportSize().height() -
@@ -62,9 +59,9 @@ std::vector<float> SelectRectangle::GenerateGeometryVertices()
             {(float) ((*SelectionArea).bottomRight().x()), Renderer::controller.viewport->GetViewportSize().height() -
                                                            (float) (*SelectionArea).bottomRight().y(), 0.0f}
     };
-
+    
     std::vector<float> res;
-
+    
     for (const QVector3D &p: points)
     {
         /*QVector3D worldPoint = p.unproject(
@@ -75,7 +72,7 @@ std::vector<float> SelectRectangle::GenerateGeometryVertices()
         QVector4D ndcPoint = Renderer::controller.viewport->GetProjectionMatrix() * Renderer::controller.Camera->GetViewMatrix() *
                 QVector4D(worldPoint, 1.0f);
         ndcPoint /= ndcPoint.w();*/
-    
+        
         QVector3D ndcPoint = p.unproject(
                 QMatrix4x4(),
                 QMatrix4x4(),
@@ -85,6 +82,6 @@ std::vector<float> SelectRectangle::GenerateGeometryVertices()
         res.push_back(ndcPoint.y());
         res.push_back(ndcPoint.z());
     }
-
+    
     return res;
 }

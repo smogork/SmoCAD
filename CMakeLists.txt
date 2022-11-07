@@ -13,15 +13,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #add_compile_definitions(Q_ENABLE_OPENGL_FUNCTIONS_DEBUG)
 
-
-#find_package(LAPACK REQUIRED)
-
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets LinguistTools REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS OpenGLWidgets REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Gui REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS 3DCore REQUIRED)
-#find_package(GSL REQUIRED)    # See below (2)
 
 if (WIN32)
     find_library(GDIPLUS gdiplus)
@@ -29,6 +25,9 @@ if (WIN32)
 endif ()
 
 set(TS_FILES SmoCAD_en_GB.ts)
+set(RESOURCE_FILES
+        Resources/wood.png)
+
 set(SHADER_FILES
         Shaders/buffer_color.vert
         Shaders/uniform_color.vert
@@ -57,6 +56,14 @@ set(SHADER_FILES
         Shaders/select_rect.frag
         Shaders/torus.vert
         Shaders/torus.frag
+        Shaders/Simulator3C/lower_wall.vert
+        Shaders/Simulator3C/lower_wall.frag
+        Shaders/Simulator3C/side_wall.vert
+        Shaders/Simulator3C/side_wall.frag
+        Shaders/Simulator3C/upper_wall.vert
+        Shaders/Simulator3C/upper_wall.frag
+        Shaders/Simulator3C/cutter.vert
+        Shaders/Simulator3C/cutter.frag
         )
 
 set(MATH_FILES
@@ -86,6 +93,7 @@ set(CONTROL_SOURCES
         Controls/Dialogs/parametersintersectiondialog.h Controls/Dialogs/parametersintersectiondialog.cpp Controls/Dialogs/parametersintersectiondialog.ui
         Controls/intersectionawarecontrol.h Controls/intersectionawarecontrol.cpp Controls/intersectionawarecontrol.ui
         Controls/intersectionresultcontrol.h Controls/intersectionresultcontrol.cpp Controls/intersectionresultcontrol.ui
+        Controls/simulator3ccontrol.h Controls/simulator3ccontrol.cpp Controls/simulator3ccontrol.ui
         )
 
 set(PROJECT_SOURCES
@@ -167,9 +175,25 @@ set(PROJECT_SOURCES
         ThirdParty/set_ops.hpp ThirdParty/ngraph.hpp
         Scene/Systems/Awares/IntersectionAwareSystem.cpp Scene/Systems/Awares/IntersectionAwareSystem.h
         Scene/Components/Awares/IntersectionAware.cpp Scene/Components/Awares/IntersectionAware.h
-        Scene/Entities/Curves/IntersectionCurve.cpp Scene/Entities/Curves/IntersectionCurve.h Scene/Systems/IntersectionResultSystem.cpp Scene/Systems/IntersectionResultSystem.h Scene/Components/IntersectionResult.cpp Scene/Components/IntersectionResult.h)
+        Scene/Entities/Curves/IntersectionCurve.cpp Scene/Entities/Curves/IntersectionCurve.h
+        Scene/Systems/IntersectionResultSystem.cpp Scene/Systems/IntersectionResultSystem.h
+        Scene/Components/IntersectionResult.cpp Scene/Components/IntersectionResult.h
+        Scene/Entities/Simulator/Simulator3C.cpp Scene/Entities/Simulator/Simulator3C.h
+        Scene/Entities/Simulator/CutterParameters.cpp Scene/Entities/Simulator/CutterParameters.h
+        Loaders/GCodeLoader.cpp Loaders/GCodeLoader.h
+        Scene/Entities/Simulator/CutterPath.cpp Scene/Entities/Simulator/CutterPath.h
+        Scene/Entities/Simulator/CutterObject.cpp Scene/Entities/Simulator/CutterObject.h
+        Mathematics/Units/Unit.cpp Mathematics/Units/Unit.h
+        Mathematics/Units/Length.cpp Mathematics/Units/Length.h
+        Mathematics/Units/Time.cpp Mathematics/Units/Time.h
+        Mathematics/Units/Velocity.cpp Mathematics/Units/Velocity.h
+        Scene/Entities/Simulator/BlockUpperWall.cpp Scene/Entities/Simulator/BlockUpperWall.h
+        Scene/Entities/Simulator/BlockSideWall.cpp Scene/Entities/Simulator/BlockSideWall.h
+        Scene/Entities/Simulator/BlockLowerWall.cpp Scene/Entities/Simulator/BlockLowerWall.h
+        Scene/Entities/Simulator/CutterPathPolyline.cpp Scene/Entities/Simulator/CutterPathPolyline.h
+        Scene/Entities/Simulator/BlockParameters.cpp Scene/Entities/Simulator/BlockParameters.h Scene/Components/Simulator3CComponent.cpp Scene/Components/Simulator3CComponent.h Scene/Systems/Simulator3CSystem.cpp Scene/Systems/Simulator3CSystem.h Scene/Utilities/QImageOperator.cpp Scene/Utilities/QImageOperator.h Scene/Entities/Simulator/SimulationProcess.cpp Scene/Entities/Simulator/SimulationProcess.h)
 
-#add_subdirectory(Tests)
+add_subdirectory(Tests)
 add_subdirectory(ThirdParty/Scene-Serializer/cpp/Serializer)
 
 if (${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -211,10 +235,8 @@ target_link_libraries(SmoCAD PRIVATE Qt${QT_VERSION_MAJOR}::Gui)
 target_link_libraries(SmoCAD PRIVATE Qt${QT_VERSION_MAJOR}::3DCore)
 target_link_libraries(SmoCAD PRIVATE Qt${QT_VERSION_MAJOR}::Core)
 
-#target_link_libraries(SmoCAD PRIVATE lapack blas)
 target_link_libraries(SmoCAD PRIVATE m)
 target_link_libraries(SmoCAD PRIVATE MGSerializer)
-#target_link_libraries(SmoCAD PRIVATE GSL::gsl GSL::gslcblas)
 
 if (WIN32)
     target_link_libraries(SmoCAD PRIVATE GDIPLUS GDI32)
@@ -237,6 +259,15 @@ foreach (shader_file ${SHADER_FILES})
             ${CMAKE_SOURCE_DIR}/${shader_file}
             ${CMAKE_CURRENT_BINARY_DIR}/${shader_file})
 endforeach (shader_file)
+
+# Copy resources
+foreach (res_file ${RESOURCE_FILES})
+    add_custom_command(
+            TARGET SmoCAD POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            ${CMAKE_SOURCE_DIR}/${res_file}
+            ${CMAKE_CURRENT_BINARY_DIR}/${res_file})
+endforeach (res_file)
 
 if (QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(SmoCAD)
