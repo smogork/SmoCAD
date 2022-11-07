@@ -211,6 +211,7 @@
      <string>Simulator</string>
     </property>
     <addaction name="action3C_Simulator"/>
+    <addaction name="actionGenerate_routes"/>
    </widget>
    <addaction name="menuObjects"/>
    <addaction name="menuObjects_2"/>
@@ -325,6 +326,11 @@
   <action name="action3C_Simulator">
    <property name="text">
     <string>3C Simulator</string>
+   </property>
+  </action>
+  <action name="actionGenerate_routes">
+   <property name="text">
+    <string>Generate routes</string>
    </property>
   </action>
  </widget>

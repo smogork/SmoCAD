@@ -20,6 +20,8 @@
 #include "Controls/EntityContextMenu.h"
 #include "Scene/Entities/Simulator/Simulator3C.h"
 
+#include <QOpenGLFramebufferObject>
+
 MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -275,6 +277,57 @@ void MainWindow::on_actionShow_Bezier_mesh_triggered(bool checked)
     Options::DrawPlainMesh = checked;
     ui->sceneWidget->update();
 }
+
+void MainWindow::on_actionGenerate_routes_triggered()
+{
+    //https://amin-ahmadi.com/2019/07/12/using-opengl-in-qt-for-processing-images/
+    QOpenGLContext context;
+    if(!context.create())
+    {
+        qDebug() << "Can't create GL context.";
+        return;
+    }
+
+    QOffscreenSurface surface;
+    surface.setFormat(context.format());
+    surface.create();
+    if(!surface.isValid())
+    {
+        qDebug() << "Surface not valid.";
+        return;
+    }
+
+    if(!context.makeCurrent(&surface))
+    {
+        qDebug() << "Can't make context current.";
+        return;
+    }
+
+    QImage image({1024, 1024}, QImage::Format_ARGB32);
+    image.fill(Qt::red);
+
+    QOpenGLFramebufferObject fbo(image.size());
+    context.functions()->glViewport(0, 0, image.width(), image.height());
+
+    auto sh = Renderer::GetShader(DEFAULT_SHADER).lock();
+
+    /*QOpenGLTexture texture(QOpenGLTexture::Target2D);
+    texture.setData(image);
+
+    texture.bind();
+    if(!texture.isBound())
+    {
+        qDebug() << "Texture not bound.";
+        return;
+    }*/
+
+    Cube c("offscreenCube");
+    c.p_Drawing->Render(&context);
+
+    auto output = fbo.toImage();
+    output.save("offscreenOutput.png");
+}
+
 
 
 
