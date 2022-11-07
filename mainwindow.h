@@ -48,6 +48,8 @@ private slots:
     void on_actionSave_triggered();
     void on_actionExit_triggered();
 
+    void on_action3C_Simulator_triggered();
+
 protected:
     void keyPressEvent(QKeyEvent* event) Q_DECL_OVERRIDE { Renderer::controller.keyPressSlot(event); }
     void keyReleaseEvent(QKeyEvent* event) Q_DECL_OVERRIDE { Renderer::controller.keyReleaseSlot(event); }

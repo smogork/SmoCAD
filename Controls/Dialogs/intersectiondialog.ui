@@ -19,7 +19,7 @@
      <item row="5" column="1">
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Distance between points</string>
+        <string>Length between points</string>
        </property>
       </widget>
      </item>
