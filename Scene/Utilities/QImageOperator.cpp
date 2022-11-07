@@ -783,24 +783,32 @@ void QImageOperator::ApplyStamp(int cx, int cy, float cutterSimHeight, float blo
     int offsetX = -m_stampX / 2;
     int offsetY = -m_stampY / 2;
     int y0 = cy + offsetY;
-    int y1 = cy + offsetY;
+    int y1 = cy - offsetY;
+    int x0 = cx + offsetX;
+    int x1 = cx - offsetX;
+    
+    if (x0 < 0)
+        x0 = 0;
+    if (x1 >= bitmapX)
+        x1 = bitmapX;
+    
+    if (y0 < 0)
+        y0 = 0;
+    if (y1 >= bitmapY)
+        y1 = bitmapY;
     
     //TODO: poprawic stepel poprzez lepsze wyliczanie zakresow petli
-    for (int y = 0; y < m_stampY; ++y)
+    for (int y = y0; y < y1; ++y)
     {
-        if (cy + offsetY + y < 0 || cy + offsetY + y >= bitmapY)
-            continue;
-        
-        for (int x = 0; x < m_stampX; ++x)
+        int y_stamp = y - cy - offsetY;
+        for (int x = x0; x < x1; ++x)
         {
-            if (cx + offsetX + x < 0 || cx + offsetX + x >= bitmapX)
+            int x_stamp = x - cx - offsetX;
+            if (m_stamp[y_stamp * m_stampX + x_stamp] != m_stamp[y_stamp * m_stampX + x_stamp])//nan check
                 continue;
             
-            if (m_stamp[y * m_stampX + x] != m_stamp[y * m_stampX + x])//nan check
-                continue;
-            
-            float height = m_stamp[y * m_stampX + x] + cutterSimHeight;
-            float curHeight = getPixel(cx + offsetX + x, cy + offsetY + y) * blockHeight;
+            float height = m_stamp[y_stamp * m_stampX + x_stamp] + cutterSimHeight;
+            float curHeight = getPixel(x, y) * blockHeight;
             float toolSub = curHeight - height;
             if (toolSub < 0.0f)
                 continue;
@@ -812,7 +820,7 @@ void QImageOperator::ApplyStamp(int cx, int cy, float cutterSimHeight, float blo
                 throw MillingException("Flat cutter went down in material");
             
             float texVal = height / blockHeight;
-            drawPixel(cx + offsetX + x, cy + offsetY + y, texVal);
+            drawPixel(x, y, texVal);
         }
     }
 }

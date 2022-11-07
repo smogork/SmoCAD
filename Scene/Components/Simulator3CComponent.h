@@ -103,6 +103,7 @@ public:
     
     void PlayPauseSimulation();
     void Reset();
+    void ClearPaths();
 };
 
 #endif //SMOCAD_SIMULATOR3CCOMPONENT_H

@@ -293,7 +293,7 @@ void Simulator3CComponent::ChangeBlockVertices(int X, int Y)
 
 void Simulator3CComponent::ChangeTextureSize(int size)
 {
-    m_blockParams.VertexWidthX = m_blockParams.VertexWidthY = size;
+    m_blockParams.TextureWidthX = m_blockParams.TextureWidthY = size;
     InitializeHeightMap();
     ChangeCutterParameters(m_cutterParams);
 }
@@ -362,6 +362,13 @@ void Simulator3CComponent::onSimulationResultsHandle(QVector3D cutterSimPos)
 
 void Simulator3CComponent::onSimulationError(std::string msg)
 {
+    emit AbortSimulation();
+    static std::string lastError;
+    if (msg.compare(lastError) == 0)
+        return;
+    lastError = msg;
+    
+
     QMessageBox msgBox;
     msgBox.setText(QString(msg.c_str()));
     msgBox.exec();
@@ -375,8 +382,11 @@ void Simulator3CComponent::onSimulationProgress(int progress)
 void Simulator3CComponent::onSimulationFinished(QVector3D cutterSimPos)
 {
     onSimulationResultsHandle(cutterSimPos);
-    m_simProcess->quit();
-    m_simProcess->wait();
+    if (m_simProcess)
+    {
+        m_simProcess->quit();
+        m_simProcess->wait();
+    }
     SimulationProgress = 100;
     
     m_simProcess.reset();
@@ -395,6 +405,21 @@ void Simulator3CComponent::Reset()
     
     m_heightMap->Reset();
     m_heightMap->UploadToGPU();
+    m_simProcess.reset();
+    m_pathPolyline.reset();
+    m_state = IDLE;
+    EntityContextMenu::MakeRepaint();
+}
+
+void Simulator3CComponent::ClearPaths()
+{
+    if (m_simProcess)
+    {
+        m_simProcess->quit();
+        m_simProcess->wait();
+        SimulationProgress = 0;
+    }
+    
     m_simProcess.reset();
     m_pathPolyline.reset();
     m_state = IDLE;
