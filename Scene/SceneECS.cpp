@@ -142,7 +142,10 @@ QString SceneECS::DebugSystemReport()
     {
         result.append(QString("%1: %2  ").arg(s.second->GetSystemName()).arg(s.second->GetComponentCount()));
         if (++i >= newlineCount)
+        {
             result.append('\n');
+            i = 0;
+        }
     }
 
     return result;

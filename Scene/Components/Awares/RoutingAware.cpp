@@ -44,15 +44,11 @@ RoutingAware::~RoutingAware()
 void RoutingAware::StartHeighmapRendering()
 {
     m_heightmapRendering = true;
-
-
 }
 
 void RoutingAware::FinishHeighmapRendering()
 {
     m_heightmapRendering = false;
-
-    Renderer::UpdateShaders();
 }
 
 bool RoutingAware::IsHeightmapRendering()

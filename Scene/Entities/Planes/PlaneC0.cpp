@@ -199,7 +199,9 @@ void PlaneC0::InitObject(const QString &name, bool isPipe, int countU, int count
     AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(GetObjectID(), name, p_Selected));
     AddComponent(p_FillAware = FillAware::CreateRegisteredComponent(GetObjectID(), p_Collection));
     AddComponent(p_Intersection = IntersectionAware::CreateRegisteredComponent(GetObjectID(), p_UV));
+    AddComponent(p_Routing = RoutingAware::CreateRegisteredComponent(GetObjectID(), p_UV, p_Drawing));
     InitializeUV(isPipe);
+
     p_Drawing->p_renderingFunction = ASSIGN_DRAWING_FUNCTION(&PlaneC0::DrawingFunction);
     p_Drawing->p_uniformFunction = ASSIGN_UNIFORM_FUNCTION(&PlaneC0::UniformFunction);
     //p_Drawing->IsTransparent = true;
@@ -355,13 +357,23 @@ void PlaneC0::GetIndexesOfPatch(int uPatch, int vPatch, std::vector<int> &indice
 
 void PlaneC0::DrawingFunction(QOpenGLContext *context)
 {
-    BasePlane::DrawingFunction(context);
+    //BasePlane::DrawingFunction(context);
+    if (p_Routing->IsHeightmapRendering())
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL );
+    else
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE );//rysowanie wireframow trojkatow wygenerowanych w shaderze teselacji
+    Renderer::DrawPatches(context->functions(), GetIndexCount());
 }
 
 void PlaneC0::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
 {
     BasePlane::UniformFunction(shader);
     p_Intersection->SetTrimmingUniforms(shader);
+    if (p_Routing->IsHeightmapRendering())
+    {
+        shader->SetUniform("u_UDensity", 64);
+        shader->SetUniform("u_VDensity", 64);
+    }
 }
 
 

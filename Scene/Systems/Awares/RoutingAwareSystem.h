@@ -12,7 +12,6 @@ class RoutingAwareSystem : public ISystem<RoutingAware>
 {
 private:
 
-
 public:
     QProperty<QVector3D> WorldStartPoint;
     /**
@@ -20,7 +19,9 @@ public:
      */
     QProperty<QVector3D> BlockSize;
 
-    RoutingAwareSystem() : ISystem(SYSTEM_ID::ROUTING_AWARE)
+    RoutingAwareSystem() : ISystem(SYSTEM_ID::ROUTING_AWARE),
+                           WorldStartPoint({0, 0, 0}),
+                           BlockSize({15, 15, 5})
     {}
 
     const char *GetSystemName() override
@@ -28,7 +29,7 @@ public:
 
     void StartHeighmapRendering();
     void FinishHeighmapRendering();
-    void RenderHeightmap(QOpenGLContext* context);
+    void RenderHeightmap(QOpenGLContext *context);
 
 };
 

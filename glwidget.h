@@ -34,22 +34,26 @@ public slots:
 
 #pragma region QOpenGLWidget overrides
     void paintGL() Q_DECL_OVERRIDE;
-
     void initializeGL() Q_DECL_OVERRIDE;
-
     void resizeGL(int w, int h) Q_DECL_OVERRIDE;
 #pragma endregion
 
     void LoadShaders();
 
 #pragma region Mouse Handlers
-    void mousePressEvent(QMouseEvent *event) Q_DECL_OVERRIDE { Renderer::controller.mousePressSlot(event); }
 
-    void mouseReleaseEvent(QMouseEvent *event) Q_DECL_OVERRIDE { Renderer::controller.mouseReleaseSlot(event); }
+    void mousePressEvent(QMouseEvent *event) Q_DECL_OVERRIDE
+    { Renderer::controller.mousePressSlot(event); }
 
-    void mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE { Renderer::controller.mouseMoveSlot(event); }
+    void mouseReleaseEvent(QMouseEvent *event) Q_DECL_OVERRIDE
+    { Renderer::controller.mouseReleaseSlot(event); }
 
-    void wheelEvent(QWheelEvent *event) Q_DECL_OVERRIDE { Renderer::controller.wheelSlot(event); }
+    void mouseMoveEvent(QMouseEvent *event) Q_DECL_OVERRIDE
+    { Renderer::controller.mouseMoveSlot(event); }
+
+    void wheelEvent(QWheelEvent *event) Q_DECL_OVERRIDE
+    { Renderer::controller.wheelSlot(event); }
+
 #pragma endregion
 };
 

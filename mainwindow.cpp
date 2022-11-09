@@ -290,7 +290,10 @@ void MainWindow::on_actionGenerate_routes_triggered()
     }
 
     QOffscreenSurface surface;
-    surface.setFormat(context.format());
+    QSurfaceFormat format;
+    format.setProfile(QSurfaceFormat::CoreProfile);
+    format.setVersion(4, 4);
+    surface.setFormat(format);
     surface.create();
     if(!surface.isValid())
     {
@@ -303,7 +306,8 @@ void MainWindow::on_actionGenerate_routes_triggered()
         qDebug() << "Can't make context current.";
         return;
     }
-    auto gl = context.functions();
+    QOpenGLFunctions_4_4_Core *gl = new QOpenGLFunctions_4_4_Core;
+    gl->initializeOpenGLFunctions();
 
     const int offscreenSize = 1024;
     QImage image({offscreenSize, offscreenSize}, QImage::Format_ARGB32);

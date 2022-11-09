@@ -1,4 +1,4 @@
-#include <QOpenGLFunctions>
+#include <QOpenGLFunctions_4_4_Core>
 #include "glwidget.h"
 #include "Scene/Systems/DrawingSystem.h"
 #include "Scene/SceneECS.h"
@@ -24,12 +24,14 @@ GLWidget::GLWidget(QWidget *pWidget)
 void GLWidget::initializeGL()
 {
     initializeOpenGLFunctions();
-    
-    glEnable(GL_PROGRAM_POINT_SIZE);
-    glEnable(GL_BLEND);
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
+    auto gl = context()->functions();
+
+
+    gl->glEnable(GL_PROGRAM_POINT_SIZE);
+    gl->glEnable(GL_BLEND);
+    gl->glEnable(GL_DEPTH_TEST);
+    gl->glEnable(GL_CULL_FACE);
+    gl->glCullFace(GL_BACK);
     
     LoadShaders();
     Renderer::UpdateShaders();
@@ -37,7 +39,7 @@ void GLWidget::initializeGL()
     if (auto scene = SceneECS::Instance().lock())
     {
         scene->InitializeScene();
-        qDebug() << scene->DebugSystemReport();
+        qDebug().noquote()  << scene->DebugSystemReport();
     }
 }
 
@@ -54,11 +56,13 @@ void GLWidget::resizeGL(int w, int h)
 
 void GLWidget::paintGL()
 {
+    auto gl = context()->functions();
+
     // set the background color = clear color
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glColorMask(true, true, true, true);
-    glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    gl->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    gl->glColorMask(true, true, true, true);
+    gl->glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
+    gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     if (auto scene = SceneECS::Instance().lock())
     {
@@ -78,7 +82,7 @@ GLWidget::~GLWidget()
         scene->RemoveUniqueObjects();
         scene->RemoveObjectsFromScene();
         scene->ClearSystems();
-        qDebug() << scene->DebugSystemReport();
+        qDebug().noquote()  << scene->DebugSystemReport();
     }
 }
 
