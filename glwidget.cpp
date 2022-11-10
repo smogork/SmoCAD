@@ -1,6 +1,5 @@
 #include <QOpenGLFunctions_4_4_Core>
 #include <memory>
-#include <QOpenGLTexture>
 #include "glwidget.h"
 #include "Scene/Systems/DrawingSystem.h"
 #include "Scene/SceneECS.h"
@@ -18,7 +17,6 @@ GLWidget::GLWidget(QWidget *pWidget)
     makeCurrent();
 
     m_logger = std::make_unique<QOpenGLDebugLogger>(this);
-
 
     QObject::connect(m_logger.get(), &QOpenGLDebugLogger::messageLogged,
                      this, &GLWidget::OnOpenGLError);
@@ -85,7 +83,8 @@ void GLWidget::paintGL()
     }
 }
 
-void GLWidget::DrawOffscreen(QSize bufferSize, std::function<void(QOpenGLContext* context)> renderFunction)
+std::shared_ptr<QOpenGLTexture>
+GLWidget::DrawOffscreen(QSize bufferSize, std::function<void(QOpenGLContext *context)> renderFunction)
 {
     //the context should be valid. make sure it is current for painting
     makeCurrent();
@@ -107,20 +106,19 @@ void GLWidget::DrawOffscreen(QSize bufferSize, std::function<void(QOpenGLContext
 
     //GLuint fbo = m_fbo->handle();
 
-    QOpenGLTexture depthTex(QOpenGLTexture::Target::Target2D);//TODO: wyciagnac teksture na zewnatrz
-    //depthTex.setMinMagFilters(QOpenGLTexture::Filter::LinearMipMapLinear, QOpenGLTexture::Filter::NearestMipMapLinear);
-    depthTex.create();
+    std::shared_ptr<QOpenGLTexture> depthTex = std::make_shared<QOpenGLTexture>(QOpenGLTexture::Target::Target2D);
+    depthTex->create();
 
-    depthTex.setSize(bufferSize.width(), bufferSize.height());
-    depthTex.setFormat(QOpenGLTexture::D32F);
-    depthTex.setAutoMipMapGenerationEnabled(false);
-    depthTex.setMipBaseLevel(0);
+    depthTex->setSize(bufferSize.width(), bufferSize.height());
+    depthTex->setFormat(QOpenGLTexture::D32F);
+    depthTex->setAutoMipMapGenerationEnabled(false);
+    depthTex->setMipBaseLevel(0);
 
-    depthTex.setWrapMode(QOpenGLTexture::ClampToEdge);
-    depthTex.allocateStorage(QOpenGLTexture::Depth, QOpenGLTexture::Float32);
+    depthTex->setWrapMode(QOpenGLTexture::ClampToEdge);
+    depthTex->allocateStorage(QOpenGLTexture::Depth, QOpenGLTexture::Float32);
     //depthTex.setDepthStencilMode(QOpenGLTexture::DepthMode);
     m_fbo->bind();
-    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D,  depthTex.textureId(), 0);
+    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTex->textureId(), 0);
 
     //#2 WORKS: bind FBO and render stuff with paintGL() call
 
@@ -133,14 +131,15 @@ void GLWidget::DrawOffscreen(QSize bufferSize, std::function<void(QOpenGLContext
     QImage image2 = m_fbo->toImage();
     image2.save(QString("offscreenFB.png"));
     m_fbo->release();
-    depthTex.destroy();//[TODO] Do wyrzucenia
     //#2 --------------------------------------------------------------
 
     //bind default framebuffer again. not sure if this necessary
     //and isn't supposed to use defaultFramebuffer()...
     m_fbo->bindDefault();
     //resizeGL(width(), height());
-    doneCurrent();
+    //doneCurrent();
+
+    return depthTex;
 }
 
 GLWidget::~GLWidget()
@@ -226,6 +225,13 @@ void GLWidget::OnOpenGLError(const QOpenGLDebugMessage &debugMessage)
 {
     if (debugMessage.severity() < QOpenGLDebugMessage::NotificationSeverity)
         qDebug() << "OpenGL message: " << debugMessage;
+}
+
+void GLWidget::DestroyTexture(std::shared_ptr<QOpenGLTexture> tex)
+{
+    makeCurrent();
+    tex->destroy();
+    //doneCurrent();
 }
 
 

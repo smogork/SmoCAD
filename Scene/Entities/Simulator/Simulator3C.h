@@ -11,7 +11,7 @@
 #include "Scene/Components/SceneElement.h"
 
 #include "CutterObject.h"
-#include "CutterPath.h"
+#include "FileManagers/CutterPath.h"
 #include "BlockUpperWall.h"
 #include "BlockLowerWall.h"
 #include "BlockSideWall.h"

@@ -180,8 +180,8 @@ set(PROJECT_SOURCES
         Scene/Components/IntersectionResult.cpp Scene/Components/IntersectionResult.h
         Scene/Entities/Simulator/Simulator3C.cpp Scene/Entities/Simulator/Simulator3C.h
         Scene/Entities/Simulator/CutterParameters.cpp Scene/Entities/Simulator/CutterParameters.h
-        Loaders/GCodeLoader.cpp Loaders/GCodeLoader.h
-        Scene/Entities/Simulator/CutterPath.cpp Scene/Entities/Simulator/CutterPath.h
+        FileManagers/GCodeLoader.cpp FileManagers/GCodeLoader.h
+        FileManagers/CutterPath.cpp FileManagers/CutterPath.h
         Scene/Entities/Simulator/CutterObject.cpp Scene/Entities/Simulator/CutterObject.h
         Mathematics/Units/Unit.cpp Mathematics/Units/Unit.h
         Mathematics/Units/Length.cpp Mathematics/Units/Length.h
@@ -191,7 +191,7 @@ set(PROJECT_SOURCES
         Scene/Entities/Simulator/BlockSideWall.cpp Scene/Entities/Simulator/BlockSideWall.h
         Scene/Entities/Simulator/BlockLowerWall.cpp Scene/Entities/Simulator/BlockLowerWall.h
         Scene/Entities/Simulator/CutterPathPolyline.cpp Scene/Entities/Simulator/CutterPathPolyline.h
-        Scene/Entities/Simulator/BlockParameters.cpp Scene/Entities/Simulator/BlockParameters.h Scene/Components/Simulator3CComponent.cpp Scene/Components/Simulator3CComponent.h Scene/Systems/Simulator3CSystem.cpp Scene/Systems/Simulator3CSystem.h Scene/Utilities/QImageOperator.cpp Scene/Utilities/QImageOperator.h Scene/Entities/Simulator/SimulationProcess.cpp Scene/Entities/Simulator/SimulationProcess.h Scene/Systems/Awares/RoutingAwareSystem.cpp Scene/Systems/Awares/RoutingAwareSystem.h Scene/Components/Awares/RoutingAware.cpp Scene/Components/Awares/RoutingAware.h)
+        Scene/Entities/Simulator/BlockParameters.cpp Scene/Entities/Simulator/BlockParameters.h Scene/Components/Simulator3CComponent.cpp Scene/Components/Simulator3CComponent.h Scene/Systems/Simulator3CSystem.cpp Scene/Systems/Simulator3CSystem.h Scene/Utilities/QImageOperator.cpp Scene/Utilities/QImageOperator.h Scene/Entities/Simulator/SimulationProcess.cpp Scene/Entities/Simulator/SimulationProcess.h Scene/Systems/Awares/RoutingAwareSystem.cpp Scene/Systems/Awares/RoutingAwareSystem.h Scene/Components/Awares/RoutingAware.cpp Scene/Components/Awares/RoutingAware.h FileManagers/GCodeSaver.cpp FileManagers/GCodeSaver.h)
 
 add_subdirectory(Tests)
 add_subdirectory(ThirdParty/Scene-Serializer/cpp/Serializer)

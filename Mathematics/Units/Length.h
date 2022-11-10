@@ -22,6 +22,7 @@ public:
     static Length FromCentimeters(double cm);
     static Length FromMilimeters(double mm);
     static Length FromMeters(double m);
+    static Length FromSceneUnits(double m);
 
     double GetMilimeters() const;
     double GetCentimeters() const;

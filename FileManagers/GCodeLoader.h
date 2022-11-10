@@ -6,7 +6,7 @@
 #define SMOCAD_GCODELOADER_H
 
 #include <QString>
-#include "Scene/Entities/Simulator/CutterPath.h"
+#include "CutterPath.h"
 
 class GCodeLoader
 {

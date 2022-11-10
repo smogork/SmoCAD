@@ -7,29 +7,33 @@
 
 #include "Scene/Systems/ISystem.h"
 #include "Scene/Components/Awares/RoutingAware.h"
+#include "glwidget.h"
 
 class RoutingAwareSystem : public ISystem<RoutingAware>
 {
 private:
+    void StartHeighmapRendering(QVector3D blockWorldPos, QVector3D blockSize);
+    void FinishHeighmapRendering();
+    void RenderHeightmap(QOpenGLContext *context);
+
+
 
 public:
-    QProperty<QVector3D> WorldStartPoint;
+    /*QProperty<QVector3D> WorldStartPoint;
     /**
      * (Wx, Wy, H)
-     */
-    QProperty<QVector3D> BlockSize;
 
-    RoutingAwareSystem() : ISystem(SYSTEM_ID::ROUTING_AWARE),
-                           WorldStartPoint({0, 0, 0}),
-                           BlockSize({15, 15, 5})
+    QProperty<QVector3D> BlockSize;*/
+
+    RoutingAwareSystem() : ISystem(SYSTEM_ID::ROUTING_AWARE)
     {}
 
     const char *GetSystemName() override
     { return "RoutingAwareSystem"; }
 
-    void StartHeighmapRendering();
-    void FinishHeighmapRendering();
-    void RenderHeightmap(QOpenGLContext *context);
+    void
+    GenerateRoutes3C(GLWidget *gl, const QString& folderName, QVector3D blockWorldPos, QVector3D blockSize,
+                     int offscreenSize);
 
 };
 

@@ -4,8 +4,13 @@
 
 #include "Length.h"
 
-Length::Length(double dist): Unit(dist)
-{ }
+Length::Length(double dist) : Unit(dist)
+{}
+
+Length::Length() : Unit(0)
+{
+
+}
 
 Length Length::FromCentimeters(double cm)
 {
@@ -26,6 +31,11 @@ Length Length::FromMeters(double m)
     Length res(0);
     res.SetMeters(m);
     return res;
+}
+
+Length Length::FromSceneUnits(double su)
+{
+    return FromCentimeters(su);
 }
 
 double Length::GetMilimeters() const
@@ -63,9 +73,5 @@ double Length::GetSceneUnits() const
     return GetCentimeters();
 }
 
-Length::Length(): Unit(0)
-{
-
-}
 
 

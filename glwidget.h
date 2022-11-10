@@ -12,6 +12,7 @@
 #include <QOpenGLFunctions_4_4_Core>
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLDebugLogger>
+#include <QOpenGLTexture>
 
 #include "Renderer/InputController/InputController.h"
 #include "Renderer/InputController/InputEvents/CameraUpdateEvent.h"
@@ -31,12 +32,14 @@ private slots:
 
 public:
     GLWidget(QWidget *pWidget);
-
     virtual ~GLWidget() Q_DECL_OVERRIDE;
 
     //  Przyklad wykorzystania customowego framebuffera aby wyrenderowac w QT do do tekstury
     // https://stackoverflow.com/a/31382768
-    void DrawOffscreen(QSize bufferSize, std::function<void(QOpenGLContext* context)> renderFunction = {});
+    // Zwraca handle na teksture z wygenerowanym Zbufforem
+    std::shared_ptr<QOpenGLTexture>
+    DrawOffscreen(QSize bufferSize, std::function<void(QOpenGLContext *context)> renderFunction = {});
+    void DestroyTexture(std::shared_ptr<QOpenGLTexture> tex);
 
 signals:
     void WidgetResized(QSize size);
