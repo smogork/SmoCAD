@@ -11,6 +11,7 @@
 #include <QKeyEvent>
 #include <QOpenGLFunctions_4_4_Core>
 #include <QOpenGLFramebufferObject>
+#include <QOpenGLDebugLogger>
 
 #include "Renderer/InputController/InputController.h"
 #include "Renderer/InputController/InputEvents/CameraUpdateEvent.h"
@@ -23,6 +24,10 @@ Q_OBJECT
 private:
     bool m_isInitialized = false;
     std::unique_ptr<QOpenGLFramebufferObject> m_fbo = nullptr;
+    std::unique_ptr<QOpenGLDebugLogger> m_logger;
+
+private slots:
+    void OnOpenGLError(const QOpenGLDebugMessage &debugMessage);
 
 public:
     GLWidget(QWidget *pWidget);

@@ -12,25 +12,35 @@ GLWidget::GLWidget(QWidget *pWidget)
     format.setRenderableType(QSurfaceFormat::OpenGL);
     format.setProfile(QSurfaceFormat::CoreProfile);
     format.setVersion(4, 4);
+    format.setOption(QSurfaceFormat::DebugContext);
     setFormat(format);
     makeCurrent();
 
+    m_logger = std::make_unique<QOpenGLDebugLogger>(this);
+
+
+    QObject::connect(m_logger.get(), &QOpenGLDebugLogger::messageLogged,
+                     this, &GLWidget::OnOpenGLError);
     QObject::connect(&Renderer::controller, &InputController::CameraUpdated,
                      this, &GLWidget::UpdateCameraSlot);
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &GLWidget::customContextMenuRequested, this,
             &GLWidget::showObjectListContextMenu);
+
 }
 
 void GLWidget::initializeGL()
 {
     initializeOpenGLFunctions();
 
+    m_logger->initialize();
+    m_logger->startLogging();
+
     glEnable(GL_PROGRAM_POINT_SIZE);
     glEnable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
+    //glEnable(GL_CULL_FACE);
+    //glCullFace(GL_BACK);
 
     LoadShaders();
     Renderer::UpdateShaders();
@@ -40,6 +50,8 @@ void GLWidget::initializeGL()
         scene->InitializeScene();
         qDebug().noquote() << scene->DebugSystemReport();
     }
+
+    m_isInitialized = true;
 }
 
 void GLWidget::resizeGL(int w, int h)
@@ -183,6 +195,12 @@ void GLWidget::showObjectListContextMenu(const QPoint &pos)
             if (menu)
                 menu->exec(globalPos);
         }
+}
+
+void GLWidget::OnOpenGLError(const QOpenGLDebugMessage &debugMessage)
+{
+    if (debugMessage.severity() < QOpenGLDebugMessage::NotificationSeverity)
+        qDebug() << "OpenGL message: " << debugMessage;
 }
 
 
