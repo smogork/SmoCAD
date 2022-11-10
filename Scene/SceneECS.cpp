@@ -18,6 +18,7 @@
 #include "Scene/Systems/Awares/FillAwareSystem.h"
 #include "Scene/Systems/Awares/IntersectionAwareSystem.h"
 #include "Scene/Systems/Simulator3CSystem.h"
+#include "Scene/Systems/Awares/RoutingAwareSystem.h"
 
 #include "Scene/Entities/Cursor.h"
 #include "Scene/Entities/Torus.h"
@@ -26,20 +27,12 @@
 #include "Scene/Entities/Curves/BezierC2.h"
 #include "Scene/Entities/Planes/PlaneC2.h"
 #include "Scene/Entities/SelectRectangle.h"
-#include "Scene/Entities/Planes/PlaneCreator.h"
-#include "Scene/Entities/Simulator/BlockLowerWall.h"
-#include "Scene/Entities/Simulator/BlockSideWall.h"
-#include "Scene/Entities/Simulator/BlockUpperWall.h"
-#include "Scene/Entities/Simulator/BlockParameters.h"
-#include "Scene/Entities/Simulator/CutterParameters.h"
-#include "Scene/Entities/Simulator/CutterObject.h"
 
 #include "Controls/ComponentControl.h"
 
 #include "Serializer.h"
 #include "mainwindow.h"
 #include "glwidget.h"
-#include "Scene/Entities/Simulator/Simulator3C.h"
 
 #include <list>
 
@@ -57,7 +50,7 @@ std::weak_ptr<SceneECS> SceneECS::Instance()
 SceneECS::SceneECS()
 {
     objectCounter = NON_OBJECT_ID + 1;
-    
+
     systems.put<TransformSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<TransformSystem>()));
     systems.put<DrawingSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<DrawingSystem>()));
     systems.put<UVParamsSystem>(std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<UVParamsSystem>()));
@@ -84,6 +77,8 @@ SceneECS::SceneECS()
             std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<IntersectionResultSystem>()));
     systems.put<Simulator3CSystem>(
             std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<Simulator3CSystem>()));
+    systems.put<RoutingAwareSystem>(
+            std::dynamic_pointer_cast<IAbstractSystem>(std::make_shared<RoutingAwareSystem>()));
 }
 
 SceneECS::~SceneECS()
@@ -112,16 +107,7 @@ void SceneECS::InitUniqueObjects()
 
 void SceneECS::InitSceneObjects()
 {
-    /*objects.push_back(std::make_shared<BlockLowerWall>(QVector3D(), blockParameters.WidthX, blockParameters.WidthY));
-    objects.push_back(std::make_shared<BlockSideWall>(QVector3D(), blockParameters.WidthX, blockParameters.WidthY, blockParameters.Height,
-                                                      blockParameters.VertexWidthX, blockParameters.VertexWidthY));
-    objects.push_back(std::make_shared<BlockUpperWall>(QVector3D(0, blockParameters.Height, 0), blockParameters.WidthX, blockParameters.WidthY,
-                                                       blockParameters.VertexWidthX, blockParameters.VertexWidthY));
-    objects.push_back(std::make_shared<CutterObject>(QVector3D(1, 3, 1), cutterParameters));
-    cutterParameters.Type = Spherical;
-    objects.push_back(std::make_shared<CutterObject>(QVector3D(-1, 3, -1), cutterParameters));*/
-    
-    objects.push_back(std::make_shared<Simulator3C>("simulator3c"));
+
 }
 
 void SceneECS::RemoveUniqueObjects()
@@ -148,9 +134,20 @@ void SceneECS::ClearSystems()
 
 QString SceneECS::DebugSystemReport()
 {
-    QString result;
+    const static int newlineCount = 5;
+
+    QString result = "System debug report:\n";
+    int i = 0;
     for (auto s: systems)
+    {
         result.append(QString("%1: %2  ").arg(s.second->GetSystemName()).arg(s.second->GetComponentCount()));
+        if (++i >= newlineCount)
+        {
+            result.append('\n');
+            i = 0;
+        }
+    }
+
     return result;
 }
 
@@ -165,7 +162,7 @@ unsigned int SceneECS::MouseClicked(std::shared_ptr<SceneMouseClickEvent> event)
                 return item->GetAttachedObjectID();
         }
     }
-    
+
     UpdateCursorObject(event->ClickCenterPlainPoint);
     if (auto select = GetSystem<SelectableSystem>().lock())
     {
@@ -173,7 +170,7 @@ unsigned int SceneECS::MouseClicked(std::shared_ptr<SceneMouseClickEvent> event)
         if (auto sObj = select->GetSelectedObject())
             return sObj->GetAttachedObjectID();
     }
-    
+
     return NON_OBJECT_ID;
 }
 
@@ -192,7 +189,7 @@ void SceneECS::AddObject(std::shared_ptr<IEntity> obj)
 {
     if (!obj)
         return;
-    
+
     auto t = obj->GetComponent<Transform>().lock();
     if (t)
     {
@@ -213,17 +210,17 @@ void SceneECS::AddObjectExplicitPosition(std::shared_ptr<IEntity> obj)
 std::list<std::unique_ptr<ComponentControl>> SceneECS::CreateUIForObject(unsigned int oid)
 {
     std::list<std::unique_ptr<ComponentControl>> res;
-    
+
     if (oid == NON_OBJECT_ID)
         return res;
-    
+
     for (auto s: systems)
     {
         std::unique_ptr<ComponentControl> elem = s.second->PrepareUIForObject(oid);
         if (elem)
             res.push_back(std::move(elem));
     }
-    
+
     return res;
 }
 
@@ -233,7 +230,7 @@ void SceneECS::RemoveObject(unsigned int oid)
     //To psuje wewnetrzna logike fukcji clear na mapie, gdy w miedzyczasie sprobujemy susnac jakis element
     if (m_cleanup)
         return;
-    
+
     objects.remove_if([&](std::shared_ptr<IEntity> &item)
                       {
                           return item->GetObjectID() == oid;
@@ -267,11 +264,11 @@ void SceneECS::ResetUniqueObjects()
 void SceneECS::LoadSceneFromFile(const QString &filename)
 {
     CleanScene();
-    
+
     MG1::SceneSerializer ser;
     ser.LoadScene(filename.toStdString());
     MG1::Scene &scene = MG1::Scene::Get();
-    
+
     LoadHelper<Point, MG1::Point>(scene.points);
     LoadHelper<Torus, MG1::Torus>(scene.tori);
     LoadHelper<BezierC0, MG1::BezierC0>(scene.bezierC0);
@@ -309,10 +306,10 @@ unsigned int SceneECS::UpdateSelectRectangle(std::shared_ptr<SelectRectangleUpda
     {
         selectRect.reset();
         composite.reset();
-        
+
         auto screenSelectedSystem = GetSystem<ScreenSelectableSystem>().lock();
         composite = screenSelectedSystem->GetObjectsFromRectangle(event->SelectedArea);
-        
+
         if (composite)
             return composite->GetObjectID();
     } else
@@ -321,9 +318,9 @@ unsigned int SceneECS::UpdateSelectRectangle(std::shared_ptr<SelectRectangleUpda
             selectRect->SelectionArea = event->SelectedArea;
         else
             selectRect = std::make_unique<SelectRectangle>(event->SelectedArea);
-        
+
     }
-    
+
     if (auto &sel = GetSystem<SelectableSystem>().lock()->GetSelectedObject())
         return sel->GetAttachedObjectID();
     return NON_OBJECT_ID;
@@ -341,7 +338,7 @@ std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> 
 SceneECS::GenerateContextMenuItemsForScene()
 {
     std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids)> > > res;
-    
+
     for (auto s: systems)
     {
         std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids)> > > inner = s
@@ -350,7 +347,7 @@ SceneECS::GenerateContextMenuItemsForScene()
         for (auto item: inner)
             res.push_back(item);
     }
-    
+
     return res;
 }
 
@@ -360,7 +357,7 @@ SceneECS::GenerateContextMenuItemsForSceneList()
 {
     std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids,
                                                     const std::vector<unsigned int> &listContextOids)> > > res;
-    
+
     for (auto s: systems)
     {
         std::list<std::pair<QString, std::function<void(const std::vector<unsigned int> &selectedOids,
@@ -370,7 +367,7 @@ SceneECS::GenerateContextMenuItemsForSceneList()
         for (auto item: inner)
             res.push_back(item);
     }
-    
+
     return res;
 }
 
@@ -380,10 +377,10 @@ std::vector<unsigned int> SceneECS::GetSelectedObjects()
     auto selectedObj = selectedSystem->GetSelectedObject();
     if (selectedObj == nullptr)
         return {};
-    
+
     if (composite && selectedObj->GetAttachedObjectID() == composite->GetObjectID())
         return composite->GetObjectsInside();
-    
+
     return {selectedObj->GetAttachedObjectID()};
 }
 

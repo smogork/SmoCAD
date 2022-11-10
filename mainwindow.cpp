@@ -19,43 +19,46 @@
 #include "Scene/Entities/SelectRectangle.h"
 #include "Controls/EntityContextMenu.h"
 #include "Scene/Entities/Simulator/Simulator3C.h"
+#include "Scene/Systems/Awares/RoutingAwareSystem.h"
+
+#include <QOpenGLFramebufferObject>
 
 MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
     ui->anaglyphWidget->setVisible(Options::RenderStereoscopy);
-    
+
     QObject::connect(&Renderer::controller, &InputController::SceneMouseClicked,
                      this, &MainWindow::MouseRaycastSlot);
     QObject::connect(&Renderer::controller, &InputController::UpdateSelectRectangle,
                      this, &MainWindow::UpdateSelectRectangle);
     QObject::connect(&Renderer::controller, &InputController::RequestControlsUpdate,
                      this, &MainWindow::UpdateComponentUI);
-    
+
     //register signals to cursorControl
     QObject::connect(ui->sceneWidget, &GLWidget::WidgetResized,
                      ui->cursorPosWidget, &CursorControl::ViewportResized);
     QObject::connect(ui->cursorPosWidget, &CursorControl::RequestRepaint,
                      ui->sceneWidget, &GLWidget::RedrawScreen);
-    
+
     //register signals to SceneListElements
     QObject::connect(ui->sceneElementsWIdget, &SceneElementsList::RequestControlsUpdate,
                      this, &MainWindow::UpdateComponentUI);
     QObject::connect(ui->sceneElementsWIdget, &SceneElementsList::RequestRepaint,
                      ui->sceneWidget, &GLWidget::RedrawScreen);
-    
+
     //Register signals to AnaglyphsConfig control
     QObject::connect(ui->anaglyphWidget, &StereoscopicConfig::RequestRepaint,
                      ui->sceneWidget, &GLWidget::RedrawScreen);
-    
+
     //Rejestracja wspomagacza do tworzenia menu kontekstowych - straszne workaround braku mozliwosci
     //podlaczenia systemow bezposrednio do slotow
     QObject::connect(EntityContextMenu::GetInstance().get(), &EntityContextMenu::RequestRepaint,
                      ui->sceneWidget, &GLWidget::RedrawScreen);
     QObject::connect(EntityContextMenu::GetInstance().get(), &EntityContextMenu::RequestControlsUpdate,
                      this, &MainWindow::UpdateComponentUI);
-    
+
     componentSpacer.reset();
     componentSpacer = std::make_unique<QSpacerItem>(40, 20, QSizePolicy::Minimum, QSizePolicy::Expanding);
     ui->verticalLayout->insertSpacerItem(0, componentSpacer.get());
@@ -71,7 +74,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::UpdateComponentUI(unsigned int oid)
 {
-    
+
     if (auto scene = SceneECS::Instance().lock())
     {
         componentControls = scene->CreateUIForObject(oid);
@@ -79,7 +82,7 @@ void MainWindow::UpdateComponentUI(unsigned int oid)
         {
             widget->setParent(ui->scrollAreaWidgetContents);
             ui->verticalLayout->addWidget(widget.get());
-            
+
             QObject::connect(widget.get(), &ComponentControl::RequestRepaint,
                              ui->sceneWidget, &GLWidget::RedrawScreen);
             QObject::connect(widget.get(), &ComponentControl::RequestControlsUpdate,
@@ -124,7 +127,7 @@ void MainWindow::on_actionPoint_triggered()
     if (auto scene = SceneECS::Instance().lock())
     {
         scene->AddObject(p);
-        
+
         //Jezeli aktualnie wybrany obiekt jest kolekcja punktow - dodaj do niej
         if (auto select = scene->GetSystem<SelectableSystem>().lock())
         {
@@ -152,7 +155,7 @@ void MainWindow::on_actionCube_triggered()
 
 void MainWindow::on_actionBezierC0_triggered()
 {
-    
+
     std::shared_ptr<BezierC0> b0 = std::make_shared<BezierC0>("NewBezierC0");
     if (auto scene = SceneECS::Instance().lock())
         scene->AddObject(b0);
@@ -216,11 +219,11 @@ void MainWindow::on_actionOpen_triggered()
     dialog.setNameFilter("Json Files (*.json)");
     dialog.setViewMode(QFileDialog::Detail);
     dialog.setAcceptMode(QFileDialog::AcceptOpen);
-    
+
     if (dialog.exec())
     {
         QString fileName = dialog.selectedFiles().first();
-        
+
         on_actionNew_triggered();
         if (auto scene = SceneECS::Instance().lock())
             scene->LoadSceneFromFile(fileName);
@@ -235,7 +238,7 @@ void MainWindow::on_actionSave_triggered()
     dialog.setNameFilter("Json Files (*.json)");
     dialog.setViewMode(QFileDialog::Detail);
     dialog.setAcceptMode(QFileDialog::AcceptSave);
-    
+
     if (dialog.exec())
     {
         QString fileName = dialog.selectedFiles().first();
@@ -275,6 +278,21 @@ void MainWindow::on_actionShow_Bezier_mesh_triggered(bool checked)
     Options::DrawPlainMesh = checked;
     ui->sceneWidget->update();
 }
+
+void MainWindow::on_actionGenerate_routes_triggered()
+{
+    const int offscreenSize = 1024;
+    ui->sceneWidget->DrawOffscreen({offscreenSize, offscreenSize}, [offscreenSize](QOpenGLContext* context){
+        if (auto scene = SceneECS::Instance().lock())
+            if (auto r = scene->GetSystem<RoutingAwareSystem>().lock())
+            {
+                r->StartHeighmapRendering();
+                r->RenderHeightmap(context);
+                r->FinishHeighmapRendering();
+            }
+    });
+}
+
 
 
 
