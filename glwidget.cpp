@@ -1,5 +1,6 @@
 #include <QOpenGLFunctions_4_4_Core>
 #include <memory>
+#include <QOpenGLTexture>
 #include "glwidget.h"
 #include "Scene/Systems/DrawingSystem.h"
 #include "Scene/SceneECS.h"
@@ -98,15 +99,31 @@ void GLWidget::DrawOffscreen(QSize bufferSize, std::function<void(QOpenGLContext
         //allocate additional? FBO for rendering or resize it if widget size changed
         m_fbo.reset();
         QOpenGLFramebufferObjectFormat format;
-        format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
+        format.setAttachment(QOpenGLFramebufferObject::Depth);
         m_fbo = std::make_unique<QOpenGLFramebufferObject>(bufferSize.width(), bufferSize.height(), format);
         glViewport(0, 0, bufferSize.width(), bufferSize.height());
         //resizeGL(width(), height());
     }
 
+    //GLuint fbo = m_fbo->handle();
+
+    QOpenGLTexture depthTex(QOpenGLTexture::Target::Target2D);//TODO: wyciagnac teksture na zewnatrz
+    //depthTex.setMinMagFilters(QOpenGLTexture::Filter::LinearMipMapLinear, QOpenGLTexture::Filter::NearestMipMapLinear);
+    depthTex.create();
+
+    depthTex.setSize(bufferSize.width(), bufferSize.height());
+    depthTex.setFormat(QOpenGLTexture::D32F);
+    depthTex.setAutoMipMapGenerationEnabled(false);
+    depthTex.setMipBaseLevel(0);
+
+    depthTex.setWrapMode(QOpenGLTexture::ClampToEdge);
+    depthTex.allocateStorage(QOpenGLTexture::Depth, QOpenGLTexture::Float32);
+    //depthTex.setDepthStencilMode(QOpenGLTexture::DepthMode);
+    m_fbo->bind();
+    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D,  depthTex.textureId(), 0);
 
     //#2 WORKS: bind FBO and render stuff with paintGL() call
-    m_fbo->bind();
+
     if (renderFunction)
         renderFunction(context());
     else
@@ -114,8 +131,9 @@ void GLWidget::DrawOffscreen(QSize bufferSize, std::function<void(QOpenGLContext
 
     //You could now grab the content of the framebuffer we've rendered to
     QImage image2 = m_fbo->toImage();
-    image2.save(QString("fb2.png"));
+    image2.save(QString("offscreenFB.png"));
     m_fbo->release();
+    depthTex.destroy();//[TODO] Do wyrzucenia
     //#2 --------------------------------------------------------------
 
     //bind default framebuffer again. not sure if this necessary
