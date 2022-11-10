@@ -28,37 +28,37 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     ui->anaglyphWidget->setVisible(Options::RenderStereoscopy);
-    
+
     QObject::connect(&Renderer::controller, &InputController::SceneMouseClicked,
                      this, &MainWindow::MouseRaycastSlot);
     QObject::connect(&Renderer::controller, &InputController::UpdateSelectRectangle,
                      this, &MainWindow::UpdateSelectRectangle);
     QObject::connect(&Renderer::controller, &InputController::RequestControlsUpdate,
                      this, &MainWindow::UpdateComponentUI);
-    
+
     //register signals to cursorControl
     QObject::connect(ui->sceneWidget, &GLWidget::WidgetResized,
                      ui->cursorPosWidget, &CursorControl::ViewportResized);
     QObject::connect(ui->cursorPosWidget, &CursorControl::RequestRepaint,
                      ui->sceneWidget, &GLWidget::RedrawScreen);
-    
+
     //register signals to SceneListElements
     QObject::connect(ui->sceneElementsWIdget, &SceneElementsList::RequestControlsUpdate,
                      this, &MainWindow::UpdateComponentUI);
     QObject::connect(ui->sceneElementsWIdget, &SceneElementsList::RequestRepaint,
                      ui->sceneWidget, &GLWidget::RedrawScreen);
-    
+
     //Register signals to AnaglyphsConfig control
     QObject::connect(ui->anaglyphWidget, &StereoscopicConfig::RequestRepaint,
                      ui->sceneWidget, &GLWidget::RedrawScreen);
-    
+
     //Rejestracja wspomagacza do tworzenia menu kontekstowych - straszne workaround braku mozliwosci
     //podlaczenia systemow bezposrednio do slotow
     QObject::connect(EntityContextMenu::GetInstance().get(), &EntityContextMenu::RequestRepaint,
                      ui->sceneWidget, &GLWidget::RedrawScreen);
     QObject::connect(EntityContextMenu::GetInstance().get(), &EntityContextMenu::RequestControlsUpdate,
                      this, &MainWindow::UpdateComponentUI);
-    
+
     componentSpacer.reset();
     componentSpacer = std::make_unique<QSpacerItem>(40, 20, QSizePolicy::Minimum, QSizePolicy::Expanding);
     ui->verticalLayout->insertSpacerItem(0, componentSpacer.get());
@@ -74,7 +74,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::UpdateComponentUI(unsigned int oid)
 {
-    
+
     if (auto scene = SceneECS::Instance().lock())
     {
         componentControls = scene->CreateUIForObject(oid);
@@ -82,7 +82,7 @@ void MainWindow::UpdateComponentUI(unsigned int oid)
         {
             widget->setParent(ui->scrollAreaWidgetContents);
             ui->verticalLayout->addWidget(widget.get());
-            
+
             QObject::connect(widget.get(), &ComponentControl::RequestRepaint,
                              ui->sceneWidget, &GLWidget::RedrawScreen);
             QObject::connect(widget.get(), &ComponentControl::RequestControlsUpdate,
@@ -127,7 +127,7 @@ void MainWindow::on_actionPoint_triggered()
     if (auto scene = SceneECS::Instance().lock())
     {
         scene->AddObject(p);
-        
+
         //Jezeli aktualnie wybrany obiekt jest kolekcja punktow - dodaj do niej
         if (auto select = scene->GetSystem<SelectableSystem>().lock())
         {
@@ -155,7 +155,7 @@ void MainWindow::on_actionCube_triggered()
 
 void MainWindow::on_actionBezierC0_triggered()
 {
-    
+
     std::shared_ptr<BezierC0> b0 = std::make_shared<BezierC0>("NewBezierC0");
     if (auto scene = SceneECS::Instance().lock())
         scene->AddObject(b0);
@@ -219,11 +219,11 @@ void MainWindow::on_actionOpen_triggered()
     dialog.setNameFilter("Json Files (*.json)");
     dialog.setViewMode(QFileDialog::Detail);
     dialog.setAcceptMode(QFileDialog::AcceptOpen);
-    
+
     if (dialog.exec())
     {
         QString fileName = dialog.selectedFiles().first();
-        
+
         on_actionNew_triggered();
         if (auto scene = SceneECS::Instance().lock())
             scene->LoadSceneFromFile(fileName);
@@ -238,7 +238,7 @@ void MainWindow::on_actionSave_triggered()
     dialog.setNameFilter("Json Files (*.json)");
     dialog.setViewMode(QFileDialog::Detail);
     dialog.setAcceptMode(QFileDialog::AcceptSave);
-    
+
     if (dialog.exec())
     {
         QString fileName = dialog.selectedFiles().first();
@@ -282,26 +282,29 @@ void MainWindow::on_actionShow_Bezier_mesh_triggered(bool checked)
 void MainWindow::on_actionGenerate_routes_triggered()
 {
     //https://amin-ahmadi.com/2019/07/12/using-opengl-in-qt-for-processing-images/
-    QOpenGLContext context;
-    if(!context.create())
+    /*QOpenGLContext context;
+    QOffscreenSurface surface;
+    QSurfaceFormat format;
+    format.setProfile(QSurfaceFormat::CoreProfile);
+    format.setVersion(4, 4);
+    format.setDepthBufferSize(16);
+    context.setFormat(format);
+
+    if (!context.create())
     {
         qDebug() << "Can't create GL context.";
         return;
     }
 
-    QOffscreenSurface surface;
-    QSurfaceFormat format;
-    format.setProfile(QSurfaceFormat::CoreProfile);
-    format.setVersion(4, 4);
-    surface.setFormat(format);
+    surface.setFormat(context.format());
     surface.create();
-    if(!surface.isValid())
+    if (!surface.isValid())
     {
         qDebug() << "Surface not valid.";
         return;
     }
 
-    if(!context.makeCurrent(&surface))
+    if (!context.makeCurrent(&surface))
     {
         qDebug() << "Can't make context current.";
         return;
@@ -313,20 +316,20 @@ void MainWindow::on_actionGenerate_routes_triggered()
     QImage image({offscreenSize, offscreenSize}, QImage::Format_ARGB32);
     image.fill(Qt::red);
 
-    QOpenGLFramebufferObject fbo(image.size());
+    QOpenGLFramebufferObject fbo(image.size(), QOpenGLFramebufferObject::Attachment::Depth);
     gl->glViewport(0, 0, image.width(), image.height());
 
     gl->glEnable(GL_DEPTH_TEST);
     gl->glEnable(GL_CULL_FACE);
     gl->glCullFace(GL_BACK);
 
-    if (auto scene = SceneECS::Instance().lock())
+    /*if (auto scene = SceneECS::Instance().lock())
         if (auto r = scene->GetSystem<RoutingAwareSystem>().lock())
         {
             r->StartHeighmapRendering();
             r->RenderHeightmap(&context);
             r->FinishHeighmapRendering();
-        }
+        }*/
 
     //auto sh = Renderer::GetShader(DEFAULT_SHADER).lock();
 
@@ -338,12 +341,21 @@ void MainWindow::on_actionGenerate_routes_triggered()
     {
         qDebug() << "Texture not bound.";
         return;
-    }*/
+    }
+
+    gl->glColorMask(true, true, true, true);
+    gl->glClearColor(0.5f, 0.0f, 0.5f, 1.0f);
+    gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    Cube c("offscreenCube");
+    c.p_Drawing->Render(&context);
 
     auto output = fbo.toImage();
-    auto depth = fbo.toImage(true, fbo.attachment());
+    auto depth = fbo.toImage(true, 0);
     output.save("offscreenOutput.png");
-    output.save("offscreenDepth.png");
+    depth.save("offscreenDepth.png");*/
+
+    ui->sceneWidget->DrawOffscreen();
 }
 
 

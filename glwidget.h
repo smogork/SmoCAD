@@ -10,6 +10,7 @@
 #include <QWheelEvent>
 #include <QKeyEvent>
 #include <QOpenGLFunctions_4_4_Core>
+#include <QOpenGLFramebufferObject>
 
 #include "Renderer/InputController/InputController.h"
 #include "Renderer/InputController/InputEvents/CameraUpdateEvent.h"
@@ -18,10 +19,19 @@
 class GLWidget : public QOpenGLWidget, public QOpenGLFunctions_4_4_Core
 {
 Q_OBJECT
+
+private:
+    bool m_isInitialized = false;
+    std::unique_ptr<QOpenGLFramebufferObject> m_fbo = nullptr;
+
 public:
     GLWidget(QWidget *pWidget);
 
     virtual ~GLWidget() Q_DECL_OVERRIDE;
+
+    //  Przyklad wykorzystania customowego framebuffera aby wyrenderowac w QT do do tekstury
+    // https://stackoverflow.com/a/31382768
+    void DrawOffscreen();
 
 signals:
     void WidgetResized(QSize size);

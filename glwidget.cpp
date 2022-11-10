@@ -1,4 +1,5 @@
 #include <QOpenGLFunctions_4_4_Core>
+#include <memory>
 #include "glwidget.h"
 #include "Scene/Systems/DrawingSystem.h"
 #include "Scene/SceneECS.h"
@@ -13,7 +14,7 @@ GLWidget::GLWidget(QWidget *pWidget)
     format.setVersion(4, 4);
     setFormat(format);
     makeCurrent();
-    
+
     QObject::connect(&Renderer::controller, &InputController::CameraUpdated,
                      this, &GLWidget::UpdateCameraSlot);
     this->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -24,22 +25,20 @@ GLWidget::GLWidget(QWidget *pWidget)
 void GLWidget::initializeGL()
 {
     initializeOpenGLFunctions();
-    auto gl = context()->functions();
 
+    glEnable(GL_PROGRAM_POINT_SIZE);
+    glEnable(GL_BLEND);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
 
-    gl->glEnable(GL_PROGRAM_POINT_SIZE);
-    gl->glEnable(GL_BLEND);
-    gl->glEnable(GL_DEPTH_TEST);
-    gl->glEnable(GL_CULL_FACE);
-    gl->glCullFace(GL_BACK);
-    
     LoadShaders();
     Renderer::UpdateShaders();
-    
+
     if (auto scene = SceneECS::Instance().lock())
     {
         scene->InitializeScene();
-        qDebug().noquote()  << scene->DebugSystemReport();
+        qDebug().noquote() << scene->DebugSystemReport();
     }
 }
 
@@ -47,23 +46,23 @@ void GLWidget::resizeGL(int w, int h)
 {
     QOpenGLWidget::resizeGL(w, h);
     auto s = QSize(w, h);
-    
+
     Renderer::controller.viewport->UpdatePerspectiveMatrix(s);
     Renderer::UpdateShaders();
-    
+
     emit WidgetResized(s);
 }
 
 void GLWidget::paintGL()
 {
-    auto gl = context()->functions();
+    //auto gl = (QOpenGLFunctions_4_4_Core*)this;
 
     // set the background color = clear color
-    gl->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    gl->glColorMask(true, true, true, true);
-    gl->glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
-    gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColorMask(true, true, true, true);
+    glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     if (auto scene = SceneECS::Instance().lock())
     {
         if (auto dSystem = scene->GetSystem<DrawingSystem>().lock())
@@ -73,16 +72,50 @@ void GLWidget::paintGL()
     }
 }
 
+void GLWidget::DrawOffscreen()
+{
+    //the context should be valid. make sure it is current for painting
+    makeCurrent();
+    if (!m_isInitialized)
+    {
+        initializeGL();
+        resizeGL(width(), height());
+    }
+    if (!m_fbo || m_fbo->width() != width() || m_fbo->height() != height())
+    {
+        //allocate additional? FBO for rendering or resize it if widget size changed
+        m_fbo.reset();
+        QOpenGLFramebufferObjectFormat format;
+        format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
+        m_fbo = std::make_unique<QOpenGLFramebufferObject>(width(), height(), format);
+        resizeGL(width(), height());
+    }
+
+    //#2 WORKS: bind FBO and render stuff with paintGL() call
+    m_fbo->bind();
+    paintGL();
+    //You could now grab the content of the framebuffer we've rendered to
+    QImage image2 = m_fbo->toImage();
+    image2.save(QString("fb2.png"));
+    m_fbo->release();
+    //#2 --------------------------------------------------------------
+
+    //bind default framebuffer again. not sure if this necessary
+    //and isn't supposed to use defaultFramebuffer()...
+    m_fbo->bindDefault();
+    doneCurrent();
+}
+
 GLWidget::~GLWidget()
 {
     makeCurrent();
-    
+
     if (auto scene = SceneECS::Instance().lock())
     {
         scene->RemoveUniqueObjects();
         scene->RemoveObjectsFromScene();
         scene->ClearSystems();
-        qDebug().noquote()  << scene->DebugSystemReport();
+        qDebug().noquote() << scene->DebugSystemReport();
     }
 }
 
@@ -127,11 +160,11 @@ void GLWidget::LoadShaders()
     Renderer::AddShader(BLOCK_LOWERWALL_SHADER, std::make_shared<ShaderWrapper>("Shaders/Simulator3C/lower_wall.vert",
                                                                                 "Shaders/Simulator3C/lower_wall.frag"));
     Renderer::AddShader(BLOCK_SIDEWALL_SHADER, std::make_shared<ShaderWrapper>("Shaders/Simulator3C/side_wall.vert",
-                                                                                "Shaders/Simulator3C/side_wall.frag"));
+                                                                               "Shaders/Simulator3C/side_wall.frag"));
     Renderer::AddShader(BLOCK_UPPERWALL_SHADER, std::make_shared<ShaderWrapper>("Shaders/Simulator3C/upper_wall.vert",
-                                                                               "Shaders/Simulator3C/upper_wall.frag"));
+                                                                                "Shaders/Simulator3C/upper_wall.frag"));
     Renderer::AddShader(SIMULATOR_CUTTER_SHADER, std::make_shared<ShaderWrapper>("Shaders/Simulator3C/cutter.vert",
-                                                                                "Shaders/Simulator3C/cutter.frag"));
+                                                                                 "Shaders/Simulator3C/cutter.frag"));
 }
 
 void GLWidget::RedrawScreen()
@@ -142,7 +175,7 @@ void GLWidget::RedrawScreen()
 void GLWidget::showObjectListContextMenu(const QPoint &pos)
 {
     QPoint globalPos = mapToGlobal(pos);
-    
+
     if (auto scene = SceneECS::Instance().lock())
         if (auto elSys = scene->GetSystem<SceneElementSystem>().lock())
         {
@@ -151,4 +184,6 @@ void GLWidget::showObjectListContextMenu(const QPoint &pos)
                 menu->exec(globalPos);
         }
 }
+
+
 

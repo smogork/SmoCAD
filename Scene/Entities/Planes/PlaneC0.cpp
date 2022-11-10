@@ -358,6 +358,7 @@ void PlaneC0::GetIndexesOfPatch(int uPatch, int vPatch, std::vector<int> &indice
 void PlaneC0::DrawingFunction(QOpenGLContext *context)
 {
     //BasePlane::DrawingFunction(context);
+
     if (p_Routing->IsHeightmapRendering())
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL );
     else
@@ -368,6 +369,7 @@ void PlaneC0::DrawingFunction(QOpenGLContext *context)
 void PlaneC0::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
 {
     BasePlane::UniformFunction(shader);
+
     p_Intersection->SetTrimmingUniforms(shader);
     if (p_Routing->IsHeightmapRendering())
     {

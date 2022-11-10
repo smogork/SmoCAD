@@ -9,6 +9,8 @@
 #include "Scene/Systems/Awares/CollectionAwareSystem.h"
 #include "Mathematics/Polynomials.h"
 
+#include <QOpenGLContext>
+
 void PlaneC2::OnSinglePointModified(QVector3D pos, unsigned int changedOID)
 {
     p_Drawing->SetVertexData(GenerateGeometryVertices());
