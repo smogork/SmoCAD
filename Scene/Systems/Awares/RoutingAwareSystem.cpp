@@ -12,9 +12,9 @@ void RoutingAwareSystem::StartHeighmapRendering()
 
     ortoProj.ortho(
             -(*BlockSize).x() / 2, (*BlockSize).x() / 2,
-            (*BlockSize).y() / 2, -(*BlockSize).y() / 2,
+            -(*BlockSize).y() / 2, (*BlockSize).y() / 2,
             0, (*BlockSize).z());
-    viewMtx.lookAt(C, WorldStartPoint, Transform::GetYAxis());
+    viewMtx.lookAt(C, WorldStartPoint, Transform::GetXAxis());//Zmiana wektora UP!
 
     Renderer::SetUniformAtAllShaders("u_MVP.Projection", ortoProj);
     Renderer::SetUniformAtAllShaders("u_MVP.View", viewMtx);
@@ -36,11 +36,10 @@ void RoutingAwareSystem::FinishHeighmapRendering()
 
 void RoutingAwareSystem::RenderHeightmap(QOpenGLContext* context)
 {
-    auto gl = context->functions();
-
-    gl->glColorMask(true, true, true, true);
-    gl->glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColorMask(true, true, true, true);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     for (const auto &weak_comp: GetComponents())
         if (auto comp = weak_comp.lock())

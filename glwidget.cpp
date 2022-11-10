@@ -84,28 +84,34 @@ void GLWidget::paintGL()
     }
 }
 
-void GLWidget::DrawOffscreen()
+void GLWidget::DrawOffscreen(QSize bufferSize, std::function<void(QOpenGLContext* context)> renderFunction)
 {
     //the context should be valid. make sure it is current for painting
     makeCurrent();
     if (!m_isInitialized)
     {
         initializeGL();
-        resizeGL(width(), height());
+        //resizeGL(width(), height());
     }
-    if (!m_fbo || m_fbo->width() != width() || m_fbo->height() != height())
+    if (!m_fbo || m_fbo->width() != bufferSize.width() || m_fbo->height() != bufferSize.height())
     {
         //allocate additional? FBO for rendering or resize it if widget size changed
         m_fbo.reset();
         QOpenGLFramebufferObjectFormat format;
         format.setAttachment(QOpenGLFramebufferObject::CombinedDepthStencil);
-        m_fbo = std::make_unique<QOpenGLFramebufferObject>(width(), height(), format);
-        resizeGL(width(), height());
+        m_fbo = std::make_unique<QOpenGLFramebufferObject>(bufferSize.width(), bufferSize.height(), format);
+        glViewport(0, 0, bufferSize.width(), bufferSize.height());
+        //resizeGL(width(), height());
     }
+
 
     //#2 WORKS: bind FBO and render stuff with paintGL() call
     m_fbo->bind();
-    paintGL();
+    if (renderFunction)
+        renderFunction(context());
+    else
+        paintGL();
+
     //You could now grab the content of the framebuffer we've rendered to
     QImage image2 = m_fbo->toImage();
     image2.save(QString("fb2.png"));
@@ -115,6 +121,7 @@ void GLWidget::DrawOffscreen()
     //bind default framebuffer again. not sure if this necessary
     //and isn't supposed to use defaultFramebuffer()...
     m_fbo->bindDefault();
+    //resizeGL(width(), height());
     doneCurrent();
 }
 

@@ -281,81 +281,16 @@ void MainWindow::on_actionShow_Bezier_mesh_triggered(bool checked)
 
 void MainWindow::on_actionGenerate_routes_triggered()
 {
-    //https://amin-ahmadi.com/2019/07/12/using-opengl-in-qt-for-processing-images/
-    /*QOpenGLContext context;
-    QOffscreenSurface surface;
-    QSurfaceFormat format;
-    format.setProfile(QSurfaceFormat::CoreProfile);
-    format.setVersion(4, 4);
-    format.setDepthBufferSize(16);
-    context.setFormat(format);
-
-    if (!context.create())
-    {
-        qDebug() << "Can't create GL context.";
-        return;
-    }
-
-    surface.setFormat(context.format());
-    surface.create();
-    if (!surface.isValid())
-    {
-        qDebug() << "Surface not valid.";
-        return;
-    }
-
-    if (!context.makeCurrent(&surface))
-    {
-        qDebug() << "Can't make context current.";
-        return;
-    }
-    QOpenGLFunctions_4_4_Core *gl = new QOpenGLFunctions_4_4_Core;
-    gl->initializeOpenGLFunctions();
-
     const int offscreenSize = 1024;
-    QImage image({offscreenSize, offscreenSize}, QImage::Format_ARGB32);
-    image.fill(Qt::red);
-
-    QOpenGLFramebufferObject fbo(image.size(), QOpenGLFramebufferObject::Attachment::Depth);
-    gl->glViewport(0, 0, image.width(), image.height());
-
-    gl->glEnable(GL_DEPTH_TEST);
-    gl->glEnable(GL_CULL_FACE);
-    gl->glCullFace(GL_BACK);
-
-    /*if (auto scene = SceneECS::Instance().lock())
-        if (auto r = scene->GetSystem<RoutingAwareSystem>().lock())
-        {
-            r->StartHeighmapRendering();
-            r->RenderHeightmap(&context);
-            r->FinishHeighmapRendering();
-        }*/
-
-    //auto sh = Renderer::GetShader(DEFAULT_SHADER).lock();
-
-    /*QOpenGLTexture texture(QOpenGLTexture::Target2D);
-    texture.setData(image);
-
-    texture.bind();
-    if(!texture.isBound())
-    {
-        qDebug() << "Texture not bound.";
-        return;
-    }
-
-    gl->glColorMask(true, true, true, true);
-    gl->glClearColor(0.5f, 0.0f, 0.5f, 1.0f);
-    gl->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    Cube c("offscreenCube");
-    c.p_Drawing->Render(&context);
-
-    auto output = fbo.toImage();
-    auto depth = fbo.toImage(true, 0);
-    output.save("offscreenOutput.png");
-    depth.save("offscreenDepth.png");*/
-
-    ui->sceneWidget->DrawOffscreen();
+    ui->sceneWidget->DrawOffscreen({offscreenSize, offscreenSize}, [offscreenSize](QOpenGLContext* context){
+        if (auto scene = SceneECS::Instance().lock())
+            if (auto r = scene->GetSystem<RoutingAwareSystem>().lock())
+            {
+                r->StartHeighmapRendering();
+                r->RenderHeightmap(context);
+                r->FinishHeighmapRendering();
+            }
+    });
 }
 
 

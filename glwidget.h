@@ -36,7 +36,7 @@ public:
 
     //  Przyklad wykorzystania customowego framebuffera aby wyrenderowac w QT do do tekstury
     // https://stackoverflow.com/a/31382768
-    void DrawOffscreen();
+    void DrawOffscreen(QSize bufferSize, std::function<void(QOpenGLContext* context)> renderFunction = {});
 
 signals:
     void WidgetResized(QSize size);
