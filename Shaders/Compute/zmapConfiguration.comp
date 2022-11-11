@@ -1,6 +1,86 @@
 #version 440
 
+struct CutterParams
+{
+    float Radius;
+    int TexRadiusX;
+    int TexRadiusY;
+    bool isCylindrical;
+};
+
+uniform CutterParams u_Cutter;
+uniform float u_OutsideCutterVal;
+uniform float u_BlockHeight;
+
+layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
+layout (binding = 0) uniform sampler2D heightMapTex;
+layout(r32f, binding = 1) uniform image2D comfMapTex;
+
+float CutterHeight(ivec2 pos, float radius, bool isCylindrical)
+{
+    float z = u_OutsideCutterVal;
+    float dx = abs(pos.x - u_Cutter.TexRadiusX) / float(u_Cutter.TexRadiusX) * u_Cutter.Radius;
+    float dy = abs(pos.y - u_Cutter.TexRadiusY) / float(u_Cutter.TexRadiusY) * u_Cutter.Radius;
+    float dist = sqrt(dx * dx + dy * dy);
+    if (dist < u_Cutter.Radius)
+    {
+        if (u_Cutter.isCylindrical)
+            z = 0.0f;
+        else
+            z = u_Cutter.Radius - sqrt(u_Cutter.Radius * u_Cutter.Radius - dist * dist);
+    }
+    return z;
+}
 
 void main() {
+    int cx = int(gl_GlobalInvocationID.x);
+    int cy = int(gl_GlobalInvocationID.y);
 
+    ivec2 texSize = ivec2(gl_NumWorkGroups.xy) * 16;
+
+    /*vec2 texNormalized = vec2(cx, cy) / vec2(texSize);
+    float test = texture(heightMapTex, texNormalized).r
+    imageStore(comfMapTex, ivec2(cx, cy), vec4(test, 0.0, 0.0, 0.0));*/
+
+
+    int offsetX = -u_Cutter.TexRadiusX;
+    int offsetY = -u_Cutter.TexRadiusY;
+    int y0 = cy + offsetY;
+    int y1 = cy - offsetY;
+    int x0 = cx + offsetX;
+    int x1 = cx - offsetX;
+
+    if (x0 < 0)
+        x0 = 0;
+    if (x1 > texSize.x)
+        x1 = texSize.x;
+
+    if (y0 < 0)
+        y0 = 0;
+    if (y1 > texSize.y)
+        y1 = texSize.y;
+
+    float confZ = 0.0f;
+    for (int y = y0; y < y1; ++y)
+    {
+        int y_stamp = y - cy - offsetY;
+        for (int x = x0; x < x1; ++x)
+        {
+            int x_stamp = x - cx - offsetX;
+            float stampZ = CutterHeight(ivec2(x_stamp, y_stamp), u_Cutter.Radius, u_Cutter.isCylindrical);
+            if (stampZ < u_OutsideCutterVal + 1.0f)
+            {
+                vec2 texNormalized = vec2(x, y) / vec2(texSize);
+                float heightMapZ = texture(heightMapTex, texNormalized).r;
+                heightMapZ = (1.0f - heightMapZ) * u_BlockHeight;
+                confZ = max(heightMapZ - stampZ, confZ);
+                //confZ = heightMapZ;
+            }
+        }
+    }
+
+    //Powiekszenie do srodka freza
+    if (!u_Cutter.isCylindrical)
+        confZ += u_Cutter.Radius;
+    imageStore(comfMapTex, ivec2(cx, cy), vec4(confZ, 0.0, 0.0, 0.0));
 }

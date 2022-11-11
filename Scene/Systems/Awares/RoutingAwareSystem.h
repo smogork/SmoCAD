@@ -12,20 +12,20 @@
 class RoutingAwareSystem : public ISystem<RoutingAware>
 {
 private:
-    void StartHeighmapRendering(QVector3D blockWorldPos, QVector3D blockSize);
-    void FinishHeighmapRendering();
-    void RenderHeightmap(QOpenGLContext *context);
-
+    std::unique_ptr<ShaderWrapper> zmapStampCreatorShader;
+    std::unique_ptr<ShaderWrapper> zmapAnalizerShader;
     static constexpr float K16_RADIUS = 1.6;
     static constexpr float K8_RADIUS = 0.8;
     static constexpr float F12_RADIUS = 1.2;
 
-public:
-    /*QProperty<QVector3D> WorldStartPoint;
-    /**
-     * (Wx, Wy, H)
+    void StartHeighmapRendering(QVector3D blockWorldPos, QVector3D blockSize);
+    void FinishHeighmapRendering();
+    void RenderHeightmap(QOpenGLContext *context);
 
-    QProperty<QVector3D> BlockSize;*/
+    std::shared_ptr<QOpenGLTexture> CreateStampTexture(
+            GLWidget *gl, float radius, int offscreenSize, bool isCylindrical, QVector3D blockSize);
+
+public:
 
     RoutingAwareSystem() : ISystem(SYSTEM_ID::ROUTING_AWARE)
     {}
@@ -34,8 +34,10 @@ public:
     { return "RoutingAwareSystem"; }
 
     void
-    GenerateRoutes3C(GLWidget *gl, const QString& folderName, QVector3D blockWorldPos, QVector3D blockSize,
+    GenerateRoutes3C(GLWidget *gl, const QString &folderName, QVector3D blockWorldPos, QVector3D blockSize,
                      int offscreenSize);
+
+    void ClearSystem() override;
 
 };
 

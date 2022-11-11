@@ -48,12 +48,17 @@ void RoutingAwareSystem::RenderHeightmap(QOpenGLContext *context)
 }
 
 void
-RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString& folderName, QVector3D blockWorldPos, QVector3D blockSize,
+RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QVector3D blockWorldPos,
+                                     QVector3D blockSize,
                                      int offscreenSize)
 {
+    if (!zmapStampCreatorShader)
+        zmapStampCreatorShader = std::make_unique<ShaderWrapper>("Shaders/Compute/prepareCutterStamp.comp");
+    if (!zmapAnalizerShader)
+        zmapAnalizerShader = std::make_unique<ShaderWrapper>("Shaders/Compute/zmapConfiguration.comp");
+
     QSize texSize = {offscreenSize, offscreenSize};
-    //ShaderWrapper zmapAnalizerShader("Shaders/Compute/zmapConfiguration.comp");
-    ShaderWrapper zmapStampCreatorShader("Shaders/Compute/prepareCutterStamp.comp");
+
 
     // 1.Wygenerowanie zmapy obiektu w zadanym przedziale
     StartHeighmapRendering(blockWorldPos, blockSize);
@@ -65,29 +70,87 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString& folderName, QV
             });
     FinishHeighmapRendering();
 
-
     gl->makeCurrent();
+    //auto K16StampTex = CreateStampTexture(gl, K16_RADIUS, offscreenSize, false, blockSize);
+    //auto F12StampTex = CreateStampTexture(gl, F12_RADIUS, offscreenSize, true, blockSize);
+
     // 2. Wykonanie mapy dozwolonych z dla obróbki zgrubnej
-    int K16TexRadiusX = (unsigned int)std::ceil(K16_RADIUS * offscreenSize / blockSize.x());
-    int K16TexRadiusY = (unsigned int)std::ceil(K16_RADIUS * offscreenSize / blockSize.y());
-    QSize K16StampSize = QSize(K16TexRadiusX * 2, K16TexRadiusY * 2);
-    auto stampTex =  gl->CreateFloatTexture32(K16StampSize);
-    gl->glBindImageTexture( 0, stampTex->textureId(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F );
+    auto confMapTex = gl->CreateFloatTexture32(texSize);
 
-    zmapStampCreatorShader.SetUniform("u_Cutter.Radius", K16_RADIUS);
-    zmapStampCreatorShader.SetUniform("u_Cutter.TexRadiusX", K16TexRadiusX);
-    zmapStampCreatorShader.SetUniform("u_Cutter.TexRadiusY", K16TexRadiusY);
-    zmapStampCreatorShader.SetUniform("u_Cutter.isCylindrical", false);
-    zmapStampCreatorShader.SetUniform("u_OutsideCutterVal", blockSize.z() * 10);// Wartosc znacznie wieksza niz blok
+    gl->glBindImageTexture(1, confMapTex->textureId(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);
 
-    zmapStampCreatorShader.Bind();
-    stampTex->bind(0);
-    gl->glDispatchCompute(K16StampSize.width(), K16StampSize.height(), 1);
+    int texRadiusX = (unsigned int) std::ceil(K16_RADIUS * offscreenSize / blockSize.x());
+    int texRadiusY = (unsigned int) std::ceil(K16_RADIUS * offscreenSize / blockSize.y());
+    zmapAnalizerShader->SetUniform("u_OutsideCutterVal", blockSize.z() * 10);// Wartosc znacznie wieksza niz blok
+    zmapAnalizerShader->SetUniform("u_BlockHeight", blockSize.z());
+    zmapAnalizerShader->SetUniform("u_Cutter.Radius", K16_RADIUS);
+    zmapAnalizerShader->SetUniform("u_Cutter.TexRadiusX", texRadiusX);
+    zmapAnalizerShader->SetUniform("u_Cutter.TexRadiusY", texRadiusY);
+    zmapAnalizerShader->SetUniform("u_Cutter.isCylindrical", false);
+    zmapAnalizerShader->SetUniform("u_OutsideCutterVal", blockSize.z() * 10);
+
+    zmapAnalizerShader->Bind();
+    zmapTex->bind(0);
+    confMapTex->bind(1);
+
+    int work_grp_cnt[3];
+    gl->glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &work_grp_cnt[0]);
+    gl->glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, &work_grp_cnt[1]);
+    gl->glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, &work_grp_cnt[2]);
+
+    qDebug() << "max global (total) work group counts  x:" << work_grp_cnt[0] << " y:" << work_grp_cnt[1] << " z:"
+             << work_grp_cnt[2];
+
+    int work_grp_size[3];
+
+    gl->glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 0, &work_grp_size[0]);
+    gl->glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 1, &work_grp_size[1]);
+    gl->glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 2, &work_grp_size[2]);
+
+    qDebug() << "max local (in one shader) work group sizes x:" << work_grp_size[0] << " y:" << work_grp_size[1] << " z:"
+           << work_grp_size[2];
+
+    clock_t start = clock();
+    gl->glDispatchCompute(offscreenSize / 16, offscreenSize / 16, 1);
+    //gl->glMemoryBarrier(GL_ALL_BARRIER_BITS);
     gl->glFinish();
+    clock_t stop = clock();
+    qDebug() << "dispatchTime " << (stop - start) / (float) CLOCKS_PER_SEC << "s";
 
     // Wyczyszczenie zasobów
     zmapTex->destroy();
-    stampTex->destroy();
+    //K16StampTex->destroy();
+    //F12StampTex->destroy();
+    confMapTex->destroy();
 
     gl->doneCurrent();
+}
+
+std::shared_ptr<QOpenGLTexture> RoutingAwareSystem::CreateStampTexture(
+        GLWidget *gl, float radius, int offscreenSize, bool isCylindrical, QVector3D blockSize)
+{
+    int texRadiusX = (unsigned int) std::ceil(K16_RADIUS * offscreenSize / blockSize.x());
+    int texRadiusY = (unsigned int) std::ceil(K16_RADIUS * offscreenSize / blockSize.y());
+    QSize stampSize = QSize(texRadiusX * 2, texRadiusY * 2);
+    auto stampTex = gl->CreateFloatTexture32(stampSize);
+    gl->glBindImageTexture(0, stampTex->textureId(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+
+    zmapStampCreatorShader->SetUniform("u_Cutter.Radius", K16_RADIUS);
+    zmapStampCreatorShader->SetUniform("u_Cutter.TexRadiusX", texRadiusX);
+    zmapStampCreatorShader->SetUniform("u_Cutter.TexRadiusY", texRadiusY);
+    zmapStampCreatorShader->SetUniform("u_Cutter.isCylindrical", isCylindrical);
+    zmapStampCreatorShader->SetUniform("u_OutsideCutterVal", blockSize.z() * 10);// Wartosc znacznie wieksza niz blok
+
+    zmapStampCreatorShader->Bind();
+    stampTex->bind(0);
+    gl->glDispatchCompute(stampSize.width(), stampSize.height(), 1);
+    gl->glFinish();
+
+    return stampTex;
+}
+
+void RoutingAwareSystem::ClearSystem()
+{
+    zmapStampCreatorShader.reset();
+    zmapAnalizerShader.reset();
 }
