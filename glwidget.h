@@ -27,6 +27,8 @@ private:
     std::unique_ptr<QOpenGLFramebufferObject> m_fbo = nullptr;
     std::unique_ptr<QOpenGLDebugLogger> m_logger;
 
+
+
 private slots:
     void OnOpenGLError(const QOpenGLDebugMessage &debugMessage);
 
@@ -39,7 +41,9 @@ public:
     // Zwraca handle na teksture z wygenerowanym Zbufforem
     std::shared_ptr<QOpenGLTexture>
     DrawOffscreen(QSize bufferSize, std::function<void(QOpenGLContext *context)> renderFunction = {});
-    void DestroyTexture(std::shared_ptr<QOpenGLTexture> tex);
+    std::shared_ptr<QOpenGLTexture> CreateDepthTexture(QSize size,
+                                                       QOpenGLTexture::TextureFormat format = QOpenGLTexture::D24S8);
+    std::shared_ptr<QOpenGLTexture> CreateFloatTexture32(QSize size);
 
 signals:
     void WidgetResized(QSize size);

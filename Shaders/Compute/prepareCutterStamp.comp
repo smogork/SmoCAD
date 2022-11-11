@@ -1,0 +1,33 @@
+#version 440
+
+struct CutterParams
+{
+    float Radius;
+    int TexRadiusX;
+    int TexRadiusY;
+    bool isCylindrical;
+};
+
+uniform CutterParams u_Cutter;
+uniform float u_OutsideCutterVal;
+
+layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+layout(r32f, binding = 0) uniform image2D stampTex;
+
+void main() {
+    ivec2 pos = ivec2( gl_GlobalInvocationID.xy);
+
+    float z = u_OutsideCutterVal;
+    float dx = abs(pos.x - u_Cutter.TexRadiusX) / float(u_Cutter.TexRadiusX) * u_Cutter.Radius;
+    float dy = abs(pos.y - u_Cutter.TexRadiusY) / float(u_Cutter.TexRadiusY) * u_Cutter.Radius;
+    float dist = sqrt(dx * dx + dy * dy);
+    if (dist < u_Cutter.Radius)
+    {
+        if (u_Cutter.isCylindrical)
+            z = 0.0f;
+        else
+            z = u_Cutter.Radius - sqrt(u_Cutter.Radius * u_Cutter.Radius - dist * dist);
+    }
+
+    imageStore(stampTex, pos, vec4(z, 0.0, 0.0, 0.0 ));
+}

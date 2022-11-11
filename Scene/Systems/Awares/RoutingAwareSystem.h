@@ -16,7 +16,9 @@ private:
     void FinishHeighmapRendering();
     void RenderHeightmap(QOpenGLContext *context);
 
-
+    static constexpr float K16_RADIUS = 1.6;
+    static constexpr float K8_RADIUS = 0.8;
+    static constexpr float F12_RADIUS = 1.2;
 
 public:
     /*QProperty<QVector3D> WorldStartPoint;

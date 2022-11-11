@@ -51,19 +51,43 @@ void
 RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString& folderName, QVector3D blockWorldPos, QVector3D blockSize,
                                      int offscreenSize)
 {
+    QSize texSize = {offscreenSize, offscreenSize};
+    //ShaderWrapper zmapAnalizerShader("Shaders/Compute/zmapConfiguration.comp");
+    ShaderWrapper zmapStampCreatorShader("Shaders/Compute/prepareCutterStamp.comp");
+
     // 1.Wygenerowanie zmapy obiektu w zadanym przedziale
     StartHeighmapRendering(blockWorldPos, blockSize);
     auto zmapTex = gl->DrawOffscreen(
-            {offscreenSize, offscreenSize},
+            texSize,
             [this](QOpenGLContext *context)
             {
                 this->RenderHeightmap(context);
             });
     FinishHeighmapRendering();
 
-    // 2. Wykonanie mapy dozwolonych z dla obróbki zgrubnej
 
+    gl->makeCurrent();
+    // 2. Wykonanie mapy dozwolonych z dla obróbki zgrubnej
+    int K16TexRadiusX = (unsigned int)std::ceil(K16_RADIUS * offscreenSize / blockSize.x());
+    int K16TexRadiusY = (unsigned int)std::ceil(K16_RADIUS * offscreenSize / blockSize.y());
+    QSize K16StampSize = QSize(K16TexRadiusX * 2, K16TexRadiusY * 2);
+    auto stampTex =  gl->CreateFloatTexture32(K16StampSize);
+    gl->glBindImageTexture( 0, stampTex->textureId(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F );
+
+    zmapStampCreatorShader.SetUniform("u_Cutter.Radius", K16_RADIUS);
+    zmapStampCreatorShader.SetUniform("u_Cutter.TexRadiusX", K16TexRadiusX);
+    zmapStampCreatorShader.SetUniform("u_Cutter.TexRadiusY", K16TexRadiusY);
+    zmapStampCreatorShader.SetUniform("u_Cutter.isCylindrical", false);
+    zmapStampCreatorShader.SetUniform("u_OutsideCutterVal", blockSize.z() * 10);// Wartosc znacznie wieksza niz blok
+
+    zmapStampCreatorShader.Bind();
+    stampTex->bind(0);
+    gl->glDispatchCompute(K16StampSize.width(), K16StampSize.height(), 1);
+    gl->glFinish();
 
     // Wyczyszczenie zasobów
-    gl->DestroyTexture(zmapTex);
+    zmapTex->destroy();
+    stampTex->destroy();
+
+    gl->doneCurrent();
 }

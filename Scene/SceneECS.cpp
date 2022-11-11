@@ -107,7 +107,7 @@ void SceneECS::InitUniqueObjects()
 
 void SceneECS::InitSceneObjects()
 {
-
+    LoadSceneFromFile("../docs/saves/dzban_v4.json");
 }
 
 void SceneECS::RemoveUniqueObjects()

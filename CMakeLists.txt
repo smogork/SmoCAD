@@ -33,24 +33,24 @@ set(SHADER_FILES
         Shaders/uniform_color.vert
         Shaders/simple_color.frag
         Shaders/Curves/bezier.vert
-        Shaders/Curves/bezier.tess
-        Shaders/Curves/bezier.eval
+        Shaders/Curves/bezier.tesc
+        Shaders/Curves/bezier.tese
         Shaders/Curves/bezier.frag
         Shaders/Curves/bezierC2.vert
-        Shaders/Curves/bezierC2.tess
-        Shaders/Curves/bezierC2.eval
+        Shaders/Curves/bezierC2.tesc
+        Shaders/Curves/bezierC2.tese
         Shaders/Curves/bezierC2.frag
         Shaders/Planes/plane.vert
-        Shaders/Planes/plane.tess
-        Shaders/Planes/plane.eval
+        Shaders/Planes/plane.tesc
+        Shaders/Planes/plane.tese
         Shaders/Planes/plane.frag
         Shaders/Planes/planeC2.vert
-        Shaders/Planes/planeC2.tess
-        Shaders/Planes/planeC2.eval
+        Shaders/Planes/planeC2.tesc
+        Shaders/Planes/planeC2.tese
         Shaders/Planes/planeC2.frag
         Shaders/Planes/gregory_plane.vert
-        Shaders/Planes/gregory_plane.tess
-        Shaders/Planes/gregory_plane.eval
+        Shaders/Planes/gregory_plane.tesc
+        Shaders/Planes/gregory_plane.tese
         Shaders/Planes/gregory_plane.frag
         Shaders/select_rect.vert
         Shaders/select_rect.frag
@@ -64,6 +64,8 @@ set(SHADER_FILES
         Shaders/Simulator3C/upper_wall.frag
         Shaders/Simulator3C/cutter.vert
         Shaders/Simulator3C/cutter.frag
+        Shaders/Compute/prepareCutterStamp.comp
+        Shaders/Compute/zmapConfiguration.comp
         )
 
 set(MATH_FILES
@@ -251,13 +253,17 @@ set_target_properties(SmoCAD PROPERTIES
         WIN32_EXECUTABLE TRUE
         )
 
-# Copy shaders
+# Copy shaders (TODO: Wymusic aby przy kazdym przebudowanie cmake kopiowal i walidowal shadery)
+# https://stackoverflow.com/questions/36483801/cmake-softlink-resource-such-as-glsl-shaders-or-copy-each-complilation
 foreach (shader_file ${SHADER_FILES})
     add_custom_command(
             TARGET SmoCAD POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_SOURCE_DIR}/${shader_file}
             ${CMAKE_CURRENT_BINARY_DIR}/${shader_file})
+
+    add_custom_command(TARGET SmoCAD POST_BUILD
+                       COMMAND glslangValidator ${CMAKE_SOURCE_DIR}/${shader_file})
 endforeach (shader_file)
 
 # Copy resources
