@@ -71,13 +71,9 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     FinishHeighmapRendering();
 
     gl->makeCurrent();
-    //auto K16StampTex = CreateStampTexture(gl, K16_RADIUS, offscreenSize, false, blockSize);
-    //auto F12StampTex = CreateStampTexture(gl, F12_RADIUS, offscreenSize, true, blockSize);
 
     // 2. Wykonanie mapy dozwolonych z dla obróbki zgrubnej
-    auto confMapTex = gl->CreateFloatTexture32(texSize);
-
-    gl->glBindImageTexture(1, confMapTex->textureId(), 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);
+    auto confMapBuf = gl->CreateComputeBuffer<float>(texSize.width() * texSize.height());
 
     int texRadiusX = (unsigned int) std::ceil(K16_RADIUS * offscreenSize / blockSize.x());
     int texRadiusY = (unsigned int) std::ceil(K16_RADIUS * offscreenSize / blockSize.y());
@@ -91,7 +87,7 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
 
     zmapAnalizerShader->Bind();
     zmapTex->bind(0);
-    confMapTex->bind(1);
+    gl->glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, confMapBuf->bufferId());
 
     int work_grp_cnt[3];
     gl->glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &work_grp_cnt[0]);
@@ -102,26 +98,34 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
              << work_grp_cnt[2];
 
     int work_grp_size[3];
-
     gl->glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 0, &work_grp_size[0]);
     gl->glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 1, &work_grp_size[1]);
     gl->glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 2, &work_grp_size[2]);
 
-    qDebug() << "max local (in one shader) work group sizes x:" << work_grp_size[0] << " y:" << work_grp_size[1] << " z:"
-           << work_grp_size[2];
+    qDebug() << "max local (in one shader) work group sizes x:" << work_grp_size[0] << " y:" << work_grp_size[1]
+             << " z:"
+             << work_grp_size[2];
 
     clock_t start = clock();
     gl->glDispatchCompute(offscreenSize / 16, offscreenSize / 16, 1);
-    //gl->glMemoryBarrier(GL_ALL_BARRIER_BITS);
     gl->glFinish();
     clock_t stop = clock();
     qDebug() << "dispatchTime " << (stop - start) / (float) CLOCKS_PER_SEC << "s";
 
+    std::vector<float> confMap(texSize.width() * texSize.height());
+    confMapBuf->bind();
+    confMapBuf->read(0, confMap.data(), confMap.size() * sizeof(float));
+
+    //Tutaj tylko do zgrubnego ogladania
+    QImage confMapImg(texSize.width(), texSize.height(), QImage::Format::Format_ARGB32);
+    for (int i = 0; i < confMap.size(); ++i)
+        confMapImg.setPixelColor(i % texSize.width(), texSize.height() - i / texSize.width(),
+                                 QColor(confMap[i] / blockSize.z() * 255, 0, 0));
+    confMapImg.save("confMapK16.png");
+
     // Wyczyszczenie zasobów
     zmapTex->destroy();
-    //K16StampTex->destroy();
-    //F12StampTex->destroy();
-    confMapTex->destroy();
+    confMapBuf->destroy();
 
     gl->doneCurrent();
 }

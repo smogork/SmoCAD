@@ -14,7 +14,10 @@ uniform float u_BlockHeight;
 
 layout(local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 layout (binding = 0) uniform sampler2D heightMapTex;
-layout(r32f, binding = 1) uniform image2D comfMapTex;
+layout(std430, binding = 1) buffer confMapBuf
+{
+    float confMap[];
+};
 
 float CutterHeight(ivec2 pos, float radius, bool isCylindrical)
 {
@@ -37,12 +40,6 @@ void main() {
     int cy = int(gl_GlobalInvocationID.y);
 
     ivec2 texSize = ivec2(gl_NumWorkGroups.xy) * 16;
-
-    /*vec2 texNormalized = vec2(cx, cy) / vec2(texSize);
-    float test = texture(heightMapTex, texNormalized).r
-    imageStore(comfMapTex, ivec2(cx, cy), vec4(test, 0.0, 0.0, 0.0));*/
-
-
     int offsetX = -u_Cutter.TexRadiusX;
     int offsetY = -u_Cutter.TexRadiusY;
     int y0 = cy + offsetY;
@@ -82,5 +79,5 @@ void main() {
     //Powiekszenie do srodka freza
     if (!u_Cutter.isCylindrical)
         confZ += u_Cutter.Radius;
-    imageStore(comfMapTex, ivec2(cx, cy), vec4(confZ, 0.0, 0.0, 0.0));
+    confMap[cy * texSize.x + cx] = confZ;
 }

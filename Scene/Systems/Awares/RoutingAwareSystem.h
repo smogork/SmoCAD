@@ -14,9 +14,10 @@ class RoutingAwareSystem : public ISystem<RoutingAware>
 private:
     std::unique_ptr<ShaderWrapper> zmapStampCreatorShader;
     std::unique_ptr<ShaderWrapper> zmapAnalizerShader;
-    static constexpr float K16_RADIUS = 1.6;
-    static constexpr float K8_RADIUS = 0.8;
-    static constexpr float F12_RADIUS = 1.2;
+    static constexpr float K16_RADIUS = 0.8;
+    static constexpr float K8_RADIUS = 0.4;
+    static constexpr float F12_RADIUS = 0.6;
+    static constexpr float F10_RADIUS = 0.5;
 
     void StartHeighmapRendering(QVector3D blockWorldPos, QVector3D blockSize);
     void FinishHeighmapRendering();

@@ -44,6 +44,17 @@ public:
     std::shared_ptr<QOpenGLTexture> CreateDepthTexture(QSize size,
                                                        QOpenGLTexture::TextureFormat format = QOpenGLTexture::D24S8);
     std::shared_ptr<QOpenGLTexture> CreateFloatTexture32(QSize size);
+    template<class T>
+    std::shared_ptr<QOpenGLBuffer> CreateComputeBuffer(int count)
+    {
+        std::shared_ptr<QOpenGLBuffer> res = std::make_shared<QOpenGLBuffer>();
+        res->create();
+        res->setUsagePattern(QOpenGLBuffer::DynamicCopy);
+        res->bind();
+        res->allocate(sizeof(T) * count);
+        res->release();
+        return res;
+    }
 
 signals:
     void WidgetResized(QSize size);
