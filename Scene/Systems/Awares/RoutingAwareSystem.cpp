@@ -5,6 +5,12 @@
 #include "RoutingAwareSystem.h"
 #include "Scene/SceneECS.h"
 
+void RoutingAwareSystem::ClearSystem()
+{
+    zmapStampCreatorShader.reset();
+    zmapAnalizerShader.reset();
+}
+
 void RoutingAwareSystem::StartHeighmapRendering(QVector3D blockWorldPos, QVector3D blockSize)
 {
     //Przygotowanie specjanych macierzy projekcji i widoku aby wyrenderowac mapę wysokości
@@ -71,62 +77,14 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     FinishHeighmapRendering();
 
     gl->makeCurrent();
-
     // 2. Wykonanie mapy dozwolonych z dla obróbki zgrubnej
-    auto confMapBuf = gl->CreateComputeBuffer<float>(texSize.width() * texSize.height());
+    auto confMapK16 = CreateConfigurationMap(gl, zmapTex, K16_RADIUS, offscreenSize, false, blockSize);
+    DebugSaveConfMap(confMapK16, "confMapK16.png", texSize, blockSize.z());
 
-    int texRadiusX = (unsigned int) std::ceil(K16_RADIUS * offscreenSize / blockSize.x());
-    int texRadiusY = (unsigned int) std::ceil(K16_RADIUS * offscreenSize / blockSize.y());
-    zmapAnalizerShader->SetUniform("u_OutsideCutterVal", blockSize.z() * 10);// Wartosc znacznie wieksza niz blok
-    zmapAnalizerShader->SetUniform("u_BlockHeight", blockSize.z());
-    zmapAnalizerShader->SetUniform("u_Cutter.Radius", K16_RADIUS);
-    zmapAnalizerShader->SetUniform("u_Cutter.TexRadiusX", texRadiusX);
-    zmapAnalizerShader->SetUniform("u_Cutter.TexRadiusY", texRadiusY);
-    zmapAnalizerShader->SetUniform("u_Cutter.isCylindrical", false);
-    zmapAnalizerShader->SetUniform("u_OutsideCutterVal", blockSize.z() * 10);
-
-    zmapAnalizerShader->Bind();
-    zmapTex->bind(0);
-    gl->glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, confMapBuf->bufferId());
-
-    int work_grp_cnt[3];
-    gl->glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &work_grp_cnt[0]);
-    gl->glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, &work_grp_cnt[1]);
-    gl->glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, &work_grp_cnt[2]);
-
-    qDebug() << "max global (total) work group counts  x:" << work_grp_cnt[0] << " y:" << work_grp_cnt[1] << " z:"
-             << work_grp_cnt[2];
-
-    int work_grp_size[3];
-    gl->glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 0, &work_grp_size[0]);
-    gl->glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 1, &work_grp_size[1]);
-    gl->glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 2, &work_grp_size[2]);
-
-    qDebug() << "max local (in one shader) work group sizes x:" << work_grp_size[0] << " y:" << work_grp_size[1]
-             << " z:"
-             << work_grp_size[2];
-
-    clock_t start = clock();
-    gl->glDispatchCompute(offscreenSize / 16, offscreenSize / 16, 1);
-    gl->glFinish();
-    clock_t stop = clock();
-    qDebug() << "dispatchTime " << (stop - start) / (float) CLOCKS_PER_SEC << "s";
-
-    std::vector<float> confMap(texSize.width() * texSize.height());
-    confMapBuf->bind();
-    confMapBuf->read(0, confMap.data(), confMap.size() * sizeof(float));
-
-    //Tutaj tylko do zgrubnego ogladania
-    QImage confMapImg(texSize.width(), texSize.height(), QImage::Format::Format_ARGB32);
-    for (int i = 0; i < confMap.size(); ++i)
-        confMapImg.setPixelColor(i % texSize.width(), texSize.height() - i / texSize.width(),
-                                 QColor(confMap[i] / blockSize.z() * 255, 0, 0));
-    confMapImg.save("confMapK16.png");
+    //3. Generowanie zygzakiem warstw dla obróbki zgrubnej
 
     // Wyczyszczenie zasobów
     zmapTex->destroy();
-    confMapBuf->destroy();
-
     gl->doneCurrent();
 }
 
@@ -153,8 +111,45 @@ std::shared_ptr<QOpenGLTexture> RoutingAwareSystem::CreateStampTexture(
     return stampTex;
 }
 
-void RoutingAwareSystem::ClearSystem()
+
+std::vector<float>
+RoutingAwareSystem::CreateConfigurationMap(GLWidget *gl, std::shared_ptr<QOpenGLTexture> heightTex,
+                                           float radius, int offscreenSize, bool isCylindrical, QVector3D blockSize)
 {
-    zmapStampCreatorShader.reset();
-    zmapAnalizerShader.reset();
+    auto confMapBuf = gl->CreateComputeBuffer<float>(offscreenSize * offscreenSize);
+
+    int texRadiusX = (unsigned int) std::ceil(radius * offscreenSize / blockSize.x());
+    int texRadiusY = (unsigned int) std::ceil(radius * offscreenSize / blockSize.y());
+    zmapAnalizerShader->SetUniform("u_OutsideCutterVal", blockSize.z() * 10);// Wartosc znacznie wieksza niz blok
+    zmapAnalizerShader->SetUniform("u_BlockHeight", blockSize.z());
+    zmapAnalizerShader->SetUniform("u_Cutter.Radius", radius);
+    zmapAnalizerShader->SetUniform("u_Cutter.TexRadiusX", texRadiusX);
+    zmapAnalizerShader->SetUniform("u_Cutter.TexRadiusY", texRadiusY);
+    zmapAnalizerShader->SetUniform("u_Cutter.isCylindrical", isCylindrical);
+    zmapAnalizerShader->SetUniform("u_OutsideCutterVal", blockSize.z() * 10);
+
+    zmapAnalizerShader->Bind();
+    heightTex->bind(0);
+    gl->glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, confMapBuf->bufferId());
+    gl->glDispatchCompute(offscreenSize / 16, offscreenSize / 16, 1);
+    gl->glFinish();
+
+    std::vector<float> confMap(offscreenSize * offscreenSize);
+    confMapBuf->bind();
+    confMapBuf->read(0, confMap.data(), confMap.size() * sizeof(float));
+    confMapBuf->release();
+    confMapBuf->destroy();
+
+    return confMap;
+}
+
+void RoutingAwareSystem::DebugSaveConfMap(const std::vector<float> &map, const QString &path, QSize texSize,
+                                          float blockHeight)
+{
+    //Tutaj tylko do zgrubnego ogladania
+    QImage confMapImg(texSize.width(), texSize.height(), QImage::Format::Format_ARGB32);
+    for (int i = 0; i < map.size(); ++i)
+        confMapImg.setPixelColor(i % texSize.width(), texSize.height() - i / texSize.width() - 1,
+                                 QColor(map[i] / blockHeight * 255, 0, 0));
+    confMapImg.save(path);
 }

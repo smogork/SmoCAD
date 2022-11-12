@@ -25,11 +25,16 @@ private:
 
     std::shared_ptr<QOpenGLTexture> CreateStampTexture(
             GLWidget *gl, float radius, int offscreenSize, bool isCylindrical, QVector3D blockSize);
+    std::vector<float> CreateConfigurationMap(
+            GLWidget *gl, std::shared_ptr<QOpenGLTexture> heightTex, float radius, int offscreenSize,
+            bool isCylindrical, QVector3D blockSize);
+    void DebugSaveConfMap(const std::vector<float>& map, const QString& path, QSize texSize, float blockHeight);
 
 public:
 
     RoutingAwareSystem() : ISystem(SYSTEM_ID::ROUTING_AWARE)
     {}
+    void ClearSystem() override;
 
     const char *GetSystemName() override
     { return "RoutingAwareSystem"; }
@@ -37,8 +42,6 @@ public:
     void
     GenerateRoutes3C(GLWidget *gl, const QString &folderName, QVector3D blockWorldPos, QVector3D blockSize,
                      int offscreenSize);
-
-    void ClearSystem() override;
 
 };
 
