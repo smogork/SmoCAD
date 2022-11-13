@@ -27,7 +27,9 @@ void CutterObject::InitializeDrawing()
 
 void CutterObject::DrawingFunction(QOpenGLContext *context)
 {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL );
     Renderer::DrawTriangles(context->functions(), m_indexCount);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE );
 }
 
 void CutterObject::UniformFunction(std::shared_ptr<ShaderWrapper> shader)

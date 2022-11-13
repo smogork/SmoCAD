@@ -34,7 +34,9 @@ void BlockSideWall::InitializeDrawing()
 
 void BlockSideWall::DrawingFunction(QOpenGLContext *context)
 {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL );
     Renderer::DrawTriangles(context->functions(), m_indexCount);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE );
 }
 
 void BlockSideWall::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
@@ -44,7 +46,7 @@ void BlockSideWall::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
         modelMtx = trans->GetModelMatrix() * modelMtx;
     shader->SetUniform("u_MVP.Model", modelMtx);
     
-    m_heightTexture->bind(0, QOpenGLTexture::ResetTextureUnit);
+    m_heightTexture->bind(0);
     shader->SetUniform("heightTexture", 0);
     shader->SetUniform("u_MaxHeight", (float)m_height);
 }

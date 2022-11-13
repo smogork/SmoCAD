@@ -82,6 +82,13 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     DebugSaveConfMap(confMapK16, "confMapK16.png", texSize, blockSize.z());
 
     //3. Generowanie zygzakiem warstw dla obróbki zgrubnej
+    float heightDelta = 2.5f / 2;
+    QVector3D startPoint1 = {
+            blockSize.x() / 2 - K16_RADIUS / 2,
+            blockSize.z() - heightDelta,
+            blockSize.y() / 2};
+    auto roughLayer1 = GenerateRoughZigZag(confMapK16, startPoint1,
+                                           NegativeLockedX, 0.8f, blockSize, texSize, 0.1f);
 
     // Wyczyszczenie zasobów
     zmapTex->destroy();
@@ -110,7 +117,6 @@ std::shared_ptr<QOpenGLTexture> RoutingAwareSystem::CreateStampTexture(
 
     return stampTex;
 }
-
 
 std::vector<float>
 RoutingAwareSystem::CreateConfigurationMap(GLWidget *gl, std::shared_ptr<QOpenGLTexture> heightTex,
@@ -152,4 +158,90 @@ void RoutingAwareSystem::DebugSaveConfMap(const std::vector<float> &map, const Q
         confMapImg.setPixelColor(i % texSize.width(), texSize.height() - i / texSize.width() - 1,
                                  QColor(map[i] / blockHeight * 255, 0, 0));
     confMapImg.save(path);
+}
+
+std::vector<QVector3D>
+RoutingAwareSystem::GenerateRoughZigZag(const std::vector<float> &confMap, QVector3D startPoint, ZigZagTactic tactic,
+                                        float w, QVector3D blockSize, QSize texSize, float tolerance)
+{
+    //Obróbka przesuwajac sie po X w strone ujemna
+    QPoint texStartPoint = FromBlockToTex(QVector2D(startPoint.x(), startPoint.z()), texSize, blockSize);
+    int texW = w / blockSize.x() * texSize.width();
+
+    //Wygenerowanie zygzaka bez uwzglednienia dopuszczalnej wysokosci
+    bool negInner = texStartPoint.y() > (texSize.height() / 2);
+    std::vector<QPoint> zigzag;
+    for (int x = texStartPoint.x(); x >= 0; x -= texW)
+    {
+        for (int y = negInner ? texSize.height() - 1 : 0;
+              negInner ? y >= 0 : y <= texSize.height() - 1; y += negInner ? -1 : 1)
+            zigzag.emplace_back(x, y);
+
+        if (x - texW >= 0)
+        {
+            for (int i = x - 1; i > x - texW; --i)
+                zigzag.emplace_back(i, negInner ? 0 : texSize.height() - 1);
+        }
+        negInner = !negInner;
+    }
+
+    //Przebudowanie zygzaka na ciag punktow z odpowiednim z
+    std::vector<std::pair<QPoint, float>> unoptimisedPath;
+    for (QPoint p: zigzag)
+    {
+        int idx = p.y() * texSize.width() + p.x();
+
+        //co najwyzej dwukrotnosc tolerancji bledu na powierzchni
+        float mapZ = std::max(startPoint.y(), confMap[idx] + tolerance);
+        unoptimisedPath.emplace_back(std::make_pair(p, mapZ));
+    }
+
+    //Optymalizacja sciezki - wyrzucenie prostych odcinkow oraz zdyskretyzowanie zbocz
+    std::vector<QVector3D> optimisedPath;
+    QPoint lastDir;
+    QPoint lastP;
+    QVector3D lastRes = startPoint;
+    optimisedPath.emplace_back(lastRes);
+    for (std::pair<QPoint, float> p: unoptimisedPath)
+    {
+        QPoint dir = p.first - lastP;
+
+        //Przypadek gdy chodzimy po plaszczyznie, ale zeszlismy z obiektu i Z nie jest do konca plaszczyzna
+        if (p.second == startPoint.y() && std::abs(p.second - lastRes.y()) > 0)
+        {
+            auto blockPos = FromTexToBlock(p.first, texSize, blockSize);
+            optimisedPath.emplace_back(blockPos.x(), startPoint.y(), blockPos.y());
+        }
+            //Przypadek zmiany kierunku
+        else if (lastDir != dir)
+        {
+            auto blockPos = FromTexToBlock(lastP, texSize, blockSize);
+            optimisedPath.emplace_back(blockPos.x(), startPoint.y(), blockPos.y());
+        }
+            //przypadek duzego odchylenia w Z
+        else if (std::abs(p.second - lastRes.y()) > tolerance)
+        {
+            auto blockPos = FromTexToBlock(p.first, texSize, blockSize);
+            optimisedPath.emplace_back(blockPos.x(), p.second, blockPos.y());
+        }
+
+        lastP = p.first;
+        lastDir = dir;
+    }
+    auto blockPos = FromTexToBlock(lastP, texSize, blockSize);
+    optimisedPath.emplace_back(blockPos.x(), startPoint.y(), blockPos.y());
+
+    return optimisedPath;
+}
+
+QPoint RoutingAwareSystem::FromBlockToTex(QVector2D blockPoint, QSize texSize, QVector3D blockSize)
+{
+    auto normalizedSize = blockPoint / blockSize.toVector2D() + QVector2D(0.5f, 0.5f);
+    return {(int) (normalizedSize.x() * texSize.width()), (int) (normalizedSize.y() * texSize.height())};
+}
+
+QVector2D RoutingAwareSystem::FromTexToBlock(QPoint texPoint, QSize texSize, QVector3D blockSize)
+{
+    QVector2D normalizedSize = {(float) texPoint.x() / texSize.width(), (float) texPoint.y() / texSize.height()};
+    return (normalizedSize - QVector2D(0.5f, 0.5f)) * blockSize.toVector2D();
 }

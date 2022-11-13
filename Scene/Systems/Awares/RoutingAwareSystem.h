@@ -12,12 +12,22 @@
 class RoutingAwareSystem : public ISystem<RoutingAware>
 {
 private:
+    enum ZigZagTactic
+    {
+        PositiveLockedX,
+        NegativeLockedX,
+        PositiveLockedY,
+        NegativeLockedY,
+    };
+
+
     std::unique_ptr<ShaderWrapper> zmapStampCreatorShader;
     std::unique_ptr<ShaderWrapper> zmapAnalizerShader;
     static constexpr float K16_RADIUS = 0.8;
     static constexpr float K8_RADIUS = 0.4;
     static constexpr float F12_RADIUS = 0.6;
     static constexpr float F10_RADIUS = 0.5;
+
 
     void StartHeighmapRendering(QVector3D blockWorldPos, QVector3D blockSize);
     void FinishHeighmapRendering();
@@ -29,6 +39,12 @@ private:
             GLWidget *gl, std::shared_ptr<QOpenGLTexture> heightTex, float radius, int offscreenSize,
             bool isCylindrical, QVector3D blockSize);
     void DebugSaveConfMap(const std::vector<float>& map, const QString& path, QSize texSize, float blockHeight);
+
+    std::vector<QVector3D> GenerateRoughZigZag(
+            const std::vector<float> & confMap, QVector3D startPoint, ZigZagTactic tactic, float w, QVector3D blockSize, QSize texSize, float tolerance);
+
+    QPoint FromBlockToTex(QVector2D blockPoint, QSize texSize, QVector3D blockSize);
+    QVector2D FromTexToBlock(QPoint texPoint, QSize texSize, QVector3D blockSize);
 
 public:
 
