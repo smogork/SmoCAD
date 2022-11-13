@@ -88,11 +88,19 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
             blockSize.x() / 2 - K16_RADIUS / 2,
             blockSize.z() - heightDelta,
             blockSize.y() / 2};
+    QVector3D startPoint2 = {
+            -(blockSize.x() / 2 - K16_RADIUS / 2),
+            blockSize.z() - 2 * heightDelta,
+            blockSize.y() / 2};
+
     auto roughLayer1 = GenerateRoughZigZag(confMapK16, startPoint1,
                                            0.8f, blockSize, texSize, 0.1f, X, Negative);
+    auto roughLayer2 = GenerateRoughZigZag(confMapK16, startPoint2,
+                                           0.8f, blockSize, texSize, 0.1f, X, Positive);
 
     CutterPath roughPath(CutterParameters(Length::FromMilimeters(16), CutterType::Spherical));
     roughPath.Points.insert(roughPath.Points.end(), roughLayer1.begin(), roughLayer1.end());
+    roughPath.Points.insert(roughPath.Points.end(), roughLayer2.begin(), roughLayer2.end());
     GCodeSaver::SaveCutterPath(folderName, roughPath, 1);
 
     // Wyczyszczenie zasobów
@@ -183,9 +191,10 @@ RoutingAwareSystem::GenerateRoughZigZag(const std::vector<float> &confMap, QVect
     {
         QPoint texPoint = zigzag[i].first - QPoint(texW, texW);
         float height = startPoint.y();
-        int idx = texPoint.y() * texSize.width() + texPoint.x();
+        //Uwaga na zamienione wspolrzedne!
+        int idx = texPoint.x() * texSize.width() + texPoint.y();
         if (idx >= 0 && idx < confMap.size())//co najwyzej dwukrotnosc tolerancji bledu na powierzchni
-            height = std::max(height, confMap[idx] + tolerance);
+            height = std::max(height, confMap[idx] + 2 * tolerance);
 
 
         zigzag[i].first = texPoint;
@@ -219,7 +228,7 @@ RoutingAwareSystem::GenerateRoughZigZag(const std::vector<float> &confMap, QVect
             optimisedPath.emplace_back(blockPos.x(), startPoint.y(), blockPos.y());
         }
             //przypadek duzego odchylenia w Z
-        else if (std::abs(p.second - optimisedPath.back().y()) > tolerance)
+        else if (std::abs(p.second - optimisedPath.back().y()) > tolerance / 2)
         {
             auto blockPos = FromTexToBlock(p.first, texSize, blockSize);
             optimisedPath.emplace_back(blockPos.x(), p.second, blockPos.y());
@@ -256,7 +265,7 @@ RoutingAwareSystem::CreateZigZagPoints(QPoint startPoint, int width, float heigh
     if (variable == X)
     {
         bool negInner = startPoint.y() > (planeSize.height() / 2);
-        for (int x = startPoint.x(); x >= 0; x += width * (direction == Positive ? 1 : -1))
+        for (int x = startPoint.x(); direction == Positive ? x < planeSize.width() : x >= 0; x += width * (direction == Positive ? 1 : -1))
         {
             for (int y = negInner ? planeSize.height() - 1 : 0;
                  negInner ? y >= 0 : y <= planeSize.height() - 1; y += (negInner ? -1 : 1))
@@ -275,7 +284,7 @@ RoutingAwareSystem::CreateZigZagPoints(QPoint startPoint, int width, float heigh
     } else
     {
         bool negInner = startPoint.x() > (planeSize.width() / 2);
-        for (int y = startPoint.y(); y >= 0; y += width * (direction == Positive ? 1 : -1))
+        for (int y = startPoint.y(); direction == Positive ? y < planeSize.height() : y >= 0; y += width * (direction == Positive ? 1 : -1))
         {
             for (int x = negInner ? planeSize.width() - 1 : 0;
                  negInner ? x >= 0 : x <= planeSize.width() - 1; x += negInner ? -1 : 1)
