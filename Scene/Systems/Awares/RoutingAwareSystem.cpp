@@ -4,6 +4,7 @@
 
 #include "RoutingAwareSystem.h"
 #include "Scene/SceneECS.h"
+#include "FileManagers/GCodeSaver.h"
 
 void RoutingAwareSystem::ClearSystem()
 {
@@ -89,6 +90,10 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
             blockSize.y() / 2};
     auto roughLayer1 = GenerateRoughZigZag(confMapK16, startPoint1,
                                            NegativeLockedX, 0.8f, blockSize, texSize, 0.1f);
+
+    CutterPath roughPath(CutterParameters(Length::FromMilimeters(16), CutterType::Spherical));
+    roughPath.Points.insert(roughPath.Points.end(), roughLayer1.begin(), roughLayer1.end());
+    GCodeSaver::SaveCutterPath(folderName, roughPath, 1);
 
     // Wyczyszczenie zasobów
     zmapTex->destroy();
