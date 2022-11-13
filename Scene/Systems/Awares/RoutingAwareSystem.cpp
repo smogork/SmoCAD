@@ -89,7 +89,7 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
             blockSize.z() - heightDelta,
             blockSize.y() / 2};
     auto roughLayer1 = GenerateRoughZigZag(confMapK16, startPoint1,
-                                           NegativeLockedX, 0.8f, blockSize, texSize, 0.1f);
+                                           0.8f, blockSize, texSize, 0.1f, X, Negative);
 
     CutterPath roughPath(CutterParameters(Length::FromMilimeters(16), CutterType::Spherical));
     roughPath.Points.insert(roughPath.Points.end(), roughLayer1.begin(), roughLayer1.end());
@@ -166,53 +166,48 @@ void RoutingAwareSystem::DebugSaveConfMap(const std::vector<float> &map, const Q
 }
 
 std::vector<QVector3D>
-RoutingAwareSystem::GenerateRoughZigZag(const std::vector<float> &confMap, QVector3D startPoint, ZigZagTactic tactic,
-                                        float w, QVector3D blockSize, QSize texSize, float tolerance)
+RoutingAwareSystem::GenerateRoughZigZag(const std::vector<float> &confMap, QVector3D startPoint, float w,
+                                        QVector3D blockSize, QSize texSize, float tolerance, ZigZagVariable variable, ZigZagDirection direction)
 {
     //Obróbka przesuwajac sie po X w strone ujemna
     QPoint texStartPoint = FromBlockToTex(QVector2D(startPoint.x(), startPoint.z()), texSize, blockSize);
     int texW = w / blockSize.x() * texSize.width();
 
     //Wygenerowanie zygzaka bez uwzglednienia dopuszczalnej wysokosci
-    bool negInner = texStartPoint.y() > (texSize.height() / 2);
-    std::vector<QPoint> zigzag;
-    for (int x = texStartPoint.x(); x >= 0; x -= texW)
+    QSize planeSize = texSize + QSize(2 * texW, 2 * texW);
+    auto zigzag = CreateZigZagPoints(texStartPoint + QPoint(texW, texW),
+                                     texW, startPoint.y(), planeSize, variable, direction);
+
+    //Weryfikacja wyskosci zygzaka i przeorbienie punktow na wspolrzedne textury
+    for (int i = 0; i < zigzag.size(); ++i)
     {
-        for (int y = negInner ? texSize.height() - 1 : 0;
-              negInner ? y >= 0 : y <= texSize.height() - 1; y += negInner ? -1 : 1)
-            zigzag.emplace_back(x, y);
+        QPoint texPoint = zigzag[i].first - QPoint(texW, texW);
+        float height = startPoint.y();
+        int idx = texPoint.y() * texSize.width() + texPoint.x();
+        if (idx >= 0 && idx < confMap.size())//co najwyzej dwukrotnosc tolerancji bledu na powierzchni
+            height = std::max(height, confMap[idx] + tolerance);
 
-        if (x - texW >= 0)
-        {
-            for (int i = x - 1; i > x - texW; --i)
-                zigzag.emplace_back(i, negInner ? 0 : texSize.height() - 1);
-        }
-        negInner = !negInner;
-    }
 
-    //Przebudowanie zygzaka na ciag punktow z odpowiednim z
-    std::vector<std::pair<QPoint, float>> unoptimisedPath;
-    for (QPoint p: zigzag)
-    {
-        int idx = p.y() * texSize.width() + p.x();
-
-        //co najwyzej dwukrotnosc tolerancji bledu na powierzchni
-        float mapZ = std::max(startPoint.y(), confMap[idx] + tolerance);
-        unoptimisedPath.emplace_back(std::make_pair(p, mapZ));
+        zigzag[i].first = texPoint;
+        zigzag[i].second = height;
     }
 
     //Optymalizacja sciezki - wyrzucenie prostych odcinkow oraz zdyskretyzowanie zbocz
     std::vector<QVector3D> optimisedPath;
     QPoint lastDir;
     QPoint lastP;
-    QVector3D lastRes = startPoint;
-    optimisedPath.emplace_back(lastRes);
-    for (std::pair<QPoint, float> p: unoptimisedPath)
+    for (std::pair<QPoint, float> p: zigzag)
     {
         QPoint dir = p.first - lastP;
 
+        //Przypadek pierwszego punktu
+        if (optimisedPath.size() == 0)
+        {
+            auto blockPos = FromTexToBlock(p.first, texSize, blockSize);
+            optimisedPath.emplace_back(blockPos.x(), p.second, blockPos.y());
+        }
         //Przypadek gdy chodzimy po plaszczyznie, ale zeszlismy z obiektu i Z nie jest do konca plaszczyzna
-        if (p.second == startPoint.y() && std::abs(p.second - lastRes.y()) > 0)
+        else if (p.second == startPoint.y() && std::abs(p.second - optimisedPath.back().y()) > 0)
         {
             auto blockPos = FromTexToBlock(p.first, texSize, blockSize);
             optimisedPath.emplace_back(blockPos.x(), startPoint.y(), blockPos.y());
@@ -224,7 +219,7 @@ RoutingAwareSystem::GenerateRoughZigZag(const std::vector<float> &confMap, QVect
             optimisedPath.emplace_back(blockPos.x(), startPoint.y(), blockPos.y());
         }
             //przypadek duzego odchylenia w Z
-        else if (std::abs(p.second - lastRes.y()) > tolerance)
+        else if (std::abs(p.second - optimisedPath.back().y()) > tolerance)
         {
             auto blockPos = FromTexToBlock(p.first, texSize, blockSize);
             optimisedPath.emplace_back(blockPos.x(), p.second, blockPos.y());
@@ -249,4 +244,52 @@ QVector2D RoutingAwareSystem::FromTexToBlock(QPoint texPoint, QSize texSize, QVe
 {
     QVector2D normalizedSize = {(float) texPoint.x() / texSize.width(), (float) texPoint.y() / texSize.height()};
     return (normalizedSize - QVector2D(0.5f, 0.5f)) * blockSize.toVector2D();
+}
+
+std::vector<std::pair<QPoint, float>>
+RoutingAwareSystem::CreateZigZagPoints(QPoint startPoint, int width, float height, QSize planeSize,
+                                       ZigZagVariable variable, ZigZagDirection direction)
+{
+
+    std::vector<std::pair<QPoint, float>> zigzag;
+
+    if (variable == X)
+    {
+        bool negInner = startPoint.y() > (planeSize.height() / 2);
+        for (int x = startPoint.x(); x >= 0; x += width * (direction == Positive ? 1 : -1))
+        {
+            for (int y = negInner ? planeSize.height() - 1 : 0;
+                 negInner ? y >= 0 : y <= planeSize.height() - 1; y += (negInner ? -1 : 1))
+            {
+                zigzag.emplace_back(std::make_pair(QPoint(x, y), height));
+            }
+
+            if (direction == Positive ? x + width <= planeSize.width() : x - width >= 0)
+            {
+                for (int i = x +  (direction == Positive ? 1 : -1);
+                     direction == Positive ? i < x + width : i > x - width; i += (direction == Positive ? 1 : -1))
+                    zigzag.emplace_back(std::make_pair(QPoint(i, negInner ? 0 : planeSize.height() - 1), height));
+            }
+            negInner = !negInner;
+        }
+    } else
+    {
+        bool negInner = startPoint.x() > (planeSize.width() / 2);
+        for (int y = startPoint.y(); y >= 0; y += width * (direction == Positive ? 1 : -1))
+        {
+            for (int x = negInner ? planeSize.width() - 1 : 0;
+                 negInner ? x >= 0 : x <= planeSize.width() - 1; x += negInner ? -1 : 1)
+                zigzag.emplace_back(std::make_pair(QPoint(x, y), height));
+
+            if (direction == Positive ? y + width <= planeSize.height() : y - width >= 0)
+            {
+                for (int i = y + (direction == Positive ? 1 : -1);
+                     direction == Positive ? i < y + width : i > y - width; i += (direction == Positive ? 1 : -1))
+                    zigzag.emplace_back(std::make_pair(QPoint(negInner ? 0 : planeSize.width() - 1, i), height));
+            }
+            negInner = !negInner;
+        }
+    }
+
+    return zigzag;
 }

@@ -12,14 +12,15 @@
 class RoutingAwareSystem : public ISystem<RoutingAware>
 {
 private:
-    enum ZigZagTactic
+    enum ZigZagVariable
     {
-        PositiveLockedX,
-        NegativeLockedX,
-        PositiveLockedY,
-        NegativeLockedY,
+        X, Y
     };
 
+    enum ZigZagDirection
+    {
+        Positive, Negative
+    };
 
     std::unique_ptr<ShaderWrapper> zmapStampCreatorShader;
     std::unique_ptr<ShaderWrapper> zmapAnalizerShader;
@@ -27,7 +28,6 @@ private:
     static constexpr float K8_RADIUS = 0.4;
     static constexpr float F12_RADIUS = 0.6;
     static constexpr float F10_RADIUS = 0.5;
-
 
     void StartHeighmapRendering(QVector3D blockWorldPos, QVector3D blockSize);
     void FinishHeighmapRendering();
@@ -38,10 +38,14 @@ private:
     std::vector<float> CreateConfigurationMap(
             GLWidget *gl, std::shared_ptr<QOpenGLTexture> heightTex, float radius, int offscreenSize,
             bool isCylindrical, QVector3D blockSize);
-    void DebugSaveConfMap(const std::vector<float>& map, const QString& path, QSize texSize, float blockHeight);
+    void DebugSaveConfMap(const std::vector<float> &map, const QString &path, QSize texSize, float blockHeight);
 
     std::vector<QVector3D> GenerateRoughZigZag(
-            const std::vector<float> & confMap, QVector3D startPoint, ZigZagTactic tactic, float w, QVector3D blockSize, QSize texSize, float tolerance);
+            const std::vector<float> &confMap, QVector3D startPoint, float w, QVector3D blockSize, QSize texSize,
+            float tolerance, ZigZagVariable variable, ZigZagDirection direction);
+    std::vector<std::pair<QPoint, float>>
+    CreateZigZagPoints(QPoint startPoint, int width, float height, QSize planeSize, ZigZagVariable variable,
+                       ZigZagDirection direction);
 
     QPoint FromBlockToTex(QVector2D blockPoint, QSize texSize, QVector3D blockSize);
     QVector2D FromTexToBlock(QPoint texPoint, QSize texSize, QVector3D blockSize);
@@ -50,6 +54,7 @@ public:
 
     RoutingAwareSystem() : ISystem(SYSTEM_ID::ROUTING_AWARE)
     {}
+
     void ClearSystem() override;
 
     const char *GetSystemName() override
