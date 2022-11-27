@@ -1,6 +1,5 @@
 #include <QOpenGLFunctions_4_4_Core>
 #include <memory>
-#include <QOpenGLTexture>
 #include "glwidget.h"
 #include "Scene/Systems/DrawingSystem.h"
 #include "Scene/SceneECS.h"
@@ -18,7 +17,6 @@ GLWidget::GLWidget(QWidget *pWidget)
     makeCurrent();
 
     m_logger = std::make_unique<QOpenGLDebugLogger>(this);
-
 
     QObject::connect(m_logger.get(), &QOpenGLDebugLogger::messageLogged,
                      this, &GLWidget::OnOpenGLError);
@@ -85,7 +83,8 @@ void GLWidget::paintGL()
     }
 }
 
-void GLWidget::DrawOffscreen(QSize bufferSize, std::function<void(QOpenGLContext* context)> renderFunction)
+std::shared_ptr<QOpenGLTexture>
+GLWidget::DrawOffscreen(QSize bufferSize, std::function<void(QOpenGLContext *context)> renderFunction)
 {
     //the context should be valid. make sure it is current for painting
     makeCurrent();
@@ -106,21 +105,11 @@ void GLWidget::DrawOffscreen(QSize bufferSize, std::function<void(QOpenGLContext
     }
 
     //GLuint fbo = m_fbo->handle();
+    auto depthTex = CreateDepthTexture(bufferSize, QOpenGLTexture::D32);
 
-    QOpenGLTexture depthTex(QOpenGLTexture::Target::Target2D);//TODO: wyciagnac teksture na zewnatrz
-    //depthTex.setMinMagFilters(QOpenGLTexture::Filter::LinearMipMapLinear, QOpenGLTexture::Filter::NearestMipMapLinear);
-    depthTex.create();
-
-    depthTex.setSize(bufferSize.width(), bufferSize.height());
-    depthTex.setFormat(QOpenGLTexture::D32F);
-    depthTex.setAutoMipMapGenerationEnabled(false);
-    depthTex.setMipBaseLevel(0);
-
-    depthTex.setWrapMode(QOpenGLTexture::ClampToEdge);
-    depthTex.allocateStorage(QOpenGLTexture::Depth, QOpenGLTexture::Float32);
     //depthTex.setDepthStencilMode(QOpenGLTexture::DepthMode);
     m_fbo->bind();
-    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D,  depthTex.textureId(), 0);
+    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTex->textureId(), 0);
 
     //#2 WORKS: bind FBO and render stuff with paintGL() call
 
@@ -133,14 +122,15 @@ void GLWidget::DrawOffscreen(QSize bufferSize, std::function<void(QOpenGLContext
     QImage image2 = m_fbo->toImage();
     image2.save(QString("offscreenFB.png"));
     m_fbo->release();
-    depthTex.destroy();//[TODO] Do wyrzucenia
     //#2 --------------------------------------------------------------
 
     //bind default framebuffer again. not sure if this necessary
     //and isn't supposed to use defaultFramebuffer()...
     m_fbo->bindDefault();
     //resizeGL(width(), height());
-    doneCurrent();
+    //doneCurrent();
+
+    return depthTex;
 }
 
 GLWidget::~GLWidget()
@@ -176,24 +166,24 @@ void GLWidget::LoadShaders()
                                                         "Shaders/simple_color.frag"));
     Renderer::AddShader(BEZIER_SHADER,
                         std::make_shared<ShaderWrapper>("Shaders/Curves/bezier.vert", "Shaders/Curves/bezier.frag",
-                                                        "Shaders/Curves/bezier.tess", "Shaders/Curves/bezier.eval"));
+                                                        "Shaders/Curves/bezier.tesc", "Shaders/Curves/bezier.tese"));
     Renderer::AddShader(BEZIERC2_SHADER,
                         std::make_shared<ShaderWrapper>("Shaders/Curves/bezierC2.vert", "Shaders/Curves/bezierC2.frag",
-                                                        "Shaders/Curves/bezierC2.tess",
-                                                        "Shaders/Curves/bezierC2.eval"));
+                                                        "Shaders/Curves/bezierC2.tesc",
+                                                        "Shaders/Curves/bezierC2.tese"));
     Renderer::AddShader(PLANE_SHADER,
                         std::make_shared<ShaderWrapper>("Shaders/Planes/plane.vert", "Shaders/Planes/plane.frag",
-                                                        "Shaders/Planes/plane.tess", "Shaders/Planes/plane.eval"));
+                                                        "Shaders/Planes/plane.tesc", "Shaders/Planes/plane.tese"));
     Renderer::AddShader(PLANEC2_SHADER,
                         std::make_shared<ShaderWrapper>("Shaders/Planes/planeC2.vert", "Shaders/Planes/planeC2.frag",
-                                                        "Shaders/Planes/planeC2.tess", "Shaders/Planes/planeC2.eval"));
+                                                        "Shaders/Planes/planeC2.tesc", "Shaders/Planes/planeC2.tese"));
     Renderer::AddShader(SELECT_RECT_SHADER,
                         std::make_shared<ShaderWrapper>("Shaders/select_rect.vert", "Shaders/select_rect.frag"));
     Renderer::AddShader(FILL_PLANE_SHADER,
                         std::make_shared<ShaderWrapper>("Shaders/Planes/gregory_plane.vert",
                                                         "Shaders/Planes/gregory_plane.frag",
-                                                        "Shaders/Planes/gregory_plane.tess",
-                                                        "Shaders/Planes/gregory_plane.eval"));
+                                                        "Shaders/Planes/gregory_plane.tesc",
+                                                        "Shaders/Planes/gregory_plane.tese"));
     Renderer::AddShader(BLOCK_LOWERWALL_SHADER, std::make_shared<ShaderWrapper>("Shaders/Simulator3C/lower_wall.vert",
                                                                                 "Shaders/Simulator3C/lower_wall.frag"));
     Renderer::AddShader(BLOCK_SIDEWALL_SHADER, std::make_shared<ShaderWrapper>("Shaders/Simulator3C/side_wall.vert",
@@ -226,6 +216,36 @@ void GLWidget::OnOpenGLError(const QOpenGLDebugMessage &debugMessage)
 {
     if (debugMessage.severity() < QOpenGLDebugMessage::NotificationSeverity)
         qDebug() << "OpenGL message: " << debugMessage;
+}
+
+std::shared_ptr<QOpenGLTexture> GLWidget::CreateDepthTexture(QSize size, QOpenGLTexture::TextureFormat format)
+{
+    std::shared_ptr<QOpenGLTexture> depthTex = std::make_shared<QOpenGLTexture>(QOpenGLTexture::Target::Target2D);
+    depthTex->create();
+
+    depthTex->setSize(size.width(), size.height());
+    depthTex->setFormat(format);
+    depthTex->setAutoMipMapGenerationEnabled(false);
+    depthTex->setMipBaseLevel(0);
+
+    depthTex->setWrapMode(QOpenGLTexture::ClampToEdge);
+    depthTex->allocateStorage(QOpenGLTexture::Depth, QOpenGLTexture::Float32);
+    return depthTex;
+}
+
+std::shared_ptr<QOpenGLTexture> GLWidget::CreateFloatTexture32(QSize size)
+{
+    std::shared_ptr<QOpenGLTexture> tex = std::make_shared<QOpenGLTexture>(QOpenGLTexture::Target::Target2D);
+    tex->create();
+
+    tex->setSize(size.width(), size.height());
+    tex->setFormat(QOpenGLTexture::R32F);
+    tex->setAutoMipMapGenerationEnabled(false);
+    tex->setMipBaseLevel(0);
+
+    tex->setWrapMode(QOpenGLTexture::ClampToEdge);
+    tex->allocateStorage(QOpenGLTexture::Depth, QOpenGLTexture::Float32);
+    return tex;
 }
 
 

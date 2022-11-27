@@ -33,24 +33,24 @@ set(SHADER_FILES
         Shaders/uniform_color.vert
         Shaders/simple_color.frag
         Shaders/Curves/bezier.vert
-        Shaders/Curves/bezier.tess
-        Shaders/Curves/bezier.eval
+        Shaders/Curves/bezier.tesc
+        Shaders/Curves/bezier.tese
         Shaders/Curves/bezier.frag
         Shaders/Curves/bezierC2.vert
-        Shaders/Curves/bezierC2.tess
-        Shaders/Curves/bezierC2.eval
+        Shaders/Curves/bezierC2.tesc
+        Shaders/Curves/bezierC2.tese
         Shaders/Curves/bezierC2.frag
         Shaders/Planes/plane.vert
-        Shaders/Planes/plane.tess
-        Shaders/Planes/plane.eval
+        Shaders/Planes/plane.tesc
+        Shaders/Planes/plane.tese
         Shaders/Planes/plane.frag
         Shaders/Planes/planeC2.vert
-        Shaders/Planes/planeC2.tess
-        Shaders/Planes/planeC2.eval
+        Shaders/Planes/planeC2.tesc
+        Shaders/Planes/planeC2.tese
         Shaders/Planes/planeC2.frag
         Shaders/Planes/gregory_plane.vert
-        Shaders/Planes/gregory_plane.tess
-        Shaders/Planes/gregory_plane.eval
+        Shaders/Planes/gregory_plane.tesc
+        Shaders/Planes/gregory_plane.tese
         Shaders/Planes/gregory_plane.frag
         Shaders/select_rect.vert
         Shaders/select_rect.frag
@@ -64,6 +64,8 @@ set(SHADER_FILES
         Shaders/Simulator3C/upper_wall.frag
         Shaders/Simulator3C/cutter.vert
         Shaders/Simulator3C/cutter.frag
+        Shaders/Compute/prepareCutterStamp.comp
+        Shaders/Compute/zmapConfiguration.comp
         )
 
 set(MATH_FILES
@@ -180,8 +182,8 @@ set(PROJECT_SOURCES
         Scene/Components/IntersectionResult.cpp Scene/Components/IntersectionResult.h
         Scene/Entities/Simulator/Simulator3C.cpp Scene/Entities/Simulator/Simulator3C.h
         Scene/Entities/Simulator/CutterParameters.cpp Scene/Entities/Simulator/CutterParameters.h
-        Loaders/GCodeLoader.cpp Loaders/GCodeLoader.h
-        Scene/Entities/Simulator/CutterPath.cpp Scene/Entities/Simulator/CutterPath.h
+        FileManagers/GCodeLoader.cpp FileManagers/GCodeLoader.h
+        FileManagers/CutterPath.cpp FileManagers/CutterPath.h
         Scene/Entities/Simulator/CutterObject.cpp Scene/Entities/Simulator/CutterObject.h
         Mathematics/Units/Unit.cpp Mathematics/Units/Unit.h
         Mathematics/Units/Length.cpp Mathematics/Units/Length.h
@@ -191,7 +193,7 @@ set(PROJECT_SOURCES
         Scene/Entities/Simulator/BlockSideWall.cpp Scene/Entities/Simulator/BlockSideWall.h
         Scene/Entities/Simulator/BlockLowerWall.cpp Scene/Entities/Simulator/BlockLowerWall.h
         Scene/Entities/Simulator/CutterPathPolyline.cpp Scene/Entities/Simulator/CutterPathPolyline.h
-        Scene/Entities/Simulator/BlockParameters.cpp Scene/Entities/Simulator/BlockParameters.h Scene/Components/Simulator3CComponent.cpp Scene/Components/Simulator3CComponent.h Scene/Systems/Simulator3CSystem.cpp Scene/Systems/Simulator3CSystem.h Scene/Utilities/QImageOperator.cpp Scene/Utilities/QImageOperator.h Scene/Entities/Simulator/SimulationProcess.cpp Scene/Entities/Simulator/SimulationProcess.h Scene/Systems/Awares/RoutingAwareSystem.cpp Scene/Systems/Awares/RoutingAwareSystem.h Scene/Components/Awares/RoutingAware.cpp Scene/Components/Awares/RoutingAware.h)
+        Scene/Entities/Simulator/BlockParameters.cpp Scene/Entities/Simulator/BlockParameters.h Scene/Components/Simulator3CComponent.cpp Scene/Components/Simulator3CComponent.h Scene/Systems/Simulator3CSystem.cpp Scene/Systems/Simulator3CSystem.h Scene/Utilities/QImageOperator.cpp Scene/Utilities/QImageOperator.h Scene/Entities/Simulator/SimulationProcess.cpp Scene/Entities/Simulator/SimulationProcess.h Scene/Systems/Awares/RoutingAwareSystem.cpp Scene/Systems/Awares/RoutingAwareSystem.h Scene/Components/Awares/RoutingAware.cpp Scene/Components/Awares/RoutingAware.h FileManagers/GCodeSaver.cpp FileManagers/GCodeSaver.h)
 
 add_subdirectory(Tests)
 add_subdirectory(ThirdParty/Scene-Serializer/cpp/Serializer)
@@ -251,13 +253,17 @@ set_target_properties(SmoCAD PROPERTIES
         WIN32_EXECUTABLE TRUE
         )
 
-# Copy shaders
+# Copy shaders (TODO: Wymusic aby przy kazdym przebudowanie cmake kopiowal i walidowal shadery)
+# https://stackoverflow.com/questions/36483801/cmake-softlink-resource-such-as-glsl-shaders-or-copy-each-complilation
 foreach (shader_file ${SHADER_FILES})
     add_custom_command(
             TARGET SmoCAD POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy
             ${CMAKE_SOURCE_DIR}/${shader_file}
             ${CMAKE_CURRENT_BINARY_DIR}/${shader_file})
+
+    add_custom_command(TARGET SmoCAD POST_BUILD
+                       COMMAND glslangValidator ${CMAKE_SOURCE_DIR}/${shader_file})
 endforeach (shader_file)
 
 # Copy resources

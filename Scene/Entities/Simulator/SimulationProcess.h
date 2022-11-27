@@ -8,7 +8,7 @@
 #include <QThread>
 #include <QMutex>
 #include "Scene/Utilities/QImageOperator.h"
-#include "CutterPath.h"
+#include "FileManagers/CutterPath.h"
 #include "BlockParameters.h"
 
 class SimulationProcess: public QThread

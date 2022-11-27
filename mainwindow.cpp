@@ -281,16 +281,15 @@ void MainWindow::on_actionShow_Bezier_mesh_triggered(bool checked)
 
 void MainWindow::on_actionGenerate_routes_triggered()
 {
+    //[TODO] Stworzyc dialog do wybrania tych 4 parametrow
+    QVector3D StartPoint = {0, -2.5f, 0};//W jednostkach na scenie!
+    QVector3D BlockSize = {15, 15, 5};//W jednostkach na scenie!
+    QString folderName = "RoutesTest";
     const int offscreenSize = 1024;
-    ui->sceneWidget->DrawOffscreen({offscreenSize, offscreenSize}, [offscreenSize](QOpenGLContext* context){
-        if (auto scene = SceneECS::Instance().lock())
-            if (auto r = scene->GetSystem<RoutingAwareSystem>().lock())
-            {
-                r->StartHeighmapRendering();
-                r->RenderHeightmap(context);
-                r->FinishHeighmapRendering();
-            }
-    });
+
+    if (auto scene = SceneECS::Instance().lock())
+        if (auto r = scene->GetSystem<RoutingAwareSystem>().lock())
+            r->GenerateRoutes3C(ui->sceneWidget, folderName, StartPoint, BlockSize, offscreenSize);
 }
 
 

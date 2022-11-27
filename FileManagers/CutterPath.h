@@ -7,7 +7,7 @@
 
 #include <vector>
 #include <QVector3D>
-#include "CutterParameters.h"
+#include "Scene/Entities/Simulator/CutterParameters.h"
 
 class CutterPath
 {

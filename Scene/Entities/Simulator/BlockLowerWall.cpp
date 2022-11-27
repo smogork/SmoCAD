@@ -26,7 +26,9 @@ void BlockLowerWall::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
 
 void BlockLowerWall::DrawingFunction(QOpenGLContext *context)
 {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL );
     Renderer::DrawTriangles(context->functions(), 6);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE );
 }
 
 void BlockLowerWall::InitializeDrawing()

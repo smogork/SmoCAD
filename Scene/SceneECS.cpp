@@ -27,6 +27,7 @@
 #include "Scene/Entities/Curves/BezierC2.h"
 #include "Scene/Entities/Planes/PlaneC2.h"
 #include "Scene/Entities/SelectRectangle.h"
+#include "Scene/Entities/Simulator/Simulator3C.h"
 
 #include "Controls/ComponentControl.h"
 
@@ -107,7 +108,8 @@ void SceneECS::InitUniqueObjects()
 
 void SceneECS::InitSceneObjects()
 {
-
+    LoadSceneFromFile("../docs/saves/dzban_v4.1.json");
+    AddObjectExplicitPosition(std::make_shared<Simulator3C>("Simulator3C", QVector3D(20, -2.5, 0)));
 }
 
 void SceneECS::RemoveUniqueObjects()

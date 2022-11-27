@@ -6,7 +6,7 @@
 #define SMOCAD_CUTTERPATHPOLYLINE_H
 
 #include "Scene/Entities/IEntity.h"
-#include "CutterPath.h"
+#include "FileManagers/CutterPath.h"
 #include "Scene/Components/Transform.h"
 #include "Scene/Components/Drawing/StaticDrawing.h"
 

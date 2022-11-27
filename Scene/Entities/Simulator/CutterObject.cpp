@@ -20,14 +20,16 @@ void CutterObject::InitializeDrawing()
     p_Drawing->p_bufferLayout.Push<float>(3);//position
     if (auto sh = Renderer::GetShader(SIMULATOR_CUTTER_SHADER).lock())
         p_Drawing->AttachShader(sh);
-    
+
     p_Drawing->p_renderingFunction = ASSIGN_DRAWING_FUNCTION(&CutterObject::DrawingFunction);
     p_Drawing->p_uniformFunction = ASSIGN_UNIFORM_FUNCTION(&CutterObject::UniformFunction);
 }
 
 void CutterObject::DrawingFunction(QOpenGLContext *context)
 {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     Renderer::DrawTriangles(context->functions(), m_indexCount);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
 void CutterObject::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
@@ -41,19 +43,18 @@ void CutterObject::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
 std::vector<float> CutterObject::GenerateGeometryVertices()
 {
     std::vector<float> res;
-    
+
     std::vector<QVector3D> topCover = PointShapes::CreateCircle(QVector3D(0, CutterHeight, 0),
                                                                 m_params.Diameter.GetSceneUnits() / 2,
                                                                 VertexRCount, XZ);
-    
+
     std::vector<QVector3D> cylinder, bottom;
     switch (m_params.Type)
     {
         case Cylindrical:
             cylinder =
                     PointShapes::CreateTube(QVector3D(), m_params.Diameter.GetSceneUnits() / 2, CutterHeight,
-                                            VertexRCount,
-                                            VertexLCount, XY);
+                                            VertexRCount, VertexLCount, XY);
             bottom = PointShapes::CreateCircle(QVector3D(), m_params.Diameter.GetSceneUnits() / 2,
                                                VertexRCount, XZ);
             break;
@@ -68,7 +69,7 @@ std::vector<float> CutterObject::GenerateGeometryVertices()
                                                    VertexRCount, VertexThetaCount, XZ);
             break;
     }
-    
+
     AppendToVertices(res, topCover);
     AppendToVertices(res, cylinder);
     AppendToVertices(res, bottom);
@@ -90,12 +91,12 @@ std::vector<int> CutterObject::GenerateTopologyIndices()
             bottom = PointShapes::HalfSphereTriangleIndices(VertexRCount, VertexThetaCount, false, &offset);
             break;
     }
-    
+
     std::vector<int> res;
     res.insert(res.end(), topCoverIndices.begin(), topCoverIndices.end());
     res.insert(res.end(), tubeIndices.begin(), tubeIndices.end());
     res.insert(res.end(), bottom.begin(), bottom.end());
-    
+
     m_indexCount = res.size();
     return res;
 }
@@ -108,14 +109,14 @@ void CutterObject::AppendToVertices(std::vector<float> &vertices, const std::vec
         vertices.push_back(p.y());
         vertices.push_back(p.z());
     }
-    
+
 }
 
 void CutterObject::SetCutterParameters(Length diameter, CutterType type)
 {
     m_params.Diameter = diameter;
     m_params.Type = type;
-    
+
     p_Drawing->SetVertexData(GenerateGeometryVertices());
     p_Drawing->SetIndexData(GenerateTopologyIndices());
 }
