@@ -437,7 +437,7 @@ RoutingAwareSystem::CreateZigZagLines(QPoint startPoint, int width, QPoint zigZa
         {
             std::vector<QPoint> zigzag;
             for (int x = negInner ? zigZagBoundaries.y() : zigZagBoundaries.x();
-                 negInner ? x >= 0 : x <= zigZagBoundaries.y(); x += negInner ? -1 : 1)
+                 negInner ? x >= zigZagBoundaries.x() : x <= zigZagBoundaries.y(); x += negInner ? -1 : 1)
                 zigzag.emplace_back(QPoint(x, y));
 
             zigzags.emplace_back(zigzag);
