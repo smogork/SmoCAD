@@ -43,9 +43,22 @@ private:
     std::vector<QVector3D> GenerateRoughZigZag(
             const std::vector<float> &confMap, QVector3D startPoint, float w, QVector3D blockSize, QSize texSize,
             float tolerance, ZigZagVariable variable, ZigZagDirection direction);
+    std::vector<QVector3D> GenerateFlatZigZag(
+            const std::vector<float> &confMap, QVector3D startPoint, float targetWidth, float w, QVector3D blockSize,
+            QSize texSize,
+            ZigZagVariable variable, bool flipZigZag);
+
     std::vector<std::pair<QPoint, float>>
     CreateZigZagPoints(QPoint startPoint, int width, float height, QSize planeSize, ZigZagVariable variable,
                        ZigZagDirection direction);
+    std::vector<std::pair<QPoint, float>>
+    CreateZigZagPoints(QPoint startPoint, int width, float height, QPoint zigZagBoundaries, int targetWidth,
+                       ZigZagVariable variable);
+    std::vector<std::vector<QPoint>>
+    CreateZigZagLines(QPoint startPoint, int width, QPoint zigZagBoundaries, int targetWidth, ZigZagVariable variable);
+    std::vector<QVector3D>
+    OptimizeRouterPath(const std::vector<std::pair<QPoint, float>> &zigzag, float tolerance, float maxDepth, QVector3D blockSize,
+                       QSize texSize);
 
     QPoint FromBlockToTex(QVector2D blockPoint, QSize texSize, QVector3D blockSize);
     QVector2D FromTexToBlock(QPoint texPoint, QSize texSize, QVector3D blockSize);

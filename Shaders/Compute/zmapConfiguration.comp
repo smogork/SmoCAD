@@ -79,5 +79,6 @@ void main() {
     //Powiekszenie do srodka freza
     /*if (!u_Cutter.isCylindrical)
         confZ += u_Cutter.Radius;*/
-    confMap[cy * texSize.x + cx] = confZ;
+    //Uwaga na zamienione wspolrzedne!
+    confMap[cx * texSize.x + cy] = confZ;
 }

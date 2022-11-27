@@ -65,6 +65,7 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
         zmapAnalizerShader = std::make_unique<ShaderWrapper>("Shaders/Compute/zmapConfiguration.comp");
 
     QSize texSize = {offscreenSize, offscreenSize};
+    const float BottomDepth = 2.5f;
 
 
     // 1.Wygenerowanie zmapy obiektu w zadanym przedziale
@@ -80,28 +81,50 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     gl->makeCurrent();
     // 2. Wykonanie mapy dozwolonych z dla obróbki zgrubnej
     auto confMapK16 = CreateConfigurationMap(gl, zmapTex, K16_RADIUS, offscreenSize, false, blockSize);
+    auto confMapF12 = CreateConfigurationMap(gl, zmapTex, F12_RADIUS * 1.3f, offscreenSize, true, blockSize);
     DebugSaveConfMap(confMapK16, "confMapK16.png", texSize, blockSize.z());
+    DebugSaveConfMap(confMapF12, "confMapF12.png", texSize, blockSize.z());
 
     //3. Generowanie zygzakiem warstw dla obróbki zgrubnej
-    float heightDelta = 2.5f / 2;
-    QVector3D startPoint1 = {
+    float heightDelta = BottomDepth / 2;
+    QVector3D startPoint11 = {
             blockSize.x() / 2 - K16_RADIUS / 2,
             blockSize.z() - heightDelta,
             blockSize.y() / 2};
-    QVector3D startPoint2 = {
+    QVector3D startPoint12 = {
             -(blockSize.x() / 2 - K16_RADIUS / 2),
             blockSize.z() - 2 * heightDelta,
             blockSize.y() / 2};
 
-    auto roughLayer1 = GenerateRoughZigZag(confMapK16, startPoint1,
+    auto roughLayer1 = GenerateRoughZigZag(confMapK16, startPoint11,
                                            0.8f, blockSize, texSize, 0.1f, X, Negative);
-    auto roughLayer2 = GenerateRoughZigZag(confMapK16, startPoint2,
+    auto roughLayer2 = GenerateRoughZigZag(confMapK16, startPoint12,
                                            0.8f, blockSize, texSize, 0.1f, X, Positive);
 
     CutterPath roughPath(CutterParameters(Length::FromMilimeters(16), CutterType::Spherical));
     roughPath.Points.insert(roughPath.Points.end(), roughLayer1.begin(), roughLayer1.end());
     roughPath.Points.insert(roughPath.Points.end(), roughLayer2.begin(), roughLayer2.end());
     GCodeSaver::SaveCutterPath(folderName, roughPath, 1);
+
+    // 4.Generowanie obrobki zgrubnej dla plaskiej podstawki
+    QVector3D startPoint21 = {
+            blockSize.x() / 2 ,
+            blockSize.z() - BottomDepth,
+            -blockSize.y() / 2 - 1.2f * F12_RADIUS};
+    float limit21 = blockSize.y() / 2;
+    QVector3D startPoint22 = {
+            -blockSize.x() / 2,
+            blockSize.z() - BottomDepth,
+            5.6};
+    float limit22 = -blockSize.y() / 2;
+    auto roughtFlat1 = GenerateFlatZigZag(confMapF12, startPoint21, limit21 , F12_RADIUS - 0.05f, blockSize,
+                                         texSize, Y, false);
+    auto roughtFlat2 = GenerateFlatZigZag(confMapF12, startPoint22, limit22, F12_RADIUS - 0.05f, blockSize,
+                                          texSize, Y, false);
+    CutterPath flatPath(CutterParameters(Length::FromSceneUnits(F12_RADIUS * 2), CutterType::Cylindrical));
+    flatPath.Points.insert(flatPath.Points.end(), roughtFlat1.begin(), roughtFlat1.end());
+    flatPath.Points.insert(flatPath.Points.end(), roughtFlat2.begin(), roughtFlat2.end());
+    GCodeSaver::SaveCutterPath(folderName, flatPath, 2);
 
     // Wyczyszczenie zasobów
     zmapTex->destroy();
@@ -175,7 +198,8 @@ void RoutingAwareSystem::DebugSaveConfMap(const std::vector<float> &map, const Q
 
 std::vector<QVector3D>
 RoutingAwareSystem::GenerateRoughZigZag(const std::vector<float> &confMap, QVector3D startPoint, float w,
-                                        QVector3D blockSize, QSize texSize, float tolerance, ZigZagVariable variable, ZigZagDirection direction)
+                                        QVector3D blockSize, QSize texSize, float tolerance, ZigZagVariable variable,
+                                        ZigZagDirection direction)
 {
     //Obróbka przesuwajac sie po X w strone ujemna
     QPoint texStartPoint = FromBlockToTex(QVector2D(startPoint.x(), startPoint.z()), texSize, blockSize);
@@ -191,56 +215,81 @@ RoutingAwareSystem::GenerateRoughZigZag(const std::vector<float> &confMap, QVect
     {
         QPoint texPoint = zigzag[i].first - QPoint(texW, texW);
         float height = startPoint.y();
-        //Uwaga na zamienione wspolrzedne!
-        int idx = texPoint.x() * texSize.width() + texPoint.y();
+        int idx = texPoint.y() * texSize.width() + texPoint.x();
         if (idx >= 0 && idx < confMap.size())//co najwyzej dwukrotnosc tolerancji bledu na powierzchni
             height = std::max(height, confMap[idx] + 2 * tolerance);
-
 
         zigzag[i].first = texPoint;
         zigzag[i].second = height;
     }
 
     //Optymalizacja sciezki - wyrzucenie prostych odcinkow oraz zdyskretyzowanie zbocz
-    std::vector<QVector3D> optimisedPath;
-    QPoint lastDir;
-    QPoint lastP;
-    for (std::pair<QPoint, float> p: zigzag)
+    return OptimizeRouterPath(zigzag, tolerance, startPoint.y(), blockSize, texSize);
+}
+
+std::vector<QVector3D>
+RoutingAwareSystem::GenerateFlatZigZag(const std::vector<float> &confMap, QVector3D startPoint, float targetWidth,
+                                       float w, QVector3D blockSize, QSize texSize,
+                                       RoutingAwareSystem::ZigZagVariable variable, bool flipZigZag = false)
+{
+    //Obróbka przesuwajac sie po X w strone ujemna
+    QPoint texStartPoint = FromBlockToTex(QVector2D(startPoint.x(), startPoint.z()), texSize, blockSize);
+    int texW = w / blockSize.x() * texSize.width();
+    int texTargetWidth = FromBlockToTex(QVector2D(targetWidth, 0), texSize, blockSize).x();
+
+    //Wygenerowanie zygzaka bez uwzglednienia dopuszczalnej wysokosci
+    QPoint bounduaries = {-2 * texW, texSize.width() + 2 * texW};
+    auto zigzag = CreateZigZagLines(texStartPoint, texW, bounduaries, texTargetWidth, variable);
+
+    //Znalezienie koncow linii bez kolizji z obiektem
+    std::vector<std::pair<QVector3D, QVector3D>> lineEnds;
+    std::vector<bool> lineCuts;
+    for (const auto &line: zigzag)
     {
-        QPoint dir = p.first - lastP;
+        auto blockPosStart = FromTexToBlock(line.front(), texSize, blockSize);
+        auto blockPosEnd = FromTexToBlock(line.back(), texSize, blockSize);
+        QVector3D start = {blockPosStart.x(), startPoint.y(), blockPosStart.y()};
+        QVector3D end = {blockPosEnd.x(), startPoint.y(), blockPosEnd.y()};
+        bool cuts = false;
+        int i;
+        for (const QPoint &p: line)
+        {
+            if (p.x() < 0 || p.x() >= texSize.width() || p.y() < 0 || p.y() >= texSize.height())
+                continue;
 
-        //Przypadek pierwszego punktu
-        if (optimisedPath.size() == 0)
-        {
-            auto blockPos = FromTexToBlock(p.first, texSize, blockSize);
-            optimisedPath.emplace_back(blockPos.x(), p.second, blockPos.y());
-        }
-        //Przypadek gdy chodzimy po plaszczyznie, ale zeszlismy z obiektu i Z nie jest do konca plaszczyzna
-        else if (p.second == startPoint.y() && std::abs(p.second - optimisedPath.back().y()) > 0)
-        {
-            auto blockPos = FromTexToBlock(p.first, texSize, blockSize);
-            optimisedPath.emplace_back(blockPos.x(), startPoint.y(), blockPos.y());
-        }
-            //Przypadek zmiany kierunku
-        else if (lastDir != dir)
-        {
-            auto blockPos = FromTexToBlock(lastP, texSize, blockSize);
-            optimisedPath.emplace_back(blockPos.x(), startPoint.y(), blockPos.y());
-        }
-            //przypadek duzego odchylenia w Z
-        else if (std::abs(p.second - optimisedPath.back().y()) > tolerance / 2)
-        {
-            auto blockPos = FromTexToBlock(p.first, texSize, blockSize);
-            optimisedPath.emplace_back(blockPos.x(), p.second, blockPos.y());
+            int idx = p.y() * texSize.width() + p.x();
+            if (confMap[idx] > startPoint.y())
+            {
+                auto blockPos = FromTexToBlock(p, texSize, blockSize);
+                end = {blockPos.x(), startPoint.y(), blockPos.y()};
+                cuts = true;
+                break;
+            }
         }
 
-        lastP = p.first;
-        lastDir = dir;
+        lineEnds.emplace_back(std::make_pair(start, end));
+        lineCuts.emplace_back(cuts);
     }
-    auto blockPos = FromTexToBlock(lastP, texSize, blockSize);
-    optimisedPath.emplace_back(blockPos.x(), startPoint.y(), blockPos.y());
 
-    return optimisedPath;
+    std::vector<QVector3D> path;
+    bool swapLine = flipZigZag;
+    for (int i = 0; i < lineEnds.size(); ++i)
+    {
+        auto line = lineEnds[i];
+
+        if (swapLine)
+        {
+            path.emplace_back(line.second);
+            path.emplace_back(line.first);
+        } else
+        {
+            path.emplace_back(line.first);
+            path.emplace_back(line.second);
+        }
+        swapLine = !swapLine;
+    }
+
+    return path;
 }
 
 QPoint RoutingAwareSystem::FromBlockToTex(QVector2D blockPoint, QSize texSize, QVector3D blockSize)
@@ -265,7 +314,8 @@ RoutingAwareSystem::CreateZigZagPoints(QPoint startPoint, int width, float heigh
     if (variable == X)
     {
         bool negInner = startPoint.y() > (planeSize.height() / 2);
-        for (int x = startPoint.x(); direction == Positive ? x < planeSize.width() : x >= 0; x += width * (direction == Positive ? 1 : -1))
+        for (int x = startPoint.x();
+             direction == Positive ? x < planeSize.width() : x >= 0; x += width * (direction == Positive ? 1 : -1))
         {
             for (int y = negInner ? planeSize.height() - 1 : 0;
                  negInner ? y >= 0 : y <= planeSize.height() - 1; y += (negInner ? -1 : 1))
@@ -275,7 +325,7 @@ RoutingAwareSystem::CreateZigZagPoints(QPoint startPoint, int width, float heigh
 
             if (direction == Positive ? x + width <= planeSize.width() : x - width >= 0)
             {
-                for (int i = x +  (direction == Positive ? 1 : -1);
+                for (int i = x + (direction == Positive ? 1 : -1);
                      direction == Positive ? i < x + width : i > x - width; i += (direction == Positive ? 1 : -1))
                     zigzag.emplace_back(std::make_pair(QPoint(i, negInner ? 0 : planeSize.height() - 1), height));
             }
@@ -284,7 +334,8 @@ RoutingAwareSystem::CreateZigZagPoints(QPoint startPoint, int width, float heigh
     } else
     {
         bool negInner = startPoint.x() > (planeSize.width() / 2);
-        for (int y = startPoint.y(); direction == Positive ? y < planeSize.height() : y >= 0; y += width * (direction == Positive ? 1 : -1))
+        for (int y = startPoint.y();
+             direction == Positive ? y < planeSize.height() : y >= 0; y += width * (direction == Positive ? 1 : -1))
         {
             for (int x = negInner ? planeSize.width() - 1 : 0;
                  negInner ? x >= 0 : x <= planeSize.width() - 1; x += negInner ? -1 : 1)
@@ -302,3 +353,145 @@ RoutingAwareSystem::CreateZigZagPoints(QPoint startPoint, int width, float heigh
 
     return zigzag;
 }
+
+std::vector<std::pair<QPoint, float>>
+RoutingAwareSystem::CreateZigZagPoints(QPoint startPoint, int width, float height, QPoint zigZagBoundaries,
+                                       int targetWidth, RoutingAwareSystem::ZigZagVariable variable)
+{
+    std::vector<std::pair<QPoint, float>> zigzag;
+
+    if (variable == X)
+    {
+        int incrementWidth = width * (targetWidth - startPoint.x() > 0 ? 1 : -1);
+        bool negInner = (startPoint.y() > (zigZagBoundaries.y() - zigZagBoundaries.x()) / 2);
+        for (int x = startPoint.x(); incrementWidth > 0 ? x < targetWidth : x > targetWidth; x += incrementWidth)
+        {
+            for (int y = negInner ? zigZagBoundaries.y() : zigZagBoundaries.x();
+                 negInner ? y >= zigZagBoundaries.x() : y <= zigZagBoundaries.y(); y += (negInner ? -1 : 1))
+            {
+                zigzag.emplace_back(std::make_pair(QPoint(x, y), height));
+            }
+
+            if (incrementWidth > 0 ? x + incrementWidth <= targetWidth : x + incrementWidth >= targetWidth)
+            {
+                for (int i = x + (incrementWidth > 0 ? 1 : -1);
+                     incrementWidth > 0 ? i <= x + incrementWidth : i >= x + incrementWidth;
+                     i += (incrementWidth > 0 ? 1 : -1))
+                    zigzag.emplace_back(
+                            std::make_pair(QPoint(i, negInner ? zigZagBoundaries.x() : zigZagBoundaries.y()),
+                                           height));
+            }
+            negInner = !negInner;
+        }
+    } else
+    {
+        int incrementWidth = width * (targetWidth - startPoint.y() > 0 ? 1 : -1);
+        bool negInner = (startPoint.x() > (zigZagBoundaries.y() - zigZagBoundaries.x()) / 2);
+        for (int y = startPoint.y(); incrementWidth > 0 ? y < targetWidth : y > targetWidth; y += incrementWidth)
+        {
+            for (int x = negInner ? zigZagBoundaries.y() : zigZagBoundaries.x();
+                 negInner ? x >= 0 : x <= zigZagBoundaries.y(); x += negInner ? -1 : 1)
+                zigzag.emplace_back(std::make_pair(QPoint(x, y), height));
+
+            if (incrementWidth > 0 ? y + incrementWidth <= targetWidth : y + incrementWidth >= targetWidth)
+            {
+                for (int i = y + (incrementWidth > 0 ? 1 : -1);
+                     incrementWidth > 0 ? i <= y + incrementWidth : i >= y + incrementWidth; i += (incrementWidth > 0
+                                                                                                   ? 1 : -1))
+                    zigzag.emplace_back(
+                            std::make_pair(QPoint(negInner ? zigZagBoundaries.x() : zigZagBoundaries.y(), i), height));
+            }
+            negInner = !negInner;
+        }
+    }
+
+    return zigzag;
+}
+
+std::vector<std::vector<QPoint>>
+RoutingAwareSystem::CreateZigZagLines(QPoint startPoint, int width, QPoint zigZagBoundaries, int targetWidth,
+                                      RoutingAwareSystem::ZigZagVariable variable)
+{
+    std::vector<std::vector<QPoint>> zigzags;
+
+    if (variable == X)
+    {
+        int incrementWidth = width * (targetWidth - startPoint.x() > 0 ? 1 : -1);
+        bool negInner = (startPoint.y() > (zigZagBoundaries.y() - zigZagBoundaries.x()) / 2);
+        for (int x = startPoint.x(); incrementWidth > 0 ? x < targetWidth : x > targetWidth; x += incrementWidth)
+        {
+            std::vector<QPoint> zigzag;
+            for (int y = negInner ? zigZagBoundaries.y() : zigZagBoundaries.x();
+                 negInner ? y >= zigZagBoundaries.x() : y <= zigZagBoundaries.y(); y += (negInner ? -1 : 1))
+            {
+                zigzag.emplace_back(QPoint(x, y));
+            }
+
+            zigzags.emplace_back(zigzag);
+        }
+    } else
+    {
+        int incrementWidth = width * (targetWidth - startPoint.y() > 0 ? 1 : -1);
+        bool negInner = (startPoint.x() > (zigZagBoundaries.y() - zigZagBoundaries.x()) / 2);
+        for (int y = startPoint.y(); incrementWidth > 0 ? y < targetWidth : y > targetWidth; y += incrementWidth)
+        {
+            std::vector<QPoint> zigzag;
+            for (int x = negInner ? zigZagBoundaries.y() : zigZagBoundaries.x();
+                 negInner ? x >= 0 : x <= zigZagBoundaries.y(); x += negInner ? -1 : 1)
+                zigzag.emplace_back(QPoint(x, y));
+
+            zigzags.emplace_back(zigzag);
+        }
+    }
+
+    return zigzags;
+}
+
+std::vector<QVector3D>
+RoutingAwareSystem::OptimizeRouterPath(const std::vector<std::pair<QPoint, float>> &zigzag, float tolerance,
+                                       float maxDepth, QVector3D blockSize, QSize texSize)
+{
+    std::vector<QVector3D> optimisedPath;
+    QPoint lastDir;
+    QPoint lastP;
+    for (std::pair<QPoint, float> p: zigzag)
+    {
+        QPoint dir = p.first - lastP;
+
+        //Przypadek pierwszego punktu
+        if (optimisedPath.size() == 0)
+        {
+            auto blockPos = FromTexToBlock(p.first, texSize, blockSize);
+            optimisedPath.emplace_back(blockPos.x(), p.second, blockPos.y());
+        }
+            //Przypadek gdy chodzimy po plaszczyznie, ale zeszlismy z obiektu i Z nie jest do konca plaszczyzna
+        else if (p.second == maxDepth && std::abs(p.second - optimisedPath.back().y()) > 0)
+        {
+            auto blockPos = FromTexToBlock(p.first, texSize, blockSize);
+            optimisedPath.emplace_back(blockPos.x(), maxDepth, blockPos.y());
+        }
+            //Przypadek zmiany kierunku
+        else if (lastDir != dir)
+        {
+            auto blockPos = FromTexToBlock(lastP, texSize, blockSize);
+            optimisedPath.emplace_back(blockPos.x(), maxDepth, blockPos.y());
+        }
+            //przypadek duzego odchylenia w Z
+        else if (std::abs(p.second - optimisedPath.back().y()) > tolerance / 2)
+        {
+            auto blockPos = FromTexToBlock(p.first, texSize, blockSize);
+            optimisedPath.emplace_back(blockPos.x(), p.second, blockPos.y());
+        }
+
+        lastP = p.first;
+        lastDir = dir;
+    }
+    auto blockPos = FromTexToBlock(lastP, texSize, blockSize);
+    optimisedPath.emplace_back(blockPos.x(), maxDepth, blockPos.y());
+
+    return optimisedPath;
+}
+
+
+
+

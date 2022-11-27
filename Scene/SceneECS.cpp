@@ -108,7 +108,7 @@ void SceneECS::InitUniqueObjects()
 
 void SceneECS::InitSceneObjects()
 {
-    LoadSceneFromFile("../docs/saves/dzban_v4.json");
+    LoadSceneFromFile("../docs/saves/dzban_v4.1.json");
     AddObjectExplicitPosition(std::make_shared<Simulator3C>("Simulator3C", QVector3D(20, -2.5, 0)));
 }
 
