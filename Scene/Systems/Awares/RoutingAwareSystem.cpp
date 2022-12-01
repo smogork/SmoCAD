@@ -5,6 +5,10 @@
 #include "RoutingAwareSystem.h"
 #include "Scene/SceneECS.h"
 #include "FileManagers/GCodeSaver.h"
+#include "Scene/Entities/Planes/PlaneCreator.h"
+#include "Scene/Entities/Planes/PlaneC2.h"
+#include "Scene/Entities/Planes/OffsetPlane.h"
+#include "IntersectionAwareSystem.h"
 
 void RoutingAwareSystem::ClearSystem()
 {
@@ -126,9 +130,79 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     flatPath.Points.insert(flatPath.Points.end(), roughtFlat2.begin(), roughtFlat2.end());
     GCodeSaver::SaveCutterPath(folderName, flatPath, 2);
 
+    //5. Generowanie obróbki dokładnej dla płaskiej podstawki
+    std::shared_ptr<RoutingAware> Body, Ucho, Pokrywka, Dziubek;
+    PlaneCreator planeCreator("routingPlaneCreator", PLANEC2_CLASS, {-7.5f, 0.0f, -7.5f});
+    auto elements = GetComponents();
+    Body = elements[0].lock();
+    Ucho = elements[1].lock();
+    Dziubek = elements[2].lock();
+    Pokrywka = elements[3].lock();
+
+    planeCreator.p_UVParams->U = 10;
+    planeCreator.p_UVParams->V = 10;
+    planeCreator.p_UVParams->Width = 15;
+    planeCreator.p_UVParams->Height = 15;
+    planeCreator.p_UVParams->IsPipe = false;
+    auto stol = planeCreator.p_UVParams->CreatePlane<PlaneC2>("stol");
+
+    //OffsetPlane BodyOffset
+
+    std::shared_ptr<IntersectionAwareSystem> isys;
+    if (auto scene = SceneECS::Instance().lock())
+        if (auto is = scene->GetSystem<IntersectionAwareSystem>().lock())
+            isys = is;
+
+    //Przeciecia stol-body
+    QVector3D StolBodyStart1 = {-4.7, -0.3, 5.4};
+    auto StolBodyCurve1 = isys->CreateIntersectionCurveBetween(stol->p_Intersection, Body->p_Intersection, StolBodyStart1);
+    auto precFlat1 = StolBodyCurve1->p_IntersectionRes->GetScenePoints();
+
+    //Przecięcia stol-ucho
+    QVector3D StolUchoStart1 = {-3.2, -0.4, 4.3};
+    auto StolUchoCurve1 = isys->CreateIntersectionCurveBetween(stol->p_Intersection, Ucho->p_Intersection, StolUchoStart1);
+    auto precFlat2 = StolUchoCurve1->p_IntersectionRes->GetScenePoints();
+
+    //Przeciecia stol-dziubek
+    QVector3D StolDziubekStart1 = {0.8, -0.4, -3.7};//gora
+    auto StolDziubekCurve1 = isys->CreateIntersectionCurveBetween(stol->p_Intersection, Dziubek->p_Intersection, StolDziubekStart1);
+    auto precFlat3 = StolDziubekCurve1->p_IntersectionRes->GetScenePoints();
+    QVector3D StolDziubekStart2 =   {-3.2, -0.4, -3.7};//dol
+    auto StolDziubekCurve2 = isys->CreateIntersectionCurveBetween(stol->p_Intersection, Dziubek->p_Intersection, StolDziubekStart2);
+    auto precFlat4 = StolDziubekCurve2->p_IntersectionRes->GetScenePoints();
+
+    //Przeciecia stol-pokrywka
+    QVector3D StolPokrywkaStart1 = {3.1, -0.3, 2.1};//gora prawa
+    QVector3D StolPokrywkaStart2 = {3.1, -0.3, -2.1};//gora lewa
+    QVector3D StolPokrywkaStart3 = {2.2, 0.0, -1.4};//dol lewa
+    QVector3D StolPokrywkaStart4 = {2.2, 0.0, 2.0};//dol prawa
+    auto StolPokrywkaCurve1 = isys->CreateIntersectionCurveBetween(stol->p_Intersection, Pokrywka->p_Intersection, StolPokrywkaStart1);
+    auto StolPokrywkaCurve2 = isys->CreateIntersectionCurveBetween(stol->p_Intersection, Pokrywka->p_Intersection, StolPokrywkaStart2);
+    auto StolPokrywkaCurve3 = isys->CreateIntersectionCurveBetween(stol->p_Intersection, Pokrywka->p_Intersection, StolPokrywkaStart3);
+    auto StolPokrywkaCurve4 = isys->CreateIntersectionCurveBetween(stol->p_Intersection, Pokrywka->p_Intersection, StolPokrywkaStart4);
+    auto precFlat5 = StolPokrywkaCurve1->p_IntersectionRes->GetScenePoints();
+    auto precFlat6 = StolPokrywkaCurve2->p_IntersectionRes->GetScenePoints();
+    auto precFlat7 = StolPokrywkaCurve3->p_IntersectionRes->GetScenePoints();
+    auto precFlat8 = StolPokrywkaCurve4->p_IntersectionRes->GetScenePoints();
+
+    CutterPath flatPrecisionPath(CutterParameters(Length::FromSceneUnits(F10_RADIUS * 2), CutterType::Cylindrical));
+    flatPrecisionPath.Points.insert(flatPrecisionPath.Points.end(), precFlat1.begin(), precFlat1.end());
+    flatPrecisionPath.Points.insert(flatPrecisionPath.Points.end(), precFlat2.begin(), precFlat2.end());
+    flatPrecisionPath.Points.insert(flatPrecisionPath.Points.end(), precFlat3.begin(), precFlat3.end());
+    flatPrecisionPath.Points.insert(flatPrecisionPath.Points.end(), precFlat4.begin(), precFlat4.end());
+    flatPrecisionPath.Points.insert(flatPrecisionPath.Points.end(), precFlat5.begin(), precFlat5.end());
+    flatPrecisionPath.Points.insert(flatPrecisionPath.Points.end(), precFlat6.begin(), precFlat6.end());
+    flatPrecisionPath.Points.insert(flatPrecisionPath.Points.end(), precFlat7.begin(), precFlat7.end());
+    flatPrecisionPath.Points.insert(flatPrecisionPath.Points.end(), precFlat8.begin(), precFlat8.end());
+
+    for (QVector3D& p : flatPrecisionPath.Points)
+        p = FromSceneToBlock(p, blockWorldPos);
+    GCodeSaver::SaveCutterPath(folderName, flatPrecisionPath, 3);
+
     // Wyczyszczenie zasobów
     zmapTex->destroy();
     gl->doneCurrent();
+    stol->RemovePointsInside();
 }
 
 std::shared_ptr<QOpenGLTexture> RoutingAwareSystem::CreateStampTexture(
@@ -490,6 +564,11 @@ RoutingAwareSystem::OptimizeRouterPath(const std::vector<std::pair<QPoint, float
     optimisedPath.emplace_back(blockPos.x(), maxDepth, blockPos.y());
 
     return optimisedPath;
+}
+
+QVector3D RoutingAwareSystem::FromSceneToBlock(QVector3D sceneP, QVector3D blockWorldPos)
+{
+    return sceneP - blockWorldPos;
 }
 
 

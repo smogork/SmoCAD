@@ -7,6 +7,7 @@
 
 #include "Scene/Components/Awares/IntersectionAware.h"
 #include "Scene/Systems/ISystem.h"
+#include "Scene/Entities/Curves/IntersectionCurve.h"
 
 class IntersectionAwareSystem : public ISystem<IntersectionAware>
 {
@@ -22,6 +23,9 @@ public:
     CreateContextMenuItemsForSceneList(const std::vector<unsigned int> &selectedOids,
                                        const std::vector<unsigned int> &listContextOids) override;
     std::unique_ptr<ComponentControl> PrepareUIForObject(unsigned int oid) override;
+
+    std::shared_ptr<IntersectionCurve> CreateIntersectionCurveBetween(
+            std::shared_ptr<IntersectionAware> one, std::shared_ptr<IntersectionAware> two, QVector3D startPoint);
 
 protected:
     void CreateIntersectionCurveBetween(std::shared_ptr<IntersectionAware> one, std::shared_ptr<IntersectionAware> two);

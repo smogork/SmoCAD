@@ -199,7 +199,7 @@ void PlaneC0::InitObject(const QString &name, bool isPipe, int countU, int count
     AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(GetObjectID(), name, p_Selected));
     AddComponent(p_FillAware = FillAware::CreateRegisteredComponent(GetObjectID(), p_Collection));
     AddComponent(p_Intersection = IntersectionAware::CreateRegisteredComponent(GetObjectID(), p_UV));
-    AddComponent(p_Routing = RoutingAware::CreateRegisteredComponent(GetObjectID(), p_UV, p_Drawing));
+    AddComponent(p_Routing = RoutingAware::CreateRegisteredComponent(GetObjectID(), p_UV, p_Drawing, p_Intersection));
     InitializeUV(isPipe);
 
     p_Drawing->p_renderingFunction = ASSIGN_DRAWING_FUNCTION(&PlaneC0::DrawingFunction);

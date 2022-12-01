@@ -7,7 +7,7 @@
 #include "Scene/SceneECS.h"
 
 std::shared_ptr<RoutingAware>
-RoutingAware::CreateRegisteredComponent(unsigned int oid, std::shared_ptr<UVParams> uv, std::shared_ptr<Drawing> draw)
+RoutingAware::CreateRegisteredComponent(unsigned int oid, std::shared_ptr<UVParams> uv, std::shared_ptr<Drawing> draw, std::shared_ptr<IntersectionAware> inter)
 {
     if (auto scene = SceneECS::Instance().lock())
     {
@@ -16,6 +16,7 @@ RoutingAware::CreateRegisteredComponent(unsigned int oid, std::shared_ptr<UVPara
             auto item = system->CreateRegistered(oid);
             item->p_Drawing = draw;
             item->p_UV = uv;
+            item->p_Intersection = inter;
             return item;
         }
     }

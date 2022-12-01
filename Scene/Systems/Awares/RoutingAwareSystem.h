@@ -62,6 +62,7 @@ private:
 
     QPoint FromBlockToTex(QVector2D blockPoint, QSize texSize, QVector3D blockSize);
     QVector2D FromTexToBlock(QPoint texPoint, QSize texSize, QVector3D blockSize);
+    QVector3D FromSceneToBlock(QVector3D sceneP, QVector3D blockWorldPos);
 
 public:
 

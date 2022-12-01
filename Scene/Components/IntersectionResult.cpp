@@ -177,10 +177,24 @@ std::vector<QVector3D> IntersectionResult::GetScenePoints()
 {
     std::vector<QVector3D> res(m_paramPoints.size());
 
-    if (auto one = m_planeOne.lock())
+    auto two = m_planeTwo.lock();
+    auto one = m_planeOne.lock();
+    if (one != nullptr && two != nullptr)
     {
         for (int i = 0; i < m_paramPoints.size(); ++i)
-            res[i] = one->SceneFunction(m_paramPoints[i].toVector2D());
+        {
+            auto val1 = one->SceneFunction({m_paramPoints[i].x(), m_paramPoints[i].y()});
+            auto val2 = two->SceneFunction({m_paramPoints[i].z(), m_paramPoints[i].w()});
+            if (val1.distanceToPoint(val2) > 1e-3 && i > 0)
+            {
+                if (val1.distanceToPoint(res[i - 1]) < val2.distanceToPoint(res[i - 1]))
+                    res[i] = val1;
+                else
+                    res[i] = val2;
+            }
+            else
+                res[i] = val1;
+        }
     }
     return res;
 }

@@ -56,8 +56,6 @@ public:
         plane->p_UV->VDensity = *VDensity;
         plane->p_UV->LockEditUV();
 
-        if (auto scene = SceneECS::Instance().lock())
-            scene->AddObject(plane);
         return plane;
     }
 };
