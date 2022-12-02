@@ -40,10 +40,10 @@ QVector3D OffsetPlane::OffsetPlaneFunc(QVector2D uv)
 
 QVector3D OffsetPlane::OffsetPlaneFuncDerU(QVector2D uv)
 {
-    return (OffsetPlaneFunc({uv.x() + h, uv.y()}) + OffsetPlaneFunc({uv.x() - h, uv.y()})) / (2 * h);
+    return (OffsetPlaneFunc({uv.x() + h, uv.y()}) - OffsetPlaneFunc({uv.x() - h, uv.y()})) / (2 * h);
 }
 
 QVector3D OffsetPlane::OffsetPlaneFuncDerV(QVector2D uv)
 {
-    return (OffsetPlaneFunc({uv.x(), uv.y() + h}) + OffsetPlaneFunc({uv.x(), uv.y() - h})) / (2 * h);
+    return (OffsetPlaneFunc({uv.x(), uv.y() + h}) - OffsetPlaneFunc({uv.x(), uv.y() - h})) / (2 * h);
 }

@@ -23,6 +23,7 @@ void GCodeSaver::SaveCutterPath(const QString &folderpath, const CutterPath &pat
 
     for (int i = 1; i < path.Points.size(); ++i)
         out << GenerateGCodeLine(path.Points[i], path.Points[i - 1], lineNumber++) << '\n';
+    qDebug() << "Saving routes file " <<  filepath;
 }
 
 QString GCodeSaver::GenerateFileName(CutterParameters params, int number)

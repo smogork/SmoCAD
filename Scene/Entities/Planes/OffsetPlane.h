@@ -12,7 +12,7 @@
 class OffsetPlane: public IEntity
 {
 private:
-    static constexpr float h = 1e-3;
+    static constexpr float h = 5e-4;
 
     std::weak_ptr<IntersectionAware> m_innerPlane;
     float m_offset;
