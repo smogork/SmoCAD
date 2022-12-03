@@ -142,10 +142,14 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
 
     planeCreator.p_UVParams->U = 10;
     planeCreator.p_UVParams->V = 10;
-    planeCreator.p_UVParams->Width = 15;
+    planeCreator.p_UVParams->Width = 10.2;
     planeCreator.p_UVParams->Height = 15;
     planeCreator.p_UVParams->IsPipe = false;
     auto stol = planeCreator.p_UVParams->CreatePlane<PlaneC2>("stol");
+    planeCreator.p_Transform->Position = QVector3D(3.0, 0, -7.5);
+    planeCreator.p_UVParams->Width = 4.8;
+    planeCreator.p_UVParams->U = 6;
+    auto stol2 = planeCreator.p_UVParams->CreatePlane<PlaneC2>("stol2");
 
     OffsetPlane BodyOffset(Body->p_Intersection, F10_RADIUS);
     OffsetPlane UchoOffset(Ucho->p_Intersection, F10_RADIUS);
@@ -180,11 +184,11 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
 
     //Przeciecia stol-pokrywka
     QVector3D StolPokrywkaStart1 = {3.1, -0.3, -2.1};//gora lewa
-    QVector3D StolPokrywkaStart2 = {3.1, -0.3, 2.1};//gora prawa
-    QVector3D StolPokrywkaStart3 = {2.1, -0.2, 2.8};//dol prawa
-    QVector3D StolPokrywkaStart4 = {2.1, -0.2, -2.0};//dol lewa
-    auto StolPokrywkaCurve1 = isys->CreateIntersectionCurveBetween(stol->p_Intersection, PokrywkaOffset.p_Intersection, StolPokrywkaStart1);
-    auto StolPokrywkaCurve2 = isys->CreateIntersectionCurveBetween(stol->p_Intersection, PokrywkaOffset.p_Intersection, StolPokrywkaStart2);
+    QVector3D StolPokrywkaStart2 = {3.1, 0.3, 1.8};//gora prawa
+    QVector3D StolPokrywkaStart3 = {2.1, -0.2, 1.8};//dol prawa
+    QVector3D StolPokrywkaStart4 = {1.8, 1.0, -1.5};//dol lewa
+    auto StolPokrywkaCurve1 = isys->CreateIntersectionCurveBetween(stol2->p_Intersection, PokrywkaOffset.p_Intersection, StolPokrywkaStart1);
+    auto StolPokrywkaCurve2 = isys->CreateIntersectionCurveBetween(stol2->p_Intersection, PokrywkaOffset.p_Intersection, StolPokrywkaStart2);
     auto StolPokrywkaCurve3 = isys->CreateIntersectionCurveBetween(stol->p_Intersection, PokrywkaOffset.p_Intersection, StolPokrywkaStart3);
     auto StolPokrywkaCurve4 = isys->CreateIntersectionCurveBetween(stol->p_Intersection, PokrywkaOffset.p_Intersection, StolPokrywkaStart4);
     auto precFlat1 = StolPokrywkaCurve1->p_IntersectionRes->GetScenePoints();
@@ -199,7 +203,7 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     planeDiv.AddConstraintPolyline(precFlat4);
     planeDiv.AddConstraintPolyline(precFlat5);
     planeDiv.AddConstraintPolyline(precFlat6);
-    planeDiv.AddConstraintPolyline(precFlat7, true);//gora dziubek
+    planeDiv.AddConstraintPolyline(precFlat7);//gora dziubek
     planeDiv.AddConstraintPolyline(precFlat8);
     planeDiv.AddConstraintPolyline(precFlat9);
 
@@ -230,6 +234,7 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     zmapTex->destroy();
     gl->doneCurrent();
     stol->RemovePointsInside();
+    stol2->RemovePointsInside();
 }
 
 std::shared_ptr<QOpenGLTexture> RoutingAwareSystem::CreateStampTexture(
