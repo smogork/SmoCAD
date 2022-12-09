@@ -197,15 +197,15 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     auto precFlat6 = StolPokrywkaCurve4->p_IntersectionRes->GetScenePoints();
 
     PlaneDivision planeDiv;
-    planeDiv.AddConstraintPolyline(precFlat1);//
-    planeDiv.AddConstraintPolyline(precFlat2);
-    planeDiv.AddConstraintPolyline(precFlat3);
-    planeDiv.AddConstraintPolyline(precFlat4);
-    planeDiv.AddConstraintPolyline(precFlat5);
-    planeDiv.AddConstraintPolyline(precFlat6);
+    planeDiv.AddConstraintPolyline(precFlat1);//gora lewa pokrywka
+    planeDiv.AddConstraintPolyline(precFlat2);//gora prawa pokrywka
+    planeDiv.AddConstraintPolyline(precFlat3);//dol prawa pokrywka
+    planeDiv.AddConstraintPolyline(precFlat4);//body prawa
+    planeDiv.AddConstraintPolyline(precFlat5);//body lewa
+    planeDiv.AddConstraintPolyline(precFlat6);//pokrywka dol lewa
     planeDiv.AddConstraintPolyline(precFlat7);//gora dziubek
-    planeDiv.AddConstraintPolyline(precFlat8);
-    planeDiv.AddConstraintPolyline(precFlat9);
+    planeDiv.AddConstraintPolyline(precFlat8);//dol dziubek
+    planeDiv.AddConstraintPolyline(precFlat9);//ucho
 
     QVector4D planeSize = QVector4D(
             blockWorldPos.x() - blockSize.x() / 2,
@@ -214,6 +214,11 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
             blockWorldPos.z() + blockSize.y() / 2
             );
     planeDiv.CreateDivision(planeSize);
+    auto offsetRing = planeDiv.JoinConstraintPolylinesTogether(0);
+
+    PlaneDivision temp;
+    temp.AddConstraintPolyline(offsetRing);
+    temp.CreateDivision(planeSize);
 
     /*CutterPath flatPrecisionPath(CutterParameters(Length::FromSceneUnits(F10_RADIUS * 2), CutterType::Cylindrical));
     flatPrecisionPath.Points.insert(flatPrecisionPath.Points.end(), precFlat1.begin(), precFlat1.end());

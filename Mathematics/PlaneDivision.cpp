@@ -18,32 +18,38 @@ PlaneDivision::~PlaneDivision()
         delete [] m_division;
 }
 
-std::list<PlaneDivision::ConstraintSegment>& PlaneDivision::GetDivision(int col, int row)
+PlaneDivision::Division& PlaneDivision::GetDivision(int col, int row)
 {
     return m_division[row * m_size + col];
 }
 
 void PlaneDivision::AddConstraintPolyline(const std::vector<QVector2D> &points, bool flip)
 {
+    std::vector<PolylineSegment> insidePoly;
+    int counter = 0;
     if (flip)
     {
-        std::vector<QVector2D> temp;
-        temp.insert(temp.end(), points.rbegin(), points.rend());
-        m_polylines.emplace_back(temp);
+        for (int i = points.size() - 1; i >= 1; --i)
+            insidePoly.emplace_back(PolylineSegment(points[i], points[i - 1], m_polylines.size(), counter++));
     }
     else
-        m_polylines.emplace_back(points);
+    {
+        for (int i = 1; i < points.size(); ++i)
+            insidePoly.emplace_back(PolylineSegment(points[i - 1], points[i], m_polylines.size(), counter++));
+    }
+
+    m_polylines.emplace_back(insidePoly);
 }
 
-std::vector<QVector2D> &PlaneDivision::GetConstraintPolyline(int index)
+/*std::vector<QVector2D> &PlaneDivision::GetConstraintPolyline(int index)
 {
     return m_polylines[index];
-}
+}*/
 
 void PlaneDivision::CreateDivision(QVector4D planeSize, int divisionCount)
 {
     m_size = divisionCount;
-    m_division = new std::list<ConstraintSegment>[m_size * m_size];
+    m_division = new Division[m_size * m_size];
 
     float dx = (planeSize.z() - planeSize.x()) / m_size;
     float dy = (planeSize.w() - planeSize.y()) / m_size;
@@ -51,17 +57,20 @@ void PlaneDivision::CreateDivision(QVector4D planeSize, int divisionCount)
     for (int y = 0; y < m_size; ++y)
         for (int x = 0; x < m_size; ++x)
         {
-            QVector4D rect = {planeSize.x() + dx * x, planeSize.y() + dy * y, 0, 0};
-            rect.setZ(rect.x() + dx);
-            rect.setW(rect.y() + dy);
+            Division& curDiv = GetDivision(x, y);
+            curDiv.Start = {planeSize.x() + dx * x, planeSize.y() + dy * y};
+            curDiv.End = curDiv.Start + QVector2D(dx, dy);
+            auto rect = curDiv.GetRect();
 
             for (int j = 0; j < m_polylines.size(); ++j)
             {
-                const auto &polyline = m_polylines[j];
-                for (int i = 1; i < polyline.size(); ++i)
+                for (PolylineSegment &seg : m_polylines[j])
                 {
-                    if (GeometryRelation::IsSegmentInsideRect(polyline[i - 1], polyline[i], rect))
-                        GetDivision(x, y).emplace_back(ConstraintSegment(polyline[i - 1], polyline[i], j, i - 1));
+                    if (GeometryRelation::DoesSegmentCrossRect(seg.Start, seg.End, rect))
+                    {
+                        curDiv.SegmentsInside.emplace_back(&seg);
+                        seg.InsideDivisions.emplace_back(std::make_pair(x, y));
+                    }
                 }
             }
         }
@@ -72,7 +81,67 @@ void PlaneDivision::CreateDivision(QVector4D planeSize, int divisionCount)
 
 std::vector<QVector2D> PlaneDivision::JoinConstraintPolylinesTogether(int startPolylineIndex)
 {
-    return std::vector<QVector2D>();
+    std::vector<QVector2D> resultPolyline;
+
+    int polylineIdx = startPolylineIndex;
+    int segmentIdx = 0;
+    bool segmentIdxAscending = true;
+    do
+    {
+        PolylineSegment& seg = m_polylines[polylineIdx][segmentIdx];
+        resultPolyline.emplace_back(segmentIdxAscending ? seg.Start : seg.End);
+
+        //Sprawdzmy czy rozwazany segment nie przecina sie z innymi
+        QVector2D crossPoint = {NAN, NAN};
+        for (const auto divIdx : seg.InsideDivisions)
+        {
+            Division& curDiv = GetDivision(divIdx.first, divIdx.second);
+            for (PolylineSegment* divSeg : curDiv.SegmentsInside)
+            {
+                if (divSeg->PolylineIndex == seg.PolylineIndex)
+                    continue;
+
+                crossPoint = GeometryRelation::GetSegmentsCrossPoint(seg.Start, seg.End, divSeg->Start, divSeg->End);
+
+                //jezeli znalezlismy jakies przeciecie to idziemy
+                if (!std::isnan(crossPoint.x()) && !std::isnan(crossPoint.y()))
+                {
+                    //Wybierzmy w ktora strone kolejnego wielomianu bedziemy isc
+                    segmentIdxAscending = GetDirectionOnPolylineOuterChange(seg, *divSeg);
+                    polylineIdx = divSeg->PolylineIndex;
+                    segmentIdx = divSeg->SegmentIndex;
+                    break;
+                }
+            }
+
+            if (!std::isnan(crossPoint.x()) && !std::isnan(crossPoint.y()))
+                break;
+        }
+
+        //Znalezlismy punkt przeciecia z innym wielomianem
+        if (!std::isnan(crossPoint.x()) && !std::isnan(crossPoint.y()))
+            resultPolyline.emplace_back(crossPoint);
+
+        //Przesuniecia do kolejnego segmentu
+        segmentIdx += (segmentIdxAscending ? 1 : -1);
+        if (segmentIdx >= m_polylines[polylineIdx].size())//doszliśmy do końca
+        {
+            resultPolyline.emplace_back(seg.End);
+            polylineIdx++;
+            segmentIdx = 0;
+        }
+        else if (segmentIdx < 0)
+        {
+            resultPolyline.emplace_back(seg.End);
+            polylineIdx--;
+            segmentIdx = m_polylines[polylineIdx].size() - 1;
+        }
+
+
+    } while ((segmentIdx != 0 || polylineIdx != startPolylineIndex)
+    && polylineIdx < m_polylines.size() && polylineIdx >= 0);//Wróciliśmy do początku
+
+    return resultPolyline;
 }
 
 void PlaneDivision::DebugImageOfPlane(QVector4D planeSize)
@@ -114,10 +183,10 @@ void PlaneDivision::DebugImageOfPlane(QVector4D planeSize)
     for (const auto &polyline : m_polylines)
     {
         p.setPen(polylineColor);
-        for (int i = 1; i < polyline.size(); ++i)
+        for (const PolylineSegment &seg : polyline)
         {
-            QPoint A = fromPlaneToImage(polyline[i - 1]);
-            QPoint B = fromPlaneToImage(polyline[i]);
+            QPoint A = fromPlaneToImage(seg.Start);
+            QPoint B = fromPlaneToImage(seg.End);
             p.drawLine(A, B);
         }
         polylineColor = (Qt::GlobalColor)(polylineColor + 1);
@@ -126,8 +195,11 @@ void PlaneDivision::DebugImageOfPlane(QVector4D planeSize)
     //narysuj poczatki i konce lamanych
     for (const auto &polyline : m_polylines)
     {
-        QPoint S = fromPlaneToImage(polyline.front());
-        QPoint E = fromPlaneToImage(polyline.back());
+        if (polyline.empty())
+            continue;
+
+        QPoint S = fromPlaneToImage(polyline.front().Start);
+        QPoint E = fromPlaneToImage(polyline.back().End);
         QPoint PointSize = {3, 3};
 
         p.fillRect(QRect(S - PointSize, S + PointSize), Qt::magenta);
@@ -143,5 +215,20 @@ void PlaneDivision::AddConstraintPolyline(const std::vector<QVector3D> &points, 
     planePoints.reserve(points.size());
     for (const auto& p : points)
         planePoints.emplace_back(QVector2D(p.x(), p.z()));
-    AddConstraintPolyline(planePoints);
+    AddConstraintPolyline(planePoints, flip);
+}
+
+bool PlaneDivision::GetDirectionOnPolylineOuterChange(const PlaneDivision::PolylineSegment &from,
+                                                      const PlaneDivision::PolylineSegment &to)
+{
+    //Wektory 3D z zerowym Z
+    QVector3D fromVec(from.End - from.Start);
+    QVector3D ascVec(to.Start - from.Start);
+    //QVector3D descVec(to.End - from.Start);
+
+    //Cross w strone rosnaca wyszedl dodatni => skrecamy w lewo do startu
+    if (QVector3D::crossProduct(fromVec, ascVec).z() > 0)
+        return true;//bedziemy isc w przod kolejnej lamanej
+    //Cross w strone rosnaca wyszedl ujemny => skrecamy w prawo do startu, czyli w lewo do Endu
+    return false;//bedziemy isc w tyl kolejnej lamanej
 }

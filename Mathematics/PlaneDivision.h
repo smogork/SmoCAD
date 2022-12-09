@@ -11,26 +11,48 @@
 class PlaneDivision
 {
 private:
-    struct ConstraintSegment
+    struct PolylineSegment
     {
         QVector2D Start;
         QVector2D End;
         int PolylineIndex;
-        int StartIndex;
+        int SegmentIndex;
+        std::list<std::pair<int, int>> InsideDivisions;
 
-        ConstraintSegment(QVector2D start, QVector2D end, int polylineIndex, int startIndex)
-        : Start(start), End(end), PolylineIndex(polylineIndex), StartIndex(startIndex)
+        PolylineSegment(QVector2D start, QVector2D end, int polylineIdx, int segmentIdx)
+        : Start(start), End(end), PolylineIndex(polylineIdx), SegmentIndex(segmentIdx)
         { }
     };
 
+    struct Division
+    {
+        QVector2D Start;
+        QVector2D End;
+        std::list<PolylineSegment*> SegmentsInside;
+
+        Division() {}
+        Division(QVector2D start, QVector2D end, int polylineIndex, int startIndex)
+        : Start(start), End(end)
+        { }
+
+        QVector4D GetRect()
+        {
+            return {Start.x(), Start.y(), End.x(), End.y()};
+        }
+    };
+
+
+
     //{startX, startY, endX, endY} + index of polyline owning segment
-    std::list<ConstraintSegment>* m_division;
-    std::vector<std::vector<QVector2D>> m_polylines;
+    Division* m_division;
+    std::vector<std::vector<PolylineSegment>> m_polylines;
     int m_size = 0;
     bool m_divisionCreated = false;
 
-    std::list<ConstraintSegment>& GetDivision(int col, int row);
+    Division& GetDivision(int col, int row);
     void DebugImageOfPlane(QVector4D planeSize);
+
+    bool GetDirectionOnPolylineOuterChange(const PolylineSegment& from, const PolylineSegment& to);
 
 public:
     PlaneDivision();
@@ -38,7 +60,7 @@ public:
 
     void AddConstraintPolyline(const std::vector<QVector2D>& points, bool flip = false);
     void AddConstraintPolyline(const std::vector<QVector3D>& points, bool flip = false);
-    std::vector<QVector2D>& GetConstraintPolyline(int index);
+    //std::vector<QVector2D>& GetConstraintPolyline(int index);
 
     /**
      *
