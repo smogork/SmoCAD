@@ -7,7 +7,7 @@
 #include "PlaneDivision.h"
 #include "GeometryRelation.h"
 
-PlaneDivision::PlaneDivision()
+PlaneDivision::PlaneDivision(QVector4D planeSize): m_planeSize(planeSize)
 {
 
 }
@@ -41,24 +41,19 @@ void PlaneDivision::AddConstraintPolyline(const std::vector<QVector2D> &points, 
     m_polylines.emplace_back(insidePoly);
 }
 
-/*std::vector<QVector2D> &PlaneDivision::GetConstraintPolyline(int index)
-{
-    return m_polylines[index];
-}*/
-
-void PlaneDivision::CreateDivision(QVector4D planeSize, int divisionCount)
+void PlaneDivision::CreateDivision(int divisionCount)
 {
     m_size = divisionCount;
     m_division = new Division[m_size * m_size];
 
-    float dx = (planeSize.z() - planeSize.x()) / m_size;
-    float dy = (planeSize.w() - planeSize.y()) / m_size;
+    float dx = (m_planeSize.z() - m_planeSize.x()) / m_size;
+    float dy = (m_planeSize.w() - m_planeSize.y()) / m_size;
 
     for (int y = 0; y < m_size; ++y)
         for (int x = 0; x < m_size; ++x)
         {
             Division& curDiv = GetDivision(x, y);
-            curDiv.Start = {planeSize.x() + dx * x, planeSize.y() + dy * y};
+            curDiv.Start = {m_planeSize.x() + dx * x, m_planeSize.y() + dy * y};
             curDiv.End = curDiv.Start + QVector2D(dx, dy);
             auto rect = curDiv.GetRect();
 
@@ -76,7 +71,7 @@ void PlaneDivision::CreateDivision(QVector4D planeSize, int divisionCount)
         }
 
     m_divisionCreated = true;
-    DebugImageOfPlane(planeSize);
+    DebugImageOfPlane();
 }
 
 std::vector<QVector2D> PlaneDivision::JoinConstraintPolylinesTogether(int startPolylineIndex)
@@ -144,21 +139,21 @@ std::vector<QVector2D> PlaneDivision::JoinConstraintPolylinesTogether(int startP
     return resultPolyline;
 }
 
-void PlaneDivision::DebugImageOfPlane(QVector4D planeSize)
+void PlaneDivision::DebugImageOfPlane()
 {
     if (!m_divisionCreated)
         return;
     //16 pixeli na klatke podzialu
     QImage plane(QSize(16 * m_size, 16 * m_size), QImage::Format_ARGB32);
 
-    auto fromPlaneToImage = [planeSize, &plane](QVector2D planePoint) -> QPoint
+    auto fromPlaneToImage = [this, &plane](QVector2D planePoint) -> QPoint
     {
-        float widthX = planeSize.z() - planeSize.x();
-        float widthY = planeSize.w() - planeSize.y();
+        float widthX = m_planeSize.z() - m_planeSize.x();
+        float widthY = m_planeSize.w() - m_planeSize.y();
 
         return QPoint(
-                (planePoint.y() - planeSize.x()) / widthX * plane.width(),
-                (1.0f - ((planePoint.x() - planeSize.y()) / widthY)) * plane.height()
+                (planePoint.y() - m_planeSize.y()) / widthY * plane.height(),
+                (1.0f - ((planePoint.x() - m_planeSize.x()) / widthX)) * plane.width()
         );
     };
 
@@ -167,12 +162,12 @@ void PlaneDivision::DebugImageOfPlane(QVector4D planeSize)
     p.setPen(Qt::darkGray);
 
     //Narysuj kratki podzialu
-    float dx = (planeSize.z() - planeSize.x()) / m_size;
-    float dy = (planeSize.w() - planeSize.y()) / m_size;
+    float dx = (m_planeSize.z() - m_planeSize.x()) / m_size;
+    float dy = (m_planeSize.w() - m_planeSize.y()) / m_size;
     for (int y = 0; y < m_size; ++y)
         for (int x = 0; x < m_size; ++x)
         {
-            QVector2D leftLower = {planeSize.x() + dx * x, planeSize.y() + dy * y};
+            QVector2D leftLower = {m_planeSize.x() + dx * x, m_planeSize.y() + dy * y};
             QVector2D rightUpper = leftLower + QVector2D(dx, dy);
             QRect r(fromPlaneToImage(leftLower), fromPlaneToImage(rightUpper));
             p.drawRect(r);
@@ -231,4 +226,19 @@ bool PlaneDivision::GetDirectionOnPolylineOuterChange(const PlaneDivision::Polyl
         return true;//bedziemy isc w przod kolejnej lamanej
     //Cross w strone rosnaca wyszedl ujemny => skrecamy w prawo do startu, czyli w lewo do Endu
     return false;//bedziemy isc w tyl kolejnej lamanej
+}
+
+float PlaneDivision::Width() const
+{
+    return m_planeSize.z() - m_planeSize.x();
+}
+
+float PlaneDivision::Height() const
+{
+    return m_planeSize.w() - m_planeSize.y();
+}
+
+QVector4D PlaneDivision::PlaneSize() const
+{
+    return m_planeSize;
 }

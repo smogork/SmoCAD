@@ -297,3 +297,23 @@ std::tuple<QImage, QImage> IntersectionResult::GetTrimmingTextures()
 
     return {oneTex, twoTex};
 }
+
+std::vector<QVector2D> IntersectionResult::GetFirstParameterPoints()
+{
+    std::vector<QVector2D> res(m_paramPoints.size());
+
+    for (int i = 0; i < m_paramPoints.size(); ++i)
+        res[i] = QVector2D(m_paramPoints[i].x(), m_paramPoints[i].y());
+
+    return res;
+}
+
+std::vector<QVector2D> IntersectionResult::GetSecondParameterPoints()
+{
+    std::vector<QVector2D> res(m_paramPoints.size());
+
+    for (int i = 0; i < m_paramPoints.size(); ++i)
+        res[i] = QVector2D(m_paramPoints[i].z(), m_paramPoints[i].w());
+
+    return res;
+}

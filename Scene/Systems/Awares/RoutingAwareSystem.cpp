@@ -113,7 +113,7 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
 
     // 4.Generowanie obrobki zgrubnej dla plaskiej podstawki
     QVector3D startPoint21 = {
-            blockSize.x() / 2 ,
+            blockSize.x() / 2,
             blockSize.z() - BottomDepth,
             -blockSize.y() / 2 - 1.2f * F12_RADIUS};
     float limit21 = blockSize.y() / 2;
@@ -122,8 +122,8 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
             blockSize.z() - BottomDepth,
             5.6};
     float limit22 = -blockSize.y() / 2;
-    auto roughtFlat1 = GenerateFlatZigZag(confMapF12, startPoint21, limit21 , F12_RADIUS - 0.05f, blockSize,
-                                         texSize, Y, false);
+    auto roughtFlat1 = GenerateFlatZigZag(confMapF12, startPoint21, limit21, F12_RADIUS - 0.05f, blockSize,
+                                          texSize, Y, false);
     auto roughtFlat2 = GenerateFlatZigZag(confMapF12, startPoint22, limit22, F12_RADIUS - 0.05f, blockSize,
                                           texSize, Y, false);
     CutterPath flatPath(CutterParameters(Length::FromSceneUnits(F12_RADIUS * 2), CutterType::Cylindrical));
@@ -137,7 +137,7 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
 
     CutterPath flatPrecisionPath(CutterParameters(Length::FromSceneUnits(F10_RADIUS * 2), CutterType::Cylindrical));
     flatPrecisionPath.Points.insert(flatPrecisionPath.Points.end(), offsetPoints.begin(), offsetPoints.end());
-    for (QVector3D& p : flatPrecisionPath.Points)
+    for (QVector3D &p: flatPrecisionPath.Points)
         p = FromSceneToBlock(p, blockWorldPos);
     GCodeSaver::SaveCutterPath(folderName, flatPrecisionPath, 3);
 
@@ -154,7 +154,6 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     if (auto scene = SceneECS::Instance().lock())
         if (auto is = scene->GetSystem<IntersectionAwareSystem>().lock())
             isys = is;
-
 
     PlaneCreator planeCreator("routingPlaneCreator", PLANEC2_CLASS, {-7.5f, 0.0f, -7.5f});
     planeCreator.p_UVParams->U = 10;
@@ -177,45 +176,79 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
 
     //Przeciecia stol-body
     QVector3D StolBodyStart1 = {-4.7, -0.3, 5.4}; //prawa strona
-    auto StolBodyCurve1 = isys->CreateIntersectionCurveBetween(StolOffsetK8.p_Intersection, BodyOffsetK8.p_Intersection, StolBodyStart1);
+    auto StolBodyCurve1 = isys->CreateIntersectionCurveBetween(StolOffsetK8.p_Intersection, BodyOffsetK8.p_Intersection,
+                                                               StolBodyStart1);
     QVector3D StolBodyStart2 = {-4.7, -0.3, -5.4}; //lewa strona
-    auto PrecStolBodyCurve2 = isys->CreateIntersectionCurveBetween(StolOffsetK8.p_Intersection, BodyOffsetK8.p_Intersection, StolBodyStart2);
+    auto PrecStolBodyCurve2 = isys->CreateIntersectionCurveBetween(StolOffsetK8.p_Intersection,
+                                                                   BodyOffsetK8.p_Intersection, StolBodyStart2);
 
     //Przecięcia stol-ucho
     QVector3D StolUchoStart1 = {-3.2, -0.4, 4.3};
-    auto StolUchoCurve1 = isys->CreateIntersectionCurveBetween(StolOffsetK8.p_Intersection, UchoOffsetK8.p_Intersection, StolUchoStart1);
+    auto StolUchoCurve1 = isys->CreateIntersectionCurveBetween(StolOffsetK8.p_Intersection, UchoOffsetK8.p_Intersection,
+                                                               StolUchoStart1);
     QVector3D StolUchoStart2 = {-0.7, -0.6, 3.9};
-    auto StolUchoCurve2 = isys->CreateIntersectionCurveBetween(StolOffsetK8.p_Intersection, UchoOffsetK8.p_Intersection, StolUchoStart2);
+    auto StolUchoCurve2 = isys->CreateIntersectionCurveBetween(StolOffsetK8.p_Intersection, UchoOffsetK8.p_Intersection,
+                                                               StolUchoStart2);
 
     //Przeciecia stol-dziubek
     QVector3D StolDziubekStart1 = {0.8, -0.4, -3.7};//gora
-    auto StolDziubekCurve1 = isys->CreateIntersectionCurveBetween(StolOffsetK8.p_Intersection, DziubekOffsetK8.p_Intersection, StolDziubekStart1);
-    QVector3D StolDziubekStart2 =   {-3.2, -0.4, -3.7};//dol
-    auto StolDziubekCurve2 = isys->CreateIntersectionCurveBetween(StolOffsetK8.p_Intersection, DziubekOffsetK8.p_Intersection, StolDziubekStart2);
+    auto StolDziubekCurve1 = isys->CreateIntersectionCurveBetween(StolOffsetK8.p_Intersection,
+                                                                  DziubekOffsetK8.p_Intersection, StolDziubekStart1);
+    QVector3D StolDziubekStart2 = {-3.2, -0.4, -3.7};//dol
+    auto StolDziubekCurve2 = isys->CreateIntersectionCurveBetween(StolOffsetK8.p_Intersection,
+                                                                  DziubekOffsetK8.p_Intersection, StolDziubekStart2);
 
     //Przeciecia stol-pokrywka
     QVector3D StolPokrywkaStart1 = {3.1, -0.3, -2.1};//gora lewa
     QVector3D StolPokrywkaStart2 = {3.1, 0.3, 1.8};//gora prawa
     QVector3D StolPokrywkaStart3 = {2.1, -0.2, 1.8};//dol prawa
     QVector3D StolPokrywkaStart4 = {1.8, 1.0, -1.5};//dol lewa
-    auto StolPokrywkaCurve1 = isys->CreateIntersectionCurveBetween(Stol2OffsetK8.p_Intersection, PokrywkaOffsetK8.p_Intersection, StolPokrywkaStart1);
-    auto StolPokrywkaCurve2 = isys->CreateIntersectionCurveBetween(Stol2OffsetK8.p_Intersection, PokrywkaOffsetK8.p_Intersection, StolPokrywkaStart2);
-    auto StolPokrywkaCurve3 = isys->CreateIntersectionCurveBetween(StolOffsetK8.p_Intersection, PokrywkaOffsetK8.p_Intersection, StolPokrywkaStart3);
-    auto StolPokrywkaCurve4 = isys->CreateIntersectionCurveBetween(StolOffsetK8.p_Intersection, PokrywkaOffsetK8.p_Intersection, StolPokrywkaStart4);
+    auto StolPokrywkaCurve1 = isys->CreateIntersectionCurveBetween(Stol2OffsetK8.p_Intersection,
+                                                                   PokrywkaOffsetK8.p_Intersection, StolPokrywkaStart1);
+    auto StolPokrywkaCurve2 = isys->CreateIntersectionCurveBetween(Stol2OffsetK8.p_Intersection,
+                                                                   PokrywkaOffsetK8.p_Intersection, StolPokrywkaStart2);
+    auto StolPokrywkaCurve3 = isys->CreateIntersectionCurveBetween(StolOffsetK8.p_Intersection,
+                                                                   PokrywkaOffsetK8.p_Intersection, StolPokrywkaStart3);
+    auto StolPokrywkaCurve4 = isys->CreateIntersectionCurveBetween(StolOffsetK8.p_Intersection,
+                                                                   PokrywkaOffsetK8.p_Intersection, StolPokrywkaStart4);
 
     //Przeciecia dziubek-body
     QVector3D DziubekBodyStart = {-1.4, 0.9, -2.5};
-    auto DziubekBodyCurve = isys->CreateIntersectionCurveBetween(DziubekOffsetK8.p_Intersection, BodyOffsetK8.p_Intersection, DziubekBodyStart);
+    auto DziubekBodyCurve = isys->CreateIntersectionCurveBetween(DziubekOffsetK8.p_Intersection,
+                                                                 BodyOffsetK8.p_Intersection, DziubekBodyStart);
 
     //Przeciecia ucho-body
     QVector3D UchoBodyStart1 = {0.4, 0.3, 2.6};
-    auto UchoBodyCurve1 = isys->CreateIntersectionCurveBetween(UchoOffsetK8.p_Intersection, BodyOffsetK8.p_Intersection, UchoBodyStart1);
+    auto UchoBodyCurve1 = isys->CreateIntersectionCurveBetween(UchoOffsetK8.p_Intersection, BodyOffsetK8.p_Intersection,
+                                                               UchoBodyStart1);
     QVector3D UchoBodyStart2 = {-2.7, 0.3, 3.7};
-    auto UchoBodyCurve2 = isys->CreateIntersectionCurveBetween(UchoOffsetK8.p_Intersection, BodyOffsetK8.p_Intersection, UchoBodyStart2);
+    auto UchoBodyCurve2 = isys->CreateIntersectionCurveBetween(UchoOffsetK8.p_Intersection, BodyOffsetK8.p_Intersection,
+                                                               UchoBodyStart2);
 
     //Przeciecie pokrywka-body
     QVector3D PokrywkaBodyStart = {1.5, 1.2, -0.6};
-    auto PokrywkaBodyCurve = isys->CreateIntersectionCurveBetween(PokrywkaOffsetK8.p_Intersection, BodyOffsetK8.p_Intersection, PokrywkaBodyStart);
+    auto PokrywkaBodyCurve = isys->CreateIntersectionCurveBetween(PokrywkaOffsetK8.p_Intersection,
+                                                                  BodyOffsetK8.p_Intersection, PokrywkaBodyStart);
+
+
+    //Ograniczenia do obrobki Dziubka
+    PlaneDivision divDziubek(QVector4D(0, 0, DziubekOffsetK8.p_UV->U, DziubekOffsetK8.p_UV->V));
+    divDziubek.WrapX = true;
+
+    divDziubek.AddConstraintPolyline(DziubekBodyCurve->p_IntersectionRes->GetFirstParameterPoints());
+    divDziubek.AddConstraintPolyline(StolDziubekCurve1->p_IntersectionRes->GetSecondParameterPoints());
+    divDziubek.AddConstraintPolyline(StolDziubekCurve2->p_IntersectionRes->GetSecondParameterPoints());
+    divDziubek.AddConstraintPolyline({QVector2D(DziubekOffsetK8.p_UV->U, DziubekOffsetK8.p_UV->V - 0.1f),
+                                      QVector2D(0.0f, DziubekOffsetK8.p_UV->V - 0.1f)});
+
+    QVector2D DziubekStartPoint = StolDziubekCurve1->p_IntersectionRes->GetSecondParameterPoints().back();
+    float DziubekDu = 0.1f;
+    float DziubekDv = 0.1f;
+    AddLinesAsConstrains(DziubekStartPoint, DziubekDu, DziubekDv,
+                         StolDziubekCurve2->p_IntersectionRes->GetSecondParameterPoints().front().x(),
+                         QVector2D(0.0f, DziubekOffsetK8.p_UV->V), X, divDziubek);
+
+    divDziubek.CreateDivision();
 
     //Dodanie hardcodowanych punktów które wyszły tragicznie z przecięć
     //TODO: poprawienie przeciec na dziwnych miejscach
@@ -593,7 +626,8 @@ QVector3D RoutingAwareSystem::FromSceneToBlock(QVector3D sceneP, QVector3D block
     return sceneP - blockWorldPos;
 }
 
-std::vector<QVector3D> RoutingAwareSystem::GenerateFlatPrecisionPath(const QVector3D &blockWorldPos, const QVector3D &blockSize)
+std::vector<QVector3D>
+RoutingAwareSystem::GenerateFlatPrecisionPath(const QVector3D &blockWorldPos, const QVector3D &blockSize)
 {
     std::shared_ptr<RoutingAware> Body, Ucho, Pokrywka, Dziubek;
     auto elements = GetComponents();
@@ -601,7 +635,6 @@ std::vector<QVector3D> RoutingAwareSystem::GenerateFlatPrecisionPath(const QVect
     Ucho = elements[1].lock();
     Dziubek = elements[2].lock();
     Pokrywka = elements[3].lock();
-
 
     PlaneCreator planeCreator("routingPlaneCreator", PLANEC2_CLASS, {-7.5f, 0.0f, -7.5f});
     planeCreator.p_UVParams->U = 10;
@@ -627,23 +660,28 @@ std::vector<QVector3D> RoutingAwareSystem::GenerateFlatPrecisionPath(const QVect
 
     //Przeciecia stol-body
     QVector3D StolBodyStart1 = {-4.7, -0.3, 5.4}; //prawa strona
-    auto StolBodyCurve1 = isys->CreateIntersectionCurveBetween(stol->p_Intersection, BodyOffsetF10.p_Intersection, StolBodyStart1);
+    auto StolBodyCurve1 = isys->CreateIntersectionCurveBetween(stol->p_Intersection, BodyOffsetF10.p_Intersection,
+                                                               StolBodyStart1);
     auto precFlat4 = StolBodyCurve1->p_IntersectionRes->GetScenePoints();
     QVector3D StolBodyStart2 = {-4.7, -0.3, -5.4}; //lewa strona
-    auto StolBodyCurve2 = isys->CreateIntersectionCurveBetween(stol->p_Intersection, BodyOffsetF10.p_Intersection, StolBodyStart2);
+    auto StolBodyCurve2 = isys->CreateIntersectionCurveBetween(stol->p_Intersection, BodyOffsetF10.p_Intersection,
+                                                               StolBodyStart2);
     auto precFlat5 = StolBodyCurve2->p_IntersectionRes->GetScenePoints();
 
     //Przecięcia stol-ucho
     QVector3D StolUchoStart1 = {-3.2, -0.4, 4.3};
-    auto StolUchoCurve1 = isys->CreateIntersectionCurveBetween(stol->p_Intersection, UchoOffsetF10.p_Intersection, StolUchoStart1);
+    auto StolUchoCurve1 = isys->CreateIntersectionCurveBetween(stol->p_Intersection, UchoOffsetF10.p_Intersection,
+                                                               StolUchoStart1);
     auto precFlat6 = StolUchoCurve1->p_IntersectionRes->GetScenePoints();
 
     //Przeciecia stol-dziubek
     QVector3D StolDziubekStart1 = {0.8, -0.4, -3.7};//gora
-    auto StolDziubekCurve1 = isys->CreateIntersectionCurveBetween(stol->p_Intersection, DziubekOffsetF10.p_Intersection, StolDziubekStart1);
+    auto StolDziubekCurve1 = isys->CreateIntersectionCurveBetween(stol->p_Intersection, DziubekOffsetF10.p_Intersection,
+                                                                  StolDziubekStart1);
     auto precFlat8 = StolDziubekCurve1->p_IntersectionRes->GetScenePoints();
-    QVector3D StolDziubekStart2 =   {-3.2, -0.4, -3.7};//dol
-    auto StolDziubekCurve2 = isys->CreateIntersectionCurveBetween(stol->p_Intersection, DziubekOffsetF10.p_Intersection, StolDziubekStart2);
+    QVector3D StolDziubekStart2 = {-3.2, -0.4, -3.7};//dol
+    auto StolDziubekCurve2 = isys->CreateIntersectionCurveBetween(stol->p_Intersection, DziubekOffsetF10.p_Intersection,
+                                                                  StolDziubekStart2);
     auto precFlat7 = StolDziubekCurve2->p_IntersectionRes->GetScenePoints();
 
     //Przeciecia stol-pokrywka
@@ -651,10 +689,18 @@ std::vector<QVector3D> RoutingAwareSystem::GenerateFlatPrecisionPath(const QVect
     QVector3D StolPokrywkaStart2 = {3.1, 0.3, 1.8};//gora prawa
     QVector3D StolPokrywkaStart3 = {2.1, -0.2, 1.8};//dol prawa
     QVector3D StolPokrywkaStart4 = {1.8, 1.0, -1.5};//dol lewa
-    auto StolPokrywkaCurve1 = isys->CreateIntersectionCurveBetween(stol2->p_Intersection, PokrywkaOffsetF10.p_Intersection, StolPokrywkaStart1);
-    auto StolPokrywkaCurve2 = isys->CreateIntersectionCurveBetween(stol2->p_Intersection, PokrywkaOffsetF10.p_Intersection, StolPokrywkaStart2);
-    auto StolPokrywkaCurve3 = isys->CreateIntersectionCurveBetween(stol->p_Intersection, PokrywkaOffsetF10.p_Intersection, StolPokrywkaStart3);
-    auto StolPokrywkaCurve4 = isys->CreateIntersectionCurveBetween(stol->p_Intersection, PokrywkaOffsetF10.p_Intersection, StolPokrywkaStart4);
+    auto StolPokrywkaCurve1 = isys->CreateIntersectionCurveBetween(stol2->p_Intersection,
+                                                                   PokrywkaOffsetF10.p_Intersection,
+                                                                   StolPokrywkaStart1);
+    auto StolPokrywkaCurve2 = isys->CreateIntersectionCurveBetween(stol2->p_Intersection,
+                                                                   PokrywkaOffsetF10.p_Intersection,
+                                                                   StolPokrywkaStart2);
+    auto StolPokrywkaCurve3 = isys->CreateIntersectionCurveBetween(stol->p_Intersection,
+                                                                   PokrywkaOffsetF10.p_Intersection,
+                                                                   StolPokrywkaStart3);
+    auto StolPokrywkaCurve4 = isys->CreateIntersectionCurveBetween(stol->p_Intersection,
+                                                                   PokrywkaOffsetF10.p_Intersection,
+                                                                   StolPokrywkaStart4);
     auto precFlat1 = StolPokrywkaCurve1->p_IntersectionRes->GetScenePoints();
     auto precFlat2 = StolPokrywkaCurve2->p_IntersectionRes->GetScenePoints();
     auto precFlat3 = StolPokrywkaCurve3->p_IntersectionRes->GetScenePoints();
@@ -666,7 +712,13 @@ std::vector<QVector3D> RoutingAwareSystem::GenerateFlatPrecisionPath(const QVect
     precFlat2.emplace_back(QVector3D(2.7f, 0.0f, 3.2f));
     precFlat9.emplace_back(QVector3D(2.7f, 0.0f, -2.6f));
 
-    PlaneDivision planeDiv;
+    QVector4D planeSize = QVector4D(
+            blockWorldPos.x() - blockSize.x() / 2,
+            blockWorldPos.z() - blockSize.y() / 2,
+            blockWorldPos.x() + blockSize.x() / 2,
+            blockWorldPos.z() + blockSize.y() / 2
+    );
+    PlaneDivision planeDiv(planeSize);
     planeDiv.AddConstraintPolyline(precFlat1);//gora lewa pokrywka
     planeDiv.AddConstraintPolyline(precFlat2);//gora prawa pokrywka
     planeDiv.AddConstraintPolyline(precFlat3);//dol prawa pokrywka
@@ -677,18 +729,12 @@ std::vector<QVector3D> RoutingAwareSystem::GenerateFlatPrecisionPath(const QVect
     planeDiv.AddConstraintPolyline(precFlat8);//gora dziubek
     planeDiv.AddConstraintPolyline(precFlat9);//pokrywka dol lewa
 
-    QVector4D planeSize = QVector4D(
-            blockWorldPos.x() - blockSize.x() / 2,
-            blockWorldPos.z() - blockSize.y() / 2,
-            blockWorldPos.x() + blockSize.x() / 2,
-            blockWorldPos.z() + blockSize.y() / 2
-    );
-    planeDiv.CreateDivision(planeSize);
+    planeDiv.CreateDivision();
     auto offsetRing = planeDiv.JoinConstraintPolylinesTogether(0);
     std::vector<QVector3D> offsetPoints;
     offsetPoints.reserve(offsetRing.size());
 
-    for (const auto& planePoint : offsetRing)
+    for (const auto &planePoint: offsetRing)
         offsetPoints.emplace_back(QVector3D(planePoint.x(), 0, planePoint.y()));
     offsetPoints.emplace_back(offsetPoints[0]);
 
@@ -697,6 +743,38 @@ std::vector<QVector3D> RoutingAwareSystem::GenerateFlatPrecisionPath(const QVect
     stol2->RemovePointsInside();
 
     return offsetPoints;
+}
+
+void
+RoutingAwareSystem::AddLinesAsConstrains(QVector2D startPoint, float deltaWidth, float deltaHeight, float targetWidth,
+                                         QVector2D lineBoundaries, RoutingAwareSystem::ZigZagVariable variable,
+                                         PlaneDivision &division)
+{
+    if (variable == X)
+    {
+        float incrementWidth = deltaWidth * (targetWidth - startPoint.x() > 0 ? 1 : -1);
+        for (float x = startPoint.x(); incrementWidth > 0 ? x < targetWidth : x > targetWidth; x += incrementWidth)
+        {
+            std::vector<QVector2D> constraint;
+            for (float y = lineBoundaries.x(); y <= lineBoundaries.y(); y += deltaHeight)
+            {
+                constraint.emplace_back(QVector2D(x, y));
+            }
+
+            division.AddConstraintPolyline(constraint);
+        }
+    } else
+    {
+        float incrementWidth = deltaWidth * (targetWidth - startPoint.y() > 0 ? 1 : -1);
+        for (float y = startPoint.y(); incrementWidth > 0 ? y < targetWidth : y > targetWidth; y += incrementWidth)
+        {
+            std::vector<QVector2D> constraint;
+            for (float x = lineBoundaries.x(); x <= lineBoundaries.y(); x += deltaHeight)
+                constraint.emplace_back(QVector2D(x, y));
+
+            division.AddConstraintPolyline(constraint);
+        }
+    }
 }
 
 

@@ -8,6 +8,7 @@
 #include "Scene/Systems/ISystem.h"
 #include "Scene/Components/Awares/RoutingAware.h"
 #include "glwidget.h"
+#include "Mathematics/PlaneDivision.h"
 
 class RoutingAwareSystem : public ISystem<RoutingAware>
 {
@@ -60,6 +61,7 @@ private:
     std::vector<QVector3D>
     OptimizeRouterPath(const std::vector<std::pair<QPoint, float>> &zigzag, float tolerance, float maxDepth, QVector3D blockSize,
                        QSize texSize);
+    void AddLinesAsConstrains(QVector2D startPoint, float deltaWidth, float deltaHeight, float targetWidth, QVector2D lineBoundaries, ZigZagVariable variable, PlaneDivision& division);
 
     QPoint FromBlockToTex(QVector2D blockPoint, QSize texSize, QVector3D blockSize);
     QVector2D FromTexToBlock(QPoint texPoint, QSize texSize, QVector3D blockSize);
