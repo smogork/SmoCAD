@@ -17,8 +17,6 @@ bool GeometryRelation::DoesSegmentCrossRect(QPoint A, QPoint B, QRect rect)
 
 bool GeometryRelation::DoesSegmentCrossRect(QVector2D A, QVector2D B, QVector4D rect)
 {
-
-
     //Cohen-Sutherland
     auto outCodeCompute = [](QVector4D rect, QVector2D p) -> uint
     {

@@ -35,7 +35,7 @@ private:
         : Start(start), End(end)
         { }
 
-        QVector4D GetRect()
+        QVector4D GetRect() const
         {
             return {Start.x(), Start.y(), End.x(), End.y()};
         }

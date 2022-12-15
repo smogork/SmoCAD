@@ -47,6 +47,7 @@ private:
             const std::vector<float> &confMap, QVector3D startPoint, float targetWidth, float w, QVector3D blockSize,
             QSize texSize,
             ZigZagVariable variable, bool flipZigZag);
+    std::vector<QVector3D> GenerateFlatPrecisionPath(const QVector3D &blockWorldPos, const QVector3D &blockSize);
 
     std::vector<std::pair<QPoint, float>>
     CreateZigZagPoints(QPoint startPoint, int width, float height, QSize planeSize, ZigZagVariable variable,
