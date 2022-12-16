@@ -238,17 +238,28 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     divDziubek.AddConstraintPolyline(DziubekBodyCurve->p_IntersectionRes->GetFirstParameterPoints());
     divDziubek.AddConstraintPolyline(StolDziubekCurve1->p_IntersectionRes->GetSecondParameterPoints());
     divDziubek.AddConstraintPolyline(StolDziubekCurve2->p_IntersectionRes->GetSecondParameterPoints());
-    divDziubek.AddConstraintPolyline({QVector2D(DziubekOffsetK8.p_UV->U, DziubekOffsetK8.p_UV->V - 0.1f),
-                                      QVector2D(0.0f, DziubekOffsetK8.p_UV->V - 0.1f)});
 
     QVector2D DziubekStartPoint = StolDziubekCurve1->p_IntersectionRes->GetSecondParameterPoints().back();
     float DziubekDu = 0.1f;
     float DziubekDv = 0.1f;
+    AddLinesAsConstrains(QVector2D(DziubekOffsetK8.p_UV->U, DziubekOffsetK8.p_UV->V - 0.01f), DziubekDv, DziubekDu,
+                         DziubekOffsetK8.p_UV->V + 0.01f,
+                         QVector2D(0.0f, DziubekOffsetK8.p_UV->U), Y, divDziubek);
     AddLinesAsConstrains(DziubekStartPoint, DziubekDu, DziubekDv,
                          StolDziubekCurve2->p_IntersectionRes->GetSecondParameterPoints().front().x(),
                          QVector2D(0.0f, DziubekOffsetK8.p_UV->V), X, divDziubek);
 
     divDziubek.CreateDivision();
+
+    int skip = 5;
+    std::vector<int> linesToVisit(divDziubek.GetConstraintCount() - skip);
+    std::iota(std::begin(linesToVisit), std::end(linesToVisit), skip);
+    auto dziubekParameterPath = divDziubek.JoinConstraintPolylinesZigzag(linesToVisit, true, true,
+                                                                         divDziubek.GetConstraintCount() - 1, 8);
+
+    PlaneDivision debug(QVector4D(0, 0, DziubekOffsetK8.p_UV->U, DziubekOffsetK8.p_UV->V));
+    debug.AddConstraintPolyline(dziubekParameterPath);
+    debug.CreateDivision();
 
     //Dodanie hardcodowanych punktów które wyszły tragicznie z przecięć
     //TODO: poprawienie przeciec na dziwnych miejscach
