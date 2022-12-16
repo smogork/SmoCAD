@@ -171,8 +171,8 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     OffsetPlane UchoOffsetK8(Ucho->p_Intersection, K8_RADIUS);
     OffsetPlane DziubekOffsetK8(Dziubek->p_Intersection, K8_RADIUS);
     OffsetPlane PokrywkaOffsetK8(Pokrywka->p_Intersection, K8_RADIUS);
-    OffsetPlane StolOffsetK8(stol->p_Intersection, K8_RADIUS);
-    OffsetPlane Stol2OffsetK8(stol2->p_Intersection, K8_RADIUS);
+    OffsetPlane StolOffsetK8(stol->p_Intersection, -K8_RADIUS);
+    OffsetPlane Stol2OffsetK8(stol2->p_Intersection, -K8_RADIUS);
 
     //Przeciecia stol-body
     QVector3D StolBodyStart1 = {-4.7, -0.3, 5.4}; //prawa strona
@@ -257,12 +257,43 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     auto dziubekParameterPath = divDziubek.JoinConstraintPolylinesZigzag(linesToVisit, true, true,
                                                                          divDziubek.GetConstraintCount() - 1, 8);
 
-    PlaneDivision debug(QVector4D(0, 0, DziubekOffsetK8.p_UV->U, DziubekOffsetK8.p_UV->V));
+    /*PlaneDivision debug(QVector4D(0, 0, DziubekOffsetK8.p_UV->U, DziubekOffsetK8.p_UV->V));
     debug.AddConstraintPolyline(dziubekParameterPath);
-    debug.CreateDivision();
+    debug.CreateDivision();*/
 
-    //Dodanie hardcodowanych punktów które wyszły tragicznie z przecięć
-    //TODO: poprawienie przeciec na dziwnych miejscach
+    std::vector<QVector3D> dziubekPrecPath(dziubekParameterPath.size());
+    for (int i = 0; i < dziubekParameterPath.size(); ++i)
+    {
+        dziubekPrecPath[i] = DziubekOffsetK8.p_Intersection->SceneFunction(dziubekParameterPath[i]) * QVector3D(1.0f, -1.0f, 1.0f);
+                - QVector3D(0.0f, K8_RADIUS, 0.0f);//Obnizenie do szubka frezu
+    }
+
+
+
+    //Ograniczenia do obrobki ucha
+    PlaneDivision divUcho(QVector4D(0, 0, UchoOffsetK8.p_UV->U, UchoOffsetK8.p_UV->V));
+    divUcho.WrapX = true;
+
+    divUcho.AddConstraintPolyline(UchoBodyCurve1->p_IntersectionRes->GetFirstParameterPoints());
+    divUcho.AddConstraintPolyline(UchoBodyCurve2->p_IntersectionRes->GetFirstParameterPoints());
+    divUcho.AddConstraintPolyline(StolUchoCurve1->p_IntersectionRes->GetSecondParameterPoints());
+    divUcho.AddConstraintPolyline(StolUchoCurve2->p_IntersectionRes->GetSecondParameterPoints());
+
+    /*QVector2D UchoStartPoint = StolDziubekCurve1->p_IntersectionRes->GetSecondParameterPoints().back();
+    float DziubekDu = 0.1f;
+    float DziubekDv = 0.1f;
+    AddLinesAsConstrains(DziubekStartPoint, DziubekDu, DziubekDv,
+                         StolDziubekCurve2->p_IntersectionRes->GetSecondParameterPoints().front().x(),
+                         QVector2D(0.0f, DziubekOffsetK8.p_UV->V), X, divDziubek);*/
+
+    divUcho.CreateDivision();
+
+    CutterPath precisionPath(CutterParameters(Length::FromSceneUnits(K8_RADIUS * 2), CutterType::Spherical));
+    precisionPath.Points.insert(precisionPath.Points.end(), dziubekPrecPath.begin(), dziubekPrecPath.end());
+    for (QVector3D &p: precisionPath.Points)
+        p = FromSceneToBlock(p, blockWorldPos);
+    GCodeSaver::SaveCutterPath(folderName, precisionPath, 4);
+
 
     // Wyczyszczenie zasobów
     zmapTex->destroy();

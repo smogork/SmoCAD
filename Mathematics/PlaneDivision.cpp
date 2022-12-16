@@ -150,8 +150,8 @@ void PlaneDivision::DebugImageOfPlane()
         float widthY = m_planeSize.w() - m_planeSize.y();
 
         return QPoint(
-                (planePoint.y() - m_planeSize.y()) / widthY * plane.height(),
-                (1.0f - ((planePoint.x() - m_planeSize.x()) / widthX)) * plane.width()
+                ((planePoint.x() - m_planeSize.x()) / widthX) * plane.width(),
+                (1.0f - ((planePoint.y() - m_planeSize.y()) / widthY)) * plane.height()
         );
     };
 
@@ -160,7 +160,7 @@ void PlaneDivision::DebugImageOfPlane()
     p.setPen(Qt::darkGray);
 
     //Narysuj kratki podzialu
-    float dx = (m_planeSize.z() - m_planeSize.x()) / m_size;
+    /*float dx = (m_planeSize.z() - m_planeSize.x()) / m_size;
     float dy = (m_planeSize.w() - m_planeSize.y()) / m_size;
     for (int y = 0; y < m_size; ++y)
         for (int x = 0; x < m_size; ++x)
@@ -168,8 +168,8 @@ void PlaneDivision::DebugImageOfPlane()
             QVector2D leftLower = {m_planeSize.x() + dx * x, m_planeSize.y() + dy * y};
             QVector2D rightUpper = leftLower + QVector2D(dx, dy);
             QRect r(fromPlaneToImage(leftLower), fromPlaneToImage(rightUpper));
-            p.drawRect(r);
-        }
+            //p.drawRect(r);
+        }*/
 
     //Narysuj linie lamanych
     Qt::GlobalColor polylineColor = Qt::white;

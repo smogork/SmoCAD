@@ -30,7 +30,8 @@ QString GCodeSaver::GenerateFileName(CutterParameters params, int number)
 {
     QString res = QString("%0.").arg(number);
     res.append(params.Type == Cylindrical ? "f" : "k");
-    res.append(QString::number((int)std::round(params.Diameter.GetMilimeters())));
+    //res.append(QString::number((int)std::round(params.Diameter.GetMilimeters()), 'g', 2));
+    res.append(QStringLiteral("%1").arg((int)std::round(params.Diameter.GetMilimeters()), 2, 10, QLatin1Char('0')));
     return res;
 }
 
