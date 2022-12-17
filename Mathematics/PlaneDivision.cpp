@@ -311,7 +311,7 @@ PlaneDivision::JoinConstraintPolylinesZigzag(std::vector<int> polylineToVisit, s
                 segmentIdxAscending = intersection.From->GetDirectionOnTurnLeft(*intersection.To, m_planeSize, segmentIdxAscending);
 
             auto poly = m_polylines[polylineIdx];
-            if (switchTurn.contains(polylineIdx))
+            if (switchTurn.contains(intersection.From->PolylineIndex) && !switchTurn.contains(intersection.To->PolylineIndex))
                 turnRight = !turnRight;
 
             polylineIdx = intersection.To->PolylineIndex;
@@ -361,8 +361,7 @@ PlaneDivision::GetFirstIntersectFrom(bool direction, int polylineIdx, int segmen
         else if (idx >= poly.size())
             idx -= poly.size();
     }
-
-
+    idx = std::clamp(idx, 0, (int)poly.size() - 1);
     PolylineSegment seg = poly[idx];
 
 
