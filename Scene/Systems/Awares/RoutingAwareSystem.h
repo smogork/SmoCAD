@@ -59,13 +59,21 @@ private:
     std::vector<std::vector<QPoint>>
     CreateZigZagLines(QPoint startPoint, int width, QPoint zigZagBoundaries, int targetWidth, ZigZagVariable variable);
     std::vector<QVector3D>
-    OptimizeRouterPath(const std::vector<std::pair<QPoint, float>> &zigzag, float tolerance, float maxDepth, QVector3D blockSize,
+    OptimizeRouterPath(const std::vector<std::pair<QPoint, float>> &zigzag, float tolerance, float maxDepth,
+                       QVector3D blockSize,
                        QSize texSize);
-    int AddLinesAsConstrains(QVector2D startPoint, float deltaWidth, float deltaHeight, float targetWidth, QVector2D lineBoundaries, ZigZagVariable variable, PlaneDivision& division);
+    int AddLinesAsConstrains(QVector2D startPoint, float deltaWidth, float deltaHeight, float targetWidth,
+                             QVector2D lineBoundaries, ZigZagVariable variable, PlaneDivision &division);
 
     QPoint FromBlockToTex(QVector2D blockPoint, QSize texSize, QVector3D blockSize);
     QVector2D FromTexToBlock(QPoint texPoint, QSize texSize, QVector3D blockSize);
     QVector3D FromSceneToBlock(QVector3D sceneP, QVector3D blockWorldPos);
+
+    std::vector<QVector3D>
+    FromParams(const std::vector<QVector2D> &params, std::shared_ptr<IntersectionAware> plane, float cutterRadius);
+    std::vector<QVector3D>
+    ConnectSecurelyTwoPathsPrec(const std::vector<QVector3D> &first, const std::vector<QVector3D> &second,
+                                float sceneHeight);
 
 public:
 

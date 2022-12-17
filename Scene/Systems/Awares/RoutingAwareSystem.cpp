@@ -239,10 +239,10 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
 
     float DziubekDu = 0.1f;
     float DziubekDv = 0.1f;
-    AddLinesAsConstrains(QVector2D(DziubekOffsetK8.p_UV->U, DziubekOffsetK8.p_UV->V - 0.1f), DziubekDv,
+    AddLinesAsConstrains(QVector2D(DziubekOffsetK8.p_UV->U, DziubekOffsetK8.p_UV->V - 0.01f), DziubekDv,
                          DziubekDu / 2.0f,
                          DziubekOffsetK8.p_UV->V,
-                         QVector2D(0.0f, DziubekOffsetK8.p_UV->U + 0.1f), Y, divDziubek);
+                         QVector2D(0.0f, DziubekOffsetK8.p_UV->U + 0.01f), Y, divDziubek);
     QVector2D DziubekStartPoint1 = StolDziubekCurve1->p_IntersectionRes->GetSecondParameterPoints().back();
     AddLinesAsConstrains(DziubekStartPoint1, DziubekDu, DziubekDv,
                          0.0f,
@@ -269,12 +269,7 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     auto dziubekParameterPath = divDziubek.JoinConstraintPolylinesZigzag(linesToVisit, {0, 1, 2, 3}, true, true,
                                                                          22, 8);
 
-    std::vector<QVector3D> dziubekPrecPath(dziubekParameterPath.size());
-    for (int i = 0; i < dziubekParameterPath.size(); ++i)
-    {
-        dziubekPrecPath[i] = DziubekOffsetK8.p_Intersection->SceneFunction(dziubekParameterPath[i])
-                             - QVector3D(0.0f, K8_RADIUS, 0.0f);//Obnizenie do szubka frezu
-    }
+    std::vector<QVector3D> dziubekPrecPath = FromParams(dziubekParameterPath, DziubekOffsetK8.p_Intersection, K8_RADIUS);
 #pragma endregion
 
 #pragma region Precyzyjne ucho
@@ -309,12 +304,7 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     auto uchoParameterPath = divUcho.JoinConstraintPolylinesZigzag(uchoLinesToVisit, {0, 1, 2, 3}, true, true,
                                                                          20, 18);
 
-    std::vector<QVector3D> uchoPrecPath(uchoParameterPath.size());
-    for (int i = 0; i < uchoParameterPath.size(); ++i)
-    {
-        uchoPrecPath[i] = UchoOffsetK8.p_Intersection->SceneFunction(uchoParameterPath[i])
-                             - QVector3D(0.0f, K8_RADIUS, 0.0f);//Obnizenie do szubka frezu
-    }
+    std::vector<QVector3D> uchoPrecPath = FromParams(uchoParameterPath, UchoOffsetK8.p_Intersection, K8_RADIUS);
 #pragma endregion
 
     //Ograniczenia do obrobki body
@@ -349,22 +339,18 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     bodyLinesToVisit.emplace_back(38);
     bodyLinesToVisit.emplace_back(39);*/
 
-    divBody.DebugImages = true;
-    auto bodyParameterPath = divBody.JoinConstraintPolylinesZigzag(bodyLinesToVisit, {0, 1, 2, 3, 4}, true, true,
+    //divBody.DebugImages = true;
+    auto bodyParameterPath1 = divBody.JoinConstraintPolylinesZigzag(bodyLinesToVisit, {0, 1, 2, 3, 4}, true, true,
                                                                    divBody.GetConstraintCount() - secondCount, 20);
+    std::vector<QVector3D> bodyPrecPath1 = FromParams(bodyParameterPath1, BodyOffsetK8.p_Intersection, K8_RADIUS);
 
-    std::vector<QVector3D> bodyPrecPath(bodyParameterPath.size());
-    for (int i = 0; i < bodyParameterPath.size(); ++i)
-    {
-        bodyPrecPath[i] = BodyOffsetK8.p_Intersection->SceneFunction(bodyParameterPath[i])
-                          - QVector3D(0.0f, K8_RADIUS, 0.0f);//Obnizenie do szubka frezu
-    }
-
+    //Polaczenie wszystkich sciezek razem
+    std::vector<QVector3D> resBody;
+    resBody = ConnectSecurelyTwoPathsPrec(dziubekPrecPath, bodyPrecPath1, 1.5f);
+    resBody = ConnectSecurelyTwoPathsPrec(resBody, uchoPrecPath, 1.5f);
 
     CutterPath precisionPath(CutterParameters(Length::FromSceneUnits(K8_RADIUS * 2), CutterType::Spherical));
-    //precisionPath.Points.insert(precisionPath.Points.end(), dziubekPrecPath.begin(), dziubekPrecPath.end());
-    //precisionPath.Points.insert(precisionPath.Points.end(), uchoPrecPath.begin(), uchoPrecPath.end());
-    precisionPath.Points.insert(precisionPath.Points.end(), bodyPrecPath.begin(), bodyPrecPath.end());
+    precisionPath.Points = resBody;
     for (QVector3D &p: precisionPath.Points)
         p = FromSceneToBlock(p, blockWorldPos);
     GCodeSaver::SaveCutterPath(folderName, precisionPath, 4);
@@ -899,6 +885,29 @@ RoutingAwareSystem::AddLinesAsConstrains(QVector2D startPoint, float deltaWidth,
     }
 
     return addedLines;
+}
+
+std::vector<QVector3D>
+RoutingAwareSystem::FromParams(const std::vector<QVector2D> &params, std::shared_ptr<IntersectionAware> plane, float cutterRadius)
+{
+    std::vector<QVector3D> res(params.size());
+    for (int i = 0; i < params.size(); ++i)
+        res[i] = plane->SceneFunction(params[i]) - QVector3D(0.0f, cutterRadius, 0.0f);//Obnizenie do czubka frezu
+    return res;
+}
+
+std::vector<QVector3D> RoutingAwareSystem::ConnectSecurelyTwoPathsPrec(const std::vector<QVector3D> &first,
+                                                                       const std::vector<QVector3D> &second,
+                                                                       float sceneHeight)
+{
+    std::vector<QVector3D> res;
+
+    res.insert(res.end(), first.begin(), first.end());
+    res.emplace_back(QVector3D(first.back().x(), sceneHeight, first.back().z()));
+    res.emplace_back(QVector3D(second.front().x(), sceneHeight, second.front().z()));
+    res.insert(res.end(), second.begin(), second.end());
+
+    return res;
 }
 
 
