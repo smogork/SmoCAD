@@ -265,6 +265,7 @@ private:
     GetFirstIntersectFrom(bool direction, int polylineIdx, int segmentIdx, std::vector<QVector2D> &passedPoints);
 
 public:
+    bool DebugImages = false;
     bool WrapX = false;
     float Width() const;
     float Height() const;

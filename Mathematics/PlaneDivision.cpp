@@ -79,7 +79,8 @@ void PlaneDivision::CreateDivision(int divisionCount)
         }
 
     m_divisionCreated = true;
-    DebugImageOfPlane();
+    if (DebugImages)
+        DebugImageOfPlane();
 }
 
 std::vector<QVector2D> PlaneDivision::JoinConstraintPolylinesTogetherInCycle(int startPolylineIndex)
@@ -279,6 +280,14 @@ PlaneDivision::JoinConstraintPolylinesZigzag(std::vector<int> polylineToVisit, s
         {
             auto intersection = GetFirstIntersectFrom(segmentIdxAscending, polylineIdx, segmentIdx, resultPolyline);
             resultPolyline.emplace_back(intersection.CrossPoint);
+
+            if (DebugImages)
+            {
+                PlaneDivision debug(m_planeSize);
+                debug.DebugImages = true;
+                debug.AddConstraintPolyline(resultPolyline);
+                debug.CreateDivision();
+            }
 
             //Oznaczenie jako odwiedzonego wielomianu, z ktroego schodzimy
             toVisit.erase(polylineIdx);
