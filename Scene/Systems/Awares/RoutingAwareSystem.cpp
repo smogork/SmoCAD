@@ -239,15 +239,8 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     divDziubek.AddConstraintPolyline(StolDziubekCurve1->p_IntersectionRes->GetSecondParameterPoints());
     divDziubek.AddConstraintPolyline(StolDziubekCurve2->p_IntersectionRes->GetSecondParameterPoints());
 
-    QVector2D DziubekStartPoint = StolDziubekCurve1->p_IntersectionRes->GetSecondParameterPoints().back();
     float DziubekDu = 0.1f;
     float DziubekDv = 0.1f;
-    /*AddLinesAsConstrains(QVector2D(DziubekOffsetK8.p_UV->U, DziubekOffsetK8.p_UV->V - 0.01f), DziubekDv, DziubekDu,
-                         DziubekOffsetK8.p_UV->V + 0.01f,
-                         QVector2D(0.0f, DziubekOffsetK8.p_UV->U), Y, divDziubek);
-    AddLinesAsConstrains(DziubekStartPoint, DziubekDu, DziubekDv,
-                         StolDziubekCurve2->p_IntersectionRes->GetSecondParameterPoints().front().x(),
-                         QVector2D(0.0f, DziubekOffsetK8.p_UV->V), X, divDziubek);*/
     AddLinesAsConstrains(QVector2D(DziubekOffsetK8.p_UV->U, DziubekOffsetK8.p_UV->V - 0.1f), DziubekDv, DziubekDu / 2.0f,
                          DziubekOffsetK8.p_UV->V,
                          QVector2D(0.0f, DziubekOffsetK8.p_UV->U + 0.1f), Y, divDziubek);
@@ -261,12 +254,6 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
                          QVector2D(0.0f, DziubekOffsetK8.p_UV->V), X, divDziubek);
 
     divDziubek.CreateDivision();
-
-    /*int skip = 5;
-    std::vector<int> linesToVisit(divDziubek.GetConstraintCount() - skip);
-    std::iota(std::begin(linesToVisit), std::end(linesToVisit), skip);
-    auto dziubekParameterPath = divDziubek.JoinConstraintPolylinesZigzag(linesToVisit, {0, 1, 2, 3}, true, false,
-                                                                         divDziubek.GetConstraintCount() - 1, 8);*/
 
     int skipFront = 7;
     int skipBack = 1;
@@ -284,7 +271,7 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     std::vector<QVector3D> dziubekPrecPath(dziubekParameterPath.size());
     for (int i = 0; i < dziubekParameterPath.size(); ++i)
     {
-        dziubekPrecPath[i] = DziubekOffsetK8.p_Intersection->SceneFunction(dziubekParameterPath[i]) /* QVector3D(1.0f, -1.0f, 1.0f)*/
+        dziubekPrecPath[i] = DziubekOffsetK8.p_Intersection->SceneFunction(dziubekParameterPath[i])
                 - QVector3D(0.0f, K8_RADIUS, 0.0f);//Obnizenie do szubka frezu
     }
 
@@ -297,12 +284,12 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     divUcho.AddConstraintPolyline(StolUchoCurve1->p_IntersectionRes->GetSecondParameterPoints());
     divUcho.AddConstraintPolyline(StolUchoCurve2->p_IntersectionRes->GetSecondParameterPoints());
 
-    /*QVector2D UchoStartPoint = StolDziubekCurve1->p_IntersectionRes->GetSecondParameterPoints().back();
-    float DziubekDu = 0.1f;
-    float DziubekDv = 0.1f;
-    AddLinesAsConstrains(DziubekStartPoint, DziubekDu, DziubekDv,
+    QVector2D UchoStartPoint1 = StolDziubekCurve1->p_IntersectionRes->GetSecondParameterPoints().back();
+    float UchoDu = 0.1f;
+    float UchoDv = 0.1f;
+    AddLinesAsConstrains(UchoStartPoint1, DziubekDu, DziubekDv,
                          StolDziubekCurve2->p_IntersectionRes->GetSecondParameterPoints().front().x(),
-                         QVector2D(0.0f, DziubekOffsetK8.p_UV->V), X, divDziubek);*/
+                         QVector2D(0.0f, DziubekOffsetK8.p_UV->V), X, divDziubek);
 
     divUcho.CreateDivision();
 
@@ -790,7 +777,7 @@ RoutingAwareSystem::GenerateFlatPrecisionPath(const QVector3D &blockWorldPos, co
     planeDiv.AddConstraintPolyline(precFlat9);//pokrywka dol lewa
 
     planeDiv.CreateDivision();
-    auto offsetRing = planeDiv.JoinConstraintPolylinesTogether(0);
+    auto offsetRing = planeDiv.JoinConstraintPolylinesTogetherInCycle(0);
     std::vector<QVector3D> offsetPoints;
     offsetPoints.reserve(offsetRing.size());
 

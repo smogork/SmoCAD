@@ -82,7 +82,7 @@ void PlaneDivision::CreateDivision(int divisionCount)
     DebugImageOfPlane();
 }
 
-std::vector<QVector2D> PlaneDivision::JoinConstraintPolylinesTogether(int startPolylineIndex)
+std::vector<QVector2D> PlaneDivision::JoinConstraintPolylinesTogetherInCycle(int startPolylineIndex)
 {
     std::vector<QVector2D> resultPolyline;
 
@@ -91,53 +91,35 @@ std::vector<QVector2D> PlaneDivision::JoinConstraintPolylinesTogether(int startP
     bool segmentIdxAscending = true;
     do
     {
-        PolylineSegment &seg = m_polylines[polylineIdx][segmentIdx];
-        resultPolyline.emplace_back(segmentIdxAscending ? seg.Start : seg.End);
-
-        //Sprawdzmy czy rozwazany segment nie przecina sie z innymi
-        QVector2D crossPoint = {NAN, NAN};
-        for (const auto divIdx: seg.InsideDivisions)
+        try
         {
-            Division &curDiv = GetDivision(divIdx.first, divIdx.second);
-            for (PolylineSegment *divSeg: curDiv.SegmentsInside)
+            auto intersection = GetFirstIntersectFrom(segmentIdxAscending, polylineIdx, segmentIdx, resultPolyline);
+            resultPolyline.emplace_back(intersection.CrossPoint);
+
+            segmentIdxAscending = intersection.From->GetDirectionOnTurnRight(*intersection.To, m_planeSize, segmentIdxAscending);
+            polylineIdx = intersection.To->PolylineIndex;
+            segmentIdx = intersection.To->SegmentIndex + (segmentIdxAscending ? 1 : -1);
+
+        }
+        catch (CrossPolylineMissingException &e)//Obsluga braku przeciecia
+        {
+            auto poly = m_polylines[polylineIdx];
+            resultPolyline.emplace_back(e.LastPoint);
+
+            if (segmentIdxAscending)//doszliśmy do końca
             {
-                if (divSeg->PolylineIndex == seg.PolylineIndex)
-                    continue;
-
-                crossPoint = seg.GetCrossPointWith(*divSeg, m_planeSize);
-
-                //jezeli znalezlismy jakies przeciecie to idziemy
-                if (!std::isnan(crossPoint.x()) && !std::isnan(crossPoint.y()))
-                {
-                    //Wybierzmy w ktora strone kolejnego wielomianu bedziemy isc
-                    segmentIdxAscending = seg.GetDirectionOnTurnLeft(*divSeg, m_planeSize, segmentIdxAscending);
-                    polylineIdx = divSeg->PolylineIndex;
-                    segmentIdx = divSeg->SegmentIndex;
-                    break;
-                }
+                if (poly.front().Start != poly.back().End)//w przypadku niecyklicznej lamanej przechodzimy do innej
+                    polylineIdx = (polylineIdx + 1) % m_polylines.size();
+                segmentIdx = 0;
             }
-
-            if (!std::isnan(crossPoint.x()) && !std::isnan(crossPoint.y()))
-                break;
+            else
+            {
+                if (poly.front().Start != poly.back().End)//w przypadku niecyklicznej lamanej przechodzimy do innej
+                    polylineIdx = polylineIdx == 0 ? m_polylines.size() - 1 : polylineIdx - 1;
+                segmentIdx = m_polylines[polylineIdx].size() - 1;
+            }
         }
 
-        //Znalezlismy punkt przeciecia z innym wielomianem
-        if (!std::isnan(crossPoint.x()) && !std::isnan(crossPoint.y()))
-            resultPolyline.emplace_back(crossPoint);
-
-        //Przesuniecia do kolejnego segmentu
-        segmentIdx += (segmentIdxAscending ? 1 : -1);
-        if (segmentIdx >= m_polylines[polylineIdx].size())//doszliśmy do końca
-        {
-            resultPolyline.emplace_back(seg.End);
-            polylineIdx++;
-            segmentIdx = 0;
-        } else if (segmentIdx < 0)
-        {
-            resultPolyline.emplace_back(seg.End);
-            polylineIdx--;
-            segmentIdx = m_polylines[polylineIdx].size() - 1;
-        }
 
     } while ((segmentIdx != 0 || polylineIdx != startPolylineIndex)
              && polylineIdx < m_polylines.size() && polylineIdx >= 0);//Wróciliśmy do początku
@@ -297,10 +279,6 @@ PlaneDivision::JoinConstraintPolylinesZigzag(std::vector<int> polylineToVisit, s
         {
             auto intersection = GetFirstIntersectFrom(segmentIdxAscending, polylineIdx, segmentIdx, resultPolyline);
             resultPolyline.emplace_back(intersection.CrossPoint);
-
-            PlaneDivision debug(m_planeSize);
-            debug.AddConstraintPolyline(resultPolyline);
-            debug.CreateDivision();
 
             //Oznaczenie jako odwiedzonego wielomianu, z ktroego schodzimy
             toVisit.erase(polylineIdx);
