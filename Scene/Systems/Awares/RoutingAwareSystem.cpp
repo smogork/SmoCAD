@@ -374,7 +374,7 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
                                                    QVector2D(0.0f, PokrywkaOffsetK8.p_UV->V), X, divPokrywka);
 
 
-    divPokrywka.DebugImages = true;
+    //divPokrywka.DebugImages = true;
     divPokrywka.CreateDivision();
     //divPokrywka.DebugImages = false;
 
@@ -384,17 +384,30 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
 
     auto pokrywkaParameterPath1 = divPokrywka.JoinConstraintPolylinesZigzag(pokrywkaLinesToVisit, {0, 1, 2, 3, 4, 5}, true, true,
                                                                     divPokrywka.GetConstraintCount() - pokrywkaSecondCount, 10);
-    divPokrywka.DebugImages = true;
+    //divPokrywka.DebugImages = true;
     auto pokrywkaParameterPath2 = divPokrywka.JoinConstraintPolylinesZigzag(pokrywkaLinesToVisit, {0, 1, 2, 3, 4, 5}, true, true,
                                                                             divPokrywka.GetConstraintCount() - pokrywkaSecondCount, 45);
-    auto pokrywaPrecPath1 = FromParams(pokrywkaParameterPath1, PokrywkaOffsetK8.p_Intersection, K8_RADIUS);
-    auto pokrywaPrecPath2 = FromParams(pokrywkaParameterPath2, PokrywkaOffsetK8.p_Intersection, K8_RADIUS);
+    auto pokrywkaPrecPath1 = FromParams(pokrywkaParameterPath1, PokrywkaOffsetK8.p_Intersection, K8_RADIUS);
+    auto pokrywkaPrecPath2 = FromParams(pokrywkaParameterPath2, PokrywkaOffsetK8.p_Intersection, K8_RADIUS);
+    std::vector<QVector3D> pokrywkaPrecPath3;
+    const float v = 3.0f;
+    for (float u = PokrywkaStartPoint2.x() ; u < PokrywkaStartPoint1.x() + PokrywkaOffsetK8.p_UV->U; u += PokrywkaDu)
+    {
+        //Policzenie normalki w szczegolnym przypadku
+        QVector3D derU = PokrywkaOffsetK8.p_Intersection->SceneFunctionDerU({u, v}).normalized();
+        QVector3D derV = {1.0f, 0.0f, 0.0f};
+        QVector3D norm = QVector3D::crossProduct(derU, derV).normalized();
+        pokrywkaPrecPath3.emplace_back(Pokrywka->p_Intersection->SceneFunction({u, v}) + (K8_RADIUS - 0.05f) * norm);
+    }
 
     //Polaczenie wszystkich sciezek razem
-    std::vector<QVector3D> resBody;
-    resBody = ConnectSecurelyTwoPathsPrec(pokrywaPrecPath1, pokrywaPrecPath2, 2.0f);
-    /*resBody = ConnectSecurelyTwoPathsPrec(dziubekPrecPath, bodyPrecPath1, 1.5f);
-    resBody = ConnectSecurelyTwoPathsPrec(resBody, uchoPrecPath, 1.5f);*/
+    std::vector<QVector3D> resBody = dziubekPrecPath;
+    resBody = ConnectSecurelyTwoPathsPrec(resBody, bodyPrecPath1, 1.5f);
+    resBody = ConnectSecurelyTwoPathsPrec(resBody, uchoPrecPath, 1.5f);
+    resBody = ConnectSecurelyTwoPathsPrec(resBody, pokrywkaPrecPath3, 2.0f);
+    resBody = ConnectSecurelyTwoPathsPrec(resBody, pokrywkaPrecPath1, 2.0f);
+    resBody = ConnectSecurelyTwoPathsPrec(resBody, pokrywkaPrecPath2, 2.0f);
+
 
     CutterPath precisionPath(CutterParameters(Length::FromSceneUnits(K8_RADIUS * 2), CutterType::Spherical));
     precisionPath.Points = resBody;
