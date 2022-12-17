@@ -402,14 +402,16 @@ PlaneDivision::GetFirstIntersectFrom(bool direction, int polylineIdx, int segmen
                 crossPoint = seg.GetCrossPointWith(*divSeg, m_planeSize, segmentCounter == 0);
 
                 //Odrzucenie rozwaizan sprzed pewnego progu
-                if (direction && crossPoint.second.x() < startT)
-                    continue;
-                if (!direction && crossPoint.second.x() > startT)
-                    continue;
+
 
                 //Jezeli znalezlismy przeciecie to zapisujemy przeciecie ze wszytskimi parmaetrami
                 if (!std::isnan(crossPoint.first.x()) && !std::isnan(crossPoint.first.y()))
                 {
+                    if (direction && crossPoint.second.x() < startT)
+                        continue;
+                    if (!direction && crossPoint.second.x() > startT)
+                        continue;
+
                     crosses.emplace_back(
                             PlaneDivision::PolylineCross(&m_polylines[polylineIdx][idx], divSeg, crossPoint.second.x(),
                                                          crossPoint.second.y(), &curDiv, crossPoint.first));

@@ -104,11 +104,11 @@ private:
                 auto one = other.WrapedSegmentOne(planeSize);
                 auto two = other.WrapedSegmentTwo(planeSize);
 
-                auto resOne = one.GetCrossPointWith(*this, planeSize, ignoreEnds);
+                auto resOne = GetCrossPointWith(one, planeSize, ignoreEnds);
                 if (!std::isnan(resOne.first.x()) && !std::isnan(resOne.first.y()))
                     return resOne;
 
-                auto resTwo = two.GetCrossPointWith(*this, planeSize, ignoreEnds);
+                auto resTwo =GetCrossPointWith(two, planeSize, ignoreEnds);
                 if (!std::isnan(resTwo.first.x()) && !std::isnan(resTwo.first.y()))
                     return resTwo;
 

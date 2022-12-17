@@ -75,22 +75,22 @@ std::pair<QVector2D, QVector2D> GeometryRelation::GetSegmentsCrossPoint(QPoint A
 
 std::pair<QVector2D, QVector2D> GeometryRelation::GetSegmentsCrossPoint(QVector2D A1, QVector2D B1, QVector2D A2, QVector2D B2, bool ignoreEndCross)
 {
-    const float eps = 1e-5;
+    const double eps = 1e-5;
     QVector2D A1B1 = B1 - A1;
     QVector2D A2B2 = B2 - A2;
 
-    auto cross = [](QVector2D v1, QVector2D v2) -> float
+    auto cross = [](QVector2D v1, QVector2D v2) -> double
     {
         return v1.x() * v2.y() - v1.y() * v2.x();
     };
 
-    float rcs = cross(A1B1, A2B2);
-    float qpcr = cross(A2 - A1, A1B1);
+    double rcs = cross(A1B1, A2B2);
+    double qpcr = cross(A2 - A1, A1B1);
     if (abs(rcs) < eps && abs(qpcr) < eps)
     {
         //Przypadek wspolliniowowsci
-        float t1 = QVector2D::dotProduct((A2 - A1), A1B1) / QVector2D::dotProduct(A1B1, A1B1);
-        float t2 = t1 + QVector2D::dotProduct(A2B2, A1B1) / QVector2D::dotProduct(A1B1, A1B1);
+        double t1 = QVector2D::dotProduct((A2 - A1), A1B1) / QVector2D::dotProduct(A1B1, A1B1);
+        double t2 = t1 + QVector2D::dotProduct(A2B2, A1B1) / QVector2D::dotProduct(A1B1, A1B1);
 
         if ((t1 >= 0 && t1 <= 1) || (t2 >= 0 && t2 <= 1))
             return std::make_pair(A1 + t1 * A1B1, QVector2D(t1, t2));//cokolwiek
@@ -100,8 +100,8 @@ std::pair<QVector2D, QVector2D> GeometryRelation::GetSegmentsCrossPoint(QVector2
     if (abs(rcs) < 1e-5)
         return std::make_pair<QVector2D, QVector2D>({NAN, NAN}, {NAN, NAN});//rownolegle i nie przecinajace sie
 
-    float t1 = cross((A2 - A1), A2B2) / rcs;
-    float t2 = cross((A2 - A1), A1B1) / rcs;
+    double t1 = cross((A2 - A1), A2B2) / rcs;
+    double t2 = cross((A2 - A1), A1B1) / rcs;
 
     if (ignoreEndCross)
     {
@@ -113,7 +113,7 @@ std::pair<QVector2D, QVector2D> GeometryRelation::GetSegmentsCrossPoint(QVector2
         if (t1 >= 0 && t1 <= 1 && t2 >= 0 && t2 <= 1)
             return std::make_pair(A1 + t1 * A1B1, QVector2D(t1, t2));
     }
-    return std::make_pair<QVector2D, QVector2D>({NAN, NAN}, {t1, t2});
+    return std::make_pair<QVector2D, QVector2D>({NAN, NAN}, QVector2D(t1, t2));
 }
 
 bool GeometryRelation::GetDirectionOnSegmentsTurnLeft(QVector2D A1, QVector2D B1, QVector2D A2, QVector2D B2)
