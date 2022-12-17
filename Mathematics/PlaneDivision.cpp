@@ -389,10 +389,11 @@ PlaneDivision::GetFirstIntersectFrom(bool direction, int polylineIdx, int segmen
 
         //Sprawdzmy czy rozwazany segment nie przecina sie z innymi
         std::pair<QVector2D, QVector2D> crossPoint = std::make_pair<QVector2D, QVector2D>({NAN, NAN}, {NAN, NAN});
+        std::vector<PolylineCross> crosses;
         for (const auto divIdx: seg.InsideDivisions)
         {
             Division &curDiv = GetDivision(divIdx.first, divIdx.second);
-            std::vector<PolylineCross> crosses;
+
 
             for (PolylineSegment *divSeg: curDiv.SegmentsInside)
             {
@@ -417,17 +418,20 @@ PlaneDivision::GetFirstIntersectFrom(bool direction, int polylineIdx, int segmen
                                                          crossPoint.second.y(), &curDiv, crossPoint.first));
                 }
             }
+        }
 
-            if (!crosses.empty())
-            {
-                std::sort(crosses.begin(), crosses.end(),
-                          [](const PlaneDivision::PolylineCross &one, const PlaneDivision::PolylineCross &two)
-                          {
-                                return one.FromT < two.FromT;
-                          });
+        if (crosses.size() == 1)
+            return crosses[0];
 
-                return crosses[0];//Zwracamy najblizsze z wielu przeciec;
-            }
+        if (!crosses.empty())
+        {
+            std::sort(crosses.begin(), crosses.end(),
+                      [direction](const PlaneDivision::PolylineCross &one, const PlaneDivision::PolylineCross &two)
+                      {
+                          return direction ? one.FromT < two.FromT : one.FromT > two.FromT ;
+                      });
+
+            return crosses[0];//Zwracamy najblizsze z wielu przeciec;
         }
 
         idx += (direction ? 1 : -1);

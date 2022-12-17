@@ -177,7 +177,7 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     //Przeciecia stol-body
     QVector3D StolBodyStart = {-4.7, -0.3, 5.4};
     auto StolBodyCurve = isys->CreateIntersectionCurveBetween(StolOffsetK8.p_Intersection, BodyOffsetK8.p_Intersection,
-                                                               StolBodyStart, 0.05f);
+                                                               StolBodyStart, 0.2f);
 
     //Przecięcia stol-ucho
     QVector3D StolUchoStart1 = {-3.2, -0.4, 4.3};
@@ -327,7 +327,7 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     divBody.AddConstraintPolyline(UchoBodyCurve2->p_IntersectionRes->GetSecondParameterPoints(), true);
     divBody.AddConstraintPolyline(DziubekBodyCurve->p_IntersectionRes->GetSecondParameterPoints(), true);
 
-    float BodyDu = 0.065f;
+    float BodyDu = 0.05f;
     float BodyDv = 0.1f;
     QVector2D BodyStartPoint1 = UchoBodyCurve2->p_IntersectionRes->GetSecondParameterPoints().front() - QVector2D(0.5f * BodyDu, 0.0f);
     AddLinesAsConstrains(BodyStartPoint1, BodyDu, BodyDv, 0.0f,
