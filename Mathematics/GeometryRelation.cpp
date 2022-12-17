@@ -106,3 +106,22 @@ QVector2D GeometryRelation::GetSegmentsCrossPoint(QVector2D A1, QVector2D B1, QV
         return A1 + t1 * A1B1;
     return {NAN, NAN};
 }
+
+bool GeometryRelation::GetDirectionOnSegmentsTurnLeft(QVector2D A1, QVector2D B1, QVector2D A2, QVector2D B2)
+{
+    QVector3D fromVec, ascVec;
+    //Wektory 3D z zerowym Z
+    fromVec = QVector3D(B1 - A1);
+    ascVec = QVector3D(B2 - A1);
+
+    //Cross w strone rosnaca wyszedl dodatni => skrecamy w lewo do startu
+    if (QVector3D::crossProduct(fromVec, ascVec).z() > 0)
+        return true;//bedziemy isc w przod kolejnej lamanej
+    //Cross w strone rosnaca wyszedl ujemny => skrecamy w prawo do startu, czyli w lewo do Endu
+    return false;//bedziemy isc w tyl kolejnej lamanej
+}
+
+bool GeometryRelation::GetDirectionOnSegmentsTurnRight(QVector2D A1, QVector2D B1, QVector2D A2, QVector2D B2)
+{
+    return !GetDirectionOnSegmentsTurnLeft(A1, B1, A2, B2);
+}

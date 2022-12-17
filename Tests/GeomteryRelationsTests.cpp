@@ -158,3 +158,45 @@ TEST_F(GeomteryRelationsTests, SegmentSegment_Collinear_Miss)
     EXPECT_EQ(res1, false);
     EXPECT_EQ(res2, false);
 }
+
+TEST_F(GeomteryRelationsTests, TurnLeft_Typical)
+{
+    QVector2D A1 = {1, 2};
+    QVector2D B1 = {5, 6};
+    QVector2D A2 = {5, 3};
+    QVector2D B2 = {1, 6};
+
+    auto res1 = GeometryRelation::GetDirectionOnSegmentsTurnLeft(A1, B1, A2, B2);
+    auto res2 = GeometryRelation::GetDirectionOnSegmentsTurnLeft(A1, B1, B2, A2);
+
+    EXPECT_EQ(res1, true);
+    EXPECT_EQ(res2, false);
+}
+
+TEST_F(GeomteryRelationsTests, TurnLeft_Ortogonal)
+{
+    QVector2D A1 = {3, 2};
+    QVector2D B1 = {3, 6};
+    QVector2D A2 = {1, 2};
+    QVector2D B2 = {6, 2};
+
+    auto res1 = GeometryRelation::GetDirectionOnSegmentsTurnLeft(A1, B1, A2, B2);
+    auto res2 = GeometryRelation::GetDirectionOnSegmentsTurnLeft(A1, B1, B2, A2);
+
+    EXPECT_EQ(res1, false);
+    EXPECT_EQ(res2, true);
+}
+
+TEST_F(GeomteryRelationsTests, TurnRight_Typical)
+{
+    QVector2D A1 = {1, 2};
+    QVector2D B1 = {5, 6};
+    QVector2D A2 = {5, 3};
+    QVector2D B2 = {1, 6};
+
+    auto res1 = GeometryRelation::GetDirectionOnSegmentsTurnRight(A1, B1, A2, B2);
+    auto res2 = GeometryRelation::GetDirectionOnSegmentsTurnRight(A1, B1, B2, A2);
+
+    EXPECT_EQ(res1, false);
+    EXPECT_EQ(res2, true);
+}

@@ -18,6 +18,8 @@ public:
     static QVector2D GetSegmentsCrossPoint(QVector2D A1, QVector2D B1, QVector2D A2, QVector2D B2);
     static bool DoesSegmentCrossRect(QPoint A, QPoint B, QRect rect);
     static bool DoesSegmentCrossRect(QVector2D A, QVector2D B, QVector4D rect);
+    static bool GetDirectionOnSegmentsTurnLeft(QVector2D A1, QVector2D B1, QVector2D A2, QVector2D B2);
+    static bool GetDirectionOnSegmentsTurnRight(QVector2D A1, QVector2D B1, QVector2D A2, QVector2D B2);
 };
 
 #endif //SMOCAD_GEOMETRYRELATION_H

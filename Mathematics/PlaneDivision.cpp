@@ -24,18 +24,26 @@ PlaneDivision::Division &PlaneDivision::GetDivision(int col, int row)
     return m_division[row * m_size + col];
 }
 
-void PlaneDivision::AddConstraintPolyline(const std::vector<QVector2D> &points, bool flip)
+void PlaneDivision::AddConstraintPolyline(const std::vector<QVector2D> &points, bool cycle)
 {
     std::vector<PolylineSegment> insidePoly;
     int counter = 0;
-    if (flip)
+    for (int i = 1; i < points.size(); ++i)
     {
-        for (int i = points.size() - 1; i >= 1; --i)
-            insidePoly.emplace_back(PolylineSegment(points[i], points[i - 1], m_polylines.size(), counter++));
-    } else
+        PolylineSegment seg(points[i - 1], points[i], m_polylines.size(), counter++);
+
+        if (WrapX)
+            seg.CheckForWrapX(m_planeSize);
+
+        insidePoly.emplace_back(seg);
+    }
+
+    if (cycle)
     {
-        for (int i = 1; i < points.size(); ++i)
-            insidePoly.emplace_back(PolylineSegment(points[i - 1], points[i], m_polylines.size(), counter++));
+        PolylineSegment seg(points.back(), points.front(), m_polylines.size(), counter++);
+        if (WrapX)
+            seg.CheckForWrapX(m_planeSize);
+        insidePoly.emplace_back(seg);
     }
 
     m_polylines.emplace_back(insidePoly);
@@ -61,7 +69,7 @@ void PlaneDivision::CreateDivision(int divisionCount)
             {
                 for (PolylineSegment &seg: m_polylines[j])
                 {
-                    if (GeometryRelation::DoesSegmentCrossRect(seg.Start, seg.End, rect))
+                    if (seg.CrossesWithRect(rect, m_planeSize))
                     {
                         curDiv.SegmentsInside.emplace_back(&seg);
                         seg.InsideDivisions.emplace_back(std::make_pair(x, y));
@@ -96,13 +104,13 @@ std::vector<QVector2D> PlaneDivision::JoinConstraintPolylinesTogether(int startP
                 if (divSeg->PolylineIndex == seg.PolylineIndex)
                     continue;
 
-                crossPoint = GeometryRelation::GetSegmentsCrossPoint(seg.Start, seg.End, divSeg->Start, divSeg->End);
+                crossPoint = seg.GetCrossPointWith(*divSeg, m_planeSize);
 
                 //jezeli znalezlismy jakies przeciecie to idziemy
                 if (!std::isnan(crossPoint.x()) && !std::isnan(crossPoint.y()))
                 {
                     //Wybierzmy w ktora strone kolejnego wielomianu bedziemy isc
-                    segmentIdxAscending = GetDirectionOnPolylineLeftTurn(seg, *divSeg, segmentIdxAscending);
+                    segmentIdxAscending = seg.GetDirectionOnTurnLeft(*divSeg, m_planeSize, segmentIdxAscending);
                     polylineIdx = divSeg->PolylineIndex;
                     segmentIdx = divSeg->SegmentIndex;
                     break;
@@ -178,9 +186,38 @@ void PlaneDivision::DebugImageOfPlane()
         p.setPen(polylineColor);
         for (const PolylineSegment &seg: polyline)
         {
-            QPoint A = fromPlaneToImage(seg.Start);
-            QPoint B = fromPlaneToImage(seg.End);
-            p.drawLine(A, B);
+            if (seg.WrapsX)
+            {
+                auto one = seg.WrapedSegmentOne(m_planeSize);
+                auto two = seg.WrapedSegmentTwo(m_planeSize);
+
+                QPoint A = fromPlaneToImage(one.Start);
+                QPoint B = fromPlaneToImage(one.End);
+                A.setX(std::clamp(A.x(), 0, plane.width() - 1));
+                A.setY(std::clamp(A.y(), 0, plane.height() - 1));
+                B.setX(std::clamp(B.x(), 0, plane.width() - 1));
+                B.setY(std::clamp(B.y(), 0, plane.height() - 1));
+                p.drawLine(A, B);
+
+                QPoint C = fromPlaneToImage(two.Start);
+                QPoint D = fromPlaneToImage(two.End);
+                C.setX(std::clamp(C.x(), 0, plane.width() - 1));
+                C.setY(std::clamp(C.y(), 0, plane.height() - 1));
+                D.setX(std::clamp(D.x(), 0, plane.width() - 1));
+                D.setY(std::clamp(D.y(), 0, plane.height() - 1));
+                p.drawLine(C, D);
+            }
+            else
+            {
+                QPoint A = fromPlaneToImage(seg.Start);
+                QPoint B = fromPlaneToImage(seg.End);
+                A.setX(std::clamp(A.x(), 0, plane.width() - 1));
+                A.setY(std::clamp(A.y(), 0, plane.height() - 1));
+                B.setX(std::clamp(B.x(), 0, plane.width() - 1));
+                B.setY(std::clamp(B.y(), 0, plane.height() - 1));
+                p.drawLine(A, B);
+            }
+
         }
         polylineColor = (Qt::GlobalColor) (polylineColor + 1);
     }
@@ -202,37 +239,15 @@ void PlaneDivision::DebugImageOfPlane()
     plane.save("DivisionDebug.png");
 }
 
-void PlaneDivision::AddConstraintPolyline(const std::vector<QVector3D> &points, bool flip)
+void PlaneDivision::AddConstraintPolyline(const std::vector<QVector3D> &points, bool cycle)
 {
     std::vector<QVector2D> planePoints;
     planePoints.reserve(points.size());
     for (const auto &p: points)
         planePoints.emplace_back(QVector2D(p.x(), p.z()));
-    AddConstraintPolyline(planePoints, flip);
+    AddConstraintPolyline(planePoints, cycle);
 }
 
-bool PlaneDivision::GetDirectionOnPolylineLeftTurn(const PlaneDivision::PolylineSegment &from,
-                                                   const PlaneDivision::PolylineSegment &to, bool fromAscending)
-{
-    QVector3D fromVec, ascVec;
-    //Wektory 3D z zerowym Z
-    if (fromAscending)
-    {
-        fromVec = QVector3D(from.End - from.Start);
-        ascVec = QVector3D(to.Start - from.Start);
-    }
-    else
-    {
-        fromVec = QVector3D(from.Start - from.End);
-        ascVec = QVector3D(to.Start - from.End);
-    }
-
-    //Cross w strone rosnaca wyszedl dodatni => skrecamy w lewo do startu
-    if (QVector3D::crossProduct(fromVec, ascVec).z() > 0)
-        return true;//bedziemy isc w przod kolejnej lamanej
-    //Cross w strone rosnaca wyszedl ujemny => skrecamy w prawo do startu, czyli w lewo do Endu
-    return false;//bedziemy isc w tyl kolejnej lamanej
-}
 
 float PlaneDivision::Width() const
 {
@@ -254,14 +269,9 @@ int PlaneDivision::GetConstraintCount()
     return m_polylines.size();
 }
 
-bool PlaneDivision::GetDirectionOnPolylineRightTurn(const PlaneDivision::PolylineSegment &from,
-                                                    const PlaneDivision::PolylineSegment &to, bool fromAscending)
-{
-    return !GetDirectionOnPolylineLeftTurn(from, to, fromAscending);
-}
 
 std::vector<QVector2D>
-PlaneDivision::JoinConstraintPolylinesZigzag(std::vector<int> polylineToVisit, bool startAscending, bool firstTurnRight,
+PlaneDivision::JoinConstraintPolylinesZigzag(std::vector<int> polylineToVisit, std::vector<int> switchTurnPolylines, bool startAscending, bool firstTurnRight,
                                              int startPolylineIndex, int startPolylineSegment)
 {
     int polylineIdx = startPolylineIndex;
@@ -271,11 +281,14 @@ PlaneDivision::JoinConstraintPolylinesZigzag(std::vector<int> polylineToVisit, b
 
     std::vector<QVector2D> resultPolyline;
     std::set<int> toVisit;
+    std::set<int> switchTurn;
 
     for (int p: polylineToVisit)
         toVisit.insert(p);
 
-    int turnCounter = 0;
+    for (int p : switchTurnPolylines)
+        switchTurn.insert(p);
+
     const int itLimit = 50 * polylineToVisit.size();
     int it = 0;
     do
@@ -283,43 +296,50 @@ PlaneDivision::JoinConstraintPolylinesZigzag(std::vector<int> polylineToVisit, b
         try
         {
             auto intersection = GetFirstIntersectFrom(segmentIdxAscending, polylineIdx, segmentIdx, resultPolyline);
+            resultPolyline.emplace_back(intersection.CrossPoint);
+
+            PlaneDivision debug(m_planeSize);
+            debug.AddConstraintPolyline(resultPolyline);
+            debug.CreateDivision();
 
             //Oznaczenie jako odwiedzonego wielomianu, z ktroego schodzimy
             toVisit.erase(polylineIdx);
 
             if (turnRight)
-                segmentIdxAscending = GetDirectionOnPolylineRightTurn(*intersection.From, *intersection.To, segmentIdxAscending);
+                segmentIdxAscending = intersection.From->GetDirectionOnTurnRight(*intersection.To, m_planeSize, segmentIdxAscending);
             else
-                segmentIdxAscending = GetDirectionOnPolylineLeftTurn(*intersection.From, *intersection.To, segmentIdxAscending);
+                segmentIdxAscending = intersection.From->GetDirectionOnTurnLeft(*intersection.To, m_planeSize, segmentIdxAscending);
+
+            auto poly = m_polylines[polylineIdx];
+            if (switchTurn.contains(polylineIdx))
+                turnRight = !turnRight;
 
             polylineIdx = intersection.To->PolylineIndex;
             segmentIdx = intersection.To->SegmentIndex + (segmentIdxAscending ? 1 : -1);
-            resultPolyline.emplace_back(intersection.CrossPoint);
+
         }
         catch (CrossPolylineMissingException &e)//Obsluga braku przeciecia
         {
             //Oznaczenie jako odwiedzonego wielomianu, z ktroego schodzimy
             toVisit.erase(polylineIdx);
+            auto poly = m_polylines[polylineIdx];
             resultPolyline.emplace_back(e.LastPoint);
 
             if (segmentIdxAscending)//doszliśmy do końca
             {
-                polylineIdx = (polylineIdx + 1) % m_polylines.size();
+                if (poly.front().Start != poly.back().End)//w przypadku niecyklicznej lamanej przechodzimy do innej
+                    polylineIdx = (polylineIdx + 1) % m_polylines.size();
                 segmentIdx = 0;
             }
             else
             {
-                polylineIdx = polylineIdx == 0 ? m_polylines.size() - 1 : polylineIdx - 1;
+                if (poly.front().Start != poly.back().End)//w przypadku niecyklicznej lamanej przechodzimy do innej
+                    polylineIdx = polylineIdx == 0 ? m_polylines.size() - 1 : polylineIdx - 1;
                 segmentIdx = m_polylines[polylineIdx].size() - 1;
             }
         }
 
-        turnCounter++;
-        if (turnCounter > 1)
-        {
-            turnRight = !turnRight;
-            turnCounter = 0;
-        }
+
 
         it++;
     } while (!toVisit.empty() && it < itLimit);//odwiedzilismy wszystkie okreslone wielomiany
@@ -331,11 +351,24 @@ PlaneDivision::PolylineCross
 PlaneDivision::GetFirstIntersectFrom(bool direction, int polylineIdx, int segmentIdx,
                                      std::vector<QVector2D> &passedPoints)
 {
-    int idx = segmentIdx;
     auto poly = m_polylines[polylineIdx];
-    PolylineSegment &seg = poly[idx];
+    bool isCycle = poly.front().Start == poly.back().End;
+    int idx = segmentIdx;
+    if (isCycle)
+    {
+        if (idx < 0)
+            idx += poly.size();
+        else if (idx >= poly.size())
+            idx -= poly.size();
+    }
 
-    while (idx < poly.size() && idx >= 0)
+
+    PolylineSegment seg = poly[idx];
+
+
+
+    int segmentCounter = 0;
+    while ((!isCycle && idx < poly.size() && idx >= 0) || (isCycle && segmentCounter < poly.size()))
     {
         seg = poly[idx];
         passedPoints.emplace_back(direction ? seg.Start : seg.End);
@@ -350,18 +383,27 @@ PlaneDivision::GetFirstIntersectFrom(bool direction, int polylineIdx, int segmen
                 if (divSeg->PolylineIndex == seg.PolylineIndex)
                     continue;
 
-                crossPoint = GeometryRelation::GetSegmentsCrossPoint(seg.Start, seg.End, divSeg->Start, divSeg->End);
+                crossPoint = seg.GetCrossPointWith(*divSeg, m_planeSize);
 
                 //Jezelie znalezlismy przecięcie to koniec
                 if (!std::isnan(crossPoint.x()) && !std::isnan(crossPoint.y()))
                 {
-                    return PlaneDivision::PolylineCross(&seg, divSeg, &curDiv, crossPoint);
+                    return PlaneDivision::PolylineCross(&m_polylines[polylineIdx][idx], divSeg, &curDiv, crossPoint);
                 }
             }
         }
 
+
         idx += (direction ? 1 : -1);
+        if (isCycle)
+        {
+            if (idx < 0)
+                idx += poly.size();
+            else if (idx >= poly.size())
+                idx -= poly.size();
+        }
     }
 
     throw CrossPolylineMissingException(direction ? seg.End : seg.Start);
 }
+

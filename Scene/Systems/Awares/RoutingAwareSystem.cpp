@@ -235,47 +235,53 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     PlaneDivision divDziubek(QVector4D(0, 0, DziubekOffsetK8.p_UV->U, DziubekOffsetK8.p_UV->V));
     divDziubek.WrapX = true;
 
-    divDziubek.AddConstraintPolyline(DziubekBodyCurve->p_IntersectionRes->GetFirstParameterPoints());
+    divDziubek.AddConstraintPolyline(DziubekBodyCurve->p_IntersectionRes->GetFirstParameterPoints(), true);
     divDziubek.AddConstraintPolyline(StolDziubekCurve1->p_IntersectionRes->GetSecondParameterPoints());
     divDziubek.AddConstraintPolyline(StolDziubekCurve2->p_IntersectionRes->GetSecondParameterPoints());
 
-    QVector2D DziubekStartPoint = StolDziubekCurve1->p_IntersectionRes->GetSecondParameterPoints().back();
+
     float DziubekDu = 0.1f;
     float DziubekDv = 0.1f;
-    AddLinesAsConstrains(QVector2D(DziubekOffsetK8.p_UV->U, DziubekOffsetK8.p_UV->V - 0.01f), DziubekDv, DziubekDu,
-                         DziubekOffsetK8.p_UV->V + 0.01f,
-                         QVector2D(0.0f, DziubekOffsetK8.p_UV->U), Y, divDziubek);
-    AddLinesAsConstrains(DziubekStartPoint, DziubekDu, DziubekDv,
-                         StolDziubekCurve2->p_IntersectionRes->GetSecondParameterPoints().front().x(),
+    AddLinesAsConstrains(QVector2D(DziubekOffsetK8.p_UV->U, DziubekOffsetK8.p_UV->V - 0.1f), DziubekDv, DziubekDu / 2.0f,
+                         DziubekOffsetK8.p_UV->V,
+                         QVector2D(0.0f, DziubekOffsetK8.p_UV->U + 0.1f), Y, divDziubek);
+    QVector2D DziubekStartPoint1 = StolDziubekCurve1->p_IntersectionRes->GetSecondParameterPoints().back();
+    AddLinesAsConstrains(DziubekStartPoint1, DziubekDu, DziubekDv,
+                         0.0f,
+                         QVector2D(0.0f, DziubekOffsetK8.p_UV->V), X, divDziubek);
+    QVector2D DziubekStartPoint2 = StolDziubekCurve2->p_IntersectionRes->GetSecondParameterPoints().front();
+    AddLinesAsConstrains(DziubekStartPoint2, DziubekDu, DziubekDv,
+                         DziubekOffsetK8.p_UV->U,
                          QVector2D(0.0f, DziubekOffsetK8.p_UV->V), X, divDziubek);
 
     divDziubek.CreateDivision();
 
-    int skip = 5;
-    std::vector<int> linesToVisit(divDziubek.GetConstraintCount() - skip);
-    std::iota(std::begin(linesToVisit), std::end(linesToVisit), skip);
-    auto dziubekParameterPath = divDziubek.JoinConstraintPolylinesZigzag(linesToVisit, true, true,
-                                                                         divDziubek.GetConstraintCount() - 1, 8);
-
-    /*PlaneDivision debug(QVector4D(0, 0, DziubekOffsetK8.p_UV->U, DziubekOffsetK8.p_UV->V));
-    debug.AddConstraintPolyline(dziubekParameterPath);
-    debug.CreateDivision();*/
+    int skipFront = 7;
+    int skipBack = 1;
+    std::vector<int> linesToVisit(20 - skipFront);
+    std::iota(std::begin(linesToVisit), std::end(linesToVisit), skipFront);
+    linesToVisit.emplace_back(22);
+    linesToVisit.emplace_back(23);
+    linesToVisit.emplace_back(24);
+    linesToVisit.emplace_back(25);
+    linesToVisit.emplace_back(26);
+    linesToVisit.emplace_back(27);
+    auto dziubekParameterPath = divDziubek.JoinConstraintPolylinesZigzag(linesToVisit, {0, 3}, true, true,
+                                                                         22, 8);
 
     std::vector<QVector3D> dziubekPrecPath(dziubekParameterPath.size());
     for (int i = 0; i < dziubekParameterPath.size(); ++i)
     {
-        dziubekPrecPath[i] = DziubekOffsetK8.p_Intersection->SceneFunction(dziubekParameterPath[i]) * QVector3D(1.0f, -1.0f, 1.0f);
+        dziubekPrecPath[i] = DziubekOffsetK8.p_Intersection->SceneFunction(dziubekParameterPath[i])
                 - QVector3D(0.0f, K8_RADIUS, 0.0f);//Obnizenie do szubka frezu
     }
-
-
 
     //Ograniczenia do obrobki ucha
     PlaneDivision divUcho(QVector4D(0, 0, UchoOffsetK8.p_UV->U, UchoOffsetK8.p_UV->V));
     divUcho.WrapX = true;
 
-    divUcho.AddConstraintPolyline(UchoBodyCurve1->p_IntersectionRes->GetFirstParameterPoints());
-    divUcho.AddConstraintPolyline(UchoBodyCurve2->p_IntersectionRes->GetFirstParameterPoints());
+    divUcho.AddConstraintPolyline(UchoBodyCurve1->p_IntersectionRes->GetFirstParameterPoints(), true);
+    divUcho.AddConstraintPolyline(UchoBodyCurve2->p_IntersectionRes->GetFirstParameterPoints(), true);
     divUcho.AddConstraintPolyline(StolUchoCurve1->p_IntersectionRes->GetSecondParameterPoints());
     divUcho.AddConstraintPolyline(StolUchoCurve2->p_IntersectionRes->GetSecondParameterPoints());
 
