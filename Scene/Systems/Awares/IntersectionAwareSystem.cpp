@@ -294,10 +294,10 @@ std::unique_ptr<ComponentControl> IntersectionAwareSystem::PrepareUIForObject(un
 
 std::shared_ptr<IntersectionCurve>
 IntersectionAwareSystem::CreateIntersectionCurveBetween(std::shared_ptr<IntersectionAware> one,
-                                                        std::shared_ptr<IntersectionAware> two, QVector3D startPoint)
+                                                        std::shared_ptr<IntersectionAware> two, QVector3D startPoint, float sceneDist)
 {
     const int SampleCount = 100;
-    const float SceneDistance = 0.1f;
+    const float SceneDistance = sceneDist;
 
     QVector4D P0 = FindFirstPointOfIntersection(one, two, SampleCount, startPoint, true);
 

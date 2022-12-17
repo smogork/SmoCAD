@@ -25,7 +25,7 @@ public:
     std::unique_ptr<ComponentControl> PrepareUIForObject(unsigned int oid) override;
 
     std::shared_ptr<IntersectionCurve> CreateIntersectionCurveBetween(
-            std::shared_ptr<IntersectionAware> one, std::shared_ptr<IntersectionAware> two, QVector3D startPoint);
+            std::shared_ptr<IntersectionAware> one, std::shared_ptr<IntersectionAware> two, QVector3D startPoint, float sceneDist = 0.1f);
 
 protected:
     void CreateIntersectionCurveBetween(std::shared_ptr<IntersectionAware> one, std::shared_ptr<IntersectionAware> two);

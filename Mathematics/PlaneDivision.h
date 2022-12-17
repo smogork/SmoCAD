@@ -25,6 +25,18 @@ private:
                 : Start(start), End(end), PolylineIndex(polylineIdx), SegmentIndex(segmentIdx)
         {}
 
+        /*PolylineSegment(const PolylineSegment& other)
+        {
+            Start = other.Start;
+            End = other.End;
+            PolylineIndex = other.PolylineIndex;
+            SegmentIndex = other.SegmentIndex;
+            InsideDivisions.clear();
+            std::copy(other.InsideDivisions.begin(), other.InsideDivisions.end(), InsideDivisions.begin());
+            WrapsX = other.WrapsX;
+        }*/
+
+
         void CheckForWrapX(QVector4D planeSize)
         {
             float jumpX = std::abs(End.x() - Start.x());
@@ -66,21 +78,21 @@ private:
                     two.CrossesWithRect(rect, planeSize);
         }
 
-        QVector2D GetCrossPointWith(const PolylineSegment& other, QVector4D planeSize)
+        QVector2D GetCrossPointWith(const PolylineSegment& other, QVector4D planeSize, bool ignoreEnds = false)
         {
             if (!WrapsX && !other.WrapsX)
-                return GeometryRelation::GetSegmentsCrossPoint(Start, End, other.Start, other.End);
+                return GeometryRelation::GetSegmentsCrossPoint(Start, End, other.Start, other.End, ignoreEnds);
 
             if (WrapsX && !other.WrapsX)
             {
                 auto one = WrapedSegmentOne(planeSize);
                 auto two = WrapedSegmentTwo(planeSize);
 
-                auto resOne = one.GetCrossPointWith(other, planeSize);
+                auto resOne = one.GetCrossPointWith(other, planeSize, ignoreEnds);
                 if (!std::isnan(resOne.x()) && !std::isnan(resOne.y()))
                     return resOne;
 
-                auto resTwo = two.GetCrossPointWith(other, planeSize);
+                auto resTwo = two.GetCrossPointWith(other, planeSize, ignoreEnds);
                 if (!std::isnan(resTwo.x()) && !std::isnan(resTwo.y()))
                     return resTwo;
 
@@ -92,11 +104,11 @@ private:
                 auto one = other.WrapedSegmentOne(planeSize);
                 auto two = other.WrapedSegmentTwo(planeSize);
 
-                auto resOne = one.GetCrossPointWith(*this, planeSize);
+                auto resOne = one.GetCrossPointWith(*this, planeSize, ignoreEnds);
                 if (!std::isnan(resOne.x()) && !std::isnan(resOne.y()))
                     return resOne;
 
-                auto resTwo = two.GetCrossPointWith(*this, planeSize);
+                auto resTwo = two.GetCrossPointWith(*this, planeSize, ignoreEnds);
                 if (!std::isnan(resTwo.x()) && !std::isnan(resTwo.y()))
                     return resTwo;
 
@@ -108,19 +120,19 @@ private:
             auto oneO = other.WrapedSegmentOne(planeSize);
             auto twoO = other.WrapedSegmentTwo(planeSize);
 
-            auto resOne = oneT.GetCrossPointWith(oneO, planeSize);
+            auto resOne = oneT.GetCrossPointWith(oneO, planeSize, ignoreEnds);
             if (!std::isnan(resOne.x()) && !std::isnan(resOne.y()))
                 return resOne;
 
-            auto resTwo = oneT.GetCrossPointWith(twoO, planeSize);
+            auto resTwo = oneT.GetCrossPointWith(twoO, planeSize, ignoreEnds);
             if (!std::isnan(resTwo.x()) && !std::isnan(resTwo.y()))
                 return resTwo;
 
-            auto resThird = twoT.GetCrossPointWith(oneO, planeSize);
+            auto resThird = twoT.GetCrossPointWith(oneO, planeSize, ignoreEnds);
             if (!std::isnan(resThird.x()) && !std::isnan(resThird.y()))
                 return resThird;
 
-            auto resFour = twoT.GetCrossPointWith(twoO, planeSize);
+            auto resFour = twoT.GetCrossPointWith(twoO, planeSize, ignoreEnds);
             if (!std::isnan(resFour.x()) && !std::isnan(resFour.y()))
                 return resFour;
 
@@ -225,22 +237,20 @@ private:
 
     struct PolylineCross
     {
-        PolylineSegment *From;
-        PolylineSegment *To;
+        PolylineSegment* From;
+        PolylineSegment* To;
         Division *IntersectionDivision;
         QVector2D CrossPoint;
 
-        PolylineCross(PolylineSegment *from, PolylineSegment *to, Division *div, QVector2D crossPoint) :
+        PolylineCross(PolylineSegment* from, PolylineSegment* to, Division *div, QVector2D crossPoint) :
                 From(from), To(to), IntersectionDivision(div), CrossPoint(crossPoint)
         {}
 
-        PolylineCross(PolylineCross &other)
+        /*PolylineCross(PolylineCross &other): From(other.From), To(other.To)
         {
-            From = other.From;
-            To = other.To;
             IntersectionDivision = other.IntersectionDivision;
             CrossPoint = other.CrossPoint;
-        }
+        }*/
     };
 
     class CrossPolylineMissingException : std::runtime_error

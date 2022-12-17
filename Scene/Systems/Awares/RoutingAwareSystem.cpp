@@ -175,12 +175,9 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     OffsetPlane Stol2OffsetK8(stol2->p_Intersection, -K8_RADIUS);
 
     //Przeciecia stol-body
-    QVector3D StolBodyStart1 = {-4.7, -0.3, 5.4}; //prawa strona
-    auto StolBodyCurve1 = isys->CreateIntersectionCurveBetween(StolOffsetK8.p_Intersection, BodyOffsetK8.p_Intersection,
-                                                               StolBodyStart1);
-    QVector3D StolBodyStart2 = {-4.7, -0.3, -5.4}; //lewa strona
-    auto PrecStolBodyCurve2 = isys->CreateIntersectionCurveBetween(StolOffsetK8.p_Intersection,
-                                                                   BodyOffsetK8.p_Intersection, StolBodyStart2);
+    QVector3D StolBodyStart = {-4.7, -0.3, 5.4};
+    auto StolBodyCurve = isys->CreateIntersectionCurveBetween(StolOffsetK8.p_Intersection, BodyOffsetK8.p_Intersection,
+                                                               StolBodyStart, 0.1f);
 
     //Przecięcia stol-ucho
     QVector3D StolUchoStart1 = {-3.2, -0.4, 4.3};
@@ -232,6 +229,7 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
 
 
     //Ograniczenia do obrobki Dziubka
+#pragma region Precyzyjny dziubek
     PlaneDivision divDziubek(QVector4D(0, 0, DziubekOffsetK8.p_UV->U, DziubekOffsetK8.p_UV->V));
     divDziubek.WrapX = true;
 
@@ -266,6 +264,8 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     linesToVisit.emplace_back(25);
     linesToVisit.emplace_back(26);
     linesToVisit.emplace_back(27);
+
+    divDziubek.DebugImages = true;
     auto dziubekParameterPath = divDziubek.JoinConstraintPolylinesZigzag(linesToVisit, {0, 1, 2, 3}, true, true,
                                                                          22, 8);
 
@@ -275,7 +275,9 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
         dziubekPrecPath[i] = DziubekOffsetK8.p_Intersection->SceneFunction(dziubekParameterPath[i])
                              - QVector3D(0.0f, K8_RADIUS, 0.0f);//Obnizenie do szubka frezu
     }
+#pragma endregion
 
+#pragma region Precyzyjne ucho
     //Ograniczenia do obrobki ucha
     PlaneDivision divUcho(QVector4D(0, 0, UchoOffsetK8.p_UV->U, UchoOffsetK8.p_UV->V));
     divUcho.WrapX = true;
@@ -303,9 +305,9 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     uchoLinesToVisit.emplace_back(21);
     uchoLinesToVisit.emplace_back(22);
     uchoLinesToVisit.emplace_back(23);
-    divUcho.DebugImages = true;
+    //divUcho.DebugImages = true;
     auto uchoParameterPath = divUcho.JoinConstraintPolylinesZigzag(uchoLinesToVisit, {0, 1, 2, 3}, true, true,
-                                                                         20, 20);
+                                                                         20, 18);
 
     std::vector<QVector3D> uchoPrecPath(uchoParameterPath.size());
     for (int i = 0; i < uchoParameterPath.size(); ++i)
@@ -313,9 +315,56 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
         uchoPrecPath[i] = UchoOffsetK8.p_Intersection->SceneFunction(uchoParameterPath[i])
                              - QVector3D(0.0f, K8_RADIUS, 0.0f);//Obnizenie do szubka frezu
     }
+#pragma endregion
+
+    //Ograniczenia do obrobki body
+    PlaneDivision divBody(QVector4D(0, 0, BodyOffsetK8.p_UV->U, BodyOffsetK8.p_UV->V));
+    divBody.WrapX = true;
+
+    divBody.AddConstraintPolyline(StolBodyCurve->p_IntersectionRes->GetSecondParameterPoints());
+    divBody.AddConstraintPolyline(PokrywkaBodyCurve->p_IntersectionRes->GetSecondParameterPoints(), true);
+    divBody.AddConstraintPolyline(UchoBodyCurve1->p_IntersectionRes->GetSecondParameterPoints(), true);
+    divBody.AddConstraintPolyline(UchoBodyCurve2->p_IntersectionRes->GetSecondParameterPoints(), true);
+    divBody.AddConstraintPolyline(DziubekBodyCurve->p_IntersectionRes->GetSecondParameterPoints(), true);
+
+    float BodyDu = 0.05f;
+    float BodyDv = 0.1f;
+    QVector2D BodyStartPoint1 = UchoBodyCurve2->p_IntersectionRes->GetSecondParameterPoints().front() - QVector2D(0.5f * BodyDu, 0.0f);
+    AddLinesAsConstrains(BodyStartPoint1, BodyDu, BodyDv, 0.0f,
+                         QVector2D(0.0f, BodyOffsetK8.p_UV->V), X, divBody);
+    QVector2D BodyStartPoint2 = DziubekBodyCurve->p_IntersectionRes->GetSecondParameterPoints().front() - QVector2D(2 * BodyDu, 0.0f);
+    int secondCount = AddLinesAsConstrains(BodyStartPoint2, BodyDu, BodyDv, BodyOffsetK8.p_UV->U,
+                         QVector2D(0.0f, BodyOffsetK8.p_UV->V), X, divBody);
+
+    divBody.CreateDivision();
+
+    int bodySkipFront = 8;
+    std::vector<int> bodyLinesToVisit(divBody.GetConstraintCount() - bodySkipFront);
+    std::iota(std::begin(bodyLinesToVisit), std::end(bodyLinesToVisit), bodySkipFront);
+    /*bodyLinesToVisit.emplace_back(33);
+    bodyLinesToVisit.emplace_back(34);
+    bodyLinesToVisit.emplace_back(35);
+    bodyLinesToVisit.emplace_back(36);
+    bodyLinesToVisit.emplace_back(37);
+    bodyLinesToVisit.emplace_back(38);
+    bodyLinesToVisit.emplace_back(39);*/
+
+    divBody.DebugImages = true;
+    auto bodyParameterPath = divBody.JoinConstraintPolylinesZigzag(bodyLinesToVisit, {0, 1, 2, 3, 4}, true, true,
+                                                                   divBody.GetConstraintCount() - secondCount, 20);
+
+    std::vector<QVector3D> bodyPrecPath(bodyParameterPath.size());
+    for (int i = 0; i < bodyParameterPath.size(); ++i)
+    {
+        bodyPrecPath[i] = BodyOffsetK8.p_Intersection->SceneFunction(bodyParameterPath[i])
+                          - QVector3D(0.0f, K8_RADIUS, 0.0f);//Obnizenie do szubka frezu
+    }
+
+
     CutterPath precisionPath(CutterParameters(Length::FromSceneUnits(K8_RADIUS * 2), CutterType::Spherical));
     //precisionPath.Points.insert(precisionPath.Points.end(), dziubekPrecPath.begin(), dziubekPrecPath.end());
-    precisionPath.Points.insert(precisionPath.Points.end(), uchoPrecPath.begin(), uchoPrecPath.end());
+    //precisionPath.Points.insert(precisionPath.Points.end(), uchoPrecPath.begin(), uchoPrecPath.end());
+    precisionPath.Points.insert(precisionPath.Points.end(), bodyPrecPath.begin(), bodyPrecPath.end());
     for (QVector3D &p: precisionPath.Points)
         p = FromSceneToBlock(p, blockWorldPos);
     GCodeSaver::SaveCutterPath(folderName, precisionPath, 4);
@@ -797,6 +846,7 @@ RoutingAwareSystem::GenerateFlatPrecisionPath(const QVector3D &blockWorldPos, co
     planeDiv.AddConstraintPolyline(precFlat8);//gora dziubek
     planeDiv.AddConstraintPolyline(precFlat9);//pokrywka dol lewa
 
+    planeDiv.DebugImages = true;
     planeDiv.CreateDivision();
     auto offsetRing = planeDiv.JoinConstraintPolylinesTogetherInCycle(0);
     std::vector<QVector3D> offsetPoints;
@@ -813,11 +863,13 @@ RoutingAwareSystem::GenerateFlatPrecisionPath(const QVector3D &blockWorldPos, co
     return offsetPoints;
 }
 
-void
+int
 RoutingAwareSystem::AddLinesAsConstrains(QVector2D startPoint, float deltaWidth, float deltaHeight, float targetWidth,
                                          QVector2D lineBoundaries, RoutingAwareSystem::ZigZagVariable variable,
                                          PlaneDivision &division)
 {
+    int addedLines = 0;
+
     if (variable == X)
     {
         float incrementWidth = deltaWidth * (targetWidth - startPoint.x() > 0 ? 1 : -1);
@@ -830,6 +882,7 @@ RoutingAwareSystem::AddLinesAsConstrains(QVector2D startPoint, float deltaWidth,
             }
 
             division.AddConstraintPolyline(constraint);
+            addedLines++;
         }
     } else
     {
@@ -841,8 +894,11 @@ RoutingAwareSystem::AddLinesAsConstrains(QVector2D startPoint, float deltaWidth,
                 constraint.emplace_back(QVector2D(x, y));
 
             division.AddConstraintPolyline(constraint);
+            addedLines++;
         }
     }
+
+    return addedLines;
 }
 
 

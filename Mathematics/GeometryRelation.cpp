@@ -73,8 +73,9 @@ QVector2D GeometryRelation::GetSegmentsCrossPoint(QPoint A1, QPoint B1, QPoint A
     return GetSegmentsCrossPoint(QVector2D(A1), QVector2D(B1), QVector2D(A2), QVector2D(B2));
 }
 
-QVector2D GeometryRelation::GetSegmentsCrossPoint(QVector2D A1, QVector2D B1, QVector2D A2, QVector2D B2)
+QVector2D GeometryRelation::GetSegmentsCrossPoint(QVector2D A1, QVector2D B1, QVector2D A2, QVector2D B2, bool ignoreEndCross)
 {
+    const float eps = 1e-5;
     QVector2D A1B1 = B1 - A1;
     QVector2D A2B2 = B2 - A2;
 
@@ -85,7 +86,7 @@ QVector2D GeometryRelation::GetSegmentsCrossPoint(QVector2D A1, QVector2D B1, QV
 
     float rcs = cross(A1B1, A2B2);
     float qpcr = cross(A2 - A1, A1B1);
-    if (abs(rcs) < 1e-5 && abs(qpcr) < 1e-5)
+    if (abs(rcs) < eps && abs(qpcr) < eps)
     {
         //Przypadek wspolliniowowsci
         float t1 = QVector2D::dotProduct((A2 - A1), A1B1) / QVector2D::dotProduct(A1B1, A1B1);
@@ -102,8 +103,16 @@ QVector2D GeometryRelation::GetSegmentsCrossPoint(QVector2D A1, QVector2D B1, QV
     float t1 = cross((A2 - A1), A2B2) / rcs;
     float t2 = cross((A2 - A1), A1B1) / rcs;
 
-    if (t1 >= 0 && t1 <= 1 && t2 >= 0 && t2 <= 1)
-        return A1 + t1 * A1B1;
+    if (ignoreEndCross)
+    {
+        if (t1 > eps && t1 < 1 - eps && t2 > eps && t2 < 1 - eps)
+            return A1 + t1 * A1B1;
+    }
+    else
+    {
+        if (t1 >= 0 && t1 <= 1 && t2 >= 0 && t2 <= 1)
+            return A1 + t1 * A1B1;
+    }
     return {NAN, NAN};
 }
 
