@@ -90,11 +90,12 @@ std::vector<QVector2D> PlaneDivision::JoinConstraintPolylinesTogetherInCycle(int
     int polylineIdx = startPolylineIndex;
     int segmentIdx = 0;
     bool segmentIdxAscending = true;
+    float startT = (segmentIdxAscending ? 0.0f : 1.0f);
     do
     {
         try
         {
-            auto intersection = GetFirstIntersectFrom(segmentIdxAscending, polylineIdx, segmentIdx, resultPolyline);
+            auto intersection = GetFirstIntersectFrom(segmentIdxAscending, polylineIdx, segmentIdx, resultPolyline, startT);
             resultPolyline.emplace_back(intersection.CrossPoint);
 
             if (DebugImages)
@@ -105,10 +106,11 @@ std::vector<QVector2D> PlaneDivision::JoinConstraintPolylinesTogetherInCycle(int
                 debug.CreateDivision();
             }
 
-            segmentIdxAscending = intersection.From->GetDirectionOnTurnRight(*intersection.To, m_planeSize, segmentIdxAscending);
+            segmentIdxAscending = intersection.From->GetDirectionOnTurnRight(*intersection.To, m_planeSize,
+                                                                             segmentIdxAscending);
             polylineIdx = intersection.To->PolylineIndex;
             segmentIdx = intersection.To->SegmentIndex;
-
+            startT = (segmentIdxAscending ? intersection.ToT + 1e-5f : intersection.ToT - 1e-5f);
         }
         catch (CrossPolylineMissingException &e)//Obsluga braku przeciecia
         {
@@ -128,15 +130,15 @@ std::vector<QVector2D> PlaneDivision::JoinConstraintPolylinesTogetherInCycle(int
                 if (poly.front().Start != poly.back().End)//w przypadku niecyklicznej lamanej przechodzimy do innej
                     polylineIdx = (polylineIdx + 1) % m_polylines.size();
                 segmentIdx = 0;
-            }
-            else
+                startT = 0.0f;
+            } else
             {
                 if (poly.front().Start != poly.back().End)//w przypadku niecyklicznej lamanej przechodzimy do innej
                     polylineIdx = polylineIdx == 0 ? m_polylines.size() - 1 : polylineIdx - 1;
                 segmentIdx = m_polylines[polylineIdx].size() - 1;
+                startT = 1.0f;
             }
         }
-
 
     } while ((segmentIdx != 0 || polylineIdx != startPolylineIndex)
              && polylineIdx < m_polylines.size() && polylineIdx >= 0);//Wróciliśmy do początku
@@ -205,8 +207,7 @@ void PlaneDivision::DebugImageOfPlane()
                 D.setX(std::clamp(D.x(), 0, plane.width() - 1));
                 D.setY(std::clamp(D.y(), 0, plane.height() - 1));
                 p.drawLine(C, D);
-            }
-            else
+            } else
             {
                 QPoint A = fromPlaneToImage(seg.Start);
                 QPoint B = fromPlaneToImage(seg.End);
@@ -247,7 +248,6 @@ void PlaneDivision::AddConstraintPolyline(const std::vector<QVector3D> &points, 
     AddConstraintPolyline(planePoints, cycle);
 }
 
-
 float PlaneDivision::Width() const
 {
     return m_planeSize.z() - m_planeSize.x();
@@ -268,9 +268,9 @@ int PlaneDivision::GetConstraintCount()
     return m_polylines.size();
 }
 
-
 std::vector<QVector2D>
-PlaneDivision::JoinConstraintPolylinesZigzag(std::vector<int> polylineToVisit, std::vector<int> switchTurnPolylines, bool startAscending, bool firstTurnRight,
+PlaneDivision::JoinConstraintPolylinesZigzag(std::vector<int> polylineToVisit, std::vector<int> switchTurnPolylines,
+                                             bool startAscending, bool firstTurnRight,
                                              int startPolylineIndex, int startPolylineSegment)
 {
     int polylineIdx = startPolylineIndex;
@@ -285,16 +285,17 @@ PlaneDivision::JoinConstraintPolylinesZigzag(std::vector<int> polylineToVisit, s
     for (int p: polylineToVisit)
         toVisit.insert(p);
 
-    for (int p : switchTurnPolylines)
+    for (int p: switchTurnPolylines)
         switchTurn.insert(p);
 
     const int itLimit = 50 * polylineToVisit.size();
     int it = 0;
+    float startT = (segmentIdxAscending ? 0.0f : 1.0f);
     do
     {
         try
         {
-            auto intersection = GetFirstIntersectFrom(segmentIdxAscending, polylineIdx, segmentIdx, resultPolyline);
+            auto intersection = GetFirstIntersectFrom(segmentIdxAscending, polylineIdx, segmentIdx, resultPolyline, startT);
             resultPolyline.emplace_back(intersection.CrossPoint);
 
             if (DebugImages)
@@ -309,17 +310,20 @@ PlaneDivision::JoinConstraintPolylinesZigzag(std::vector<int> polylineToVisit, s
             toVisit.erase(polylineIdx);
 
             if (turnRight)
-                segmentIdxAscending = intersection.From->GetDirectionOnTurnRight(*intersection.To, m_planeSize, segmentIdxAscending);
+                segmentIdxAscending = intersection.From->GetDirectionOnTurnRight(*intersection.To, m_planeSize,
+                                                                                 segmentIdxAscending);
             else
-                segmentIdxAscending = intersection.From->GetDirectionOnTurnLeft(*intersection.To, m_planeSize, segmentIdxAscending);
+                segmentIdxAscending = intersection.From->GetDirectionOnTurnLeft(*intersection.To, m_planeSize,
+                                                                                segmentIdxAscending);
 
             auto poly = m_polylines[polylineIdx];
-            if (switchTurn.contains(intersection.From->PolylineIndex) && !switchTurn.contains(intersection.To->PolylineIndex))
+            if (switchTurn.contains(intersection.From->PolylineIndex) &&
+                !switchTurn.contains(intersection.To->PolylineIndex))
                 turnRight = !turnRight;
-
 
             polylineIdx = intersection.To->PolylineIndex;
             segmentIdx = intersection.To->SegmentIndex;
+            startT = (segmentIdxAscending ? intersection.ToT + 1e-5f : intersection.ToT - 1e-5f);
 
         }
         catch (CrossPolylineMissingException &e)//Obsluga braku przeciecia
@@ -342,16 +346,15 @@ PlaneDivision::JoinConstraintPolylinesZigzag(std::vector<int> polylineToVisit, s
                 if (poly.front().Start != poly.back().End)//w przypadku niecyklicznej lamanej przechodzimy do innej
                     polylineIdx = (polylineIdx + 1) % m_polylines.size();
                 segmentIdx = 0;
-            }
-            else
+                startT = 0.0f;
+            } else
             {
                 if (poly.front().Start != poly.back().End)//w przypadku niecyklicznej lamanej przechodzimy do innej
                     polylineIdx = polylineIdx == 0 ? m_polylines.size() - 1 : polylineIdx - 1;
                 segmentIdx = m_polylines[polylineIdx].size() - 1;
+                startT = 1.0f;
             }
         }
-
-
 
         it++;
     } while (!toVisit.empty() && it < itLimit);//odwiedzilismy wszystkie okreslone wielomiany
@@ -361,7 +364,7 @@ PlaneDivision::JoinConstraintPolylinesZigzag(std::vector<int> polylineToVisit, s
 
 PlaneDivision::PolylineCross
 PlaneDivision::GetFirstIntersectFrom(bool direction, int polylineIdx, int segmentIdx,
-                                     std::vector<QVector2D> &passedPoints)
+                                     std::vector<QVector2D> &passedPoints, float skipBeforeT)
 {
     auto poly = m_polylines[polylineIdx];
     bool isCycle = poly.front().Start == poly.back().End;
@@ -373,22 +376,24 @@ PlaneDivision::GetFirstIntersectFrom(bool direction, int polylineIdx, int segmen
         else if (idx >= poly.size())
             idx -= poly.size();
     }
-    idx = std::clamp(idx, 0, (int)poly.size() - 1);
+    idx = std::clamp(idx, 0, (int) poly.size() - 1);
     PolylineSegment &seg = poly[idx];
 
-
-
+    float startT = skipBeforeT;
     int segmentCounter = 0;
     while ((!isCycle && idx < poly.size() && idx >= 0) || (isCycle && segmentCounter < poly.size()))
     {
         seg = poly[idx];
-        passedPoints.emplace_back(direction ? seg.Start : seg.End);
+        if (segmentCounter > 0)
+            passedPoints.emplace_back(direction ? seg.Start : seg.End);
 
         //Sprawdzmy czy rozwazany segment nie przecina sie z innymi
-        QVector2D crossPoint = {NAN, NAN};
+        std::pair<QVector2D, QVector2D> crossPoint = std::make_pair<QVector2D, QVector2D>({NAN, NAN}, {NAN, NAN});
         for (const auto divIdx: seg.InsideDivisions)
         {
             Division &curDiv = GetDivision(divIdx.first, divIdx.second);
+            std::vector<PolylineCross> crosses;
+
             for (PolylineSegment *divSeg: curDiv.SegmentsInside)
             {
                 if (divSeg->PolylineIndex == seg.PolylineIndex)
@@ -396,14 +401,32 @@ PlaneDivision::GetFirstIntersectFrom(bool direction, int polylineIdx, int segmen
 
                 crossPoint = seg.GetCrossPointWith(*divSeg, m_planeSize, segmentCounter == 0);
 
-                //Jezelie znalezlismy przecięcie to koniec
-                if (!std::isnan(crossPoint.x()) && !std::isnan(crossPoint.y()))
+                //Odrzucenie rozwaizan sprzed pewnego progu
+                if (direction && crossPoint.second.x() < startT)
+                    continue;
+                if (!direction && crossPoint.second.x() > startT)
+                    continue;
+
+                //Jezeli znalezlismy przeciecie to zapisujemy przeciecie ze wszytskimi parmaetrami
+                if (!std::isnan(crossPoint.first.x()) && !std::isnan(crossPoint.first.y()))
                 {
-                    return PlaneDivision::PolylineCross(&m_polylines[polylineIdx][idx], divSeg, &curDiv, crossPoint);
+                    crosses.emplace_back(
+                            PlaneDivision::PolylineCross(&m_polylines[polylineIdx][idx], divSeg, crossPoint.second.x(),
+                                                         crossPoint.second.y(), &curDiv, crossPoint.first));
                 }
             }
-        }
 
+            if (!crosses.empty())
+            {
+                std::sort(crosses.begin(), crosses.end(),
+                          [](const PlaneDivision::PolylineCross &one, const PlaneDivision::PolylineCross &two)
+                          {
+                                return one.FromT < two.FromT;
+                          });
+
+                return crosses[0];//Zwracamy najblizsze z wielu przeciec;
+            }
+        }
 
         idx += (direction ? 1 : -1);
         if (isCycle)
@@ -414,6 +437,9 @@ PlaneDivision::GetFirstIntersectFrom(bool direction, int polylineIdx, int segmen
                 idx -= poly.size();
         }
         segmentCounter++;
+
+        //eliminacja progu po przejsciu pierwszeego odcinka
+        startT = (direction ? -1e-5f : 1.0f + 1e-5f);
     }
 
     throw CrossPolylineMissingException(direction ? seg.End : seg.Start);

@@ -182,10 +182,10 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     //Przecięcia stol-ucho
     QVector3D StolUchoStart1 = {-3.2, -0.4, 4.3};
     auto StolUchoCurve1 = isys->CreateIntersectionCurveBetween(StolOffsetK8.p_Intersection, UchoOffsetK8.p_Intersection,
-                                                               StolUchoStart1);
+                                                               StolUchoStart1, 0.05f);
     QVector3D StolUchoStart2 = {-0.7, -0.6, 3.9};
     auto StolUchoCurve2 = isys->CreateIntersectionCurveBetween(StolOffsetK8.p_Intersection, UchoOffsetK8.p_Intersection,
-                                                               StolUchoStart2);
+                                                               StolUchoStart2, 0.05f);
 
     //Przeciecia stol-dziubek
     QVector3D StolDziubekStart1 = {0.8, -0.4, -3.7};//gora
@@ -265,7 +265,7 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     linesToVisit.emplace_back(26);
     linesToVisit.emplace_back(27);
 
-    divDziubek.DebugImages = true;
+    //divDziubek.DebugImages = true;
     auto dziubekParameterPath = divDziubek.JoinConstraintPolylinesZigzag(linesToVisit, {0, 1, 2, 3}, true, true,
                                                                          22, 8);
 
@@ -305,7 +305,7 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     uchoLinesToVisit.emplace_back(21);
     uchoLinesToVisit.emplace_back(22);
     uchoLinesToVisit.emplace_back(23);
-    //divUcho.DebugImages = true;
+    divUcho.DebugImages = true;
     auto uchoParameterPath = divUcho.JoinConstraintPolylinesZigzag(uchoLinesToVisit, {0, 1, 2, 3}, true, true,
                                                                          20, 18);
 
@@ -846,7 +846,7 @@ RoutingAwareSystem::GenerateFlatPrecisionPath(const QVector3D &blockWorldPos, co
     planeDiv.AddConstraintPolyline(precFlat8);//gora dziubek
     planeDiv.AddConstraintPolyline(precFlat9);//pokrywka dol lewa
 
-    planeDiv.DebugImages = true;
+    //planeDiv.DebugImages = true;
     planeDiv.CreateDivision();
     auto offsetRing = planeDiv.JoinConstraintPolylinesTogetherInCycle(0);
     std::vector<QVector3D> offsetPoints;

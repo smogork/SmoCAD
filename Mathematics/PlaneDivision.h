@@ -78,7 +78,7 @@ private:
                     two.CrossesWithRect(rect, planeSize);
         }
 
-        QVector2D GetCrossPointWith(const PolylineSegment& other, QVector4D planeSize, bool ignoreEnds = false)
+        std::pair<QVector2D, QVector2D> GetCrossPointWith(const PolylineSegment& other, QVector4D planeSize, bool ignoreEnds = false)
         {
             if (!WrapsX && !other.WrapsX)
                 return GeometryRelation::GetSegmentsCrossPoint(Start, End, other.Start, other.End, ignoreEnds);
@@ -89,14 +89,14 @@ private:
                 auto two = WrapedSegmentTwo(planeSize);
 
                 auto resOne = one.GetCrossPointWith(other, planeSize, ignoreEnds);
-                if (!std::isnan(resOne.x()) && !std::isnan(resOne.y()))
+                if (!std::isnan(resOne.first.x()) && !std::isnan(resOne.first.y()))
                     return resOne;
 
                 auto resTwo = two.GetCrossPointWith(other, planeSize, ignoreEnds);
-                if (!std::isnan(resTwo.x()) && !std::isnan(resTwo.y()))
+                if (!std::isnan(resTwo.first.x()) && !std::isnan(resTwo.first.y()))
                     return resTwo;
 
-                return {NAN, NAN};
+                return std::make_pair<QVector2D, QVector2D>({NAN, NAN}, {NAN, NAN});
             }
 
             if (!WrapsX && other.WrapsX)
@@ -105,14 +105,14 @@ private:
                 auto two = other.WrapedSegmentTwo(planeSize);
 
                 auto resOne = one.GetCrossPointWith(*this, planeSize, ignoreEnds);
-                if (!std::isnan(resOne.x()) && !std::isnan(resOne.y()))
+                if (!std::isnan(resOne.first.x()) && !std::isnan(resOne.first.y()))
                     return resOne;
 
                 auto resTwo = two.GetCrossPointWith(*this, planeSize, ignoreEnds);
-                if (!std::isnan(resTwo.x()) && !std::isnan(resTwo.y()))
+                if (!std::isnan(resTwo.first.x()) && !std::isnan(resTwo.first.y()))
                     return resTwo;
 
-                return {NAN, NAN};
+                return std::make_pair<QVector2D, QVector2D>({NAN, NAN}, {NAN, NAN});;
             }
 
             auto oneT = other.WrapedSegmentOne(planeSize);
@@ -121,22 +121,22 @@ private:
             auto twoO = other.WrapedSegmentTwo(planeSize);
 
             auto resOne = oneT.GetCrossPointWith(oneO, planeSize, ignoreEnds);
-            if (!std::isnan(resOne.x()) && !std::isnan(resOne.y()))
+            if (!std::isnan(resOne.first.x()) && !std::isnan(resOne.first.y()))
                 return resOne;
 
             auto resTwo = oneT.GetCrossPointWith(twoO, planeSize, ignoreEnds);
-            if (!std::isnan(resTwo.x()) && !std::isnan(resTwo.y()))
+            if (!std::isnan(resTwo.first.x()) && !std::isnan(resTwo.first.y()))
                 return resTwo;
 
             auto resThird = twoT.GetCrossPointWith(oneO, planeSize, ignoreEnds);
-            if (!std::isnan(resThird.x()) && !std::isnan(resThird.y()))
+            if (!std::isnan(resThird.first.x()) && !std::isnan(resThird.first.y()))
                 return resThird;
 
             auto resFour = twoT.GetCrossPointWith(twoO, planeSize, ignoreEnds);
-            if (!std::isnan(resFour.x()) && !std::isnan(resFour.y()))
+            if (!std::isnan(resFour.first.x()) && !std::isnan(resFour.first.y()))
                 return resFour;
 
-            return {NAN, NAN};
+            return std::make_pair<QVector2D, QVector2D>({NAN, NAN}, {NAN, NAN});
         }
 
         std::pair<float, float> GetMinMaxX(QVector2D A1, QVector2D B1, QVector2D A2, QVector2D B2)
@@ -239,11 +239,13 @@ private:
     {
         PolylineSegment* From;
         PolylineSegment* To;
+        float FromT;
+        float ToT;
         Division *IntersectionDivision;
         QVector2D CrossPoint;
 
-        PolylineCross(PolylineSegment* from, PolylineSegment* to, Division *div, QVector2D crossPoint) :
-                From(from), To(to), IntersectionDivision(div), CrossPoint(crossPoint)
+        PolylineCross(PolylineSegment* from, PolylineSegment* to, float fromT, float toT, Division *div, QVector2D crossPoint) :
+                From(from), To(to), IntersectionDivision(div), CrossPoint(crossPoint), FromT(fromT), ToT(toT)
         {}
 
         /*PolylineCross(PolylineCross &other): From(other.From), To(other.To)
@@ -272,7 +274,7 @@ private:
     void DebugImageOfPlane();
 
     PolylineCross
-    GetFirstIntersectFrom(bool direction, int polylineIdx, int segmentIdx, std::vector<QVector2D> &passedPoints);
+    GetFirstIntersectFrom(bool direction, int polylineIdx, int segmentIdx, std::vector<QVector2D> &passedPoints, float skipBeforeT);
 
 public:
     bool DebugImages = false;
