@@ -32,6 +32,10 @@ public:
     void SetMilimeters(double mm);
     void SetCentimeters(double cm);
     void SetMeters(double m);
+
+    friend Length operator+ (const Length& one, const Length& two);
+    friend Length operator- (const Length& one, const Length& two);
+    Length& operator=(const Length& other);
 };
 
 #endif //SMOCAD_LENGTH_H

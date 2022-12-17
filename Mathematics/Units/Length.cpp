@@ -73,5 +73,25 @@ double Length::GetSceneUnits() const
     return GetCentimeters();
 }
 
+Length &Length::operator=(const Length& other)
+{
+    // Guard self assignment
+    if (this == &other)
+        return *this;
+
+    Unit::operator=(other);
+    return *this;
+}
+
+Length operator+(const Length &one, const Length &two)
+{
+    return Length(one.value + two.value);
+}
+
+Length operator-(const Length &one, const Length &two)
+{
+    return Length(one.value - two.value);
+}
+
 
 
