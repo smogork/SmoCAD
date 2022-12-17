@@ -171,8 +171,8 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     OffsetPlane UchoOffsetK8(Ucho->p_Intersection, K8_RADIUS);
     OffsetPlane DziubekOffsetK8(Dziubek->p_Intersection, K8_RADIUS);
     OffsetPlane PokrywkaOffsetK8(Pokrywka->p_Intersection, K8_RADIUS);
-    OffsetPlane StolOffsetK8(stol->p_Intersection, K8_RADIUS);
-    OffsetPlane Stol2OffsetK8(stol2->p_Intersection, K8_RADIUS);
+    OffsetPlane StolOffsetK8(stol->p_Intersection, -K8_RADIUS);
+    OffsetPlane Stol2OffsetK8(stol2->p_Intersection, -K8_RADIUS);
 
     //Przeciecia stol-body
     QVector3D StolBodyStart1 = {-4.7, -0.3, 5.4}; //prawa strona
@@ -242,22 +242,33 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     QVector2D DziubekStartPoint = StolDziubekCurve1->p_IntersectionRes->GetSecondParameterPoints().back();
     float DziubekDu = 0.1f;
     float DziubekDv = 0.1f;
-    AddLinesAsConstrains(QVector2D(DziubekOffsetK8.p_UV->U, DziubekOffsetK8.p_UV->V - 0.01f), DziubekDv, DziubekDu,
+    /*AddLinesAsConstrains(QVector2D(DziubekOffsetK8.p_UV->U, DziubekOffsetK8.p_UV->V - 0.01f), DziubekDv, DziubekDu,
                          DziubekOffsetK8.p_UV->V + 0.01f,
                          QVector2D(0.0f, DziubekOffsetK8.p_UV->U), Y, divDziubek);
     AddLinesAsConstrains(DziubekStartPoint, DziubekDu, DziubekDv,
                          StolDziubekCurve2->p_IntersectionRes->GetSecondParameterPoints().front().x(),
+                         QVector2D(0.0f, DziubekOffsetK8.p_UV->V), X, divDziubek);*/
+    AddLinesAsConstrains(QVector2D(DziubekOffsetK8.p_UV->U, DziubekOffsetK8.p_UV->V - 0.1f), DziubekDv, DziubekDu / 2.0f,
+                         DziubekOffsetK8.p_UV->V,
+                         QVector2D(0.0f, DziubekOffsetK8.p_UV->U + 0.1f), Y, divDziubek);
+    QVector2D DziubekStartPoint1 = StolDziubekCurve1->p_IntersectionRes->GetSecondParameterPoints().back();
+    AddLinesAsConstrains(DziubekStartPoint1, DziubekDu, DziubekDv,
+                         0.0f,
+                         QVector2D(0.0f, DziubekOffsetK8.p_UV->V), X, divDziubek);
+    QVector2D DziubekStartPoint2 = StolDziubekCurve2->p_IntersectionRes->GetSecondParameterPoints().front();
+    AddLinesAsConstrains(DziubekStartPoint2, DziubekDu, DziubekDv,
+                         DziubekOffsetK8.p_UV->U,
                          QVector2D(0.0f, DziubekOffsetK8.p_UV->V), X, divDziubek);
 
     divDziubek.CreateDivision();
 
-    int skip = 5;
+    /*int skip = 5;
     std::vector<int> linesToVisit(divDziubek.GetConstraintCount() - skip);
     std::iota(std::begin(linesToVisit), std::end(linesToVisit), skip);
     auto dziubekParameterPath = divDziubek.JoinConstraintPolylinesZigzag(linesToVisit, {0, 1, 2, 3}, true, false,
-                                                                         divDziubek.GetConstraintCount() - 1, 8);
+                                                                         divDziubek.GetConstraintCount() - 1, 8);*/
 
-    /*int skipFront = 7;
+    int skipFront = 7;
     int skipBack = 1;
     std::vector<int> linesToVisit(20 - skipFront);
     std::iota(std::begin(linesToVisit), std::end(linesToVisit), skipFront);
@@ -267,13 +278,13 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     linesToVisit.emplace_back(25);
     linesToVisit.emplace_back(26);
     linesToVisit.emplace_back(27);
-    auto dziubekParameterPath = divDziubek.JoinConstraintPolylinesZigzag(linesToVisit, {0, 3}, true, true,
-                                                                         22, 8);*/
+    auto dziubekParameterPath = divDziubek.JoinConstraintPolylinesZigzag(linesToVisit, {0, 1, 2, 3}, true, true,
+                                                                         22, 8);
 
     std::vector<QVector3D> dziubekPrecPath(dziubekParameterPath.size());
     for (int i = 0; i < dziubekParameterPath.size(); ++i)
     {
-        dziubekPrecPath[i] = DziubekOffsetK8.p_Intersection->SceneFunction(dziubekParameterPath[i]) * QVector3D(1.0f, -1.0f, 1.0f)
+        dziubekPrecPath[i] = DziubekOffsetK8.p_Intersection->SceneFunction(dziubekParameterPath[i]) /* QVector3D(1.0f, -1.0f, 1.0f)*/
                 - QVector3D(0.0f, K8_RADIUS, 0.0f);//Obnizenie do szubka frezu
     }
 
