@@ -80,7 +80,7 @@ QImage IntersectionResult::GetSelfTrimmingTexture()
     const int size = 512;
     QImage res({size, size}, QImage::Format_RGB32);
     res.fill(c_free);//zapelnienie kolorem bialym
-    res.save("clear.png");
+    //res.save("clear.png");
 
     std::vector<QVector2D> args(m_paramPoints.size());
     auto one = m_planeOne.lock();
@@ -95,7 +95,7 @@ QImage IntersectionResult::GetSelfTrimmingTexture()
     for (int i = 0; i < m_paramPoints.size(); ++i)
         args[i] = {m_paramPoints[i].z(), m_paramPoints[i].w()};
     DrawParametersPolylineOnTexture(c_curve, res, two, args);
-    res.save("before_flood.png");
+    //res.save("before_flood.png");
 
     //zapusc algorytm FloodFill (4spojny) dla pierwszego bialego pixela
     for (int i = 0; i < size * size; ++i)
@@ -110,7 +110,7 @@ QImage IntersectionResult::GetSelfTrimmingTexture()
         }
     }
 
-    res.save("after_flood.png");
+    //res.save("after_flood.png");
     return res;
 }
 
@@ -119,11 +119,11 @@ QImage IntersectionResult::GetTrimmingTexture(const std::vector<QVector2D> &poin
     const int size = 512;
     QImage res({size, size}, QImage::Format_RGB32);
     res.fill(c_free);//zapelnienie kolorem bialym
-    res.save("clear.png");
+    //res.save("clear.png");
 
     DrawParametersPolylineOnTexture(c_curve, res, plane, points);//zielona krzywa
 
-    res.save("before_flood.png");
+    //res.save("before_flood.png");
     //zapusc algorytm FloodFill (4spojny) dla pierwszego bialego pixela
     for (int i = 0; i < size * size; ++i)
     {
@@ -136,7 +136,7 @@ QImage IntersectionResult::GetTrimmingTexture(const std::vector<QVector2D> &poin
             break;
         }
     }
-    res.save("after_flood.png");
+    //res.save("after_flood.png");
 
     return res;
 }

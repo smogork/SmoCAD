@@ -177,7 +177,7 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     //Przeciecia stol-body
     QVector3D StolBodyStart = {-4.7, -0.3, 5.4};
     auto StolBodyCurve = isys->CreateIntersectionCurveBetween(StolOffsetK8.p_Intersection, BodyOffsetK8.p_Intersection,
-                                                               StolBodyStart, 0.2f);
+                                                              StolBodyStart, 0.2f);
 
     //Przecięcia stol-ucho
     QVector3D StolUchoStart1 = {-3.2, -0.4, 4.3};
@@ -254,7 +254,7 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
 
     divDziubek.CreateDivision();
 
-    int skipFront = 7;
+    int skipFront = 5;
     int skipBack = 1;
     std::vector<int> linesToVisit(20 - skipFront);
     std::iota(std::begin(linesToVisit), std::end(linesToVisit), skipFront);
@@ -269,7 +269,8 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     auto dziubekParameterPath = divDziubek.JoinConstraintPolylinesZigzag(linesToVisit, {0, 1, 2, 3}, true, true,
                                                                          22, 8);
 
-    std::vector<QVector3D> dziubekPrecPath = FromParams(dziubekParameterPath, DziubekOffsetK8.p_Intersection, K8_RADIUS);
+    std::vector<QVector3D> dziubekPrecPath = FromParams(dziubekParameterPath, DziubekOffsetK8.p_Intersection,
+                                                        K8_RADIUS);
 #pragma endregion
 
 #pragma region Precyzyjne ucho
@@ -302,11 +303,12 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     uchoLinesToVisit.emplace_back(23);
     //divUcho.DebugImages = true;
     auto uchoParameterPath = divUcho.JoinConstraintPolylinesZigzag(uchoLinesToVisit, {0, 1, 2, 3}, true, true,
-                                                                         20, 18);
+                                                                   20, 18);
 
     std::vector<QVector3D> uchoPrecPath = FromParams(uchoParameterPath, UchoOffsetK8.p_Intersection, K8_RADIUS);
 #pragma endregion
 
+#pragma region Precyzyjne body
     //Ograniczenia do obrobki body
     PlaneDivision divBody(QVector4D(0, 0, BodyOffsetK8.p_UV->U, BodyOffsetK8.p_UV->V));
     divBody.WrapX = true;
@@ -319,35 +321,80 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
 
     float BodyDu = 0.05f;
     float BodyDv = 0.1f;
-    QVector2D BodyStartPoint1 = UchoBodyCurve2->p_IntersectionRes->GetSecondParameterPoints().front() - QVector2D(0.5f * BodyDu, 0.0f);
+    QVector2D BodyStartPoint1 =
+            UchoBodyCurve2->p_IntersectionRes->GetSecondParameterPoints().front() - QVector2D(0.5f * BodyDu, 0.0f);
     AddLinesAsConstrains(BodyStartPoint1, BodyDu, BodyDv, 0.0f,
                          QVector2D(0.0f, BodyOffsetK8.p_UV->V), X, divBody);
-    QVector2D BodyStartPoint2 = DziubekBodyCurve->p_IntersectionRes->GetSecondParameterPoints().front() - QVector2D(2 * BodyDu, 0.0f);
+    QVector2D BodyStartPoint2 =
+            DziubekBodyCurve->p_IntersectionRes->GetSecondParameterPoints().front() - QVector2D(0.28f, 0.0f);
     int secondCount = AddLinesAsConstrains(BodyStartPoint2, BodyDu, BodyDv, BodyOffsetK8.p_UV->U,
-                         QVector2D(0.0f, BodyOffsetK8.p_UV->V), X, divBody);
+                                           QVector2D(0.0f, BodyOffsetK8.p_UV->V), X, divBody);
 
+    divBody.DebugImages = true;
     divBody.CreateDivision();
+    divBody.DebugImages = false;
 
     int bodySkipFront = 8;
     std::vector<int> bodyLinesToVisit(divBody.GetConstraintCount() - bodySkipFront);
     std::iota(std::begin(bodyLinesToVisit), std::end(bodyLinesToVisit), bodySkipFront);
-    /*bodyLinesToVisit.emplace_back(33);
-    bodyLinesToVisit.emplace_back(34);
-    bodyLinesToVisit.emplace_back(35);
-    bodyLinesToVisit.emplace_back(36);
-    bodyLinesToVisit.emplace_back(37);
-    bodyLinesToVisit.emplace_back(38);
-    bodyLinesToVisit.emplace_back(39);*/
 
     //divBody.DebugImages = true;
     auto bodyParameterPath1 = divBody.JoinConstraintPolylinesZigzag(bodyLinesToVisit, {0, 1, 2, 3, 4}, true, true,
-                                                                   divBody.GetConstraintCount() - secondCount, 20);
+                                                                    divBody.GetConstraintCount() - secondCount, 20);
     std::vector<QVector3D> bodyPrecPath1 = FromParams(bodyParameterPath1, BodyOffsetK8.p_Intersection, K8_RADIUS);
+#pragma endregion
+
+    //Ograniczenia do obrobki Pkrywki
+    PlaneDivision divPokrywka(QVector4D(0, 0, PokrywkaOffsetK8.p_UV->U, PokrywkaOffsetK8.p_UV->V));
+    divPokrywka.WrapX = true;
+
+    divPokrywka.AddConstraintPolyline(StolPokrywkaCurve1->p_IntersectionRes->GetSecondParameterPoints());
+    //divPokrywka.AddConstraintPolyline(StolPokrywkaCurve2->p_IntersectionRes->GetSecondParameterPoints());
+    divPokrywka.AddConstraintPolyline(StolPokrywkaCurve3->p_IntersectionRes->GetSecondParameterPoints());
+    divPokrywka.AddConstraintPolyline(StolPokrywkaCurve4->p_IntersectionRes->GetSecondParameterPoints());
+    divPokrywka.AddConstraintPolyline(PokrywkaBodyCurve->p_IntersectionRes->GetFirstParameterPoints(), true);
+
+    const float PokrywkaDu = 0.05f;
+    const float PokrywkaDv = 0.1f;
+    const float VConstraint1 = 2.0f;
+    const float VConstraint2 = 4.0f;
+    AddLinesAsConstrains(QVector2D(PokrywkaOffsetK8.p_UV->U, VConstraint1), PokrywkaDv, PokrywkaDu,
+                         VConstraint1 + PokrywkaDv / 2.0f,
+                         QVector2D(0.0f, PokrywkaOffsetK8.p_UV->U), Y, divPokrywka, true);
+    AddLinesAsConstrains(QVector2D(PokrywkaOffsetK8.p_UV->U, VConstraint2), PokrywkaDv, PokrywkaDu,
+                         VConstraint2 + PokrywkaDv / 2.0f,
+                         QVector2D(0.0f, PokrywkaOffsetK8.p_UV->U), Y, divPokrywka, true);
+    QVector2D PokrywkaStartPoint1 = StolPokrywkaCurve1->p_IntersectionRes->GetSecondParameterPoints().back();
+    AddLinesAsConstrains(PokrywkaStartPoint1, PokrywkaDu, PokrywkaDv,
+                         0.0f,
+                         QVector2D(0.0f, PokrywkaOffsetK8.p_UV->V), X, divPokrywka);
+    QVector2D PokrywkaStartPoint2 = StolPokrywkaCurve1->p_IntersectionRes->GetSecondParameterPoints().front() + QVector2D(PokrywkaDu, 0.0f);
+    int pokrywkaSecondCount = AddLinesAsConstrains(PokrywkaStartPoint2, PokrywkaDu, PokrywkaDv,
+                                                   PokrywkaOffsetK8.p_UV->U,
+                                                   QVector2D(0.0f, PokrywkaOffsetK8.p_UV->V), X, divPokrywka);
+
+
+    divPokrywka.DebugImages = true;
+    divPokrywka.CreateDivision();
+    //divPokrywka.DebugImages = false;
+
+    int pokrywkaSkipFront = 7;
+    std::vector<int> pokrywkaLinesToVisit(divPokrywka.GetConstraintCount() - pokrywkaSkipFront);
+    std::iota(std::begin(pokrywkaLinesToVisit), std::end(pokrywkaLinesToVisit), pokrywkaSkipFront);
+
+    auto pokrywkaParameterPath1 = divPokrywka.JoinConstraintPolylinesZigzag(pokrywkaLinesToVisit, {0, 1, 2, 3, 4, 5}, true, true,
+                                                                    divPokrywka.GetConstraintCount() - pokrywkaSecondCount, 10);
+    divPokrywka.DebugImages = true;
+    auto pokrywkaParameterPath2 = divPokrywka.JoinConstraintPolylinesZigzag(pokrywkaLinesToVisit, {0, 1, 2, 3, 4, 5}, true, true,
+                                                                            divPokrywka.GetConstraintCount() - pokrywkaSecondCount, 45);
+    auto pokrywaPrecPath1 = FromParams(pokrywkaParameterPath1, PokrywkaOffsetK8.p_Intersection, K8_RADIUS);
+    auto pokrywaPrecPath2 = FromParams(pokrywkaParameterPath2, PokrywkaOffsetK8.p_Intersection, K8_RADIUS);
 
     //Polaczenie wszystkich sciezek razem
     std::vector<QVector3D> resBody;
-    resBody = ConnectSecurelyTwoPathsPrec(dziubekPrecPath, bodyPrecPath1, 1.5f);
-    resBody = ConnectSecurelyTwoPathsPrec(resBody, uchoPrecPath, 1.5f);
+    resBody = ConnectSecurelyTwoPathsPrec(pokrywaPrecPath1, pokrywaPrecPath2, 2.0f);
+    /*resBody = ConnectSecurelyTwoPathsPrec(dziubekPrecPath, bodyPrecPath1, 1.5f);
+    resBody = ConnectSecurelyTwoPathsPrec(resBody, uchoPrecPath, 1.5f);*/
 
     CutterPath precisionPath(CutterParameters(Length::FromSceneUnits(K8_RADIUS * 2), CutterType::Spherical));
     precisionPath.Points = resBody;
@@ -852,7 +899,7 @@ RoutingAwareSystem::GenerateFlatPrecisionPath(const QVector3D &blockWorldPos, co
 int
 RoutingAwareSystem::AddLinesAsConstrains(QVector2D startPoint, float deltaWidth, float deltaHeight, float targetWidth,
                                          QVector2D lineBoundaries, RoutingAwareSystem::ZigZagVariable variable,
-                                         PlaneDivision &division)
+                                         PlaneDivision &division, bool asCycles)
 {
     int addedLines = 0;
 
@@ -867,7 +914,7 @@ RoutingAwareSystem::AddLinesAsConstrains(QVector2D startPoint, float deltaWidth,
                 constraint.emplace_back(QVector2D(x, y));
             }
 
-            division.AddConstraintPolyline(constraint);
+            division.AddConstraintPolyline(constraint, asCycles);
             addedLines++;
         }
     } else
@@ -879,7 +926,7 @@ RoutingAwareSystem::AddLinesAsConstrains(QVector2D startPoint, float deltaWidth,
             for (float x = lineBoundaries.x(); x <= lineBoundaries.y(); x += deltaHeight)
                 constraint.emplace_back(QVector2D(x, y));
 
-            division.AddConstraintPolyline(constraint);
+            division.AddConstraintPolyline(constraint, asCycles);
             addedLines++;
         }
     }
@@ -888,7 +935,8 @@ RoutingAwareSystem::AddLinesAsConstrains(QVector2D startPoint, float deltaWidth,
 }
 
 std::vector<QVector3D>
-RoutingAwareSystem::FromParams(const std::vector<QVector2D> &params, std::shared_ptr<IntersectionAware> plane, float cutterRadius)
+RoutingAwareSystem::FromParams(const std::vector<QVector2D> &params, std::shared_ptr<IntersectionAware> plane,
+                               float cutterRadius)
 {
     std::vector<QVector3D> res(params.size());
     for (int i = 0; i < params.size(); ++i)
