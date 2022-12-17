@@ -202,8 +202,8 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     QVector3D StolPokrywkaStart4 = {1.8, 1.0, -1.5};//dol lewa
     auto StolPokrywkaCurve1 = isys->CreateIntersectionCurveBetween(Stol2OffsetK8.p_Intersection,
                                                                    PokrywkaOffsetK8.p_Intersection, StolPokrywkaStart1);
-    auto StolPokrywkaCurve2 = isys->CreateIntersectionCurveBetween(Stol2OffsetK8.p_Intersection,
-                                                                   PokrywkaOffsetK8.p_Intersection, StolPokrywkaStart2);
+    //auto StolPokrywkaCurve2 = isys->CreateIntersectionCurveBetween(Stol2OffsetK8.p_Intersection,
+    //                                                               PokrywkaOffsetK8.p_Intersection, StolPokrywkaStart2);
     auto StolPokrywkaCurve3 = isys->CreateIntersectionCurveBetween(StolOffsetK8.p_Intersection,
                                                                    PokrywkaOffsetK8.p_Intersection, StolPokrywkaStart3);
     auto StolPokrywkaCurve4 = isys->CreateIntersectionCurveBetween(StolOffsetK8.p_Intersection,
@@ -344,6 +344,7 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     std::vector<QVector3D> bodyPrecPath1 = FromParams(bodyParameterPath1, BodyOffsetK8.p_Intersection, K8_RADIUS);
 #pragma endregion
 
+#pragma region Precyzyjna pokrywka
     //Ograniczenia do obrobki Pkrywki
     PlaneDivision divPokrywka(QVector4D(0, 0, PokrywkaOffsetK8.p_UV->U, PokrywkaOffsetK8.p_UV->V));
     divPokrywka.WrapX = true;
@@ -399,14 +400,42 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
         QVector3D norm = QVector3D::crossProduct(derU, derV).normalized();
         pokrywkaPrecPath3.emplace_back(Pokrywka->p_Intersection->SceneFunction({u, v}) + (K8_RADIUS - 0.05f) * norm);
     }
+#pragma endregion
+
+    //Ograniczenia do obrobki Pkrywki
+    PlaneDivision divDziura(QVector4D(0, 0, StolOffsetK8.p_UV->U, StolOffsetK8.p_UV->V));
+
+    divDziura.AddConstraintPolyline(StolBodyCurve->p_IntersectionRes->GetFirstParameterPoints());
+    divDziura.AddConstraintPolyline(StolUchoCurve2->p_IntersectionRes->GetFirstParameterPoints());
+
+    const float dziuraDu = 0.1f;
+    const float dziuraDv = 0.03f;
+    const float vStart = 7.9f;
+    const float vEnd = 7.0f;
+    const float uStart = StolUchoCurve2->p_IntersectionRes->GetFirstParameterPoints().front().x();
+    const float uEnd = StolUchoCurve2->p_IntersectionRes->GetFirstParameterPoints().back().x();
+
+    AddLinesAsConstrains(QVector2D(uStart, vStart), dziuraDv, dziuraDu,
+                            vEnd,
+                         QVector2D(uStart, uEnd), Y, divDziura);
+
+    divDziura.DebugImages = true;
+    divDziura.CreateDivision();
+
+    std::vector<int> dziuraLimit(12);
+    std::iota(dziuraLimit.begin(), dziuraLimit.end(), 2);
+    auto dziuraParameterPath = divDziura.JoinConstraintPolylinesZigzag(dziuraLimit, {0, 1}, true, true,
+                                                   2, 18);
+    auto dziuraPrecPath = FromParams(dziuraParameterPath, StolOffsetK8.p_Intersection, K8_RADIUS);
 
     //Polaczenie wszystkich sciezek razem
-    std::vector<QVector3D> resBody = dziubekPrecPath;
-    resBody = ConnectSecurelyTwoPathsPrec(resBody, bodyPrecPath1, 1.5f);
+    std::vector<QVector3D> resBody = dziuraPrecPath;
+    //std::vector<QVector3D> resBody = dziubekPrecPath;
+    /*resBody = ConnectSecurelyTwoPathsPrec(resBody, bodyPrecPath1, 1.5f);
     resBody = ConnectSecurelyTwoPathsPrec(resBody, uchoPrecPath, 1.5f);
     resBody = ConnectSecurelyTwoPathsPrec(resBody, pokrywkaPrecPath3, 2.0f);
     resBody = ConnectSecurelyTwoPathsPrec(resBody, pokrywkaPrecPath1, 2.0f);
-    resBody = ConnectSecurelyTwoPathsPrec(resBody, pokrywkaPrecPath2, 2.0f);
+    resBody = ConnectSecurelyTwoPathsPrec(resBody, pokrywkaPrecPath2, 2.0f);*/
 
 
     CutterPath precisionPath(CutterParameters(Length::FromSceneUnits(K8_RADIUS * 2), CutterType::Spherical));
