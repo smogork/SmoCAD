@@ -177,15 +177,15 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     //Przeciecia stol-body
     QVector3D StolBodyStart = {-4.7, -0.3, 5.4};
     auto StolBodyCurve = isys->CreateIntersectionCurveBetween(StolOffsetK8.p_Intersection, BodyOffsetK8.p_Intersection,
-                                                               StolBodyStart, 0.1f);
+                                                               StolBodyStart, 0.05f);
 
     //Przecięcia stol-ucho
     QVector3D StolUchoStart1 = {-3.2, -0.4, 4.3};
     auto StolUchoCurve1 = isys->CreateIntersectionCurveBetween(StolOffsetK8.p_Intersection, UchoOffsetK8.p_Intersection,
-                                                               StolUchoStart1, 0.05f);
+                                                               StolUchoStart1, 0.1f);
     QVector3D StolUchoStart2 = {-0.7, -0.6, 3.9};
     auto StolUchoCurve2 = isys->CreateIntersectionCurveBetween(StolOffsetK8.p_Intersection, UchoOffsetK8.p_Intersection,
-                                                               StolUchoStart2, 0.05f);
+                                                               StolUchoStart2, 0.1f);
 
     //Przeciecia stol-dziubek
     QVector3D StolDziubekStart1 = {0.8, -0.4, -3.7};//gora
@@ -305,7 +305,7 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     uchoLinesToVisit.emplace_back(21);
     uchoLinesToVisit.emplace_back(22);
     uchoLinesToVisit.emplace_back(23);
-    divUcho.DebugImages = true;
+    //divUcho.DebugImages = true;
     auto uchoParameterPath = divUcho.JoinConstraintPolylinesZigzag(uchoLinesToVisit, {0, 1, 2, 3}, true, true,
                                                                          20, 18);
 
@@ -327,7 +327,7 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     divBody.AddConstraintPolyline(UchoBodyCurve2->p_IntersectionRes->GetSecondParameterPoints(), true);
     divBody.AddConstraintPolyline(DziubekBodyCurve->p_IntersectionRes->GetSecondParameterPoints(), true);
 
-    float BodyDu = 0.05f;
+    float BodyDu = 0.065f;
     float BodyDv = 0.1f;
     QVector2D BodyStartPoint1 = UchoBodyCurve2->p_IntersectionRes->GetSecondParameterPoints().front() - QVector2D(0.5f * BodyDu, 0.0f);
     AddLinesAsConstrains(BodyStartPoint1, BodyDu, BodyDv, 0.0f,
