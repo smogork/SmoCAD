@@ -296,7 +296,7 @@ public:
      * @param divisionCount Liczba podzialow w jednej osi
      */
     void CreateDivision(int divisionCount = 64);
-    std::vector<QVector2D> JoinConstraintPolylinesTogetherInCycle(int startPolylineIndex = 0);
+    std::vector<QVector2D> JoinConstraintPolylinesTogetherInCycle(bool startAscending = true, bool turnRight = true, int startPolylineIndex = 0, int startPolylineSegment = 0);
     std::vector<QVector2D>
     JoinConstraintPolylinesZigzag(std::vector<int> polylineToVisit, std::vector<int> switchTurnPolylines, bool startAscending, bool firstTurnRight,
                                   int startPolylineIndex = 0, int startPolylineSegment = 0);

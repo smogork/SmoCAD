@@ -83,20 +83,27 @@ void PlaneDivision::CreateDivision(int divisionCount)
         DebugImageOfPlane();
 }
 
-std::vector<QVector2D> PlaneDivision::JoinConstraintPolylinesTogetherInCycle(int startPolylineIndex)
+std::vector<QVector2D> PlaneDivision::JoinConstraintPolylinesTogetherInCycle(bool startAscending, bool alwaysTurnRight, int startPolylineIndex, int startPolylineSegment)
 {
     std::vector<QVector2D> resultPolyline;
 
     int polylineIdx = startPolylineIndex;
-    int segmentIdx = 0;
-    bool segmentIdxAscending = true;
+    int segmentIdx = startPolylineSegment;
+    bool segmentIdxAscending = startAscending;
+    bool turnRight = alwaysTurnRight;
+
+    std::set<int> toVisit;
+    for (int i = 0; i < m_polylines.size(); ++i)
+        toVisit.insert(i);
     float startT = (segmentIdxAscending ? 0.0f : 1.0f);
+    int it = 0;
     do
     {
         try
         {
             auto intersection = GetFirstIntersectFrom(segmentIdxAscending, polylineIdx, segmentIdx, resultPolyline, startT);
             resultPolyline.emplace_back(intersection.CrossPoint);
+
 
             if (DebugImages)
             {
@@ -106,8 +113,15 @@ std::vector<QVector2D> PlaneDivision::JoinConstraintPolylinesTogetherInCycle(int
                 debug.CreateDivision();
             }
 
-            segmentIdxAscending = intersection.From->GetDirectionOnTurnRight(*intersection.To, m_planeSize,
-                                                                             segmentIdxAscending);
+            if (it > 0)
+                toVisit.erase(polylineIdx);
+
+            if (turnRight)
+                segmentIdxAscending = intersection.From->GetDirectionOnTurnRight(*intersection.To, m_planeSize,
+                                                                                 segmentIdxAscending);
+            else
+                segmentIdxAscending = intersection.From->GetDirectionOnTurnLeft(*intersection.To, m_planeSize,
+                                                                                segmentIdxAscending);
             polylineIdx = intersection.To->PolylineIndex;
             segmentIdx = intersection.To->SegmentIndex;
             startT = (segmentIdxAscending ? intersection.ToT + 1e-5f : intersection.ToT - 1e-5f);
@@ -121,6 +135,9 @@ std::vector<QVector2D> PlaneDivision::JoinConstraintPolylinesTogetherInCycle(int
                 debug.AddConstraintPolyline(resultPolyline);
                 debug.CreateDivision();
             }
+
+            if (it > 0)
+                toVisit.erase(polylineIdx);
 
             auto poly = m_polylines[polylineIdx];
             resultPolyline.emplace_back(e.LastPoint);
@@ -139,9 +156,9 @@ std::vector<QVector2D> PlaneDivision::JoinConstraintPolylinesTogetherInCycle(int
                 startT = 1.0f;
             }
         }
-
-    } while ((segmentIdx != 0 || polylineIdx != startPolylineIndex)
-             && polylineIdx < m_polylines.size() && polylineIdx >= 0);//Wróciliśmy do początku
+        ++it;
+    } while ((segmentIdx != startPolylineSegment || polylineIdx != startPolylineIndex)
+             && polylineIdx < m_polylines.size() && polylineIdx >= 0 && toVisit.size() > 0);//Wróciliśmy do początku
 
     return resultPolyline;
 }

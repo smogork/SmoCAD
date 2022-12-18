@@ -319,6 +319,12 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     divBody.AddConstraintPolyline(UchoBodyCurve2->p_IntersectionRes->GetSecondParameterPoints(), true);
     divBody.AddConstraintPolyline(DziubekBodyCurve->p_IntersectionRes->GetSecondParameterPoints(), true);
 
+    //divBody.DebugImages = true;
+    divBody.CreateDivision();
+
+    auto swype2Params = divBody.JoinConstraintPolylinesTogetherInCycle(true, false, 1);
+    auto swype2PrecPath = FromParams(swype2Params, BodyOffsetK8.p_Intersection, K8_RADIUS);
+
     float BodyDu = 0.05f;
     float BodyDv = 0.1f;
     QVector2D BodyStartPoint1 =
@@ -331,6 +337,7 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
                                            QVector2D(0.0f, BodyOffsetK8.p_UV->V), X, divBody);
 
     //divBody.DebugImages = true;
+    divBody.DebugImages = false;
     divBody.CreateDivision();
 
     int bodySkipFront = 5;
@@ -430,10 +437,17 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
 
 #pragma region Precyzyjna dziura
     //Ograniczenia do obrobki Dziury
-    PlaneDivision divDziura(QVector4D(0, 0, StolOffsetK8.p_UV->U, StolOffsetK8.p_UV->V));
+    PlaneDivision divDziura(QVector4D(0, StolOffsetK8.p_UV->V / 2.0f, StolOffsetK8.p_UV->U, StolOffsetK8.p_UV->V));
 
     divDziura.AddConstraintPolyline(StolBodyCurve->p_IntersectionRes->GetFirstParameterPoints());
     divDziura.AddConstraintPolyline(StolUchoCurve2->p_IntersectionRes->GetFirstParameterPoints());
+
+    //divDziura.DebugImages = true;
+    divDziura.CreateDivision();
+
+    auto swypeParams = divDziura.JoinConstraintPolylinesZigzag({1}, {}, true, true,
+                                            1, 22);
+    auto swypePrecPath = FromParams(swypeParams, StolOffsetK8.p_Intersection, K8_RADIUS);
 
     const float dziuraDu = 0.1f;
     const float dziuraDv = 0.03f;
@@ -456,17 +470,21 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     auto dziuraPrecPath = FromParams(dziuraParameterPath, StolOffsetK8.p_Intersection, K8_RADIUS);
 #pragma endregion
 
+
+
     //Polaczenie wszystkich sciezek razem
     std::vector<QVector3D> resPrec;
     ConnectSecurelyTwoPathsPrec(resPrec, dziubekPrecPath, 0.0f);
     ConnectSecurelyTwoPathsPrec(resPrec, bodyPrecPath1, 1.1f);
     ConnectSecurelyTwoPathsPrec(resPrec, uchoPrecPath, 1.0f);
-    ConnectSecurelyTwoPathsPrec(resPrec, dziuraPrecPath, 1.0f);
+    ConnectSecurelyTwoPathsPrec(resPrec, swypePrecPath, 1.0f);
+    ConnectSecurelyTwoPathsPrec(resPrec, dziuraPrecPath, 0.2f);
     ConnectSecurelyTwoPathsPrec(resPrec, bodyPrecPath3, 1.0f);
     ConnectSecurelyTwoPathsPrec(resPrec, bodyPrecPath2, 2.0f);
     ConnectSecurelyTwoPathsPrec(resPrec, pokrywkaPrecPath3, 2.0f);
     ConnectSecurelyTwoPathsPrec(resPrec, pokrywkaPrecPath1, 2.0f);
     ConnectSecurelyTwoPathsPrec(resPrec, pokrywkaPrecPath2, 2.0f);
+    ConnectSecurelyTwoPathsPrec(resPrec, swype2PrecPath, 2.0f);
 
     CutterPath precisionPath(CutterParameters(Length::FromSceneUnits(K8_RADIUS * 2), CutterType::Spherical));
     precisionPath.Points = resPrec;
@@ -953,7 +971,7 @@ RoutingAwareSystem::GenerateFlatPrecisionPath(const QVector3D &blockWorldPos, co
 
     //planeDiv.DebugImages = true;
     planeDiv.CreateDivision();
-    auto offsetRing = planeDiv.JoinConstraintPolylinesTogetherInCycle(0);
+    auto offsetRing = planeDiv.JoinConstraintPolylinesTogetherInCycle();
     std::vector<QVector3D> offsetPoints;
     offsetPoints.reserve(offsetRing.size());
 
