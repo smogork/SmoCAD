@@ -16,6 +16,8 @@ private:
 
     std::weak_ptr<IntersectionAware> m_innerPlane;
     float m_offset;
+    QVector3D m_hardcodedDerU = {NAN, NAN, NAN};
+    QVector3D m_hardcodedDerV = {NAN, NAN, NAN};
 
     QVector3D OffsetPlaneFunc(QVector2D uv);
     QVector3D OffsetPlaneFuncDerU(QVector2D uv);
@@ -25,6 +27,11 @@ private:
 public:
     std::shared_ptr<UVParams> p_UV;
     std::shared_ptr<IntersectionAware> p_Intersection;
+
+    void SetHardcodedDerU(QVector3D derU);
+    void SetHardcodedDerV(QVector3D derV);
+    void ResetHardcodedDerU();
+    void ResetHardcodedDerV();
 
     OffsetPlane(std::shared_ptr<IntersectionAware> innerPlane, float offset);
 };

@@ -148,12 +148,14 @@ std::vector<QVector2D> PlaneDivision::JoinConstraintPolylinesTogetherInCycle(boo
                     polylineIdx = (polylineIdx + 1) % m_polylines.size();
                 segmentIdx = 0;
                 startT = 0.0f;
+                resultPolyline.emplace_back(m_polylines[polylineIdx][segmentIdx].Start);
             } else
             {
                 if (poly.front().Start != poly.back().End)//w przypadku niecyklicznej lamanej przechodzimy do innej
                     polylineIdx = polylineIdx == 0 ? m_polylines.size() - 1 : polylineIdx - 1;
                 segmentIdx = m_polylines[polylineIdx].size() - 1;
                 startT = 1.0f;
+                resultPolyline.emplace_back(m_polylines[polylineIdx][segmentIdx].End);
             }
         }
         ++it;

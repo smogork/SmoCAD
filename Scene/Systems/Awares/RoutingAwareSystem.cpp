@@ -946,11 +946,80 @@ RoutingAwareSystem::GenerateFlatPrecisionPath(const QVector3D &blockWorldPos, co
     auto precFlat3 = StolPokrywkaCurve3->p_IntersectionRes->GetScenePoints();
     auto precFlat9 = StolPokrywkaCurve4->p_IntersectionRes->GetScenePoints();
 
+    /*auto precFlatParams1 = StolPokrywkaCurve1->p_IntersectionRes->GetSecondParameterPoints();
+    auto precFlatParams2 = StolPokrywkaCurve2->p_IntersectionRes->GetSecondParameterPoints();
+    auto precFlatParams3 = StolPokrywkaCurve3->p_IntersectionRes->GetSecondParameterPoints();
+    auto precFlatParams4 = StolPokrywkaCurve4->p_IntersectionRes->GetSecondParameterPoints();*/
+
+    /*float constURight = 5.0f;
+    float constVConstraintUpStart = 4.0f;
+    float constVConstraintUpEnd = PokrywkaOffsetF10.p_UV->V - 1.f - 1e-2;
+    float constULeft = 2.0f;
+    float constVConstraintDownStart = 1.0f;
+    float constVConstraintDownEnd = 2.0f + 1e-2;
+    float dv = 0.1f;
+
+    std::vector<QVector3D> precFlat1;//gora lewa
+    std::vector<QVector3D> precFlat2;//gora prawa
+    std::vector<QVector3D> precFlat3;//dol prawa
+    std::vector<QVector3D> precFlat9;//dol lewa
+
+    //Gora lewa
+    for (float v = constVConstraintUpEnd; v > constVConstraintUpStart; v -= dv)
+
+    {
+        //Policzenie normalki w szczegolnym przypadku
+        QVector3D derV = PokrywkaOffsetF10.p_Intersection->SceneFunctionDerV({constULeft, v}).normalized();
+        QVector3D derU = {0.0f, -1.0f, 0.0f};
+        QVector3D norm = QVector3D::crossProduct(derU, derV).normalized();
+        precFlat2.emplace_back(Pokrywka->p_Intersection->SceneFunction({constULeft, v}) + (F10_RADIUS) * norm);
+    }
+
+    //Gora prawa
+    for (float v = constVConstraintUpStart; v < constVConstraintUpEnd; v += dv)
+    {
+        //Policzenie normalki w szczegolnym przypadku
+        QVector3D derV = PokrywkaOffsetF10.p_Intersection->SceneFunctionDerV({constURight, v}).normalized();
+        QVector3D derU = {0.0f, 1.0f, 0.0f};
+        QVector3D norm = QVector3D::crossProduct(derU, derV).normalized();
+        precFlat1.emplace_back(Pokrywka->p_Intersection->SceneFunction({constURight, v}) + (F10_RADIUS) * norm);
+    }
+
+    //Dol lewa
+    for (float v = constVConstraintDownEnd; v > constVConstraintDownStart; v -= dv)
+    {
+        //Policzenie normalki w szczegolnym przypadku
+        QVector3D derV = PokrywkaOffsetF10.p_Intersection->SceneFunctionDerV({constULeft, v}).normalized();
+        QVector3D derU = {0.0f, -1.0f, 0.0f};
+        QVector3D norm = QVector3D::crossProduct(derU, derV).normalized();
+        precFlat3.emplace_back(Pokrywka->p_Intersection->SceneFunction({constULeft, v}) + (F10_RADIUS) * norm);
+    }
+
+    //Dol prawa
+    for (float v = constVConstraintDownStart; v < constVConstraintDownEnd; v += dv)
+    {
+        //Policzenie normalki w szczegolnym przypadku
+        QVector3D derV = PokrywkaOffsetF10.p_Intersection->SceneFunctionDerV({constURight, v}).normalized();
+        QVector3D derU = {0.0f, 1.0f, 0.0f};
+        QVector3D norm = QVector3D::crossProduct(derU, derV).normalized();
+        precFlat9.emplace_back(Pokrywka->p_Intersection->SceneFunction({constURight, v}) + (F10_RADIUS) * norm);
+    }*/
+
     //Dodanie hardcodowanych punktów które wyszły tragicznie z przecięć
-    precFlat7.emplace_back(QVector3D(0.2f, 0.0f, -7.4));
-    precFlat7.emplace_back(QVector3D(1.8f, 0.0f, -7.4));
-    precFlat2.emplace_back(QVector3D(2.7f, 0.0f, 3.2f));
-    precFlat9.emplace_back(QVector3D(2.7f, 0.0f, -2.6f));
+    auto f7back = precFlat7.back();
+    auto f8front = precFlat8.front();
+    precFlat7.emplace_back(QVector3D(f7back.x(), 0.0f, -7.25));
+    precFlat7.emplace_back(QVector3D(f8front.x(), 0.0f, -7.25));
+
+    precFlat1.erase(precFlat1.begin());
+
+    precFlat2.pop_back();
+    precFlat9.pop_back();
+
+    precFlat2.emplace_back(QVector3D(2.9f, 0.0f, 3.2f));
+    precFlat2.emplace_back(QVector3D(2.5f, 0.0f, 3.2f));
+    precFlat9.emplace_back(QVector3D(2.5f, 0.0f, -2.6f));
+    precFlat9.emplace_back(QVector3D(2.9f, 0.0f, -2.6f));
 
     QVector4D planeSize = QVector4D(
             blockWorldPos.x() - blockSize.x() / 2,
@@ -969,8 +1038,9 @@ RoutingAwareSystem::GenerateFlatPrecisionPath(const QVector3D &blockWorldPos, co
     planeDiv.AddConstraintPolyline(precFlat8);//gora dziubek
     planeDiv.AddConstraintPolyline(precFlat9);//pokrywka dol lewa
 
-    //planeDiv.DebugImages = true;
+    planeDiv.DebugImages = true;
     planeDiv.CreateDivision();
+    //planeDiv.DebugImages = false;
     auto offsetRing = planeDiv.JoinConstraintPolylinesTogetherInCycle();
     std::vector<QVector3D> offsetPoints;
     offsetPoints.reserve(offsetRing.size());

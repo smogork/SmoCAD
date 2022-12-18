@@ -40,10 +40,36 @@ QVector3D OffsetPlane::OffsetPlaneFunc(QVector2D uv)
 
 QVector3D OffsetPlane::OffsetPlaneFuncDerU(QVector2D uv)
 {
+    if (!std::isnan(m_hardcodedDerU.x()))
+        return m_hardcodedDerU;
+
     return (OffsetPlaneFunc({uv.x() + h, uv.y()}) - OffsetPlaneFunc({uv.x() - h, uv.y()})) / (2 * h);
 }
 
 QVector3D OffsetPlane::OffsetPlaneFuncDerV(QVector2D uv)
 {
+    if (!std::isnan(m_hardcodedDerV.x()))
+        return m_hardcodedDerV;
+
     return (OffsetPlaneFunc({uv.x(), uv.y() + h}) - OffsetPlaneFunc({uv.x(), uv.y() - h})) / (2 * h);
+}
+
+void OffsetPlane::SetHardcodedDerU(QVector3D derU)
+{
+    m_hardcodedDerU = derU;
+}
+
+void OffsetPlane::SetHardcodedDerV(QVector3D derV)
+{
+    m_hardcodedDerV = derV;
+}
+
+void OffsetPlane::ResetHardcodedDerU()
+{
+    m_hardcodedDerU = {NAN, NAN, NAN};
+}
+
+void OffsetPlane::ResetHardcodedDerV()
+{
+    m_hardcodedDerV = {NAN, NAN, NAN};
 }
