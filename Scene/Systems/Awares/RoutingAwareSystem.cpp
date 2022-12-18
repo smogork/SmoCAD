@@ -330,9 +330,8 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     int secondCount = AddLinesAsConstrains(BodyStartPoint2, BodyDu, BodyDv, BodyOffsetK8.p_UV->U,
                                            QVector2D(0.0f, BodyOffsetK8.p_UV->V), X, divBody);
 
-    divBody.DebugImages = true;
+    //divBody.DebugImages = true;
     divBody.CreateDivision();
-    divBody.DebugImages = false;
 
     int bodySkipFront = 8;
     std::vector<int> bodyLinesToVisit(divBody.GetConstraintCount() - bodySkipFront);
@@ -398,7 +397,7 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
         QVector3D derU = PokrywkaOffsetK8.p_Intersection->SceneFunctionDerU({u, v}).normalized();
         QVector3D derV = {1.0f, 0.0f, 0.0f};
         QVector3D norm = QVector3D::crossProduct(derU, derV).normalized();
-        pokrywkaPrecPath3.emplace_back(Pokrywka->p_Intersection->SceneFunction({u, v}) + (K8_RADIUS - 0.05f) * norm);
+        pokrywkaPrecPath3.emplace_back(Pokrywka->p_Intersection->SceneFunction({u, v}) + (K8_RADIUS + 0.01f) * norm - QVector3D(0.0f, K8_RADIUS, 0.0f));
     }
 #pragma endregion
 
@@ -419,7 +418,7 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
                             vEnd,
                          QVector2D(uStart, uEnd), Y, divDziura);
 
-    divDziura.DebugImages = true;
+    //divDziura.DebugImages = true;
     divDziura.CreateDivision();
 
     std::vector<int> dziuraLimit(12);
@@ -429,17 +428,18 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     auto dziuraPrecPath = FromParams(dziuraParameterPath, StolOffsetK8.p_Intersection, K8_RADIUS);
 
     //Polaczenie wszystkich sciezek razem
-    std::vector<QVector3D> resBody = dziuraPrecPath;
-    //std::vector<QVector3D> resBody = dziubekPrecPath;
-    /*resBody = ConnectSecurelyTwoPathsPrec(resBody, bodyPrecPath1, 1.5f);
-    resBody = ConnectSecurelyTwoPathsPrec(resBody, uchoPrecPath, 1.5f);
-    resBody = ConnectSecurelyTwoPathsPrec(resBody, pokrywkaPrecPath3, 2.0f);
-    resBody = ConnectSecurelyTwoPathsPrec(resBody, pokrywkaPrecPath1, 2.0f);
-    resBody = ConnectSecurelyTwoPathsPrec(resBody, pokrywkaPrecPath2, 2.0f);*/
+    std::vector<QVector3D> resPrec;
+    ConnectSecurelyTwoPathsPrec(resPrec, dziubekPrecPath, 1.5f);
+    ConnectSecurelyTwoPathsPrec(resPrec, bodyPrecPath1, 1.5f);
+    ConnectSecurelyTwoPathsPrec(resPrec, dziuraPrecPath, 1.0f);
+    ConnectSecurelyTwoPathsPrec(resPrec, uchoPrecPath, 1.5f);
+    ConnectSecurelyTwoPathsPrec(resPrec, pokrywkaPrecPath3, 2.0f);
+    ConnectSecurelyTwoPathsPrec(resPrec, pokrywkaPrecPath1, 2.0f);
+    ConnectSecurelyTwoPathsPrec(resPrec, pokrywkaPrecPath2, 2.0f);
 
 
     CutterPath precisionPath(CutterParameters(Length::FromSceneUnits(K8_RADIUS * 2), CutterType::Spherical));
-    precisionPath.Points = resBody;
+    precisionPath.Points = resPrec;
     for (QVector3D &p: precisionPath.Points)
         p = FromSceneToBlock(p, blockWorldPos);
     GCodeSaver::SaveCutterPath(folderName, precisionPath, 4);
@@ -986,18 +986,15 @@ RoutingAwareSystem::FromParams(const std::vector<QVector2D> &params, std::shared
     return res;
 }
 
-std::vector<QVector3D> RoutingAwareSystem::ConnectSecurelyTwoPathsPrec(const std::vector<QVector3D> &first,
-                                                                       const std::vector<QVector3D> &second,
+void RoutingAwareSystem::ConnectSecurelyTwoPathsPrec(std::vector<QVector3D> &target, const std::vector<QVector3D> &addition,
                                                                        float sceneHeight)
 {
-    std::vector<QVector3D> res;
-
-    res.insert(res.end(), first.begin(), first.end());
-    res.emplace_back(QVector3D(first.back().x(), sceneHeight, first.back().z()));
-    res.emplace_back(QVector3D(second.front().x(), sceneHeight, second.front().z()));
-    res.insert(res.end(), second.begin(), second.end());
-
-    return res;
+    if (!target.empty())
+    {
+        target.emplace_back(QVector3D(target.back().x(), sceneHeight, target.back().z()));
+        target.emplace_back(QVector3D(addition.front().x(), sceneHeight, addition.front().z()));
+    }
+    target.insert(target.end(), addition.begin(), addition.end());
 }
 
 

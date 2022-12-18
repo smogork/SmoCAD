@@ -71,8 +71,8 @@ private:
 
     std::vector<QVector3D>
     FromParams(const std::vector<QVector2D> &params, std::shared_ptr<IntersectionAware> plane, float cutterRadius);
-    std::vector<QVector3D>
-    ConnectSecurelyTwoPathsPrec(const std::vector<QVector3D> &first, const std::vector<QVector3D> &second,
+    void
+    ConnectSecurelyTwoPathsPrec(std::vector<QVector3D> &target, const std::vector<QVector3D> &addition,
                                 float sceneHeight);
 
 public:
