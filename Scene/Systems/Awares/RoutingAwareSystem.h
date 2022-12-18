@@ -74,6 +74,7 @@ private:
     void
     ConnectSecurelyTwoPathsPrec(std::vector<QVector3D> &target, const std::vector<QVector3D> &addition,
                                 float sceneHeight);
+    std::vector<QVector3D> AddSafeStartEndPosition(std::vector<QVector3D> &paths, QVector3D scenePosition);
 
 public:
 

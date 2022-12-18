@@ -109,6 +109,7 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     CutterPath roughPath(CutterParameters(Length::FromMilimeters(16), CutterType::Spherical));
     roughPath.Points.insert(roughPath.Points.end(), roughLayer1.begin(), roughLayer1.end());
     roughPath.Points.insert(roughPath.Points.end(), roughLayer2.begin(), roughLayer2.end());
+    roughPath.Points = AddSafeStartEndPosition(roughPath.Points, {0.0f, 7.0f, 0.0f});
     GCodeSaver::SaveCutterPath(folderName, roughPath, 1);
 
     // 4.Generowanie obrobki zgrubnej dla plaskiej podstawki
@@ -127,8 +128,9 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     auto roughtFlat2 = GenerateFlatZigZag(confMapF12, startPoint22, limit22, F12_RADIUS - 0.05f, blockSize,
                                           texSize, Y, false);
     CutterPath flatPath(CutterParameters(Length::FromSceneUnits(F12_RADIUS * 2), CutterType::Cylindrical));
-    flatPath.Points.insert(flatPath.Points.end(), roughtFlat1.begin(), roughtFlat1.end());
+    flatPath.Points.insert(flatPath.Points.end(), roughtFlat1.begin() + 1, roughtFlat1.end());
     flatPath.Points.insert(flatPath.Points.end(), roughtFlat2.begin(), roughtFlat2.end());
+    flatPath.Points = AddSafeStartEndPosition(flatPath.Points, {0.0f, 5.0f, 0.0f});
     GCodeSaver::SaveCutterPath(folderName, flatPath, 2);
 
     //5. Generowanie obróbki dokładnej dla płaskiej podstawki
@@ -136,13 +138,16 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     auto offsetPoints = GenerateFlatPrecisionPath(blockWorldPos, blockSize);
 
     CutterPath flatPrecisionPath(CutterParameters(Length::FromSceneUnits(F10_RADIUS * 2), CutterType::Cylindrical));
+    flatPrecisionPath.Points.emplace_back(offsetPoints.front() + QVector3D(2.0f * F10_RADIUS, 0.0f, 0.0f));
     flatPrecisionPath.Points.insert(flatPrecisionPath.Points.end(), offsetPoints.begin(), offsetPoints.end());
+    flatPrecisionPath.Points = AddSafeStartEndPosition(flatPrecisionPath.Points, {0.0f, 2.5f, 0.0f});
     for (QVector3D &p: flatPrecisionPath.Points)
         p = FromSceneToBlock(p, blockWorldPos);
     GCodeSaver::SaveCutterPath(folderName, flatPrecisionPath, 3);
 
     //Etap 3 - obróbka dokładna
 
+#pragma region Generowanie przeciec
     std::shared_ptr<RoutingAware> Body, Ucho, Pokrywka, Dziubek;
     auto elements = GetComponents();
     Body = elements[0].lock();
@@ -227,7 +232,7 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     auto PokrywkaBodyCurve = isys->CreateIntersectionCurveBetween(PokrywkaOffsetK8.p_Intersection,
                                                                   BodyOffsetK8.p_Intersection, PokrywkaBodyStart);
 
-
+#pragma endregion
     //Ograniczenia do obrobki Dziubka
 #pragma region Precyzyjny dziubek
     PlaneDivision divDziubek(QVector4D(0, 0, DziubekOffsetK8.p_UV->U, DziubekOffsetK8.p_UV->V));
@@ -487,7 +492,7 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     ConnectSecurelyTwoPathsPrec(resPrec, swype2PrecPath, 2.0f);
 
     CutterPath precisionPath(CutterParameters(Length::FromSceneUnits(K8_RADIUS * 2), CutterType::Spherical));
-    precisionPath.Points = resPrec;
+    precisionPath.Points = AddSafeStartEndPosition(resPrec, {0.0f, 2.5f, 0.0f});;
     for (QVector3D &p: precisionPath.Points)
         p = FromSceneToBlock(p, blockWorldPos);
     GCodeSaver::SaveCutterPath(folderName, precisionPath, 4);
@@ -1038,7 +1043,7 @@ RoutingAwareSystem::GenerateFlatPrecisionPath(const QVector3D &blockWorldPos, co
     planeDiv.AddConstraintPolyline(precFlat8);//gora dziubek
     planeDiv.AddConstraintPolyline(precFlat9);//pokrywka dol lewa
 
-    planeDiv.DebugImages = true;
+    //planeDiv.DebugImages = true;
     planeDiv.CreateDivision();
     //planeDiv.DebugImages = false;
     auto offsetRing = planeDiv.JoinConstraintPolylinesTogetherInCycle();
@@ -1114,6 +1119,19 @@ RoutingAwareSystem::ConnectSecurelyTwoPathsPrec(std::vector<QVector3D> &target, 
         target.emplace_back(QVector3D(addition.front().x(), sceneHeight, addition.front().z()));
     }
     target.insert(target.end(), addition.begin(), addition.end());
+}
+
+std::vector<QVector3D> RoutingAwareSystem::AddSafeStartEndPosition(std::vector<QVector3D> &paths, QVector3D scenePosition)
+{
+    std::vector<QVector3D> res(paths.size() + 4);
+    QVector3D startMid(paths.front().x(), scenePosition.y(), paths.front().z());
+    QVector3D endMid(paths.back().x(), scenePosition.y(), paths.back().z());
+    res[0] = scenePosition;
+    res[1] = startMid;
+    std::copy(paths.begin(), paths.end(), res.begin() + 2);
+    res[res.size() - 2] = endMid;
+    res[res.size() - 1] = scenePosition;
+    return res;
 }
 
 
