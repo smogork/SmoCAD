@@ -333,14 +333,35 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     //divBody.DebugImages = true;
     divBody.CreateDivision();
 
-    int bodySkipFront = 8;
+    int bodySkipFront = 5;
     std::vector<int> bodyLinesToVisit(divBody.GetConstraintCount() - bodySkipFront);
     std::iota(std::begin(bodyLinesToVisit), std::end(bodyLinesToVisit), bodySkipFront);
 
     //divBody.DebugImages = true;
     auto bodyParameterPath1 = divBody.JoinConstraintPolylinesZigzag(bodyLinesToVisit, {0, 1, 2, 3, 4}, true, true,
                                                                     divBody.GetConstraintCount() - secondCount, 20);
+
+    std::vector<int> bodyLinesToVisit2(10);
+    std::iota(std::begin(bodyLinesToVisit2), std::end(bodyLinesToVisit2), divBody.GetConstraintCount() - secondCount);
+    //divBody.DebugImages = true;
+    auto bodyParameterPath2 = divBody.JoinConstraintPolylinesZigzag(bodyLinesToVisit2, {0, 1, 2, 3, 4}, true, true,
+                                                                    divBody.GetConstraintCount() - secondCount, 36);
+
+    AddLinesAsConstrains(QVector2D(BodyOffsetK8.p_UV->U, 2.8f), BodyDv, BodyDu,
+                         2.8f + BodyDv / 2.0f,
+                         QVector2D(0.0f, BodyOffsetK8.p_UV->U), Y, divBody);
+    //divBody.DebugImages = true;
+    divBody.CreateDivision();
+
+    std::vector<int> bodyLinesToVisit3(7);
+    std::iota(std::begin(bodyLinesToVisit3), std::end(bodyLinesToVisit3), 5);
+    auto bodyParameterPath3 = divBody.JoinConstraintPolylinesZigzag(bodyLinesToVisit3,
+                                                                    {0, 1, 2, 3, 4, divBody.GetConstraintCount() - 1},
+                                                                    true, true, 6, 44);
+
     std::vector<QVector3D> bodyPrecPath1 = FromParams(bodyParameterPath1, BodyOffsetK8.p_Intersection, K8_RADIUS);
+    std::vector<QVector3D> bodyPrecPath2 = FromParams(bodyParameterPath2, BodyOffsetK8.p_Intersection, K8_RADIUS);
+    std::vector<QVector3D> bodyPrecPath3 = FromParams(bodyParameterPath3, BodyOffsetK8.p_Intersection, K8_RADIUS);
 #pragma endregion
 
 #pragma region Precyzyjna pokrywka
@@ -368,7 +389,8 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     AddLinesAsConstrains(PokrywkaStartPoint1, PokrywkaDu, PokrywkaDv,
                          0.0f,
                          QVector2D(0.0f, PokrywkaOffsetK8.p_UV->V), X, divPokrywka);
-    QVector2D PokrywkaStartPoint2 = StolPokrywkaCurve1->p_IntersectionRes->GetSecondParameterPoints().front() + QVector2D(PokrywkaDu, 0.0f);
+    QVector2D PokrywkaStartPoint2 =
+            StolPokrywkaCurve1->p_IntersectionRes->GetSecondParameterPoints().front() + QVector2D(PokrywkaDu, 0.0f);
     int pokrywkaSecondCount = AddLinesAsConstrains(PokrywkaStartPoint2, PokrywkaDu, PokrywkaDv,
                                                    PokrywkaOffsetK8.p_UV->U,
                                                    QVector2D(0.0f, PokrywkaOffsetK8.p_UV->V), X, divPokrywka);
@@ -382,26 +404,32 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     std::vector<int> pokrywkaLinesToVisit(divPokrywka.GetConstraintCount() - pokrywkaSkipFront);
     std::iota(std::begin(pokrywkaLinesToVisit), std::end(pokrywkaLinesToVisit), pokrywkaSkipFront);
 
-    auto pokrywkaParameterPath1 = divPokrywka.JoinConstraintPolylinesZigzag(pokrywkaLinesToVisit, {0, 1, 2, 3, 4, 5}, true, true,
-                                                                    divPokrywka.GetConstraintCount() - pokrywkaSecondCount, 10);
+    auto pokrywkaParameterPath1 = divPokrywka.JoinConstraintPolylinesZigzag(pokrywkaLinesToVisit, {0, 1, 2, 3, 4, 5},
+                                                                            true, true,
+                                                                            divPokrywka.GetConstraintCount() -
+                                                                            pokrywkaSecondCount, 10);
     //divPokrywka.DebugImages = true;
-    auto pokrywkaParameterPath2 = divPokrywka.JoinConstraintPolylinesZigzag(pokrywkaLinesToVisit, {0, 1, 2, 3, 4, 5}, true, true,
-                                                                            divPokrywka.GetConstraintCount() - pokrywkaSecondCount, 45);
+    auto pokrywkaParameterPath2 = divPokrywka.JoinConstraintPolylinesZigzag(pokrywkaLinesToVisit, {0, 1, 2, 3, 4, 5},
+                                                                            true, true,
+                                                                            divPokrywka.GetConstraintCount() -
+                                                                            pokrywkaSecondCount, 45);
     auto pokrywkaPrecPath1 = FromParams(pokrywkaParameterPath1, PokrywkaOffsetK8.p_Intersection, K8_RADIUS);
     auto pokrywkaPrecPath2 = FromParams(pokrywkaParameterPath2, PokrywkaOffsetK8.p_Intersection, K8_RADIUS);
     std::vector<QVector3D> pokrywkaPrecPath3;
     const float v = 3.0f;
-    for (float u = PokrywkaStartPoint2.x() ; u < PokrywkaStartPoint1.x() + PokrywkaOffsetK8.p_UV->U; u += PokrywkaDu)
+    for (float u = PokrywkaStartPoint2.x(); u < PokrywkaStartPoint1.x() + PokrywkaOffsetK8.p_UV->U; u += PokrywkaDu)
     {
         //Policzenie normalki w szczegolnym przypadku
         QVector3D derU = PokrywkaOffsetK8.p_Intersection->SceneFunctionDerU({u, v}).normalized();
         QVector3D derV = {1.0f, 0.0f, 0.0f};
         QVector3D norm = QVector3D::crossProduct(derU, derV).normalized();
-        pokrywkaPrecPath3.emplace_back(Pokrywka->p_Intersection->SceneFunction({u, v}) + (K8_RADIUS + 0.01f) * norm - QVector3D(0.0f, K8_RADIUS, 0.0f));
+        pokrywkaPrecPath3.emplace_back(Pokrywka->p_Intersection->SceneFunction({u, v}) + (K8_RADIUS + 0.01f) * norm -
+                                       QVector3D(0.0f, K8_RADIUS, 0.0f));
     }
 #pragma endregion
 
-    //Ograniczenia do obrobki Pkrywki
+#pragma region Precyzyjna dziura
+    //Ograniczenia do obrobki Dziury
     PlaneDivision divDziura(QVector4D(0, 0, StolOffsetK8.p_UV->U, StolOffsetK8.p_UV->V));
 
     divDziura.AddConstraintPolyline(StolBodyCurve->p_IntersectionRes->GetFirstParameterPoints());
@@ -415,7 +443,7 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     const float uEnd = StolUchoCurve2->p_IntersectionRes->GetFirstParameterPoints().back().x();
 
     AddLinesAsConstrains(QVector2D(uStart, vStart), dziuraDv, dziuraDu,
-                            vEnd,
+                         vEnd,
                          QVector2D(uStart, uEnd), Y, divDziura);
 
     //divDziura.DebugImages = true;
@@ -424,19 +452,21 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     std::vector<int> dziuraLimit(12);
     std::iota(dziuraLimit.begin(), dziuraLimit.end(), 2);
     auto dziuraParameterPath = divDziura.JoinConstraintPolylinesZigzag(dziuraLimit, {0, 1}, true, true,
-                                                   2, 18);
+                                                                       2, 18);
     auto dziuraPrecPath = FromParams(dziuraParameterPath, StolOffsetK8.p_Intersection, K8_RADIUS);
+#pragma endregion
 
     //Polaczenie wszystkich sciezek razem
     std::vector<QVector3D> resPrec;
-    ConnectSecurelyTwoPathsPrec(resPrec, dziubekPrecPath, 1.5f);
-    ConnectSecurelyTwoPathsPrec(resPrec, bodyPrecPath1, 1.5f);
+    ConnectSecurelyTwoPathsPrec(resPrec, dziubekPrecPath, 0.0f);
+    ConnectSecurelyTwoPathsPrec(resPrec, bodyPrecPath1, 1.1f);
+    ConnectSecurelyTwoPathsPrec(resPrec, uchoPrecPath, 1.0f);
     ConnectSecurelyTwoPathsPrec(resPrec, dziuraPrecPath, 1.0f);
-    ConnectSecurelyTwoPathsPrec(resPrec, uchoPrecPath, 1.5f);
+    ConnectSecurelyTwoPathsPrec(resPrec, bodyPrecPath3, 1.0f);
+    ConnectSecurelyTwoPathsPrec(resPrec, bodyPrecPath2, 2.0f);
     ConnectSecurelyTwoPathsPrec(resPrec, pokrywkaPrecPath3, 2.0f);
     ConnectSecurelyTwoPathsPrec(resPrec, pokrywkaPrecPath1, 2.0f);
     ConnectSecurelyTwoPathsPrec(resPrec, pokrywkaPrecPath2, 2.0f);
-
 
     CutterPath precisionPath(CutterParameters(Length::FromSceneUnits(K8_RADIUS * 2), CutterType::Spherical));
     precisionPath.Points = resPrec;
@@ -986,8 +1016,9 @@ RoutingAwareSystem::FromParams(const std::vector<QVector2D> &params, std::shared
     return res;
 }
 
-void RoutingAwareSystem::ConnectSecurelyTwoPathsPrec(std::vector<QVector3D> &target, const std::vector<QVector3D> &addition,
-                                                                       float sceneHeight)
+void
+RoutingAwareSystem::ConnectSecurelyTwoPathsPrec(std::vector<QVector3D> &target, const std::vector<QVector3D> &addition,
+                                                float sceneHeight)
 {
     if (!target.empty())
     {
