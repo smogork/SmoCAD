@@ -117,7 +117,7 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
             blockSize.x() / 2,
             blockSize.z() - BottomDepth,
             -blockSize.y() / 2 - 1.2f * F12_RADIUS};
-    float limit21 = blockSize.y() / 2;
+    float limit21 = blockSize.y() / 2 + F12_RADIUS;
     QVector3D startPoint22 = {
             -blockSize.x() / 2,
             blockSize.z() - BottomDepth,
@@ -330,6 +330,8 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     auto swype2Params = divBody.JoinConstraintPolylinesTogetherInCycle(true, false, 1);
     auto swype2PrecPath = FromParams(swype2Params, BodyOffsetK8.p_Intersection, K8_RADIUS);
 
+
+
     float BodyDu = 0.05f;
     float BodyDv = 0.1f;
     QVector2D BodyStartPoint1 =
@@ -492,9 +494,16 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     ConnectSecurelyTwoPathsPrec(resPrec, swype2PrecPath, 2.0f);
 
     CutterPath precisionPath(CutterParameters(Length::FromSceneUnits(K8_RADIUS * 2), CutterType::Spherical));
-    precisionPath.Points = AddSafeStartEndPosition(resPrec, {0.0f, 2.5f, 0.0f});;
+    precisionPath.Points = AddSafeStartEndPosition(resPrec, {0.0f, 2.5f, 0.0f});
+
+    const float tol = 0.01f;
     for (QVector3D &p: precisionPath.Points)
+    {
+        //Podniesienie o pol milimetra jesli schodzimy blisko podstawki
+        if (p.y() < tol)
+            p.setY(tol);
         p = FromSceneToBlock(p, blockWorldPos);
+    }
     GCodeSaver::SaveCutterPath(folderName, precisionPath, 4);
 
 

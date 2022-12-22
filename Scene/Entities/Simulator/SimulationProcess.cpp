@@ -53,6 +53,8 @@ void SimulationProcess::run()
 {
     QElapsedTimer timer;
     timer.start();
+    float pathLength = 0;
+    float totalLength = m_cutterPath->GetLengthOfPath().GetSceneUnits();
     
     for (; pathNumber < m_cutterPath->Points.size() - 1; ++pathNumber )
     {
@@ -71,6 +73,7 @@ void SimulationProcess::run()
         {
             m_heightMap->CutterMove(startPointTex, endPointTex, startPoint.y(), finishPoint.y(),
                                     m_blockParams.Height.GetSceneUnits());
+            pathLength += (finishPoint - startPoint).length();
         }
         catch (MillingException &e)
         {
@@ -86,8 +89,9 @@ void SimulationProcess::run()
         {
             if (!skip)
                 emit SimulationResultReady(finishPoint);
-            
-            emit SimulationProgress((float)pathNumber / m_cutterPath->Points.size() * 100);
+
+
+            emit SimulationProgress(pathLength / totalLength * 100);
             timer.restart();
         }
     }
