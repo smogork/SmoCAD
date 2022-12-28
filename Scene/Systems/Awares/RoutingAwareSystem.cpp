@@ -138,7 +138,7 @@ RoutingAwareSystem::GenerateRoutes3C(GLWidget *gl, const QString &folderName, QV
     auto offsetPoints = GenerateFlatPrecisionPath(blockWorldPos, blockSize);
 
     CutterPath flatPrecisionPath(CutterParameters(Length::FromSceneUnits(F10_RADIUS * 2), CutterType::Cylindrical));
-    flatPrecisionPath.Points.emplace_back(offsetPoints.front() + QVector3D(2.0f * F10_RADIUS, 0.0f, 0.0f));
+    flatPrecisionPath.Points.emplace_back(QVector3D(blockSize.x() / 2.0f, 0.0f, offsetPoints.front().z()) + QVector3D(2.0f * F10_RADIUS, 0.0f, 0.0f));
     flatPrecisionPath.Points.insert(flatPrecisionPath.Points.end(), offsetPoints.begin(), offsetPoints.end());
     flatPrecisionPath.Points = AddSafeStartEndPosition(flatPrecisionPath.Points, {0.0f, 2.5f, 0.0f});
     for (QVector3D &p: flatPrecisionPath.Points)
