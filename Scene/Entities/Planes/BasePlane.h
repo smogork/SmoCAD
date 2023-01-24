@@ -45,6 +45,7 @@ public:
     ~BasePlane() override;
 
     int GetPatchCount();
+    void RemovePointsInside();
 };
 
 #endif //SMOCAD_BASEPLANE_H

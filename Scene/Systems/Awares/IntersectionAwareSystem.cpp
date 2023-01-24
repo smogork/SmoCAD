@@ -291,3 +291,38 @@ std::unique_ptr<ComponentControl> IntersectionAwareSystem::PrepareUIForObject(un
             return std::move(std::make_unique<IntersectionAwareControl>(inter));
     return nullptr;
 }
+
+std::shared_ptr<IntersectionCurve>
+IntersectionAwareSystem::CreateIntersectionCurveBetween(std::shared_ptr<IntersectionAware> one,
+                                                        std::shared_ptr<IntersectionAware> two, QVector3D startPoint, float sceneDist)
+{
+    const int SampleCount = 100;
+    const float SceneDistance = sceneDist;
+
+    QVector4D P0 = FindFirstPointOfIntersection(one, two, SampleCount, startPoint, true);
+
+    if (std::isnan(P0.x()))
+        throw std::runtime_error("Routing intersections failed");
+
+    bool edgeEndP, edgeEndN;
+    std::list<QVector4D> negative_points;
+    std::list<QVector4D> positive_points = FindFurtherPointsOfIntersection(P0, SceneDistance,
+                                                                           true, edgeEndP, one, two);
+    if (edgeEndP)//puszczamy w druga strone tylko jesli nie trafilismy na cykl
+        negative_points = FindFurtherPointsOfIntersection(P0, SceneDistance, false,
+                                                          edgeEndN, one, two);
+
+    qDebug() << "Found P0:" << P0 << ", positives:" << positive_points.size() << ", negatives:" << negative_points.size();
+    qDebug() << "edgeEndP:" << edgeEndP << ", edgeEndN:" << edgeEndN;
+
+    std::vector<QVector4D> intersectionArgs;
+    intersectionArgs.reserve(positive_points.size() + negative_points.size() + 1);
+
+    for (auto it = positive_points.rbegin(); it != positive_points.rend(); ++it)
+        intersectionArgs.push_back(*it);
+    intersectionArgs.push_back(P0);
+    for (const auto& arg : negative_points)
+        intersectionArgs.push_back(arg);
+
+    return std::make_shared<IntersectionCurve>("RoutingIntersectionCurve", intersectionArgs, one, two, !edgeEndP && !edgeEndN);
+}

@@ -9,6 +9,8 @@
 #include "Scene/Systems/Awares/CollectionAwareSystem.h"
 #include "Mathematics/Polynomials.h"
 
+#include <QOpenGLContext>
+
 void PlaneC2::OnSinglePointModified(QVector3D pos, unsigned int changedOID)
 {
     p_Drawing->SetVertexData(GenerateGeometryVertices());
@@ -193,6 +195,7 @@ void PlaneC2::InitObject(const QString &name, bool isPipe, int countU, int count
     AddComponent(p_Selected = Selectable::CreateRegisteredComponent(GetObjectID()));
     AddComponent(p_SceneElement = SceneElement::CreateRegisteredComponent(GetObjectID(), name, p_Selected));
     AddComponent(p_Intersection = IntersectionAware::CreateRegisteredComponent(GetObjectID(), p_UV));
+    AddComponent(p_Routing = RoutingAware::CreateRegisteredComponent(GetObjectID(), p_UV, p_Drawing, p_Intersection));
     InitializeUV(isPipe);
     p_Drawing->p_renderingFunction = ASSIGN_DRAWING_FUNCTION(&PlaneC2::DrawingFunction);
     p_Drawing->p_uniformFunction = ASSIGN_UNIFORM_FUNCTION(&PlaneC2::UniformFunction);
@@ -369,12 +372,22 @@ std::vector<QVector3D> PlaneC2::FromBSplineToBernstein(const std::vector<QVector
 
 void PlaneC2::DrawingFunction(QOpenGLContext *context)
 {
-    BasePlane::DrawingFunction(context);
+    //BasePlane::DrawingFunction(context);
+    if (p_Routing->IsHeightmapRendering())
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL );
+    else
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE );//rysowanie wireframow trojkatow wygenerowanych w shaderze teselacji
+    Renderer::DrawPatches(context->functions(), GetIndexCount());
 }
 
 void PlaneC2::UniformFunction(std::shared_ptr<ShaderWrapper> shader)
 {
     BasePlane::UniformFunction(shader);
     p_Intersection->SetTrimmingUniforms(shader);
+    if (p_Routing->IsHeightmapRendering())
+    {
+        shader->SetUniform("u_UDensity", 64);
+        shader->SetUniform("u_VDensity", 64);
+    }
 }
 

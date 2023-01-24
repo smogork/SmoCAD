@@ -17,6 +17,7 @@
 #include "BasePlane.h"
 #include "Scene/Components/Awares/FillAware.h"
 #include "Scene/Components/Awares/IntersectionAware.h"
+#include "Scene/Components/Awares/RoutingAware.h"
 
 class PlaneC0 : public BasePlane
 {
@@ -49,6 +50,7 @@ public:
     std::shared_ptr<SceneElement> p_SceneElement;
     std::shared_ptr<FillAware> p_FillAware;
     std::shared_ptr<IntersectionAware> p_Intersection;
+    std::shared_ptr<RoutingAware> p_Routing;
 
     PlaneC0(const QString &name, bool isPipe, int countU, int countV);
     explicit PlaneC0(const MG1::BezierSurfaceC0 &p0);

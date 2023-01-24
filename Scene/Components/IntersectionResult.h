@@ -39,6 +39,8 @@ public:
     ~IntersectionResult() override;
 
     std::vector<QVector3D> GetScenePoints();
+    std::vector<QVector2D> GetFirstParameterPoints();
+    std::vector<QVector2D> GetSecondParameterPoints();
     int GetScenePointsSize();
 
     std::tuple<QImage, QImage> GetTrimmingTextures();

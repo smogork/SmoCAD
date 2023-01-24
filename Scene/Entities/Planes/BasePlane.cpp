@@ -5,6 +5,7 @@
 #include "BasePlane.h"
 #include "Renderer/Options.h"
 #include "Scene/Utilities/Utilites.h"
+#include "Scene/SceneECS.h"
 
 BasePlane::BasePlane(uint cid, bool isPipe, int countU, int countV) : IEntity(cid)
 {
@@ -78,4 +79,19 @@ void BasePlane::InitObject(bool isPipe, int countU, int countV)
                                                   this->m_mesh.DrawingColor = MeshColor;
                                               });
     m_mesh.p_Drawing->Enabled = Options::DrawPlainMesh;
+}
+
+void BasePlane::RemovePointsInside()
+{
+    if (auto scene = SceneECS::Instance().lock())
+    {
+        auto points = p_Collection->GetPoints();
+        p_Collection->Clear();
+        for (const auto& wp : points)
+        {
+            if (auto p = wp.lock())
+                scene->RemoveObject(p->GetAttachedObjectID());
+        }
+    }
+
 }
