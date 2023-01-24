@@ -16,6 +16,7 @@ TEST_F(GeomteryRelationsTests, SegmentRect_OuterBoth_Miss)
     EXPECT_EQ(res, false);
 }
 
+
 TEST_F(GeomteryRelationsTests, SegmentRect_OuterBoth_Hit)
 {
     QRect rect(QPoint(1, 2), QPoint(5, 4));
