@@ -17,10 +17,12 @@ private:
     QString fsFilepath;
     QString tessFilepath;
     QString evalFilepath;
+    QString csFilepath;
 
     void Create();
 
 public:
+    explicit ShaderWrapper(const QString& csFilepath);
     ShaderWrapper(const QString& vsFilepath, const QString& fsFilename);
     ShaderWrapper(const QString& vsFilepath, const QString& fsFilename,
                   const QString& tessFilepath, const QString& evalFilename);

@@ -7,7 +7,7 @@
 
 #include "IComponent.h"
 #include "Scene/Entities/Simulator/CutterObject.h"
-#include "Scene/Entities/Simulator/CutterPath.h"
+#include "FileManagers/CutterPath.h"
 #include "Scene/Entities/Simulator/BlockUpperWall.h"
 #include "Scene/Entities/Simulator/BlockLowerWall.h"
 #include "Scene/Entities/Simulator/BlockSideWall.h"

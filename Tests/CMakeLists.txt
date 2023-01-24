@@ -7,6 +7,7 @@ find_package(GTest REQUIRED)
 
 include_directories(${CMAKE_SOURCE_DIR}/)
 
+
 list(TRANSFORM MATH_FILES PREPEND ${CMAKE_SOURCE_DIR}/)
 
 set(TEST_FILES
@@ -18,11 +19,12 @@ set(TEST_FILES
         NewtonRaphsonTests.cpp NewtonRaphsonTests.h
         Units/BaseUnitTests.cpp Units/BaseUnitTests.h
         Units/DistanceTests.cpp Units/DistanceTests.h
-    )
+        GeomteryRelationsTests.cpp GeomteryRelationsTests.h)
 
-add_executable(SmoCAD_Tests ${TEST_FILES} ${MATH_FILES})
+add_executable(SmoCAD_Tests ${TEST_FILES} ${MATH_FILES} ../Scene/Utilities/Utilites.h ../Scene/Utilities/Utilites.cpp)
 
+target_include_directories(SmoCAD_Tests PRIVATE ${PROJECT_BINARY_DIR}/ThirdParty/Scene-Serializer/cpp/Serializer/include/Serializer)
 target_link_libraries(SmoCAD_Tests PRIVATE GTest::gtest GTest::gtest_main)
 target_link_libraries(SmoCAD_Tests PRIVATE Qt${QT_VERSION_MAJOR}::Core)
 target_link_libraries(SmoCAD_Tests PRIVATE Qt${QT_VERSION_MAJOR}::Gui)
-#target_link_libraries(SmoCAD_Tests PRIVATE lapack blas)
+target_link_directories(SmoCAD_Tests PRIVATE ${PROJECT_BINARY_DIR}/ThirdParty/Scene-Serializer/cpp/Serializer/)

@@ -5,7 +5,7 @@ layout (location = 1) in vec2 aTex;
 out vec2 TexCoord;
 
 struct MVP
-    {
+{
     mat4 Model;
     mat4 View;
     mat4 Projection;

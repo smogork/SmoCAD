@@ -25,3 +25,13 @@ Unit operator-(const Unit &one, const Unit &two)
     return Unit(one.value - two.value);
 }
 
+Unit& Unit::operator=(const Unit &other)
+{
+    // Guard self assignment
+    if (this == &other)
+        return *this;
+
+    this->value = other.value;
+    return *this;
+}
+

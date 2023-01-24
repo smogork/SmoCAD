@@ -17,3 +17,16 @@ CutterPath &CutterPath::operator=(CutterPath &&right) noexcept
     return *this;
 }
 
+Length CutterPath::GetLengthOfPath() const
+{
+    Length res;
+
+    for (int i = 1; i < Points.size(); ++i)
+    {
+        Length singleLen = Length::FromSceneUnits((Points[i] - Points[i - 1]).length());
+        res = res + singleLen;
+    }
+
+    return res;
+}
+

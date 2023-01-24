@@ -22,6 +22,7 @@ public:
     static Length FromCentimeters(double cm);
     static Length FromMilimeters(double mm);
     static Length FromMeters(double m);
+    static Length FromSceneUnits(double m);
 
     double GetMilimeters() const;
     double GetCentimeters() const;
@@ -31,6 +32,10 @@ public:
     void SetMilimeters(double mm);
     void SetCentimeters(double cm);
     void SetMeters(double m);
+
+    friend Length operator+ (const Length& one, const Length& two);
+    friend Length operator- (const Length& one, const Length& two);
+    Length& operator=(const Length& other);
 };
 
 #endif //SMOCAD_LENGTH_H

@@ -17,6 +17,7 @@ public:
     
     friend Unit operator+ (const Unit& one, const Unit& two);
     friend Unit operator- (const Unit& one, const Unit& two);
+    Unit& operator=(const Unit& other);
 };
 
 #endif //SMOCAD_UNIT_H

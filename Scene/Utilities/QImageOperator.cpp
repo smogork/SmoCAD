@@ -796,8 +796,7 @@ void QImageOperator::ApplyStamp(int cx, int cy, float cutterSimHeight, float blo
         y0 = 0;
     if (y1 >= bitmapY)
         y1 = bitmapY;
-    
-    //TODO: poprawic stepel poprzez lepsze wyliczanie zakresow petli
+
     for (int y = y0; y < y1; ++y)
     {
         int y_stamp = y - cy - offsetY;

@@ -4,6 +4,7 @@
 
 #include "DrawingSystem.h"
 #include "Renderer/Options.h"
+#include <QOpenGLExtraFunctions>
 
 void DrawingSystem::Render(QOpenGLContext* context)
 {

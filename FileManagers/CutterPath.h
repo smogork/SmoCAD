@@ -7,7 +7,7 @@
 
 #include <vector>
 #include <QVector3D>
-#include "CutterParameters.h"
+#include "Scene/Entities/Simulator/CutterParameters.h"
 
 class CutterPath
 {
@@ -21,6 +21,8 @@ public:
     
     CutterPath& operator=(const CutterPath& right) = delete;
     CutterPath& operator=(CutterPath&& right) noexcept;
+
+    Length GetLengthOfPath() const;
 };
 
 #endif //SMOCAD_CUTTERPATH_H

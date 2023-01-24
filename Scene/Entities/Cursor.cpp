@@ -10,10 +10,13 @@ std::vector<int> Cursor::indices = GenerateTopologyIndices();
 std::vector<float> Cursor::GenerateGeometryVertices()
 {
     return {
-            0.0f, 0.0f, 0.0f, 0.5f, 0.5f, 0.5f,
-            1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-            0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
-            0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+            0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,//0
+            0.2f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+            1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,//2
+            0.0f, 0.2f, 0.0f, 0.0f, 1.0f, 0.0f,
+            0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,//4
+            0.0f, 0.0f, 0.2f, 0.0f, 0.0f, 1.0f,
+            0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,//6
     };
 }
 
@@ -21,8 +24,11 @@ std::vector<int> Cursor::GenerateTopologyIndices()
 {
     return {
             0, 1,
-            0, 2,
             0, 3,
+            0, 5,
+            1, 2,
+            3, 4,
+            5, 6,
     };
 }
 

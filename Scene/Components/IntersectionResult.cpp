@@ -80,7 +80,7 @@ QImage IntersectionResult::GetSelfTrimmingTexture()
     const int size = 512;
     QImage res({size, size}, QImage::Format_RGB32);
     res.fill(c_free);//zapelnienie kolorem bialym
-    res.save("clear.png");
+    //res.save("clear.png");
 
     std::vector<QVector2D> args(m_paramPoints.size());
     auto one = m_planeOne.lock();
@@ -95,7 +95,7 @@ QImage IntersectionResult::GetSelfTrimmingTexture()
     for (int i = 0; i < m_paramPoints.size(); ++i)
         args[i] = {m_paramPoints[i].z(), m_paramPoints[i].w()};
     DrawParametersPolylineOnTexture(c_curve, res, two, args);
-    res.save("before_flood.png");
+    //res.save("before_flood.png");
 
     //zapusc algorytm FloodFill (4spojny) dla pierwszego bialego pixela
     for (int i = 0; i < size * size; ++i)
@@ -110,7 +110,7 @@ QImage IntersectionResult::GetSelfTrimmingTexture()
         }
     }
 
-    res.save("after_flood.png");
+    //res.save("after_flood.png");
     return res;
 }
 
@@ -119,11 +119,11 @@ QImage IntersectionResult::GetTrimmingTexture(const std::vector<QVector2D> &poin
     const int size = 512;
     QImage res({size, size}, QImage::Format_RGB32);
     res.fill(c_free);//zapelnienie kolorem bialym
-    res.save("clear.png");
+    //res.save("clear.png");
 
     DrawParametersPolylineOnTexture(c_curve, res, plane, points);//zielona krzywa
 
-    res.save("before_flood.png");
+    //res.save("before_flood.png");
     //zapusc algorytm FloodFill (4spojny) dla pierwszego bialego pixela
     for (int i = 0; i < size * size; ++i)
     {
@@ -136,7 +136,7 @@ QImage IntersectionResult::GetTrimmingTexture(const std::vector<QVector2D> &poin
             break;
         }
     }
-    res.save("after_flood.png");
+    //res.save("after_flood.png");
 
     return res;
 }
@@ -177,10 +177,24 @@ std::vector<QVector3D> IntersectionResult::GetScenePoints()
 {
     std::vector<QVector3D> res(m_paramPoints.size());
 
-    if (auto one = m_planeOne.lock())
+    auto two = m_planeTwo.lock();
+    auto one = m_planeOne.lock();
+    if (one != nullptr && two != nullptr)
     {
         for (int i = 0; i < m_paramPoints.size(); ++i)
-            res[i] = one->SceneFunction(m_paramPoints[i].toVector2D());
+        {
+            auto val1 = one->SceneFunction({m_paramPoints[i].x(), m_paramPoints[i].y()});
+            auto val2 = two->SceneFunction({m_paramPoints[i].z(), m_paramPoints[i].w()});
+            if (val1.distanceToPoint(val2) > 1e-3 && i > 0)
+            {
+                if (val1.distanceToPoint(res[i - 1]) < val2.distanceToPoint(res[i - 1]))
+                    res[i] = val1;
+                else
+                    res[i] = val2;
+            }
+            else
+                res[i] = val1;
+        }
     }
     return res;
 }
@@ -282,4 +296,24 @@ std::tuple<QImage, QImage> IntersectionResult::GetTrimmingTextures()
     QImage twoTex = GetTrimmingTextureTwo();
 
     return {oneTex, twoTex};
+}
+
+std::vector<QVector2D> IntersectionResult::GetFirstParameterPoints()
+{
+    std::vector<QVector2D> res(m_paramPoints.size());
+
+    for (int i = 0; i < m_paramPoints.size(); ++i)
+        res[i] = QVector2D(m_paramPoints[i].x(), m_paramPoints[i].y());
+
+    return res;
+}
+
+std::vector<QVector2D> IntersectionResult::GetSecondParameterPoints()
+{
+    std::vector<QVector2D> res(m_paramPoints.size());
+
+    for (int i = 0; i < m_paramPoints.size(); ++i)
+        res[i] = QVector2D(m_paramPoints[i].z(), m_paramPoints[i].w());
+
+    return res;
 }

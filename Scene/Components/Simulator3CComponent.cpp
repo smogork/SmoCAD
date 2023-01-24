@@ -6,7 +6,7 @@
 #include "Scene/SceneECS.h"
 #include "Scene/Systems/Simulator3CSystem.h"
 #include "Scene/Entities/Simulator/CutterPathPolyline.h"
-#include "Loaders/GCodeLoader.h"
+#include "FileManagers/GCodeLoader.h"
 #include "Scene/Entities/Simulator/SimulationProcess.h"
 #include "Controls/EntityContextMenu.h"
 
@@ -325,8 +325,8 @@ void Simulator3CComponent::HidePathsOnScene(bool hide)
 
 std::tuple<Length, Length> Simulator3CComponent::GetToolSubmersions()
 {
-    return {Length::FromCentimeters(m_heightMap->MaximumToolSubmersion),
-            Length::FromCentimeters(m_heightMap->MaximalGlobalSubmerison)};
+    return {Length::FromSceneUnits(m_heightMap->MaximumToolSubmersion),
+            Length::FromSceneUnits(m_heightMap->MaximalGlobalSubmerison)};
 }
 
 bool Simulator3CComponent::GetPathsHide()
