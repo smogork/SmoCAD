@@ -1,0 +1,3 @@
+[submodule "ThirdParty/Scene-Serializer"]
+	path = ThirdParty/Scene-Serializer
+	url = git@github.com:MG1-2022/Scene-Serializer.git
